@@ -142,4 +142,3 @@ Perform these actions before releasing a new starknet.py version
     git merge development
 
 5. Make a new release on GitHub
-6. Run release action from ``master`` branch

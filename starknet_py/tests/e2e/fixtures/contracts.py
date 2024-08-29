@@ -186,7 +186,7 @@ async def declare_cairo1_account(
 async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
-    contract = load_contract(contract_name="Account")
+    contract = load_contract("Account")
     casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
 
     return await declare_account(

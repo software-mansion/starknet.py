@@ -29,7 +29,7 @@ async def prepare_net_for_tests(
     deploy_account_details: AccountToBeDeployedDetails,
     transaction_hash: int,
     contract: Contract,
-    decalre_class_hash: int,
+    declare_class_hash: int,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
 
@@ -70,7 +70,7 @@ async def prepare_net_for_tests(
     assert block_with_deploy_account_hash is not None
 
     return PreparedNetworkData(
-        class_hash=decalre_class_hash,
+        class_hash=declare_class_hash,
         contract_address=contract.address,
         invoke_transaction_hash=invoke_res.hash,
         block_with_invoke_number=block_with_invoke_number,

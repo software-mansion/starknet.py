@@ -46,7 +46,12 @@ pub mod SimpleStorageWithEvent {
         fn another_put(ref self: ContractState, key: felt252, value: felt252) {
             let mut prev_value = self.map.read(key);
             self.map.write(key, value);
-            self.emit(AnotherPutCalled { key: key, prev_value: prev_value, value: value, additional_value: value });
+            self
+                .emit(
+                    AnotherPutCalled {
+                        key: key, prev_value: prev_value, value: value, additional_value: value
+                    }
+                );
         }
     }
 }

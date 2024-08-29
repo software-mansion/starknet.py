@@ -51,16 +51,14 @@ def test_abi_parsing():
 
     # You can use deserialized result from function serializer like a tuple
     result = function_serializer.deserialize([1])
-    assert 1 == result[0]
     (success,) = result
-    assert 1 == success
+    assert success == 1
     # docs-serializer: end
 
     raw_abi_string = json.loads(
         load_contract(contract_name="ERC20", version=ContractVersion.V2)["sierra"]
     )["abi"]
     abi = AbiParser(raw_abi_string).parse()
-    # docs-serializer: start
 
     # docs-event: start
     from starknet_py.serialization import serializer_for_event
