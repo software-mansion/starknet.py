@@ -93,6 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo ${{ matrix.python-version }}
           poetry install
 
       # ====================== CONTRACTS v2 ====================== #
@@ -160,8 +161,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ github.event_name == 'pull_request' && ["3.10", "3.12"] || ["3.8", "3.9", "3.10", "3.11", "3.12"] }}
-    env:
+        include:
+          - python-versions: [3.10, 3.12]
+            event: pull_request
+          - python-versions: [3.8, 3.9, 3.10, 3.11, 3.12]
+            event: push
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
