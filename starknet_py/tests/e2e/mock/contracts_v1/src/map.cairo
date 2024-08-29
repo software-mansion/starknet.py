@@ -1,8 +1,7 @@
 #[contract]
 mod Map {
-
     struct Storage {
-        storage: LegacyMap::<felt252, felt252>,
+        storage: LegacyMap::<felt252, felt252>, 
     }
 
     #[external]
@@ -14,5 +13,4 @@ mod Map {
     fn get(key: felt252) -> felt252 {
         storage::read(key)
     }
-
 }
