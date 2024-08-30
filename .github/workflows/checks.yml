@@ -93,6 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo ${{ matrix.python-version }}
           poetry install
 
       # ====================== CONTRACTS v2 ====================== #
@@ -121,8 +122,29 @@ jobs:
         if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v1
+  
+      # ====================== CONTRACTS v0 ====================== #
 
-      - name: Upload contracts artifacts
+      - name: Cache contracts v0
+        id: cache-contracts
+        uses: actions/cache@v4
+        with:
+          path: starknet_py/tests/e2e/mock/contracts_compiled
+          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
+
+      - name: Install deprecated cairo compiler
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
+        run: |
+          pip install --upgrade setuptools
+          pip install sympy==1.11.1
+          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
+
+      - name: Compile contracts v0
+        if: steps.cache-contracts.outputs.cache-hit != 'true'
+        run: |
+          poetry run poe compile_contracts v0
+
+      - name: Upload contracts v0
         uses: actions/upload-artifact@v3
         with:
           name: contract-artifacts
@@ -144,7 +166,6 @@ jobs:
             event: pull_request
           - python-versions: [3.8, 3.9, 3.10, 3.11, 3.12]
             event: push
-    env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
@@ -320,7 +341,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ github.event_name == 'pull_request' && ["3.10", "3.12"] || ["3.8", "3.9", "3.10", "3.11", "3.12"] }}
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
@@ -402,7 +423,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ github.event_name == 'pull_request' && ["3.10", "3.12"] || ["3.8", "3.9", "3.10", "3.11", "3.12"] }}
     steps:
       - uses: actions/checkout@v4
 
@@ -466,7 +487,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: ${{ github.event_name == 'pull_request' && ["3.10", "3.12"] || ["3.8", "3.9", "3.10", "3.11", "3.12"] }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
