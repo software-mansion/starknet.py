@@ -15,3 +15,14 @@ updates:
         dependency-type: "production"
       dev-dependencies:
         dependency-type: "development"
+
+  # Configurations for Github Action
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of GitHub actions workflow
+    schedule:
+      interval: "weekly"
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: "ci" # Customize the prefix for clarity in version control
+      include: "scope"
+
