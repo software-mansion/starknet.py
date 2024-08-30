@@ -11,7 +11,6 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_COMPILED_V0_DIR,
     MAX_FEE,
     PRECOMPILED_CONTRACTS_DIR,
     STRK_FEE_CONTRACT_ADDRESS,
@@ -92,27 +91,6 @@ async def deploy_v1_contract(
     return Contract(address, abi, provider=account, cairo_version=1)
 
 
-@pytest_asyncio.fixture(scope="package")
-async def deployed_balance_contract(
-    account: BaseAccount,
-    balance_contract: str,
-) -> Contract:
-    """
-    Declares, deploys a new balance contract and returns its instance.
-    """
-    declare_result = await Contract.declare_v1(
-        account=account,
-        compiled_contract=balance_contract,
-        max_fee=int(1e16),
-    )
-    await declare_result.wait_for_acceptance()
-
-    deploy_result = await declare_result.deploy_v1(max_fee=int(1e16))
-    await deploy_result.wait_for_acceptance()
-
-    return deploy_result.deployed_contract
-
-
 @pytest.fixture(scope="package")
 def eth_fee_contract(account: BaseAccount, fee_contract_abi) -> Contract:
     """
@@ -165,13 +143,16 @@ def fee_contract_abi():
     ]
 
 
-async def declare_account(account: BaseAccount, compiled_account_contract: str) -> int:
+async def declare_account(
+    account: BaseAccount, compiled_contract: str, compiled_class_hash: int
+) -> int:
     """
     Declares a specified account.
     """
 
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=compiled_account_contract,
+    declare_tx = await account.sign_declare_v2(
+        compiled_contract,
+        compiled_class_hash,
         max_fee=MAX_FEE,
     )
     resp = await account.client.declare(transaction=declare_tx)
@@ -205,12 +186,11 @@ async def declare_cairo1_account(
 async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
-    compiled_contract = read_contract(
-        "account_with_validate_deploy_compiled.json",
-        directory=CONTRACTS_COMPILED_V0_DIR,
-    )
+    contract = load_contract("Account")
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
+
     return await declare_account(
-        pre_deployed_account_with_validate_deploy, compiled_contract
+        pre_deployed_account_with_validate_deploy, contract["sierra"], casm_class_hash
     )
 
 

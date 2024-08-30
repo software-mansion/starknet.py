@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     get_deploy_account_transaction,
@@ -26,25 +26,19 @@ class PreparedNetworkData:
 
 async def prepare_net_for_tests(
     account: Account,
-    compiled_contract: str,
     deploy_account_details: AccountToBeDeployedDetails,
+    transaction_hash: int,
+    contract: Contract,
+    declare_class_hash: int,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
-    declare_result = await Contract.declare_v1(
-        account=account, compiled_contract=compiled_contract, max_fee=MAX_FEE
-    )
-    await declare_result.wait_for_acceptance()
-    deploy_result = await declare_result.deploy_v1(max_fee=MAX_FEE)
-    await deploy_result.wait_for_acceptance()
 
-    declare_receipt = await account.client.get_transaction_receipt(declare_result.hash)
+    declare_receipt = await account.client.get_transaction_receipt(transaction_hash)
     block_with_declare_number = declare_receipt.block_number
     block_with_declare_hash = declare_receipt.block_hash
 
-    contract = deploy_result.deployed_contract
-
-    invoke_res = await contract.functions["increase_balance"].invoke_v1(
-        amount=1234, max_fee=int(1e20)
+    invoke_res = await contract.functions["increase_balance"].invoke_v3(
+        amount=1777, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
     await invoke_res.wait_for_acceptance()
 
@@ -76,11 +70,11 @@ async def prepare_net_for_tests(
     assert block_with_deploy_account_hash is not None
 
     return PreparedNetworkData(
-        class_hash=declare_result.class_hash,
+        class_hash=declare_class_hash,
         contract_address=contract.address,
         invoke_transaction_hash=invoke_res.hash,
         block_with_invoke_number=block_with_invoke_number,
-        declare_transaction_hash=declare_result.hash,
+        declare_transaction_hash=transaction_hash,
         block_with_declare_number=block_with_declare_number,
         block_with_declare_hash=block_with_declare_hash,
         deploy_account_transaction_hash=deploy_account_result.transaction_hash,
