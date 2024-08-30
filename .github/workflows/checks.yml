@@ -149,7 +149,7 @@ jobs:
             matrix='["3.8", "3.9", "3.10", "3.11", "3.12"]'
           fi
         
-          echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python-version: .})')}" >> $GITHUB_OUTPUT
+          echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python_version: .})')}" >> $GITHUB_OUTPUT
 
       - name: Output matrix for debugging
         run: |
@@ -188,10 +188,10 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python_version }}
           cache: 'poetry'
 
       - name: Install dependencies
