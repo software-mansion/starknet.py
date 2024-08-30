@@ -33,11 +33,14 @@ Installation varies between operating systems.
 
 ### Account setup
 
-To start interacting with Starknet you need to have an account. Using the starknet.py you can create a new account 
-or load an existing one. You can also create an account using [sncast](https://foundry-rs.github.io/starknet-foundry/starknet/index.html) 
-tool - it automatically saves the account in the file. 
+To begin using Starknet, you need an account. With starknet.py, you can either [set up a new account](https://starknetpy.readthedocs.io/en/latest/account_creation.html) 
+or access an existing one. 
+Additionally, you can use the [sncast](https://foundry-rs.github.io/starknet-foundry/starknet/index.html) tool to create an account, 
+which will automatically be saved to a file.
 
-You can read about account creation using starknet.py [here](https://starknetpy.readthedocs.io/en/latest/account_creation.html#account-creation)
+For more information on how to create an account with `starknet.py`, refer to this [guide](https://starknetpy.readthedocs.io/en/latest/account_creation.html#account-creation).
+
+
 ```python
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.account.account import Account
@@ -55,7 +58,8 @@ account = Account(
             chain=StarknetChainId.SEPOLIA
 )
 
-balance = account.get_balance_sync() # Account class automatically generates synchronous versions of methods. 
+# Call the "get_balance" function of the contract 
+balance = account.get_balance_sync()
 ```
 
 ### Calling contract
@@ -63,24 +67,32 @@ balance = account.get_balance_sync() # Account class automatically generates syn
 ```python
 from starknet_py.contract import Contract
 
+# Create a contract instance from the given address synchronously
 contract = Contract.from_address_sync(
     address="0x05dea4f027d68c5f16e339d17cc9be17ac4cd6c34433eb816e557ae858d2de78",
     provider=client,
 )
-resp = contract.functions["all"].call_sync()
+
+# Call the "all" function of the contract 
+response = contract.functions["all"].call_sync()
 ```
 ### Executing transactions
     
 ```python
 from starknet_py.net.client_models import Call
+from starknet_py.hash.selector import get_selector_from_name
 
+# Create a Call object to represent the contract method invocation
 call = Call(
     contract.address,
-    get_selector_from_name("like"),
+    get_selector_from_name("like"), # Selector for the "like" function (knowing abi is not required)
     [1225946354835439842674],
 )
 
+# Sign the transaction using the account's private key and prepare it for sending
 invoke_tx = account.sign_invoke_v3_sync(calls=call, auto_estimate=True)
+
+# Send the signed transaction to the network and get the response
 response = client.send_transaction_sync(invoke_tx)
 
 ```
