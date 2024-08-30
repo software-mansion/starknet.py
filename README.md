@@ -38,9 +38,6 @@ or access an existing one.
 Additionally, you can use the [sncast](https://foundry-rs.github.io/starknet-foundry/starknet/index.html) tool to create an account, 
 which will automatically be saved to a file.
 
-For more information on how to create an account with `starknet.py`, refer to this [guide](https://starknetpy.readthedocs.io/en/latest/account_creation.html#account-creation).
-
-
 ```python
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.account.account import Account
