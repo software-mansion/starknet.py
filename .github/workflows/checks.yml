@@ -151,13 +151,17 @@ jobs:
         
           echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python_version: .})')}" >> $GITHUB_OUTPUT
 
+      - name: Output matrix for debugging
+        run: |
+          echo "Matrix: ${{ steps.set-python-version.outputs.matrix }}"
+
   run-tests:
     name: Tests
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.matrix_prep.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.prepare-python-version-tests-matrix.outputs.matrix) }}
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
