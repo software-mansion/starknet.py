@@ -128,21 +128,28 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-  set-python-version:
-    name: Set Python version
-    runs-on: ubuntu-latest
-    outputs:
-      python-versions: ${{ steps.set-matrix.outputs.python-versions }}
-    steps:
-      - name: Call python version setup workflow
-        id: set-matrix
-        uses: ./.github/workflows/python-version-matrix-setup.yml
-        with:
-          event_type: ${{ github.event_name }}
-
   # ---------------------------------------------------------- #
   # ........................RUN-TESTS......................... #
   # ---------------------------------------------------------- #
+
+  prepare-python-version-tests-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-python-version.outputs.matrix }}
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - id: set-python-version
+        run: |
+          eventName=${{ github.event_name }}
+        
+          if [[ "$eventName" == "pull_request" ]]; then
+            matrix='["3.10", "3.12"]'
+          else
+            matrix='["3.8", "3.9", "3.10", "3.11", "3.12"]'
+          fi
+        
+          echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python_version: .})')}" >> $GITHUB_OUTPUT
 
   run-tests:
     name: Tests
@@ -150,8 +157,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ${{ fromJson(needs.set-python-version.outputs.python-versions) }}
+      matrix: ${{ fromJson(needs.matrix_prep.outputs.matrix) }}
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
