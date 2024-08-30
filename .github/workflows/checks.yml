@@ -149,7 +149,7 @@ jobs:
             matrix='["3.8", "3.9", "3.10", "3.11", "3.12"]'
           fi
         
-          echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python_version: .})')}" >> $GITHUB_OUTPUT
+          echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python-version: .})')}" >> $GITHUB_OUTPUT
 
       - name: Output matrix for debugging
         run: |
