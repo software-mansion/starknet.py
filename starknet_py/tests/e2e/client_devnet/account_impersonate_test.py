@@ -7,7 +7,7 @@ from starknet_py.net.client_errors import ClientError
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -36,7 +36,7 @@ async def test_impersonate_account(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -61,7 +61,7 @@ async def test_auto_impersonate(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    "--contract_dir=v2" not in sys.argv,
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio

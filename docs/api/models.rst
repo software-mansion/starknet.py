@@ -19,9 +19,6 @@ Module containing base models and functions to operate on them.
 .. autoclass:: DeployAccountV3
     :exclude-members: __init__, __new__
 
-.. autoclass:: DeclareV1
-    :exclude-members: __init__, __new__
-
 .. autoclass:: DeclareV2
     :exclude-members: __init__, __new__
 

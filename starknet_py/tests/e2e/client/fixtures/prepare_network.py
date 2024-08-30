@@ -1,42 +1,64 @@
 # pylint: disable=redefined-outer-name
-from typing import AsyncGenerator, Dict, Tuple
+from typing import AsyncGenerator, Dict, List, Tuple
 
 import pytest
 import pytest_asyncio
 
+from starknet_py.common import create_sierra_compiled_contract
+from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
+from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
 from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFactory
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
-from starknet_py.tests.e2e.fixtures.misc import read_contract
-from starknet_py.tests.e2e.utils import AccountToBeDeployedDetails
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.contracts_v1 import declare_cairo1_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
-async def prepare_network(
-    account: Account,
-    deploy_account_details: AccountToBeDeployedDetails,
-) -> PreparedNetworkData:
-    contract_compiled = read_contract(
-        "balance_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-    prepared_data = await prepare_net_for_tests(
+@pytest_asyncio.fixture(scope="package")
+async def balance_class_and_transaction_hash(account: BaseAccount) -> Tuple[int, int]:
+    contract = load_contract("Balance")
+    class_hash, transaction_hash = await declare_cairo1_contract(
         account,
-        compiled_contract=contract_compiled,
-        deploy_account_details=deploy_account_details,
+        contract["sierra"],
+        contract["casm"],
     )
+    return class_hash, transaction_hash
 
-    return prepared_data
+
+@pytest_asyncio.fixture(scope="package")
+async def deployed_balance_contract(
+    account: BaseAccount,
+    balance_class_and_transaction_hash,
+    balance_abi,
+) -> Contract:
+    class_hash, _ = balance_class_and_transaction_hash
+    deploy_result = await Contract.deploy_contract_v3(
+        account=account,
+        abi=balance_abi,
+        class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+    )
+    await deploy_result.wait_for_acceptance()
+
+    return deploy_result.deployed_contract
 
 
-@pytest.fixture(name="block_with_invoke_number")
-def fixture_block_with_invoke_number(
-    prepare_network: Tuple[str, PreparedNetworkData]
-) -> int:
+@pytest.fixture(scope="package")
+def balance_abi() -> List:
+    compiled_contract = create_sierra_compiled_contract(
+        compiled_contract=load_contract("Balance")["sierra"]
+    )
+    assert compiled_contract.parsed_abi is not None
+    return compiled_contract.parsed_abi
+
+
+@pytest.fixture()
+def block_with_invoke_number(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns number of the block with invoke transaction
     """
@@ -44,10 +66,8 @@ def fixture_block_with_invoke_number(
     return prepared_data.block_with_invoke_number
 
 
-@pytest.fixture(name="block_with_declare_number")
-def fixture_block_with_declare_number(
-    prepare_network: Tuple[str, PreparedNetworkData]
-) -> int:
+@pytest.fixture()
+def block_with_declare_number(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns number of the block with declare transaction
     """
@@ -55,10 +75,8 @@ def fixture_block_with_declare_number(
     return prepared_data.block_with_declare_number
 
 
-@pytest.fixture(name="block_with_declare_hash")
-def fixture_block_with_declare_hash(
-    prepare_network: Tuple[str, PreparedNetworkData]
-) -> int:
+@pytest.fixture()
+def block_with_declare_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns hash of the block with declare transaction
     """
@@ -66,10 +84,8 @@ def fixture_block_with_declare_hash(
     return prepared_data.block_with_declare_hash
 
 
-@pytest.fixture(name="invoke_transaction")
-def fixture_invoke_transaction(
-    prepare_network: Tuple[str, PreparedNetworkData]
-) -> Dict:
+@pytest.fixture()
+def invoke_transaction(prepare_network: Tuple[str, PreparedNetworkData]) -> Dict:
     """
     Returns basic data of Invoke
     """
@@ -81,34 +97,32 @@ def fixture_invoke_transaction(
     }
 
 
-@pytest.fixture(name="invoke_transaction_hash")
-def fixture_invoke_transaction_hash(invoke_transaction: Dict) -> int:
+@pytest.fixture()
+def invoke_transaction_hash(invoke_transaction: Dict) -> int:
     """
     Returns hash of Invoke
     """
     return invoke_transaction["hash"]
 
 
-@pytest.fixture(name="invoke_transaction_calldata")
-def fixture_invoke_transaction_calldata(invoke_transaction: Dict) -> int:
+@pytest.fixture()
+def invoke_transaction_calldata(invoke_transaction: Dict) -> int:
     """
     Returns calldata of Invoke
     """
     return invoke_transaction["calldata"]
 
 
-@pytest.fixture(name="invoke_transaction_selector")
-def fixture_invoke_transaction_selector(invoke_transaction: Dict) -> int:
+@pytest.fixture()
+def invoke_transaction_selector(invoke_transaction: Dict) -> int:
     """
     Returns entry_point_selector of Invoke
     """
     return invoke_transaction["entry_point_selector"]
 
 
-@pytest.fixture(name="declare_transaction_hash")
-def fixture_declare_transaction_hash(
-    prepare_network: Tuple[str, PreparedNetworkData]
-) -> int:
+@pytest.fixture()
+def declare_transaction_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns hash of the DeclareTransaction
     """
@@ -116,8 +130,8 @@ def fixture_declare_transaction_hash(
     return prepared_data.declare_transaction_hash
 
 
-@pytest.fixture(name="contract_address")
-def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
+@pytest.fixture()
+def contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns an address of the deployed contract
     """
@@ -125,16 +139,8 @@ def fixture_contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -
     return prepared_data.contract_address
 
 
-@pytest.fixture(name="balance_contract", scope="package")
-def fixture_balance_contract() -> str:
-    """
-    Returns compiled code of the balance.cairo contract
-    """
-    return read_contract("balance_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR)
-
-
-@pytest.fixture(name="class_hash")
-def fixture_class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
+@pytest.fixture()
+def class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns class hash of the deployed contract
     """
@@ -142,16 +148,27 @@ def fixture_class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     return prepared_data.class_hash
 
 
-@pytest_asyncio.fixture(name="prepare_network", scope="package")
-async def fixture_prepare_network(
+@pytest_asyncio.fixture(scope="package")
+async def prepare_network(
     devnet,
     account: Account,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
+    balance_class_and_transaction_hash: Tuple[int, int],
+    deployed_balance_contract: Contract,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
     net = devnet
+    class_hash, transaction_hash = balance_class_and_transaction_hash
     details = await deploy_account_details_factory.get()
-    prepared_data = await prepare_network(account, details)
+
+    prepared_data = await prepare_net_for_tests(
+        account,
+        deploy_account_details=details,
+        transaction_hash=transaction_hash,
+        contract=deployed_balance_contract,
+        declare_class_hash=class_hash,
+    )
+
     yield net, prepared_data
