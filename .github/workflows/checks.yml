@@ -166,6 +166,7 @@ jobs:
             event: pull_request
           - python-versions: [3.8, 3.9, 3.10, 3.11, 3.12]
             event: push
+    env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
