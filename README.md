@@ -33,7 +33,7 @@ Installation varies between operating systems.
 
 ### Account setup
 
-To begin using Starknet, you need an account. With starknet.py, you can either [set up a new account](https://starknetpy.readthedocs.io/en/latest/account_creation.html) 
+To begin using Starknet, you need an account. With `starknet.py`, you can either [set up a new account](https://starknetpy.readthedocs.io/en/latest/account_creation.html) 
 or access an existing one. 
 Additionally, you can use the [sncast](https://foundry-rs.github.io/starknet-foundry/starknet/index.html) tool to create an account, 
 which will automatically be saved to a file.
