@@ -167,6 +167,8 @@ jobs:
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
+      - run: |
+          echo "Python version: ${{ matrix.python_version }}"
       - uses: actions/checkout@v4
 
       - name: Download contracts
