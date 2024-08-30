@@ -75,12 +75,18 @@ class Deployer:
         :param calldata: Constructor args of the contract to be deployed.
         :return: NamedTuple with call and address of the contract to be deployed.
         """
-        if not abi and calldata:
-            raise ValueError("Argument calldata was provided without an ABI.")
+        raw_calldata = None
 
-        raw_calldata = translate_constructor_args(
-            abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
-        )
+        if calldata and abi is None:
+            if not _is_list_of_ints_or_strings(calldata):
+                raise ValueError(
+                    "Argument calldata was provided without an ABI. It cannot be serialized."
+                )
+            raw_calldata = [int_from_hex(x) for x in calldata]
+        elif calldata and abi is not None:
+            raw_calldata = translate_constructor_args(
+                abi=abi or [], constructor_args=calldata, cairo_version=cairo_version
+            )
 
         return self.create_contract_deployment_raw(
             class_hash=class_hash, salt=salt, raw_calldata=raw_calldata
@@ -176,3 +182,15 @@ _deployer_abi = AbiParser(
 _deployer_serializer = serializer_for_function(
     _deployer_abi.functions["deployContract"]
 )
+
+
+def _is_list_of_ints_or_strings(data: Union[List, dict]) -> bool:
+    """
+    Checks if the given data is a list containing only strings or integers.
+
+    :param data: Constructor args (calldata) of the contract to be deployed.
+    :return: True if the data is a list of strings or integers, False otherwise.
+    """
+    if isinstance(data, list):
+        return all(isinstance(x, (int, str)) for x in data)
+    return False

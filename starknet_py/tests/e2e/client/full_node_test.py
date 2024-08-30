@@ -1,4 +1,5 @@
 import dataclasses
+import sys
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -15,9 +16,8 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     Call,
     DeclareTransactionTrace,
-    DeclareTransactionV1,
+    DeclareTransactionV2,
     DeployAccountTransactionTrace,
-    DeprecatedContractClass,
     InvokeTransactionTrace,
     SierraContractClass,
     SimulatedTransaction,
@@ -26,12 +26,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR
-from starknet_py.tests.e2e.fixtures.misc import (
-    ContractVersion,
-    load_contract,
-    read_contract,
-)
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 from starknet_py.tests.e2e.utils import create_empty_block
 
 
@@ -40,9 +35,9 @@ def _parse_event_name(event: str) -> str:
 
 
 FUNCTION_ONE_NAME = "put"
-EVENT_ONE_PARSED_NAME = _parse_event_name("put_called")
+EVENT_ONE_PARSED_NAME = _parse_event_name("PutCalled")
 FUNCTION_TWO_NAME = "another_put"
-EVENT_TWO_PARSED_NAME = _parse_event_name("another_put_called")
+EVENT_TWO_PARSED_NAME = _parse_event_name("AnotherPutCalled")
 
 
 # TODO (#1419): Fix contract redeclaration
@@ -56,10 +51,10 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
-    assert isinstance(tx, DeclareTransactionV1)
+    assert isinstance(tx, DeclareTransactionV2)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
-    assert tx.version == 1
+    assert tx.version == 2
 
 
 # TODO (#1419): Fix contract redeclaration
@@ -73,8 +68,8 @@ async def test_get_class_at(
         contract_address=contract_address, block_hash="latest"
     )
 
-    assert isinstance(declared_contract, DeprecatedContractClass)
-    assert declared_contract.program != {}
+    assert isinstance(declared_contract, SierraContractClass)
+    assert declared_contract.sierra_program != {}
     assert declared_contract.entry_points_by_type is not None
     assert declared_contract.abi is not None
 
@@ -149,6 +144,10 @@ async def test_get_storage_at_incorrect_address_full_node_client(client):
         )
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_without_following_continuation_token(
@@ -156,7 +155,7 @@ async def test_get_events_without_following_continuation_token(
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(4):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i, auto_estimate=True
         )
 
@@ -174,6 +173,10 @@ async def test_get_events_without_following_continuation_token(
     assert events_response.continuation_token is not None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_follow_continuation_token(
@@ -199,6 +202,10 @@ async def test_get_events_follow_continuation_token(
     assert events_response.continuation_token is None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_nonexistent_event_name(
@@ -222,6 +229,10 @@ async def test_get_events_nonexistent_event_name(
     assert events_response.continuation_token is None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_with_two_events(
@@ -271,6 +282,10 @@ async def test_get_events_with_two_events(
     assert event_one_two_events_response.continuation_token is None
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_start_from_continuation_token(
@@ -298,6 +313,10 @@ async def test_get_events_start_from_continuation_token(
     assert events_response.continuation_token == expected_continuation_token
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_no_params(
@@ -317,6 +336,10 @@ async def test_get_events_no_params(
     assert len(events_response.events) == default_chunk_size
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_nonexistent_starting_block(
@@ -475,23 +498,6 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
 
 # TODO (#1419): Fix contract redeclaration
 @pytest.mark.skip(reason="Redeclaration occurred")
-@pytest.mark.asyncio
-async def test_simulate_transactions_declare(account):
-    compiled_contract = read_contract(
-        "map_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-    declare_tx = await account.sign_declare_v1(compiled_contract, max_fee=int(1e16))
-
-    simulated_txs = await account.client.simulate_transactions(
-        transactions=[declare_tx], block_number="latest"
-    )
-
-    assert isinstance(simulated_txs[0].transaction_trace, DeclareTransactionTrace)
-    assert simulated_txs[0].fee_estimation.overall_fee > 0
-    assert simulated_txs[0].transaction_trace.validate_invocation is not None
-    assert simulated_txs[0].transaction_trace.execution_resources is not None
-
-
 @pytest.mark.asyncio
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)

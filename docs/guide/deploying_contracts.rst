@@ -4,8 +4,8 @@ Deploying contracts
 Declaring contracts
 -------------------
 
-A declare transaction can be issued in version 1, 2 or 3. Contracts written in Cairo 0 should be declared using version 1, while those written in Cairo 1 or higher should be declared with versions 2 or 3.
-To sign a declare transaction, you should utilize the :meth:`~starknet_py.net.account.account.Account.sign_declare_v1`, :meth:`~starknet_py.net.account.account.Account.sign_declare_v2` or :meth:`~starknet_py.net.account.account.Account.sign_declare_v3` method, respectively.
+A declare transaction can be issued in version 2 or 3. Contracts written in Cairo 0 cannot be declared while those written in Cairo 1 or higher should be declared with versions 2 or 3.
+To sign a declare transaction, you should utilize the :meth:`~starknet_py.net.account.account.Account.sign_declare_v2` or :meth:`~starknet_py.net.account.account.Account.sign_declare_v3` method, respectively.
 
 Here's an example how to use it.
 
@@ -13,17 +13,6 @@ Here's an example how to use it.
     :language: python
     :dedent: 4
 
-
-Simple declare and deploy
--------------------------
-
-The simplest way of declaring and deploying contracts on the Starknet is to use the :ref:`Contract` class.
-Under the hood, this flow first sends ``Declare`` transaction and then sends ``Invoke``
-through Universal Deployment Contract (UDC) to deploy a contract.
-
-.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_declare_and_deploy.py
-    :language: python
-    :dedent: 4
 
 Simple deploy
 -------------
