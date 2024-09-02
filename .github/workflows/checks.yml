@@ -132,43 +132,28 @@ jobs:
   # ........................RUN-TESTS......................... #
   # ---------------------------------------------------------- #
 
-  prepare-python-version-tests-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-python-version.outputs.matrix }}
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-      - id: set-python-version
-        run: |
-          eventName=${{ github.event_name }}
-        
-          if [[ "$eventName" == "pull_request" ]]; then
-            matrix='["3.10", "3.12"]'
-          else
-            matrix='["3.8", "3.9", "3.10", "3.11", "3.12"]'
-          fi
-        
-          echo "matrix={\"include\":$(jq -nc --argjson versions "$matrix" '$versions | map({python_version: .})')}" >> $GITHUB_OUTPUT
-
-      - name: Output matrix for debugging
-        run: |
-          echo "Matrix: ${{ steps.set-python-version.outputs.matrix }}"
-
   run-tests:
     name: Tests
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.prepare-python-version-tests-matrix.outputs.matrix) }}
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        is_pr_event:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - is_pr_event: true
+            python-version: "3.8"
+          - is_pr_event: true
+            python-version: "3.9"
+          - is_pr_event: true
+            python-version: "3.11"
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
-      - run: |
-          echo "Python version: ${{ matrix.python_version }}"
       - uses: actions/checkout@v4
 
       - name: Download contracts
@@ -190,10 +175,10 @@ jobs:
           pip install poetry
           poetry config installer.modern-installation false
 
-      - name: Set up Python ${{ matrix.python_version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
       - name: Install dependencies
