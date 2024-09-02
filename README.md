@@ -30,8 +30,8 @@ Installation varies between operating systems.
 [See our documentation on complete instructions](https://starknetpy.rtfd.io/en/latest/installation.html)
 
 
-# Quickstart
-## Using FullNodeClient
+## 💨 Quickstart
+### Using FullNodeClient
 A [Client](https://starknetpy.readthedocs.io/en/latest/api/client.html#client) is a facade for interacting with Starknet. 
 [FullNodeClient](https://starknetpy.readthedocs.io/en/latest/api/full_node_client.html#module-starknet_py.net.full_node_client) is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno). 
 It supports read and write operations, like querying the blockchain state or adding new transactions.
@@ -54,7 +54,7 @@ call_result = client.get_block_sync(block_number=1)
 ```
 You can check out all of the FullNodeClient’s methods here: [FullNodeClient](https://starknetpy.readthedocs.io/en/latest/api/full_node_client.html#module-starknet_py.net.full_node_client).
 
-## Creating Account
+### Creating Account
 [Account](https://starknetpy.readthedocs.io/en/latest/api/account.html#starknet_py.net.account.account.Account) is the default implementation of [BaseAccount](https://starknetpy.readthedocs.io/en/latest/api/account.html#starknet_py.net.account.base_account.BaseAccount) interface. 
 It supports an account contract which proxies the calls to other contracts on Starknet.
 
@@ -95,7 +95,7 @@ account = Account(
 )
 ```
 
-## Using Account
+### Using Account
 Example usage:
 
 ```python
@@ -155,7 +155,7 @@ transaction_response = await account.execute_v3(
 await account.client.wait_for_tx(transaction_response.transaction_hash)
 ```
 
-## Using Contract
+### Using Contract
 [Contract](https://starknetpy.readthedocs.io/en/latest/api/contract.html#starknet_py.contract.Contract) makes interacting with contracts deployed on Starknet much easier:
 ```python
 from starknet_py.contract import Contract
