@@ -9,7 +9,7 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
     "contract_name, expected_class_hash",
     # fmt: off
     [
-        ("Account", 0x450f568a8cb6ea1bcce446355e8a1c2e5852a6b8dc3536f495cdceb62e8a7e2),
+        ("Account", 0x183078afce57a1d33b948ea6cd9ab0769dd08ca93a6afe4c23637b08aa893c1),
         ("ERC20", 0x746248ba570006607113ae3f4dbb4130e81233fb818d15329c6a4aaccf94812),
         ("HelloStarknet", 0x224518978adb773cfd4862a894e9d333192fbd24bc83841dc7d4167c09b89c5),
         ("MinimalContract", 0x6fb1efd745d57b60023c6dc3209227e5e54d44fa16e0ae75cc03e1a7f3da08a),
