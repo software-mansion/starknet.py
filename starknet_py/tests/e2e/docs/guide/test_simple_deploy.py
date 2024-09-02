@@ -30,7 +30,7 @@ async def test_simple_deploy(
     deploy_result = await Contract.deploy_contract_v3(
         account=account,
         class_hash=class_hash,
-        abi=abi,
+        abi=abi, # abi is optional
         constructor_args=constructor_args,
         l1_resource_bounds=ResourceBounds(
             max_amount=int(1e5), max_price_per_unit=int(1e13)
