@@ -117,7 +117,7 @@ def test_create_account_with_ledger_signer():
 
     # docs: start
 
-    client = FullNodeClient(node_url="your.node.url")
+    client = FullNodeClient(node_url="https://your.node.url")
     # Create an `Account` instance with the ledger signer
     account = Account(
         client=client,

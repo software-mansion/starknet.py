@@ -25,7 +25,7 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=FullNodeClient(node_url="your.node.url"),
+            client=FullNodeClient(node_url="https://your.node.url"),
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.SEPOLIA,
         ),
