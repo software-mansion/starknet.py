@@ -40,7 +40,7 @@ Specific serializers
     :members: serialize, deserialize
 .. autoclass:: FunctionSerializationAdapter
     :exclude-members: __init__, __new__
-    :members: serialize, deserialize
+    :members: serialize
 
 Exceptions
 ----------
