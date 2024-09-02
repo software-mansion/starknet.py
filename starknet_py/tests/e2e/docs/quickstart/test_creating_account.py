@@ -12,7 +12,7 @@ async def test_creating_account():
 
     # Creates an instance of account which is already deployed
     # Account using transaction version=1 (has __validate__ function)
-    client = FullNodeClient(node_url="your.node.url")
+    client = FullNodeClient(node_url="https://your.node.url")
     account = Account(
         client=client,
         address="0x4321",
