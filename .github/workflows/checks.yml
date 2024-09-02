@@ -121,29 +121,8 @@ jobs:
         if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v1
-  
-      # ====================== CONTRACTS v0 ====================== #
 
-      - name: Cache contracts v0
-        id: cache-contracts
-        uses: actions/cache@v4
-        with:
-          path: starknet_py/tests/e2e/mock/contracts_compiled
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts', 'poetry.lock') }}-${{ env.CAIRO_LANG_VERSION }}
-
-      - name: Install deprecated cairo compiler
-        if: steps.cache-contracts.outputs.cache-hit != 'true'
-        run: |
-          pip install --upgrade setuptools
-          pip install sympy==1.11.1
-          pip install cairo-lang==${{ env.CAIRO_LANG_VERSION }}
-
-      - name: Compile contracts v0
-        if: steps.cache-contracts.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts v0
-
-      - name: Upload contracts v0
+      - name: Upload contracts artifacts
         uses: actions/upload-artifact@v3
         with:
           name: contract-artifacts
