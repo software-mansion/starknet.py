@@ -144,9 +144,9 @@ jobs:
           - ${{ github.event_name == 'pull_request' }}
         exclude:
           - is_pr_event: true
-            python-version: "3.8"
-          - is_pr_event: true
             python-version: "3.9"
+          - is_pr_event: true
+            python-version: "3.10"
           - is_pr_event: true
             python-version: "3.11"
     env:
@@ -326,6 +326,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        is_pr_event:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - is_pr_event: true
+            python-version: "3.9"
+          - is_pr_event: true
+            python-version: "3.10"
+          - is_pr_event: true
+            python-version: "3.11"
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
@@ -408,6 +417,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        is_pr_event:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - is_pr_event: true
+            python-version: "3.9"
+          - is_pr_event: true
+            python-version: "3.10"
+          - is_pr_event: true
+            python-version: "3.11"
     steps:
       - uses: actions/checkout@v4
 
@@ -472,6 +490,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        is_pr_event:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - is_pr_event: true
+            python-version: "3.9"
+          - is_pr_event: true
+            python-version: "3.10"
+          - is_pr_event: true
+            python-version: "3.11"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
