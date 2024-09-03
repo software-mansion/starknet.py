@@ -211,7 +211,7 @@ async def map_class_hash(account: BaseAccount) -> int:
     return class_hash
 
 
-@pytest_asyncio.fixture(scope="package", name="map_contract")
+@pytest_asyncio.fixture(scope="package")
 async def map_contract(account: BaseAccount, map_class_hash) -> Contract:
     return await deploy_v1_contract(
         account=account,
