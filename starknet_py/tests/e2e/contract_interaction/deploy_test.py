@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 @pytest.mark.asyncio
 async def test_declare_deploy_v1(
     account,
-    cairo1_minimal_contract_class_hash: int,
+    minimal_contract_class_hash: int,
 ):
     compiled_contract = load_contract("MinimalContract")["sierra"]
 
@@ -23,7 +23,7 @@ async def test_declare_deploy_v1(
         _account=account,
         _client=account.client,
         _cairo_version=1,
-        class_hash=cairo1_minimal_contract_class_hash,
+        class_hash=minimal_contract_class_hash,
         compiled_contract=compiled_contract,
         hash=0,
         declare_transaction=Mock(spec=DeclareV2),
@@ -40,7 +40,7 @@ async def test_declare_deploy_v1(
 @pytest.mark.asyncio
 async def test_declare_deploy_v3(
     account,
-    cairo1_minimal_contract_class_hash: int,
+    minimal_contract_class_hash: int,
 ):
     compiled_contract = load_contract("MinimalContract")["sierra"]
 
@@ -48,7 +48,7 @@ async def test_declare_deploy_v3(
         _account=account,
         _client=account.client,
         _cairo_version=1,
-        class_hash=cairo1_minimal_contract_class_hash,
+        class_hash=minimal_contract_class_hash,
         compiled_contract=compiled_contract,
         hash=0,
         declare_transaction=Mock(spec=DeclareV2),
@@ -65,14 +65,14 @@ async def test_declare_deploy_v3(
 
 
 @pytest.mark.asyncio
-async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: int):
+async def test_throws_on_wrong_abi(account, minimal_contract_class_hash: int):
     compiled_contract = load_contract("MinimalContract")["sierra"]
 
     declare_result = DeclareResult(
         _account=account,
         _client=account.client,
         _cairo_version=1,
-        class_hash=cairo1_minimal_contract_class_hash,
+        class_hash=minimal_contract_class_hash,
         compiled_contract=compiled_contract,
         hash=0,
         declare_transaction=Mock(spec=DeclareV2),

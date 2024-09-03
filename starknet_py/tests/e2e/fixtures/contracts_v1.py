@@ -107,7 +107,7 @@ def hello_starknet_tx_hash(hello_starknet_class_hash_tx_hash) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
+async def minimal_contract_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="MinimalContract")
     class_hash, _ = await declare_cairo1_contract(
         account,
