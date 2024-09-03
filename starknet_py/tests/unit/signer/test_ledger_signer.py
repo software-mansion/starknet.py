@@ -71,7 +71,7 @@ sierra_contract_class = create_sierra_compiled_contract(compiled_contract)
             version=1,
         ),
         DeclareV3(
-            contract_class=sierra_contract_class,
+            contract_class=sierra_contract_class.convert_to_sierra_contract_class(),
             compiled_class_hash=0x1,
             sender_address=0x123,
             signature=[],

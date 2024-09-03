@@ -4,17 +4,15 @@ from starknet_py.net.client_models import ResourceBounds
 
 
 @pytest.mark.asyncio
-async def test_simple_deploy(
-    account, cairo1_hello_starknet_class_hash, cairo1_hello_starknet_abi
-):
+async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_abi):
     # pylint: disable=import-outside-toplevel
     # docs: start
     from starknet_py.contract import Contract
 
     # docs: end
 
-    class_hash = cairo1_hello_starknet_class_hash
-    abi = cairo1_hello_starknet_abi
+    class_hash = hello_starknet_class_hash
+    abi = hello_starknet_abi
 
     # docs: start
     # To deploy contract just use `Contract.deploy_contract_v1` method

@@ -415,7 +415,7 @@ class Account(BaseAccount):
             nonce = await self.get_nonce()
 
         declare_tx = DeclareV2(
-            contract_class=contract_class,
+            contract_class=contract_class.convert_to_sierra_contract_class(),
             compiled_class_hash=compiled_class_hash,
             sender_address=self.address,
             max_fee=0,
@@ -440,7 +440,7 @@ class Account(BaseAccount):
             nonce = await self.get_nonce()
 
         declare_tx = DeclareV3(
-            contract_class=contract_class,
+            contract_class=contract_class.convert_to_sierra_contract_class(),
             compiled_class_hash=compiled_class_hash,
             sender_address=self.address,
             signature=[],

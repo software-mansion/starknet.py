@@ -4,7 +4,7 @@ import dataclasses
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
 
@@ -35,12 +35,12 @@ from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     prepare_proxy_config,
 )
-from starknet_py.serialization import (
-    FunctionSerializationAdapter,
-    TupleDataclass,
-    serializer_for_function,
-)
+from starknet_py.serialization import TupleDataclass, serializer_for_function
 from starknet_py.serialization.factory import serializer_for_function_v1
+from starknet_py.serialization.function_serialization_adapter import (
+    FunctionSerializationAdapterV0,
+    FunctionSerializationAdapterV1,
+)
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 from starknet_py.utils.sync import add_sync_methods
 
@@ -303,7 +303,9 @@ class DeployResult(SentTransaction):
 @dataclass
 class PreparedCallBase(Call):
     _client: Client
-    _payload_transformer: FunctionSerializationAdapter
+    _payload_transformer: Union[
+        FunctionSerializationAdapterV0, FunctionSerializationAdapterV1
+    ]
 
 
 @add_sync_methods
@@ -333,7 +335,7 @@ class PreparedFunctionCall(PreparedCallBase):
         self,
         block_hash: Optional[str] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> TupleDataclass:
+    ) -> Union[TupleDataclass, Tuple]:
         """
         Calls a method.
 
@@ -584,7 +586,7 @@ class ContractFunction:
         block_hash: Optional[str] = None,
         block_number: Optional[Union[int, Tag]] = None,
         **kwargs,
-    ) -> TupleDataclass:
+    ) -> Union[TupleDataclass, Tuple]:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
