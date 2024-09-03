@@ -371,7 +371,7 @@ async def deploy_v1_contract(
     calldata: Optional[Dict[str, Any]] = None,
 ) -> Contract:
     """
-    Deploys Cairo1.0 contract.
+    Deploys Cairo1 contract.
 
     :param account: An account which will be used to deploy the Contract.
     :param contract_name: Name of the contract from project mocks (e.g. `ERC20`).
