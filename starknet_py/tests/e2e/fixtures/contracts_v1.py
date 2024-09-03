@@ -122,7 +122,7 @@ async def cairo1_minimal_contract_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_test_enum_class_hash(account: BaseAccount) -> int:
+async def test_enum_class_hash(account: BaseAccount) -> int:
     contract = load_contract(contract_name="TestEnum")
     class_hash, _ = await declare_cairo1_contract(
         account,

@@ -112,11 +112,11 @@ async def test_serializing_option(account, test_option_class_hash: int):
 
 
 @pytest.mark.asyncio
-async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
+async def test_serializing_enum(account, test_enum_class_hash: int):
     test_enum = await deploy_v1_contract(
         account=account,
         contract_name="TestEnum",
-        class_hash=cairo1_test_enum_class_hash,
+        class_hash=test_enum_class_hash,
     )
 
     (received_enum,) = await test_enum.functions["get_enum"].call()
