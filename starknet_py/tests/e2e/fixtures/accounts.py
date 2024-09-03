@@ -150,7 +150,7 @@ def pre_deployed_account_with_validate_deploy(client) -> BaseAccount:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def argent_cairo1_account(
+async def argent_account(
     argent_account_class_hash,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
     client,
