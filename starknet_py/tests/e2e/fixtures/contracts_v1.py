@@ -171,8 +171,8 @@ async def cairo1_erc20_deploy(account, erc20_class_hash):
     )
 
 
-@pytest_asyncio.fixture(scope="package", name="hello_starknet_contract")
-async def cairo1_hello_starknet_deploy(account: BaseAccount, hello_starknet_class_hash):
+@pytest_asyncio.fixture(scope="package")
+async def hello_starknet_contract(account: BaseAccount, hello_starknet_class_hash):
     return await deploy_v1_contract(
         account=account,
         contract_name="HelloStarknet",
