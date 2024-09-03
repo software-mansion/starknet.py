@@ -346,7 +346,7 @@ async def account_with_validate_deploy_class_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def argent_cairo1_account_class_hash(
+async def argent_account_class_hash(
     account: BaseAccount,
 ) -> int:
     # Use precompiled argent account contracts

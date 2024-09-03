@@ -735,11 +735,11 @@ async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash)
 @pytest.mark.asyncio
 async def test_argent_cairo1_account_deploy(
     client,
-    argent_cairo1_account_class_hash,
+    argent_account_class_hash,
     deploy_account_details_factory,
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_cairo1_account_class_hash, argent_calldata=True
+        class_hash=argent_account_class_hash, argent_calldata=True
     )
 
     deploy_result = await Account.deploy_account_v1(
