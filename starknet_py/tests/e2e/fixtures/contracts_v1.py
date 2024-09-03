@@ -381,7 +381,7 @@ async def deploy_v1_contract(
     """
     contract_sierra = load_contract(contract_name)["sierra"]
 
-    abi = create_sierra_compiled_contract(compiled_contract=contract_sierra).parsed_abi
+    abi = create_sierra_compiled_contract(contract_sierra).parsed_abi
 
     deployer = Deployer()
     deploy_call, address = deployer.create_contract_deployment(
