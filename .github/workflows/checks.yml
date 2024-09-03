@@ -133,6 +133,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests:
+    name: Tests (Python ${{ matrix.python-version }})
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -148,7 +149,6 @@ jobs:
             python-version: "3.10"
           - is_pr_event: true
             python-version: "3.11"
-    name: Tests (Python ${{ matrix.python-version }})
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
