@@ -388,7 +388,6 @@ async def deploy_v1_contract(
         class_hash=class_hash,
         abi=abi,
         calldata=calldata,
-        cairo_version=1,
     )
     res = await account.execute_v1(calls=deploy_call, max_fee=MAX_FEE)
     await account.client.wait_for_tx(res.transaction_hash)
