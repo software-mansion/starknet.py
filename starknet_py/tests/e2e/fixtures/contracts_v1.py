@@ -34,7 +34,7 @@ async def declare_cairo1_contract(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_erc20_class_hash(account: BaseAccount) -> int:
+async def erc20_class_hash(account: BaseAccount) -> int:
     contract = load_contract("ERC20")
     class_hash, _ = await declare_cairo1_contract(
         account, contract["sierra"], contract["casm"]
@@ -155,7 +155,7 @@ async def cairo1_token_bridge_class_hash(account: BaseAccount) -> int:
 
 
 @pytest_asyncio.fixture(scope="package", name="erc20_contract")
-async def cairo1_erc20_deploy(account, cairo1_erc20_class_hash):
+async def cairo1_erc20_deploy(account, erc20_class_hash):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
@@ -166,7 +166,7 @@ async def cairo1_erc20_deploy(account, cairo1_erc20_class_hash):
     return await deploy_v1_contract(
         account=account,
         contract_name="ERC20",
-        class_hash=cairo1_erc20_class_hash,
+        class_hash=erc20_class_hash,
         calldata=calldata,
     )
 

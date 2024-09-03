@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
+async def test_general_v1_interaction(account, erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
@@ -26,7 +26,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     erc20 = await deploy_v1_contract(
         account=account,
         contract_name="ERC20",
-        class_hash=cairo1_erc20_class_hash,
+        class_hash=erc20_class_hash,
         calldata=calldata,
     )
 
@@ -153,7 +153,7 @@ async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int):
+async def test_from_address_on_v1_contract(account, erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
@@ -164,7 +164,7 @@ async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int
     erc20 = await deploy_v1_contract(
         account=account,
         contract_name="ERC20",
-        class_hash=cairo1_erc20_class_hash,
+        class_hash=erc20_class_hash,
         calldata=calldata,
     )
 
