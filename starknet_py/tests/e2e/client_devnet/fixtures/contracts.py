@@ -1,8 +1,10 @@
 import pytest_asyncio
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
-from starknet_py.tests.e2e.fixtures.contracts_v1 import declare_cairo1_contract
+from starknet_py.tests.e2e.fixtures.contracts_v1 import (
+    declare_cairo1_contract,
+    deploy_v1_contract,
+)
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
