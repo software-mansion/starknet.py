@@ -89,7 +89,7 @@ async def hello_starknet_class_hash_tx_hash(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_hello_starknet_abi() -> List:
+async def hello_starknet_abi() -> List:
     contract = load_contract("HelloStarknet")
     compiled_contract = create_sierra_compiled_contract(
         compiled_contract=contract["sierra"]
