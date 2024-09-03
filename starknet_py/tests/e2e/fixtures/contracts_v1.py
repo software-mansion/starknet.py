@@ -312,7 +312,7 @@ async def declare_account(
     return resp.class_hash
 
 
-async def declare_cairo1_account(
+async def account_declare_class_hash(
     account: BaseAccount,
     compiled_account_contract: str,
     compiled_account_contract_casm: str,
@@ -357,7 +357,7 @@ async def argent_account_class_hash(
     compiled_contract_casm = read_contract(
         "argent_account.casm", directory=PRECOMPILED_CONTRACTS_DIR
     )
-    return await declare_cairo1_account(
+    return await account_declare_class_hash(
         account=account,
         compiled_account_contract=compiled_contract,
         compiled_account_contract_casm=compiled_contract_casm,
