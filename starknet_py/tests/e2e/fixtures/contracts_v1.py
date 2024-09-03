@@ -19,7 +19,7 @@ from starknet_py.tests.e2e.fixtures.misc import (
 )
 
 
-async def declare_cairo1_contract(
+async def declare_contract(
     account: BaseAccount, compiled_contract: str, compiled_contract_casm: str
 ) -> Tuple[int, int]:
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
@@ -40,7 +40,7 @@ async def declare_cairo1_contract(
 @pytest_asyncio.fixture(scope="package")
 async def erc20_class_hash(account: BaseAccount) -> int:
     contract = load_contract("ERC20")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
     return class_hash
@@ -49,7 +49,7 @@ async def erc20_class_hash(account: BaseAccount) -> int:
 @pytest_asyncio.fixture(scope="package")
 async def constructor_with_arguments_class_hash(account: BaseAccount) -> int:
     contract = load_contract("ConstructorWithArguments")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
     return class_hash
@@ -113,7 +113,7 @@ def hello_starknet_tx_hash(hello_starknet_class_hash_tx_hash) -> int:
 @pytest_asyncio.fixture(scope="package")
 async def minimal_contract_class_hash(account: BaseAccount) -> int:
     contract = load_contract("MinimalContract")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
         contract["casm"],
@@ -124,7 +124,7 @@ async def minimal_contract_class_hash(account: BaseAccount) -> int:
 @pytest_asyncio.fixture(scope="package")
 async def test_enum_class_hash(account: BaseAccount) -> int:
     contract = load_contract("TestEnum")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
         contract["casm"],
@@ -135,7 +135,7 @@ async def test_enum_class_hash(account: BaseAccount) -> int:
 @pytest_asyncio.fixture(scope="package")
 async def test_option_class_hash(account: BaseAccount) -> int:
     contract = load_contract("TestOption")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
         contract["casm"],
@@ -146,7 +146,7 @@ async def test_option_class_hash(account: BaseAccount) -> int:
 @pytest_asyncio.fixture(scope="package")
 async def token_bridge_class_hash(account: BaseAccount) -> int:
     contract = load_contract("TokenBridge")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
         contract["casm"],
@@ -183,7 +183,7 @@ async def hello_starknet_contract(account: BaseAccount, hello_starknet_class_has
 @pytest_asyncio.fixture(scope="package", name="string_contract_class_hash")
 async def declare_string_contract(account: BaseAccount) -> int:
     contract = load_contract("MyString", version=ContractVersion.V2)
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
     return class_hash
@@ -203,7 +203,7 @@ async def deploy_string_contract(
 @pytest_asyncio.fixture(scope="package")
 async def map_class_hash(account: BaseAccount) -> int:
     contract = load_contract("Map")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
         contract["casm"],
@@ -250,7 +250,7 @@ def map_compiled_contract_casm() -> str:
 @pytest_asyncio.fixture(scope="package")
 async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
     contract = load_contract("SimpleStorageWithEvent")
-    class_hash, _ = await declare_cairo1_contract(
+    class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
     return class_hash
