@@ -75,7 +75,7 @@ async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def cairo1_hello_starknet_class_hash_tx_hash(
+async def hello_starknet_class_hash_tx_hash(
     account: BaseAccount, declare_v2_hello_starknet: DeclareV2
 ) -> Tuple[int, int]:
     resp = await account.client.declare(declare_v2_hello_starknet)
@@ -96,17 +96,17 @@ async def cairo1_hello_starknet_abi() -> List:
 
 @pytest.fixture(scope="package")
 def cairo1_hello_starknet_class_hash(
-    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
+        hello_starknet_class_hash_tx_hash
 ) -> int:
-    class_hash, _ = cairo1_hello_starknet_class_hash_tx_hash
+    class_hash, _ = hello_starknet_class_hash_tx_hash
     return class_hash
 
 
 @pytest.fixture(scope="package")
 def cairo1_hello_starknet_tx_hash(
-    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int]
+        hello_starknet_class_hash_tx_hash
 ) -> int:
-    _, tx_hash = cairo1_hello_starknet_class_hash_tx_hash
+    _, tx_hash = hello_starknet_class_hash_tx_hash
     return tx_hash
 
 

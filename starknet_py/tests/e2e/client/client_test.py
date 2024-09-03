@@ -543,10 +543,10 @@ async def test_get_class_by_hash_sierra_program(
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction(
     client,
-    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int],
+        hello_starknet_class_hash_tx_hash,
     declare_v2_hello_starknet: DeclareV2,
 ):
-    (class_hash, tx_hash) = cairo1_hello_starknet_class_hash_tx_hash
+    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
@@ -566,11 +566,11 @@ async def test_get_declare_v2_transaction(
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
     client,
-    cairo1_hello_starknet_class_hash_tx_hash: Tuple[int, int],
+        hello_starknet_class_hash_tx_hash,
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
-    (class_hash, tx_hash) = cairo1_hello_starknet_class_hash_tx_hash
+    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v2_number)
 
