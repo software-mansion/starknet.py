@@ -879,7 +879,7 @@ class SierraCompiledContract(_SierraContract):
 
     def convert_to_sierra_contract_class(self) -> SierraContractClass:
         """
-        Converts an instance of DeprecatedCompiledContract to DeprecatedContractClass.
+        Converts an instance of SierraCompiledContract to SierraContractClass.
         """
         return SierraContractClass(
             contract_class_version=self.contract_class_version,
