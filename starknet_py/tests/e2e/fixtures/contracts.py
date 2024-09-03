@@ -1,12 +1,11 @@
 # pylint: disable=redefined-outer-name
-from typing import List
 
 import pytest
 
 from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, STRK_FEE_CONTRACT_ADDRESS
+from starknet_py.tests.e2e.fixtures.constants import STRK_FEE_CONTRACT_ADDRESS
 
 
 @pytest.fixture(scope="package")
