@@ -524,9 +524,7 @@ async def test_state_update_deployed_contracts(
 
 
 @pytest.mark.asyncio
-async def test_get_class_by_hash_sierra_program(
-    client, hello_starknet_class_hash: int
-):
+async def test_get_class_by_hash_sierra_program(client, hello_starknet_class_hash: int):
     contract_class = await client.get_class_by_hash(
         class_hash=hello_starknet_class_hash
     )
@@ -592,7 +590,7 @@ async def test_get_block_with_declare_v2(
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
-        hello_starknet_class_hash: int,
+    hello_starknet_class_hash: int,
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):

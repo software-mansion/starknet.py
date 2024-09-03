@@ -168,9 +168,7 @@ async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract_v3_without_abi(
-    account, hello_starknet_class_hash: int
-):
+async def test_deploy_contract_v3_without_abi(account, hello_starknet_class_hash: int):
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=hello_starknet_class_hash,
         account=account,
