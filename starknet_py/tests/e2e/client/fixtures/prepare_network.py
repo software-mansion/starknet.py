@@ -15,14 +15,14 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
 )
 from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFactory
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
-from starknet_py.tests.e2e.fixtures.contracts_v1 import declare_cairo1_contract
+from starknet_py.tests.e2e.fixtures.contracts_v1 import declare_contract
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest_asyncio.fixture(scope="package")
 async def balance_class_and_transaction_hash(account: BaseAccount) -> Tuple[int, int]:
     contract = load_contract("Balance")
-    class_hash, transaction_hash = await declare_cairo1_contract(
+    class_hash, transaction_hash = await declare_contract(
         account,
         contract["sierra"],
         contract["casm"],
