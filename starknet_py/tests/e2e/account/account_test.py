@@ -703,8 +703,8 @@ async def test_sign_deploy_account_v1_for_fee_estimation(
 
 
 @pytest.mark.asyncio
-async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_class_hash):
-    deployment = Deployer().create_contract_deployment(cairo1_hello_starknet_class_hash)
+async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash):
+    deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
     deploy_tx = await account.sign_invoke_v1(deployment.call, max_fee=MAX_FEE)
 
     new_balance = 30
@@ -733,13 +733,13 @@ async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_clas
 
 
 @pytest.mark.asyncio
-async def test_argent_cairo1_account_deploy(
+async def test_argent_account_deploy(
     client,
-    argent_cairo1_account_class_hash,
+    argent_account_class_hash,
     deploy_account_details_factory,
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_cairo1_account_class_hash, argent_calldata=True
+        class_hash=argent_account_class_hash, argent_calldata=True
     )
 
     deploy_result = await Account.deploy_account_v1(
@@ -765,9 +765,9 @@ async def test_argent_cairo1_account_deploy(
 
 
 @pytest.mark.asyncio
-async def test_argent_cairo1_account_execute(
+async def test_argent_account_execute(
     deployed_balance_contract,
-    argent_cairo1_account: BaseAccount,
+    argent_account: BaseAccount,
 ):
     # verify that initial balance is 0
     get_balance_call = Call(
@@ -775,7 +775,7 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
-    get_balance = await argent_cairo1_account.client.call_contract(
+    get_balance = await argent_account.client.call_contract(
         call=get_balance_call, block_number="latest"
     )
 
@@ -787,11 +787,11 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
-    execute = await argent_cairo1_account.execute_v1(
+    execute = await argent_account.execute_v1(
         calls=increase_balance_by_20_call, max_fee=MAX_FEE
     )
-    await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
-    receipt = await argent_cairo1_account.client.get_transaction_receipt(
+    await argent_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    receipt = await argent_account.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )
 
@@ -803,7 +803,7 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
-    get_balance = await argent_cairo1_account.client.call_contract(
+    get_balance = await argent_account.client.call_contract(
         call=get_balance_call, block_number="latest"
     )
 
