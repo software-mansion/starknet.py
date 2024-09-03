@@ -123,7 +123,7 @@ async def minimal_contract_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def test_enum_class_hash(account: BaseAccount) -> int:
-    contract = load_contract(contract_name="TestEnum")
+    contract = load_contract("TestEnum")
     class_hash, _ = await declare_cairo1_contract(
         account,
         contract["sierra"],
@@ -134,7 +134,7 @@ async def test_enum_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def test_option_class_hash(account: BaseAccount) -> int:
-    contract = load_contract(contract_name="TestOption")
+    contract = load_contract("TestOption")
     class_hash, _ = await declare_cairo1_contract(
         account,
         contract["sierra"],
@@ -145,7 +145,7 @@ async def test_option_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def token_bridge_class_hash(account: BaseAccount) -> int:
-    contract = load_contract(contract_name="TokenBridge")
+    contract = load_contract("TokenBridge")
     class_hash, _ = await declare_cairo1_contract(
         account,
         contract["sierra"],
@@ -273,7 +273,7 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns minimal contract compiled to sierra and its compiled class hash.
     """
-    contract = load_contract(contract_name="MinimalContract")
+    contract = load_contract("MinimalContract")
 
     return (
         contract["sierra"],
