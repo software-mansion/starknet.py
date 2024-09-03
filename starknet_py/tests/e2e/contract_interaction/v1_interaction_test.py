@@ -77,11 +77,11 @@ async def test_serializing_struct(account, token_bridge_class_hash: int):
 
 
 @pytest.mark.asyncio
-async def test_serializing_option(account, cairo1_test_option_class_hash: int):
+async def test_serializing_option(account, test_option_class_hash: int):
     test_option = await deploy_v1_contract(
         account=account,
         contract_name="TestOption",
-        class_hash=cairo1_test_option_class_hash,
+        class_hash=test_option_class_hash,
     )
 
     (received_option,) = await test_option.functions["get_option_struct"].call()
