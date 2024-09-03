@@ -154,8 +154,8 @@ async def token_bridge_class_hash(account: BaseAccount) -> int:
     return class_hash
 
 
-@pytest_asyncio.fixture(scope="package", name="erc20_contract")
-async def cairo1_erc20_deploy(account, erc20_class_hash):
+@pytest_asyncio.fixture(scope="package")
+async def erc20_contract(account, erc20_class_hash):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
