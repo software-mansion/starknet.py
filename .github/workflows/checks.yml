@@ -319,6 +319,7 @@ jobs:
 
   run-tests-windows:
     if: ${{ github.event_name != 'pull_request' }}
+    name: Tests Windows (${{ matrix.python-version }})
     needs: setup-tests
     runs-on: windows-latest
     strategy:
@@ -334,7 +335,6 @@ jobs:
             python-version: "3.10"
           - is_pr_event: true
             python-version: "3.11"
-    name: Tests Windows (${{ matrix.python-version }})
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
