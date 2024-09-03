@@ -11,7 +11,7 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
     reason="Some cairo 1 contracts compiled with v1 compiler fail with new devnet-rs - test simply for a code example.",
 )
 @pytest.mark.asyncio
-async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
+async def test_simple_deploy_cairo1(account, erc20_class_hash):
     # pylint: disable=import-outside-toplevel
     # docs: start
     from starknet_py.cairo.felt import encode_shortstring
@@ -24,7 +24,7 @@ async def test_simple_deploy_cairo1(account, cairo1_erc20_class_hash):
         contract_name="ERC20", version=ContractVersion.V2
     )["sierra"]
 
-    class_hash = cairo1_erc20_class_hash
+    class_hash = erc20_class_hash
 
     # docs: start
     abi = create_sierra_compiled_contract(

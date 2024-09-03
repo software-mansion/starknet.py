@@ -1,13 +1,19 @@
-from typing import List
+from typing import List, Union
 
 from poseidon_py.poseidon_hash import poseidon_hash_many
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.utils import _starknet_keccak
-from starknet_py.net.client_models import SierraContractClass, SierraEntryPoint
+from starknet_py.net.client_models import (
+    SierraCompiledContract,
+    SierraContractClass,
+    SierraEntryPoint,
+)
 
 
-def compute_sierra_class_hash(sierra_contract_class: SierraContractClass) -> int:
+def compute_sierra_class_hash(
+    sierra_contract_class: Union[SierraContractClass, SierraCompiledContract]
+) -> int:
     """
     Calculate class hash of a SierraContractClass.
     """

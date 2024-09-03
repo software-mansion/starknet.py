@@ -5,7 +5,7 @@ import pytest
 from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
-from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
+from starknet_py.tests.e2e.fixtures.contracts_v1 import deploy_v1_contract
 
 # TODO (#1219): investigate why some of these tests fails for contracts_compiled_v1
 
@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.contracts import deploy_v1_contract
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
+async def test_general_v1_interaction(account, erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
@@ -26,7 +26,7 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     erc20 = await deploy_v1_contract(
         account=account,
         contract_name="ERC20",
-        class_hash=cairo1_erc20_class_hash,
+        class_hash=erc20_class_hash,
         calldata=calldata,
     )
 
@@ -61,11 +61,11 @@ async def test_general_v1_interaction(account, cairo1_erc20_class_hash: int):
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
+async def test_serializing_struct(account, token_bridge_class_hash: int):
     bridge = await deploy_v1_contract(
         account=account,
         contract_name="TokenBridge",
-        class_hash=cairo1_token_bridge_class_hash,
+        class_hash=token_bridge_class_hash,
         calldata={"governor_address": account.address},
     )
 
@@ -77,11 +77,11 @@ async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
 
 
 @pytest.mark.asyncio
-async def test_serializing_option(account, cairo1_test_option_class_hash: int):
+async def test_serializing_option(account, test_option_class_hash: int):
     test_option = await deploy_v1_contract(
         account=account,
         contract_name="TestOption",
-        class_hash=cairo1_test_option_class_hash,
+        class_hash=test_option_class_hash,
     )
 
     (received_option,) = await test_option.functions["get_option_struct"].call()
@@ -112,11 +112,11 @@ async def test_serializing_option(account, cairo1_test_option_class_hash: int):
 
 
 @pytest.mark.asyncio
-async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
+async def test_serializing_enum(account, test_enum_class_hash: int):
     test_enum = await deploy_v1_contract(
         account=account,
         contract_name="TestEnum",
-        class_hash=cairo1_test_enum_class_hash,
+        class_hash=test_enum_class_hash,
     )
 
     (received_enum,) = await test_enum.functions["get_enum"].call()
@@ -153,7 +153,7 @@ async def test_serializing_enum(account, cairo1_test_enum_class_hash: int):
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int):
+async def test_from_address_on_v1_contract(account, erc20_class_hash: int):
     calldata = {
         "name_": encode_shortstring("erc20_basic"),
         "symbol_": encode_shortstring("ERC20B"),
@@ -164,7 +164,7 @@ async def test_from_address_on_v1_contract(account, cairo1_erc20_class_hash: int
     erc20 = await deploy_v1_contract(
         account=account,
         contract_name="ERC20",
-        class_hash=cairo1_erc20_class_hash,
+        class_hash=erc20_class_hash,
         calldata=calldata,
     )
 

@@ -150,13 +150,13 @@ def pre_deployed_account_with_validate_deploy(client) -> BaseAccount:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def argent_cairo1_account(
-    argent_cairo1_account_class_hash,
+async def argent_account(
+    argent_account_class_hash,
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
     client,
 ) -> BaseAccount:
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_cairo1_account_class_hash,
+        class_hash=argent_account_class_hash,
         argent_calldata=True,
     )
     deploy_result = await Account.deploy_account_v1(

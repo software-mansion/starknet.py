@@ -27,7 +27,7 @@ from starknet_py.serialization.factory import (
     serializer_for_type,
 )
 from starknet_py.serialization.function_serialization_adapter import (
-    FunctionSerializationAdapter,
+    FunctionSerializationAdapterV0,
 )
 from starknet_py.tests.e2e.fixtures.abi_structures import (
     get_user_fn,
@@ -119,7 +119,7 @@ def test_getting_payload_serializer_v2():
 def test_getting_function_serializer():
     assert serializer_for_function(
         abi.functions["get_user_fn"]
-    ) == FunctionSerializationAdapter(
+    ) == FunctionSerializationAdapterV0(
         inputs_serializer=PayloadSerializer(OrderedDict(id=Uint256Serializer())),
         outputs_deserializer=PayloadSerializer(OrderedDict(user=user_serializer)),
     )
