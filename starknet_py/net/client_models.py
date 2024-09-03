@@ -754,7 +754,7 @@ class EntryPointsByType:
 @dataclass
 class _DeprecatedContract:
     """
-    Dataclass representing contract declared to Starknet.
+    Dataclass representing contract declared on Starknet.
     """
 
     program: dict
@@ -764,7 +764,7 @@ class _DeprecatedContract:
 @dataclass
 class DeprecatedContractClass(_DeprecatedContract):
     """
-    Dataclass representing contract declared to Starknet.
+    Dataclass representing contract declared on Starknet.
     """
 
     abi: Optional[AbiDictList] = None
@@ -824,7 +824,7 @@ class _SierraContract:
 @dataclass
 class SierraContractClass(_SierraContract):
     """
-    Dataclass representing Cairo1 contract declared to Starknet
+    Dataclass representing Cairo1 contract declared on Starknet
     """
 
     abi: Optional[str] = None
