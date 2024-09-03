@@ -61,11 +61,11 @@ async def test_general_v1_interaction(account, erc20_class_hash: int):
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_serializing_struct(account, cairo1_token_bridge_class_hash: int):
+async def test_serializing_struct(account, token_bridge_class_hash: int):
     bridge = await deploy_v1_contract(
         account=account,
         contract_name="TokenBridge",
-        class_hash=cairo1_token_bridge_class_hash,
+        class_hash=token_bridge_class_hash,
         calldata={"governor_address": account.address},
     )
 
