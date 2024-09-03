@@ -393,4 +393,4 @@ async def deploy_v1_contract(
     res = await account.execute_v1(calls=deploy_call, max_fee=MAX_FEE)
     await account.client.wait_for_tx(res.transaction_hash)
 
-    return Contract(address, abi, provider=account, cairo_version=1)
+    return Contract(address, abi, provider=account)
