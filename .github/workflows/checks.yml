@@ -133,7 +133,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests:
-    name: Tests (Python ${{ matrix.python-version }})
+    name: Tests (${{ matrix.python-version }})
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -319,7 +319,7 @@ jobs:
 
   run-tests-windows:
     if: ${{ github.event_name != 'pull_request' }}
-    name: Tests Windows
+    name: Tests Windows (${{ matrix.python-version }})
     needs: setup-tests
     runs-on: windows-latest
     strategy:
@@ -410,7 +410,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-docs-tests:
-    name: Docs Tests
+    name: Docs Tests (${{ matrix.python-version }})
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -483,7 +483,7 @@ jobs:
 
   run-docs-tests-windows:
     if: ${{ github.event_name != 'pull_request' }}
-    name: Docs Tests Windows
+    name: Docs Tests Windows (${{ matrix.python-version }})
     needs: setup-tests
     runs-on: windows-latest
     strategy:
