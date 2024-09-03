@@ -94,14 +94,14 @@ async def test_throws_on_wrong_abi(account, cairo1_minimal_contract_class_hash: 
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int):
+async def test_deploy_contract_v1(account, hello_starknet_class_hash: int):
     compiled_contract = load_contract("HelloStarknet")["sierra"]
     abi = create_sierra_compiled_contract(
         compiled_contract=compiled_contract
     ).parsed_abi
 
     deploy_result = await Contract.deploy_contract_v1(
-        class_hash=cairo1_hello_starknet_class_hash,
+        class_hash=hello_starknet_class_hash,
         account=account,
         abi=abi,
         max_fee=MAX_FEE,
@@ -120,4 +120,4 @@ async def test_deploy_contract_v1(account, cairo1_hello_starknet_class_hash: int
     class_hash = await account.client.get_class_hash_at(
         contract_address=contract.address
     )
-    assert class_hash == cairo1_hello_starknet_class_hash
+    assert class_hash == hello_starknet_class_hash

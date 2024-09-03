@@ -703,8 +703,8 @@ async def test_sign_deploy_account_v1_for_fee_estimation(
 
 
 @pytest.mark.asyncio
-async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_class_hash):
-    deployment = Deployer().create_contract_deployment(cairo1_hello_starknet_class_hash)
+async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash):
+    deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
     deploy_tx = await account.sign_invoke_v1(deployment.call, max_fee=MAX_FEE)
 
     new_balance = 30

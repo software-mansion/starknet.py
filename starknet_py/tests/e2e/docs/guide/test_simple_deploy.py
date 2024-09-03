@@ -5,7 +5,7 @@ from starknet_py.net.client_models import ResourceBounds
 
 @pytest.mark.asyncio
 async def test_simple_deploy(
-    account, cairo1_hello_starknet_class_hash, cairo1_hello_starknet_abi
+    account, hello_starknet_class_hash, cairo1_hello_starknet_abi
 ):
     # pylint: disable=import-outside-toplevel
     # docs: start
@@ -13,7 +13,7 @@ async def test_simple_deploy(
 
     # docs: end
 
-    class_hash = cairo1_hello_starknet_class_hash
+    class_hash = hello_starknet_class_hash
     abi = cairo1_hello_starknet_abi
 
     # docs: start

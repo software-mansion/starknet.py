@@ -68,11 +68,11 @@ def block_with_deploy_account_number(
 
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_deploy_transaction_address(
-    account: Account, cairo1_hello_starknet_class_hash
+    account: Account, hello_starknet_class_hash
 ) -> int:
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment_raw(
-        class_hash=cairo1_hello_starknet_class_hash
+        class_hash=hello_starknet_class_hash
     )
     deploy_invoke_transaction = await account.sign_invoke_v1(
         calls=contract_deployment.call, max_fee=MAX_FEE

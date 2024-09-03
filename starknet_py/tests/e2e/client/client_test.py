@@ -1,5 +1,4 @@
 # pylint: disable=too-many-arguments
-from typing import Tuple
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -526,10 +525,10 @@ async def test_state_update_deployed_contracts(
 
 @pytest.mark.asyncio
 async def test_get_class_by_hash_sierra_program(
-    client, cairo1_hello_starknet_class_hash: int
+    client, hello_starknet_class_hash: int
 ):
     contract_class = await client.get_class_by_hash(
-        class_hash=cairo1_hello_starknet_class_hash
+        class_hash=hello_starknet_class_hash
     )
 
     assert isinstance(contract_class.parsed_abi, list)
@@ -543,7 +542,7 @@ async def test_get_class_by_hash_sierra_program(
 @pytest.mark.asyncio
 async def test_get_declare_v2_transaction(
     client,
-        hello_starknet_class_hash_tx_hash,
+    hello_starknet_class_hash_tx_hash,
     declare_v2_hello_starknet: DeclareV2,
 ):
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
@@ -566,7 +565,7 @@ async def test_get_declare_v2_transaction(
 @pytest.mark.asyncio
 async def test_get_block_with_declare_v2(
     client,
-        hello_starknet_class_hash_tx_hash,
+    hello_starknet_class_hash_tx_hash,
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
@@ -593,7 +592,7 @@ async def test_get_block_with_declare_v2(
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
-    cairo1_hello_starknet_class_hash: int,
+        hello_starknet_class_hash: int,
     declare_v2_hello_starknet: DeclareV2,
     block_with_declare_v2_number: int,
 ):
@@ -603,7 +602,7 @@ async def test_get_new_state_update(
     assert state_update_first.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
-            class_hash=cairo1_hello_starknet_class_hash,
+            class_hash=hello_starknet_class_hash,
             compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
         )
         in state_update_first.state_diff.declared_classes
