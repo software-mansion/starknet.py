@@ -41,8 +41,6 @@ from starknet_py.transaction_errors import (
 )
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_declare_transaction(
     client, declare_transaction_hash, class_hash, account
