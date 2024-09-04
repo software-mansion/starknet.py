@@ -96,8 +96,6 @@ async def test_get_block_by_hash(
     assert len(block.transactions) != 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_block_by_number(
     client,
@@ -111,8 +109,6 @@ async def test_get_block_by_number(
     assert len(block.transactions) != 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_storage_at(client, contract_address):
     storage = await client.get_storage_at(
@@ -124,8 +120,6 @@ async def test_get_storage_at(client, contract_address):
     assert storage == 1897
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_transaction_receipt(
     client, invoke_transaction_hash, block_with_invoke_number
@@ -137,8 +131,6 @@ async def test_get_transaction_receipt(
     assert receipt.type == TransactionType.INVOKE
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke(account, contract_address):
     invoke_tx = await account.sign_invoke_v1(
@@ -161,8 +153,6 @@ async def test_estimate_fee_invoke(account, contract_address):
     assert estimate_fee.data_gas_consumed > 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_estimate_fee_invoke_v3(account, contract_address):
     invoke_tx = await account.sign_invoke_v3(
