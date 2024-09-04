@@ -65,8 +65,6 @@ async def test_get_invoke_transaction(
     assert transaction.hash == invoke_transaction_hash
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_deploy_account_transaction(client, deploy_account_transaction_hash):
     transaction = await client.get_transaction(deploy_account_transaction_hash)
