@@ -492,8 +492,6 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
