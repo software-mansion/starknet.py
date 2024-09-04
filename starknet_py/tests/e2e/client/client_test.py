@@ -210,8 +210,6 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     assert estimate_fee.data_gas_consumed > 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_estimate_fee_for_multiple_transactions(
     client, deploy_account_transaction, contract_address, account
@@ -242,8 +240,6 @@ async def test_estimate_fee_for_multiple_transactions(
         assert estimated_fee.data_gas_consumed > 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_call_contract(client, contract_address):
     call = Call(
@@ -274,8 +270,6 @@ async def test_add_transaction(map_contract, client, account):
     assert transaction_receipt.type == TransactionType.INVOKE
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_class_hash_at(client, contract_address, class_hash):
     received_class_hash = await client.get_class_hash_at(
@@ -284,8 +278,6 @@ async def test_get_class_hash_at(client, contract_address, class_hash):
     assert received_class_hash == class_hash
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_class_by_hash(client, class_hash):
     contract_class = await client.get_class_by_hash(class_hash=class_hash)
@@ -483,8 +475,6 @@ async def test_state_update_storage_diffs(
     assert isinstance(state_update, BlockStateUpdate)
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_deployed_contracts(
