@@ -3,8 +3,6 @@ import pytest
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_simple_declare_and_deploy(account):
     # pylint: disable=import-outside-toplevel
