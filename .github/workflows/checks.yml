@@ -197,8 +197,6 @@ jobs:
           options: --rm -v ${{ github.workspace }}:/apps
           run: |
             cd /apps/app-starknet/starknet
-#            git checkout 911c28953d0f14859639cafa750f3d00e94a1be3
-#            git switch -c working-state
             cargo clean
             cargo ledger build nanox
 
