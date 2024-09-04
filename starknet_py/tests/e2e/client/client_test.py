@@ -83,8 +83,6 @@ async def test_get_transaction_raises_on_not_received(client):
         await client.get_transaction(tx_hash=0x9999)
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_get_block_by_hash(
     client,
