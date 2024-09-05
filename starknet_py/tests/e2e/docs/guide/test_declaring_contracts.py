@@ -16,7 +16,7 @@ async def test_declaring_contracts(account, map_compiled_contract_and_class_hash
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
         l1_resource_bounds=ResourceBounds(
-            max_amount=5000, max_price_per_unit=int(1e12)
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
         ),
     )
 
