@@ -9,7 +9,7 @@ build:
   jobs:
     pre_install:
       - pip install poetry
-      - poetry export -f requirements.txt --output requirements.txt --without-hashes --extras docs
+      - poetry export -f requirements.txt --output requirements.txt --without-hashes -E docs -E ledger
 
 sphinx:
   configuration: docs/conf.py
