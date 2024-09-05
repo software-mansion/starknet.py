@@ -64,7 +64,7 @@ async def test_declare_v2(account):
         account,
         compiled_contract=compiled_contract["sierra"],
         compiled_contract_casm=compiled_contract["casm"],
-        max_fee=int(1e15),
+        max_fee=int(1e18),
     )
     # docs-end: declare_v2
     await declare_result.wait_for_acceptance()
