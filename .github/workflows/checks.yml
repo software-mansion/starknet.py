@@ -181,6 +181,47 @@ jobs:
       - name: Install devnet
         run: ./starknet_py/tests/install_devnet.sh
 
+      # ====================== SETUP LEDGER SPECULOS ====================== #
+
+      - name: Pull speculos image
+        run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+
+
+      - name: Clone LedgerHQ Starknet app repository
+        run: git clone https://github.com/LedgerHQ/app-starknet.git
+
+      - name: Build the app inside Docker container
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+          options: --rm -v ${{ github.workspace }}:/apps
+          run: |
+            cd /apps/app-starknet
+            cargo clean
+            cargo ledger build nanox
+
+      - name: Start Speculos emulator container
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+          options: --rm -d --name speculos-emulator -v ${{ github.workspace }}:/apps --publish 5000:5000 --publish 9999:9999
+          run: |
+            speculos \
+            -m nanox \
+            --apdu-port 9999 \
+            --api-port 5000 \
+            --display headless \
+            /apps/app-starknet/target/nanox/release/starknet
+
+      - name: Wait for Speculos to start
+        run: sleep 5
+
+      - name: Update automation rules
+        working-directory: starknet_py/tests/unit/signer
+        run: |
+          curl -X POST http://127.0.0.1:5000/automation \
+          -H "Content-Type: application/json" \
+          -d @speculos_automation.json
 
       # ====================== RUN TESTS ====================== #
 
