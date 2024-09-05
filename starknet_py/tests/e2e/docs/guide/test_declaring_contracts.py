@@ -1,11 +1,17 @@
+import sys
+
 import pytest
 
 from starknet_py.net.client_models import ResourceBounds
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
-async def test_declaring_contracts(account, map_compiled_contract_and_class_hash):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+async def test_declaring_contracts(account, map_compiled_contract_and_class_hash_copy):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash_copy
 
     # docs: start
     # Account.sign_declare_v2 and Account.sign_declare_v3 take string containing a compiled contract (sierra)
