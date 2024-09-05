@@ -1,13 +1,18 @@
 import os
+import sys
 
 import pytest
 
 directory = os.path.dirname(__file__)
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
-async def test_using_account(account, map_compiled_contract_and_class_hash):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+async def test_using_account(account, map_compiled_contract_and_class_hash2):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash2
     # pylint: disable=import-outside-toplevel, duplicate-code, too-many-locals
     # docs: start
     from starknet_py.contract import Contract

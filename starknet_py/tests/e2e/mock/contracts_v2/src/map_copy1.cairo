@@ -6,7 +6,7 @@ trait IMap<TMapState> {
 
 
 #[starknet::contract]
-mod MapCopy {
+mod MapCopy1 {
     #[storage]
     struct Storage {
         storage: LegacyMap::<felt252, felt252>,
