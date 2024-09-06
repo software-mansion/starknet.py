@@ -196,7 +196,7 @@ jobs:
           image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
           options: --rm -v ${{ github.workspace }}:/apps
           run: |
-            cd /apps/app-starknet
+            cd /apps/app-starknet/starknet
             cargo clean
             cargo ledger build nanox
 
