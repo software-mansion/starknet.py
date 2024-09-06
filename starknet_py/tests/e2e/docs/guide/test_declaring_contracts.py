@@ -10,7 +10,9 @@ from starknet_py.net.client_models import ResourceBounds
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
-async def test_declaring_contracts(account, map_compiled_contract_and_class_hash_copy_1):
+async def test_declaring_contracts(
+    account, map_compiled_contract_and_class_hash_copy_1
+):
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash_copy_1
 
     # docs: start
