@@ -241,7 +241,7 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
 
 @pytest.fixture(scope="package")
-def map_compiled_contract_and_class_hash_copy1() -> Tuple[str, int]:
+def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
     contract = load_contract("MapCopy1")
 
     return (
@@ -251,7 +251,7 @@ def map_compiled_contract_and_class_hash_copy1() -> Tuple[str, int]:
 
 
 @pytest.fixture(scope="package")
-def map_compiled_contract_and_class_hash_copy2() -> Tuple[str, int]:
+def map_compiled_contract_and_class_hash_copy_2() -> Tuple[str, int]:
     contract = load_contract("MapCopy2")
 
     return (
