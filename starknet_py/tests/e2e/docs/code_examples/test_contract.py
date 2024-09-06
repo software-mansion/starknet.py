@@ -25,7 +25,7 @@ def test_init():
         ],
         provider=Account(
             address=0x321,
-            client=FullNodeClient(node_url="your.node.url"),
+            client=FullNodeClient(node_url="https://your.node.url"),
             key_pair=KeyPair(12, 34),
             chain=StarknetChainId.SEPOLIA,
         ),
@@ -53,16 +53,8 @@ async def test_from_address(account, contract_address):
     # docs-end: from_address
 
 
-@pytest.mark.asyncio
-async def test_declare_v1(account, custom_proxy):
-    compiled_contract = custom_proxy
-    # docs-start: declare_v1
-    declare_result = await Contract.declare_v1(
-        account=account, compiled_contract=compiled_contract, max_fee=int(1e15)
-    )
-    # docs-end: declare_v1
-
-
+# TODO (#1419): Fix contract redeclaration
+@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_declare_v2(account):
     compiled_contract = load_contract(
@@ -142,14 +134,14 @@ async def test_deploy_contract_v1(account, class_hash):
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int):
+async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
     compiled_contract = load_contract("HelloStarknet")["sierra"]
     # docs-start: deploy_contract_v3
     abi = create_sierra_compiled_contract(
         compiled_contract=compiled_contract
     ).parsed_abi
     # docs-end: deploy_contract_v3
-    class_hash = cairo1_hello_starknet_class_hash
+    class_hash = hello_starknet_class_hash
     # docs-start: deploy_contract_v3
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=class_hash,
@@ -172,13 +164,28 @@ async def test_deploy_contract_v3(account, cairo1_hello_starknet_class_hash: int
     class_hash = await account.client.get_class_hash_at(
         contract_address=contract.address
     )
-    assert class_hash == cairo1_hello_starknet_class_hash
+    assert class_hash == hello_starknet_class_hash
 
 
-def test_compute_address(custom_proxy):
-    compiled_contract = custom_proxy
-    # docs-start: compute_address
-    address = Contract.compute_address(
-        salt=1, compiled_contract=compiled_contract, constructor_args=[1, 2, [2]]
+@pytest.mark.asyncio
+async def test_deploy_contract_v3_without_abi(account, hello_starknet_class_hash: int):
+    deploy_result = await Contract.deploy_contract_v3(
+        class_hash=hello_starknet_class_hash,
+        account=account,
+        l1_resource_bounds=ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        ),
     )
-    # docs-end: compute_address
+    await deploy_result.wait_for_acceptance()
+
+    contract = deploy_result.deployed_contract
+    assert isinstance(contract.address, int)
+    assert len(contract.functions) == 2
+
+    transaction = await account.client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, InvokeTransactionV3)
+
+    class_hash = await account.client.get_class_hash_at(
+        contract_address=contract.address
+    )
+    assert class_hash == hello_starknet_class_hash

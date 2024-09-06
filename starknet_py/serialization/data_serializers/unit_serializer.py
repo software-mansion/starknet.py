@@ -10,6 +10,7 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 )
 
 
+# pyright: reportIncompatibleMethodOverride=false
 @dataclass
 class UnitSerializer(CairoDataSerializer[None, None]):
     """

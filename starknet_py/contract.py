@@ -4,7 +4,7 @@ import dataclasses
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
 
@@ -23,8 +23,6 @@ from starknet_py.abi.v2.shape import (
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
-from starknet_py.hash.address import compute_address
-from starknet_py.hash.class_hash import compute_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -37,16 +35,13 @@ from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     prepare_proxy_config,
 )
-from starknet_py.serialization import (
-    FunctionSerializationAdapter,
-    TupleDataclass,
-    serializer_for_function,
-)
+from starknet_py.serialization import TupleDataclass, serializer_for_function
 from starknet_py.serialization.factory import serializer_for_function_v1
-from starknet_py.utils.constructor_args_translator import (
-    _is_abi_v2,
-    translate_constructor_args,
+from starknet_py.serialization.function_serialization_adapter import (
+    FunctionSerializationAdapterV0,
+    FunctionSerializationAdapterV1,
 )
+from starknet_py.utils.constructor_args_translator import _is_abi_v2
 from starknet_py.utils.sync import add_sync_methods
 
 # pylint: disable=too-many-lines
@@ -308,7 +303,9 @@ class DeployResult(SentTransaction):
 @dataclass
 class PreparedCallBase(Call):
     _client: Client
-    _payload_transformer: FunctionSerializationAdapter
+    _payload_transformer: Union[
+        FunctionSerializationAdapterV0, FunctionSerializationAdapterV1
+    ]
 
 
 @add_sync_methods
@@ -338,7 +335,7 @@ class PreparedFunctionCall(PreparedCallBase):
         self,
         block_hash: Optional[str] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> TupleDataclass:
+    ) -> Union[TupleDataclass, Tuple]:
         """
         Calls a method.
 
@@ -589,7 +586,7 @@ class ContractFunction:
         block_hash: Optional[str] = None,
         block_number: Optional[Union[int, Tag]] = None,
         **kwargs,
-    ) -> TupleDataclass:
+    ) -> Union[TupleDataclass, Tuple]:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
@@ -814,37 +811,6 @@ class Contract:
         )
 
     @staticmethod
-    async def declare_v1(
-        account: BaseAccount,
-        compiled_contract: str,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareResult:
-        """
-        Declares a contract.
-
-        :param account: BaseAccount used to sign and send declare transaction.
-        :param compiled_contract: String containing compiled contract.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeclareResult instance.
-        """
-
-        declare_tx = await account.sign_declare_v1(
-            compiled_contract=compiled_contract,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-
-        return await _declare_contract(
-            declare_tx, account, compiled_contract, cairo_version=0
-        )
-
-    @staticmethod
     async def declare_v2(
         account: BaseAccount,
         compiled_contract: str,
@@ -997,7 +963,7 @@ class Contract:
     async def deploy_contract_v3(
         account: BaseAccount,
         class_hash: Hash,
-        abi: List,
+        abi: Optional[List] = None,
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
@@ -1048,9 +1014,15 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        deployed_contract = Contract(
-            provider=account, address=address, abi=abi, cairo_version=cairo_version
-        )
+        if abi is not None:
+            deployed_contract = Contract(
+                provider=account, address=address, abi=abi, cairo_version=cairo_version
+            )
+        else:
+            deployed_contract = await Contract.from_address(
+                address=address, provider=account
+            )
+
         deploy_result = DeployResult(
             hash=res.transaction_hash,
             _client=account.client,
@@ -1058,48 +1030,6 @@ class Contract:
         )
 
         return deploy_result
-
-    @staticmethod
-    def compute_address(
-        salt: int,
-        compiled_contract: str,
-        constructor_args: Optional[Union[List, Dict]] = None,
-        deployer_address: int = 0,
-    ) -> int:
-        """
-        Computes address for given Cairo 0 contract.
-
-        :param salt: int
-        :param compiled_contract: String containing compiled Cairo 0 contract.
-        :param constructor_args: A ``list`` or ``dict`` of arguments for the constructor.
-        :param deployer_address: Address of the deployer (if not provided default 0 is used).
-
-        :return: Contract's address.
-        """
-
-        compiled = create_compiled_contract(compiled_contract)
-        assert compiled.abi is not None
-        translated_args = translate_constructor_args(
-            compiled.abi, constructor_args, cairo_version=0
-        )
-        return compute_address(
-            salt=salt,
-            class_hash=compute_class_hash(compiled),
-            constructor_calldata=translated_args,
-            deployer_address=deployer_address,
-        )
-
-    @staticmethod
-    def compute_contract_hash(compiled_contract: str) -> int:
-        """
-        Computes hash for given contract.
-
-        :param compiled_contract: String containing compiled contract.
-        :return: Class_hash of the contract.
-        """
-
-        contract_class = create_compiled_contract(compiled_contract)
-        return compute_class_hash(contract_class)
 
     @classmethod
     def _make_functions(

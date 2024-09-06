@@ -3,7 +3,7 @@ Dataclasses representing responses from Starknet.
 They need to stay backwards compatible for old transactions/blocks to be fetchable.
 
 If you encounter a ValidationError in the context of an RPC response, it is possible to disable validation.
-This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLOW_UKNOWN_EXCLUDE,
+This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLOW_UNKNOWN_EXCLUDE,
 to true. Consequently, any unknown fields in response will be excluded.
 """
 
@@ -256,16 +256,6 @@ class InvokeTransactionV3(TransactionV3):
     sender_address: int
     nonce: int
     account_deployment_data: List[int]
-
-
-@dataclass
-class DeclareTransactionV0(DeprecatedTransaction):
-    """
-    Dataclass representing declare transaction v0.
-    """
-
-    sender_address: int
-    class_hash: int
 
 
 @dataclass
@@ -762,18 +752,26 @@ class EntryPointsByType:
 
 
 @dataclass
-class DeprecatedContractClass:
+class _DeprecatedContract:
     """
-    Dataclass representing contract declared to Starknet.
+    Dataclass representing contract declared on Starknet.
     """
 
     program: dict
     entry_points_by_type: EntryPointsByType
+
+
+@dataclass
+class DeprecatedContractClass(_DeprecatedContract):
+    """
+    Dataclass representing contract declared on Starknet.
+    """
+
     abi: Optional[AbiDictList] = None
 
 
 @dataclass
-class DeprecatedCompiledContract(DeprecatedContractClass):
+class DeprecatedCompiledContract(_DeprecatedContract):
     """
     Dataclass representing ContractClass with required abi.
     """
@@ -782,6 +780,16 @@ class DeprecatedCompiledContract(DeprecatedContractClass):
     # default_factory is used, since abi in ContractClass is Optional
     # and otherwise, non-keyword arguments would follow keyword arguments
     abi: AbiDictList = field(default_factory=list)
+
+    def convert_to_deprecated_contract_class(self) -> DeprecatedContractClass:
+        """
+        Converts an instance of DeprecatedCompiledContract to DeprecatedContractClass.
+        """
+        return DeprecatedContractClass(
+            program=self.program,
+            entry_points_by_type=self.entry_points_by_type,
+            abi=self.abi,
+        )
 
 
 @dataclass
@@ -806,14 +814,19 @@ class SierraEntryPointsByType:
 
 
 @dataclass
-class SierraContractClass:
-    """
-    Dataclass representing Cairo1 contract declared to Starknet
-    """
+class _SierraContract:
 
     contract_class_version: str
     sierra_program: List[int]
     entry_points_by_type: SierraEntryPointsByType
+
+
+@dataclass
+class SierraContractClass(_SierraContract):
+    """
+    Dataclass representing Cairo1 contract declared on Starknet
+    """
+
     abi: Optional[str] = None
 
     @property
@@ -839,12 +852,41 @@ class SierraContractClass:
 
 
 @dataclass
-class SierraCompiledContract(SierraContractClass):
+class SierraCompiledContract(_SierraContract):
     """
     Dataclass representing SierraContractClass with required abi.
     """
 
     abi: str = field(default_factory=str)
+
+    @property
+    def parsed_abi(self) -> Union[AbiDictListV2, AbiDictListV1]:
+        load_abi: List = json.loads(self.abi)
+
+        if _is_abi_v2(load_abi):
+            return [
+                cast(
+                    AbiDictEntryV2,
+                    ContractAbiEntrySchemaV2(unknown=EXCLUDE).load(entry),
+                )
+                for entry in load_abi
+            ]
+
+        return [
+            cast(AbiDictEntryV1, ContractAbiEntrySchemaV1(unknown=EXCLUDE).load(entry))
+            for entry in load_abi
+        ]
+
+    def convert_to_sierra_contract_class(self) -> SierraContractClass:
+        """
+        Converts an instance of SierraCompiledContract to SierraContractClass.
+        """
+        return SierraContractClass(
+            contract_class_version=self.contract_class_version,
+            sierra_program=self.sierra_program,
+            entry_points_by_type=self.entry_points_by_type,
+            abi=self.abi,
+        )
 
 
 @dataclass

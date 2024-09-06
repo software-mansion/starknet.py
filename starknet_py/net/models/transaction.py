@@ -10,9 +10,8 @@ import gzip
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, TypeVar, Union
+from typing import List, TypeVar, Union
 
-import marshmallow
 import marshmallow_dataclass
 from marshmallow import fields
 
@@ -20,7 +19,6 @@ from starknet_py.hash.address import compute_address
 from starknet_py.hash.transaction import (
     CommonTransactionV3Fields,
     TransactionHashPrefix,
-    compute_declare_transaction_hash,
     compute_declare_v2_transaction_hash,
     compute_declare_v3_transaction_hash,
     compute_deploy_account_transaction_hash,
@@ -30,16 +28,12 @@ from starknet_py.hash.transaction import (
 )
 from starknet_py.net.client_models import (
     DAMode,
-    DeprecatedContractClass,
     ResourceBoundsMapping,
     SierraContractClass,
     TransactionType,
 )
-from starknet_py.net.schemas.common import Felt, TransactionTypeField
-from starknet_py.net.schemas.rpc.contract import (
-    ContractClassSchema,
-    SierraContractClassSchema,
-)
+from starknet_py.net.schemas.common import Felt
+from starknet_py.net.schemas.rpc.contract import SierraContractClassSchema
 
 # TODO (#1219):
 #  consider unifying these classes with client_models
@@ -134,7 +128,10 @@ class DeclareV3(_AccountTransactionV3):
     compiled_class_hash: int
     contract_class: SierraContractClass
     account_deployment_data: List[int] = field(default_factory=list)
-    type: TransactionType = TransactionType.DECLARE
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DECLARE
 
     def calculate_hash(self, chain_id: int) -> int:
         return compute_declare_v3_transaction_hash(
@@ -161,59 +158,15 @@ class DeclareV2(_DeprecatedAccountTransaction):
     )
     compiled_class_hash: int = field(metadata={"marshmallow_field": Felt()})
     sender_address: int = field(metadata={"marshmallow_field": Felt()})
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.DECLARE,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DECLARE
 
     def calculate_hash(self, chain_id: int) -> int:
         return compute_declare_v2_transaction_hash(
             contract_class=self.contract_class,
             compiled_class_hash=self.compiled_class_hash,
-            chain_id=chain_id,
-            sender_address=self.sender_address,
-            max_fee=self.max_fee,
-            version=self.version,
-            nonce=self.nonce,
-        )
-
-
-@dataclass(frozen=True)
-class DeclareV1(_DeprecatedAccountTransaction):
-    """
-    Represents a transaction in the Starknet network that is a declaration of a Starknet contract
-    class.
-    """
-
-    # The class to be declared, included for all methods involving execution (estimateFee, simulateTransactions)
-    contract_class: DeprecatedContractClass = field(
-        metadata={"marshmallow_field": fields.Nested(ContractClassSchema())}
-    )
-    # The address of the account contract sending the declaration transaction.
-    sender_address: int = field(metadata={"marshmallow_field": Felt()})
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.DECLARE,
-    )
-
-    @marshmallow.post_dump
-    def post_dump(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
-        # along with data, which we don't handle.
-        # pylint: disable=unused-argument, no-self-use
-        return compress_program(data)
-
-    @marshmallow.pre_load
-    def pre_load(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
-        # pylint: disable=unused-argument, no-self-use
-        return decompress_program(data)
-
-    def calculate_hash(self, chain_id: int) -> int:
-        """
-        Calculates the transaction hash in the Starknet network.
-        """
-        return compute_declare_transaction_hash(
-            contract_class=self.contract_class,
             chain_id=chain_id,
             sender_address=self.sender_address,
             max_fee=self.max_fee,
@@ -232,7 +185,10 @@ class DeployAccountV3(_AccountTransactionV3):
     class_hash: int
     contract_address_salt: int
     constructor_calldata: List[int]
-    type: TransactionType = TransactionType.DEPLOY_ACCOUNT
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DEPLOY_ACCOUNT
 
     def calculate_hash(self, chain_id: int) -> int:
         contract_address = compute_address(
@@ -265,10 +221,10 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
     constructor_calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.DEPLOY_ACCOUNT,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.DEPLOY_ACCOUNT
 
     def calculate_hash(self, chain_id: int) -> int:
         """
@@ -302,7 +258,10 @@ class InvokeV3(_AccountTransactionV3):
     calldata: List[int]
     sender_address: int
     account_deployment_data: List[int] = field(default_factory=list)
-    type: TransactionType = TransactionType.INVOKE
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.INVOKE
 
     def calculate_hash(self, chain_id: int) -> int:
         return compute_invoke_v3_transaction_hash(
@@ -327,10 +286,10 @@ class InvokeV1(_DeprecatedAccountTransaction):
     calldata: List[int] = field(
         metadata={"marshmallow_field": fields.List(fields.String())}
     )
-    type: TransactionType = field(
-        metadata={"marshmallow_field": TransactionTypeField()},
-        default=TransactionType.INVOKE,
-    )
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.INVOKE
 
     def calculate_hash(self, chain_id: int) -> int:
         """
@@ -346,12 +305,11 @@ class InvokeV1(_DeprecatedAccountTransaction):
         )
 
 
-Declare = Union[DeclareV1, DeclareV2, DeclareV3]
+Declare = Union[DeclareV2, DeclareV3]
 DeployAccount = Union[DeployAccountV1, DeployAccountV3]
 Invoke = Union[InvokeV1, InvokeV3]
 
 InvokeV1Schema = marshmallow_dataclass.class_schema(InvokeV1)
-DeclareV1Schema = marshmallow_dataclass.class_schema(DeclareV1)
 DeclareV2Schema = marshmallow_dataclass.class_schema(DeclareV2)
 DeployAccountV1Schema = marshmallow_dataclass.class_schema(DeployAccountV1)
 

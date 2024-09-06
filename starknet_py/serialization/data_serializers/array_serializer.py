@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generator, Iterable, List
+from typing import Generator, List
 
 from starknet_py.serialization._context import (
     DeserializationContext,
@@ -15,7 +15,7 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 
 
 @dataclass
-class ArraySerializer(CairoDataSerializer[Iterable, List]):
+class ArraySerializer(CairoDataSerializer[List, List]):
     """
     Serializer for arrays. In abi they are represented as a pointer to a type.
     Can serialize any iterable and prepends its length to resulting list.

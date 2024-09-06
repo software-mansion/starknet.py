@@ -8,11 +8,11 @@ from starknet_py.serialization.data_serializers.payload_serializer import (
 )
 from starknet_py.serialization.errors import InvalidTypeException, InvalidValueException
 from starknet_py.serialization.function_serialization_adapter import (
-    FunctionSerializationAdapter,
+    FunctionSerializationAdapterV0,
 )
 from starknet_py.serialization.tuple_dataclass import TupleDataclass
 
-serializer = FunctionSerializationAdapter(
+serializer = FunctionSerializationAdapterV0(
     inputs_serializer=PayloadSerializer(
         OrderedDict(
             x=FeltSerializer(),

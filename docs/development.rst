@@ -23,9 +23,12 @@ To install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^
 
-In order to be able to run tests on testnet network (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
+In order to be able to run devnet client tests (``starknet_py/tests/e2e/client_devnet``) you must set environmental variable:
 
     - ``SEPOLIA_RPC_URL``
+
+To run tests on testnet network (``starknet_py/tests/e2e/tests_on_networks/``) additionally you must set:
+
     - ``SEPOLIA_ACCOUNT_PRIVATE_KEY``
     - ``SEPOLIA_ACCOUNT_ADDRESS``
 
@@ -139,4 +142,3 @@ Perform these actions before releasing a new starknet.py version
     git merge development
 
 5. Make a new release on GitHub
-6. Run release action from ``master`` branch

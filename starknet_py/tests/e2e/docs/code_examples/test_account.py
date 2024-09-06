@@ -17,7 +17,7 @@ def test_init():
     # docs-start: init
     account = Account(
         address=0x123,
-        client=FullNodeClient(node_url="your.node.url"),
+        client=FullNodeClient(node_url="https://your.node.url"),
         key_pair=KeyPair(12, 34),
         chain=StarknetChainId.SEPOLIA,
     )
