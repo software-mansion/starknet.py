@@ -13,7 +13,9 @@ from starknet_py.serialization.data_serializers.struct_serializer import (
     StructSerializer,
 )
 from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
-from starknet_py.serialization.data_serializers.uint_serializer_test import SHIFT
+from starknet_py.tests.unit.serialization.data_serializers.uint256_serializer_test import (
+    SHIFT,
+)
 
 serializer = OutputSerializer(
     serializers=[
