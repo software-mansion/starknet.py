@@ -1,5 +1,3 @@
-from sys import platform
-
 import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
