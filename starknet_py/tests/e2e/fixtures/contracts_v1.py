@@ -241,6 +241,26 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
 
 @pytest.fixture(scope="package")
+def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
+    contract = load_contract("MapCopy1")
+
+    return (
+        contract["sierra"],
+        compute_casm_class_hash(create_casm_class(contract["casm"])),
+    )
+
+
+@pytest.fixture(scope="package")
+def map_compiled_contract_and_class_hash_copy_2() -> Tuple[str, int]:
+    contract = load_contract("MapCopy2")
+
+    return (
+        contract["sierra"],
+        compute_casm_class_hash(create_casm_class(contract["casm"])),
+    )
+
+
+@pytest.fixture(scope="package")
 def map_compiled_contract_casm() -> str:
     contract = load_contract("Map")
 
