@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, NoReturn
+from typing import TYPE_CHECKING, List
 
 from starknet_py.constants import (
     EIP_2645_PATH_LENGTH,
@@ -141,7 +141,7 @@ class LedgerSigner(BaseSigner):
         return self.app.sign_hash(hash_val=msg_hash)
 
 
-def _parse_derivation_path_str(derivation_path_str: str) -> "Bip32Path":
+def _parse_derivation_path_str(derivation_path_str: str) -> Bip32Path:
     """
     Parse a derivation path string to a Bip32Path object.
 
@@ -167,7 +167,7 @@ def _parse_derivation_path_str(derivation_path_str: str) -> "Bip32Path":
     return Bip32Path(path_elements)
 
 
-def _derivation_path_to_bytes(derivation_path: "Bip32Path") -> bytes:
+def _derivation_path_to_bytes(derivation_path: Bip32Path) -> bytes:
     """
     Convert a derivation path to a bytes object.
 
