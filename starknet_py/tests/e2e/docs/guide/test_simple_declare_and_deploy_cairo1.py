@@ -1,10 +1,14 @@
+import sys
+
 import pytest
 
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_simple_declare_and_deploy(account):
     # pylint: disable=import-outside-toplevel
@@ -12,7 +16,7 @@ async def test_simple_declare_and_deploy(account):
     from starknet_py.contract import Contract
 
     # docs: end
-    compiled_contract = load_contract("Account")
+    compiled_contract = load_contract("AccountCopy1")
     constructor_args = {"public_key": 0x123}
 
     # docs: start

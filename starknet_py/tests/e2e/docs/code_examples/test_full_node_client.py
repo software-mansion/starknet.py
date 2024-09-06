@@ -233,8 +233,6 @@ async def test_trace_transaction(client):
     # docs-end: trace_transaction
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_simulate_transactions(
     account, deployed_balance_contract, deploy_account_transaction

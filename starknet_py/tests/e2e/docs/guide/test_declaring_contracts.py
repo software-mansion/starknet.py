@@ -1,13 +1,19 @@
+import sys
+
 import pytest
 
 from starknet_py.net.client_models import ResourceBounds
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
+@pytest.mark.skipif(
+    "--contract_dir=v2" not in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
-async def test_declaring_contracts(account, map_compiled_contract_and_class_hash):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+async def test_declaring_contracts(
+    account, map_compiled_contract_and_class_hash_copy_1
+):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash_copy_1
 
     # docs: start
     # Account.sign_declare_v2 and Account.sign_declare_v3 take string containing a compiled contract (sierra)
@@ -18,7 +24,7 @@ async def test_declaring_contracts(account, map_compiled_contract_and_class_hash
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
         l1_resource_bounds=ResourceBounds(
-            max_amount=5000, max_price_per_unit=int(1e12)
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
         ),
     )
 
