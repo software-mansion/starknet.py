@@ -53,8 +53,6 @@ async def test_from_address(account, contract_address):
     # docs-end: from_address
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
 @pytest.mark.asyncio
 async def test_declare_v2(account):
     compiled_contract = load_contract(
@@ -66,7 +64,7 @@ async def test_declare_v2(account):
         account,
         compiled_contract=compiled_contract["sierra"],
         compiled_contract_casm=compiled_contract["casm"],
-        max_fee=int(1e15),
+        max_fee=int(1e18),
     )
     # docs-end: declare_v2
     await declare_result.wait_for_acceptance()
