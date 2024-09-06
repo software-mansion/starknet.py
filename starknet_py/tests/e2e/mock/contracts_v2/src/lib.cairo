@@ -16,4 +16,4 @@ mod map_copy1;
 mod map_copy2;
 mod simple_storage_with_event;
 mod balance;
-mod account_copy;
+mod account_copy1;

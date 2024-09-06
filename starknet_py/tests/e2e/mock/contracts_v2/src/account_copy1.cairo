@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod AccountCopy {
+mod AccountCopy1 {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
 
