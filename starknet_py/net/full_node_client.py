@@ -26,7 +26,7 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     SimulatedTransaction,
     SimulationFlag,
-    StarknetBlock,
+    BlockWithTxs,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     SyncStatus,
@@ -107,7 +107,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlock, PendingStarknetBlock]:
+    ) -> Union[BlockWithTxs, PendingStarknetBlock]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -118,13 +118,13 @@ class FullNodeClient(Client):
         )
         if block_identifier == {"block_id": "pending"}:
             return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
-        return cast(StarknetBlock, StarknetBlockSchema().load(res))
+        return cast(BlockWithTxs, StarknetBlockSchema().load(res))
 
     async def get_block_with_txs(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlock, PendingStarknetBlock]:
+    ) -> Union[BlockWithTxs, PendingStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
     async def get_block_with_tx_hashes(

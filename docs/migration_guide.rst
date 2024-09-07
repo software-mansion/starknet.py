@@ -113,7 +113,7 @@ Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0!
 
 1. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` field ``parent_block_hash`` has been renamed to ``parent_hash``
 2. :class:`StarknetBlockCommon` has been renamed to :class:`BlockHeader`
-3. :class:`StarknetBlock` and :class:`StarknetBlockWithTxHashes` fields ``parent_block_hash`` and ``root`` have been renamed to ``parent_hash`` and ``new_root`` respectively
+3. :class:`BlockWithTxs` and :class:`StarknetBlockWithTxHashes` fields ``parent_block_hash`` and ``root`` have been renamed to ``parent_hash`` and ``new_root`` respectively
 4. :class:`FunctionInvocation` field ``execution_resources`` has been renamed to ``computation_resources``
 
 0.21.0 Minor changes
@@ -123,7 +123,7 @@ Version 0.21.0 of **starknet.py** comes with support for RPC 0.7.0!
 2. :class:`ExecutionResources` has a new required field ``data_availability``
 3. :class:`InvokeTransactionTrace`, :class:`DeclareTransactionTrace` and :class:`DeployAccountTransactionTrace` have a new required field ``execution_resources``
 4. :class:`EstimatedFee` has new required fields ``data_gas_consumed`` and ``data_gas_price``
-5. :class:`StarknetBlock`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
+5. :class:`BlockWithTxs`, :class:`PendingStarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlockWithTxHashes` have new required fields ``l1_data_gas_price`` and ``l1_da_mode``
 6. :class:`SierraContractClass` has an additional propery ``parsed_abi``
 
 **********************
@@ -265,7 +265,7 @@ Version 0.18.3 of **starknet.py** comes with support for RPC 0.5.1!
 0.18.3 Minor changes
 --------------------
 
-1. :class:`StarknetBlock`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional fields: ``starknet_version`` and ``l1_gas_price``.
+1. :class:`BlockWithTxs`, :class:`StarknetBlockWithTxHashes`, :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` now have two additional fields: ``starknet_version`` and ``l1_gas_price``.
 2. :class:`PendingStarknetBlock` and :class:`PendingStarknetBlockWithTxHashes` fields ``timestamp``, ``sequencer_address`` and ``parent_block_hash`` are now required, not optional.
 3. :class:`TransactionReceipt` now has an additional field - ``message_hash`` (for ``L1_HANDLER_TXN_RECEIPT``).
 4. Most fields in ``TransactionTrace`` classes are now optional.

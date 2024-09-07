@@ -12,7 +12,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithTxHashes,
     ReplacedClass,
     ResourcePrice,
-    StarknetBlock,
+    BlockWithTxs,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     StateDiff,
@@ -236,8 +236,8 @@ class StarknetBlockSchema(BlockHeaderSchema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> StarknetBlock:
-        return StarknetBlock(**data)
+    def make_dataclass(self, data, **kwargs) -> BlockWithTxs:
+        return BlockWithTxs(**data)
 
 
 class PendingStarknetBlockWithReceiptsSchema(PendingBlockHeaderSchema):

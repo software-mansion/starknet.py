@@ -5,7 +5,7 @@ from starknet_py.net.client_models import (
     L1DAMode,
     PendingStarknetBlock,
     PendingStarknetBlockWithTxHashes,
-    StarknetBlock,
+    BlockWithTxs,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
 )
@@ -23,7 +23,7 @@ async def test_latest_block(account):
     blk = await account.client.get_block(block_number="latest")
     assert blk.block_hash
     assert blk.transactions is not None
-    assert isinstance(blk, StarknetBlock)
+    assert isinstance(blk, BlockWithTxs)
 
 
 @pytest.mark.asyncio
@@ -68,7 +68,7 @@ async def test_get_block_with_txs_latest(account, map_class_hash):
 
     blk = await account.client.get_block_with_txs(block_number="latest")
 
-    assert isinstance(blk, StarknetBlock)
+    assert isinstance(blk, BlockWithTxs)
     assert isinstance(blk.transactions, list)
     assert blk.transactions[0].hash is not None
     assert blk.block_hash is not None

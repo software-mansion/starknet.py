@@ -541,7 +541,7 @@ class BlockHeader:
 
 
 @dataclass
-class StarknetBlock(BlockHeader):
+class BlockWithTxs(BlockHeader):
     """
     Dataclass representing a block on Starknet.
     """

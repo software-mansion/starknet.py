@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.client_models import StarknetBlock, Transaction
+from starknet_py.net.client_models import BlockWithTxs, Transaction
 
 
 @pytest.mark.run_on_devnet
@@ -25,7 +25,7 @@ async def test_using_full_node_client(client, map_contract):
 
     call_result = await client.get_block(block_number=1)
     # docs: end
-    assert isinstance(call_result, StarknetBlock)
+    assert isinstance(call_result, BlockWithTxs)
     assert len(call_result.transactions) == 1
     assert isinstance(call_result.transactions[0], Transaction)
     assert call_result.block_hash

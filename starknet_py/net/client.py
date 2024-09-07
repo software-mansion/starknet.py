@@ -18,7 +18,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlock,
     SentTransactionResponse,
     SierraContractClass,
-    StarknetBlock,
+    BlockWithTxs,
     Tag,
     Transaction,
     TransactionExecutionStatus,
@@ -47,13 +47,13 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlock, PendingStarknetBlock]:
+    ) -> Union[BlockWithTxs, PendingStarknetBlock]:
         """
         Retrieve the block's data by its number or hash
 
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
-        :return: StarknetBlock object representing retrieved block
+        :return: BlockWithTxs object representing retrieved block
         """
 
     @abstractmethod
