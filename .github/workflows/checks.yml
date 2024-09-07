@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       - name: Check poetry.lock
         run: |
@@ -93,7 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       # ====================== CONTRACTS v2 ====================== #
       - name: Cache contracts v2
@@ -174,7 +174,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -285,7 +285,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       # ====================== RUN TESTS ====================== #
 
@@ -367,7 +367,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       # ====================== RUN TESTS ====================== #
 
@@ -429,7 +429,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -496,7 +496,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
 
