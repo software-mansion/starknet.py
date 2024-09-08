@@ -17,10 +17,10 @@ def client_sepolia_testnet() -> FullNodeClient:
 
 
 @pytest.fixture(scope="package")
-def account_sepolia_testnet(client_sepolia_testnet) -> Account:
+def account_sepolia_testnet(client: FullNodeClient) -> Account:
     return Account(
         address=SEPOLIA_ACCOUNT_ADDRESS(),
-        client=client_sepolia_testnet,
+        client=client,
         key_pair=KeyPair.from_private_key(int(SEPOLIA_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.SEPOLIA,
     )

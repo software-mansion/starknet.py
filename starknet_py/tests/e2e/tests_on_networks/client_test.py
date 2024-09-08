@@ -99,7 +99,8 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
 
     with pytest.raises(
         ClientError,
-        match=r"Client failed with code 55. Message: Account validation failed. Data: Max fee \(\d+\) is too low. Minimum fee: \d+.",
+        match=r"Client failed with code 55. "
+              r"Message: Account validation failed. Data: Max fee \(\d+\) is too low. Minimum fee: \d+.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -116,7 +117,8 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
 
     with pytest.raises(
         ClientError,
-        match=r"Client failed with code 55. Message: Account validation failed. Data: Max fee \(\d+\) exceeds balance \(\d+\).",
+        match=r"Client failed with code 55. "
+              r"Message: Account validation failed. Data: Max fee \(\d+\) exceeds balance \(\d+\).",
     ):
         await account.client.send_transaction(sign_invoke)
 

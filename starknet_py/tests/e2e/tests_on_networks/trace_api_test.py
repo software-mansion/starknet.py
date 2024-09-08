@@ -22,8 +22,9 @@ async def test_trace_transaction_invoke_v1(client_sepolia_testnet):
     invoke_tx_hash = 0x6D1938DC27FF335BA1D585B2FD78C12C30EF12A25E0DD64461ECD2089F5F839
     trace = await client_sepolia_testnet.trace_transaction(tx_hash=invoke_tx_hash)
     tx = await client_sepolia_testnet.get_transaction(tx_hash=invoke_tx_hash)
-    assert type(tx) is InvokeTransactionV1
-    assert type(trace) is InvokeTransactionTrace
+
+    assert isinstance(tx, InvokeTransactionV1)
+    assert isinstance(trace, InvokeTransactionTrace)
     assert trace.execute_invocation is not None
     assert trace.execution_resources is not None
 
@@ -33,8 +34,9 @@ async def test_trace_transaction_invoke_v3(client_sepolia_testnet):
     invoke_tx_hash = 0x26476DA48E56E5E7025543AD0BB9105DF00EE08571C6D17C4207462FF7717C4
     trace = await client_sepolia_testnet.trace_transaction(tx_hash=invoke_tx_hash)
     tx = await client_sepolia_testnet.get_transaction(tx_hash=invoke_tx_hash)
-    assert type(tx) is InvokeTransactionV3
-    assert type(trace) is InvokeTransactionTrace
+
+    assert isinstance(tx, InvokeTransactionV3)
+    assert isinstance(trace, InvokeTransactionTrace)
     assert trace.execute_invocation is not None
     assert trace.execution_resources is not None
 
@@ -45,8 +47,8 @@ async def test_trace_transaction_declare_v1(client_sepolia_testnet):
     trace = await client_sepolia_testnet.trace_transaction(tx_hash=declare_tx_hash)
     tx = await client_sepolia_testnet.get_transaction(tx_hash=declare_tx_hash)
 
-    assert (type(tx)) is DeclareTransactionV1
-    assert type(trace) is DeclareTransactionTrace
+    assert isinstance(tx, DeclareTransactionV1)
+    assert isinstance(trace, DeclareTransactionTrace)
     assert trace.execution_resources is not None
 
 
@@ -56,8 +58,8 @@ async def test_trace_transaction_declare_v2(client_sepolia_testnet):
     trace = await client_sepolia_testnet.trace_transaction(tx_hash=declare_tx_hash)
     tx = await client_sepolia_testnet.get_transaction(tx_hash=declare_tx_hash)
 
-    assert (type(tx)) is DeclareTransactionV2
-    assert type(trace) is DeclareTransactionTrace
+    assert isinstance(tx, DeclareTransactionV2)
+    assert isinstance(trace, DeclareTransactionTrace)
     assert trace.execution_resources is not None
 
 
@@ -67,8 +69,8 @@ async def test_trace_transaction_declare_v3(client_sepolia_testnet):
     trace = await client_sepolia_testnet.trace_transaction(tx_hash=declare_tx_hash)
     tx = await client_sepolia_testnet.get_transaction(tx_hash=declare_tx_hash)
 
-    assert (type(tx)) is DeclareTransactionV3
-    assert type(trace) is DeclareTransactionTrace
+    assert isinstance(tx, DeclareTransactionV3)
+    assert isinstance(trace, DeclareTransactionTrace)
     assert trace.execution_resources is not None
 
 
@@ -82,8 +84,8 @@ async def test_trace_transaction_deploy_account_v1(client_sepolia_testnet):
     )
     tx = await client_sepolia_testnet.get_transaction(tx_hash=deploy_account_tx_hash)
 
-    assert (type(tx)) is DeployAccountTransactionV1
-    assert type(trace) is DeployAccountTransactionTrace
+    assert isinstance(tx, DeployAccountTransactionV1)
+    assert isinstance(trace, DeployAccountTransactionTrace)
     assert trace.constructor_invocation is not None
     assert trace.execution_resources is not None
 
@@ -98,8 +100,8 @@ async def test_trace_transaction_deploy_account_v3(client_sepolia_testnet):
     )
     tx = await client_sepolia_testnet.get_transaction(tx_hash=deploy_account_tx_hash)
 
-    assert (type(tx)) is DeployAccountTransactionV3
-    assert type(trace) is DeployAccountTransactionTrace
+    assert isinstance(tx, DeployAccountTransactionV3)
+    assert isinstance(trace, DeployAccountTransactionTrace)
     assert trace.constructor_invocation is not None
     assert trace.execution_resources is not None
 
@@ -112,8 +114,8 @@ async def test_trace_transaction_l1_handler(client_sepolia_testnet):
     trace = await client_sepolia_testnet.trace_transaction(tx_hash=l1_handler_tx_hash)
     tx = await client_sepolia_testnet.get_transaction(tx_hash=l1_handler_tx_hash)
 
-    assert (type(tx)) is L1HandlerTransaction
-    assert type(trace) is L1HandlerTransactionTrace
+    assert isinstance(tx, L1HandlerTransaction)
+    assert isinstance(trace, L1HandlerTransactionTrace)
     assert trace.function_invocation is not None
     assert trace.execution_resources is not None
 
@@ -135,7 +137,5 @@ async def test_get_block_traces(client_sepolia_testnet):
     block = await client_sepolia_testnet.get_block(block_number=block_number)
 
     assert len(block_transaction_traces) == len(block.transactions)
-    for i in range(len(block_transaction_traces)):
-        assert (
-            block_transaction_traces[i].transaction_hash == block.transactions[i].hash
-        )
+    for i, block_transaction_trace in enumerate(block_transaction_traces):
+        assert block_transaction_trace.transaction_hash == block.transactions[i].hash
