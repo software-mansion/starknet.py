@@ -10,7 +10,7 @@ In the starknet.py you need to use the :meth:`~starknet_py.net.signer.key_pair.K
 Generating random key pair
 --------------------------
 
-Method :meth:`~starknet_py.net.signer.key_pair.KeyPair.generate` generate cryptographically strong pseudo-random numbers
+Method :meth:`~starknet_py.net.signer.key_pair.KeyPair.generate` allows to generate cryptographically strong pseudo-random numbers
 suitable for managing secrets such as account authentication, tokens, and similar.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_key_pair.py
