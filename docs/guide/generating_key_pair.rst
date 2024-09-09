@@ -20,7 +20,7 @@ suitable for managing secrets such as account authentication, tokens, and simila
     :end-before: docs-generate: end
 
 
-Creating Key pair from Private Key
+Creating key pair from private Key
 ----------------------------------
 
 To create a key pair from a private key, use the :meth:`~starknet_py.net.signer.key_pair.KeyPair.from_private_key` method.
