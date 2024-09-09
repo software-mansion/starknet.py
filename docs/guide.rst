@@ -9,3 +9,4 @@ Guide
     guide/deploying_contracts
     guide/serialization
     guide/signing
+    guide/generating_key_pair
