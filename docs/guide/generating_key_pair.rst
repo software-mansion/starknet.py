@@ -10,7 +10,7 @@ In the starknet.py you need to use the :class:`~starknet_py.net.signer.key_pair.
 Generating random key pair
 --------------------------
 
-Method :meth:`~starknet_py.net.signer.key_pair.KeyPair.generate` allows to generate cryptographically strong pseudo-random numbers
+Method :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.generate` allows to generate cryptographically strong pseudo-random numbers
 suitable for managing secrets such as account authentication, tokens, and similar.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_key_pair.py
@@ -23,7 +23,7 @@ suitable for managing secrets such as account authentication, tokens, and simila
 Creating key pair from private Key
 ----------------------------------
 
-To create a key pair from a private key, use the :meth:`~starknet_py.net.signer.key_pair.KeyPair.from_private_key` method.
+To create a key pair from a private key, use the :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_private_key` method.
 
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_key_pair.py
@@ -35,7 +35,7 @@ To create a key pair from a private key, use the :meth:`~starknet_py.net.signer.
 Reading key pair from keystore file
 -----------------------------------
 
-Using :meth:`~starknet_py.net.signer.key_pair.KeyPair.from_keystore` method there is possibility to import a key pair from a keystore file.
+Using :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` method there is possibility to import a key pair from a keystore file.
 The keystore file should follow the Ethereum keystore format.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_key_pair.py
