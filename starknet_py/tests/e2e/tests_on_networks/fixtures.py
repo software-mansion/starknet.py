@@ -16,10 +16,11 @@ def client_sepolia_testnet() -> FullNodeClient:
     return FullNodeClient(node_url=SEPOLIA_RPC_URL())
 
 
+# pylint: disable=redefined-outer-name
 @pytest.fixture(scope="package")
 def account_sepolia_testnet(
     client_sepolia_testnet: FullNodeClient,
-) -> Account:  # pylint: disable=redefined-outer-name
+) -> Account:
     return Account(
         address=SEPOLIA_ACCOUNT_ADDRESS(),
         client=client_sepolia_testnet,
