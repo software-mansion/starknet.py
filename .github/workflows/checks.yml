@@ -287,6 +287,11 @@ jobs:
         run: |
           poetry install
 
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: ./starknet_py/tests/install_devnet.sh
+
       # ====================== RUN TESTS ====================== #
 
       - name: Check circular imports
