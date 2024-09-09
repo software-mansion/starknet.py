@@ -32,7 +32,7 @@ To create a key pair from a private key, use the :meth:`~starknet_py.net.signer.
     :start-after: docs-from-private-key: start
     :end-before: docs-from-private-key: end
 
-Reading Key pair from Keystore file
+Reading key pair from keystore file
 -----------------------------------
 
 Using :meth:`~starknet_py.net.signer.key_pair.KeyPair.from_keystore` method there is possibility to import a key pair from a keystore file.
