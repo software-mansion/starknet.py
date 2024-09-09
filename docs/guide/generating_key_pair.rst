@@ -5,7 +5,7 @@ Key pair
 --------
 
 The Key pair is a pair of private and public keys. The private key is used to sign transactions, and the public key is used to verify the signature.
-In the starknet.py you need to use the :meth:`~starknet_py.net.signer.key_pair.KeyPair` class to be able to create an :meth:`~starknet_py.net.account.account.Account` and :meth:`~starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` object.
+In the starknet.py you need to use the :class:`~starknet_py.net.signer.key_pair.KeyPair` class to be able to create an :class:`~starknet_py.net.account.account.Account` and :class:`~starknet_py.net.signer.stark_curve_signer.StarkCurveSigner` object.
 
 Generating random key pair
 --------------------------
