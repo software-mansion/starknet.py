@@ -36,7 +36,7 @@ Reading key pair from keystore file
 -----------------------------------
 
 Using :meth:`~starknet_py.net.signer.stark_curve_signer.KeyPair.from_keystore` method there is possibility to import a key pair from a keystore file.
-The keystore file should follow the `Ethereum keystore <https://ethereum.org/en/developers/docs/data-structures-and-encoding/web3-secret-storage/#pbkdf2-sha-256>`_ format.
+The keystore file should follow the `Ethereum keystore <https://ethereum.org/en/developers/docs/data-structures-and-encoding/web3-secret-storage/>`_ format.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_key_pair.py
     :language: python
