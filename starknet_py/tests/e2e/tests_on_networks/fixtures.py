@@ -17,10 +17,10 @@ def client_sepolia_testnet() -> FullNodeClient:
 
 
 @pytest.fixture(scope="package")
-def account_sepolia_testnet(client: FullNodeClient) -> Account:
+def account_sepolia_testnet(client_sepolia_testnet: FullNodeClient) -> Account:  # pylint: disable=redefined-outer-name
     return Account(
         address=SEPOLIA_ACCOUNT_ADDRESS(),
-        client=client,
+        client=client_sepolia_testnet,
         key_pair=KeyPair.from_private_key(int(SEPOLIA_ACCOUNT_PRIVATE_KEY(), 0)),
         chain=StarknetChainId.SEPOLIA,
     )
