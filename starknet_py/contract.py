@@ -810,6 +810,43 @@ class Contract:
             cairo_version=cairo_version,
         )
 
+    # pylint: disable=line-too-long
+    @staticmethod
+    async def declare_v1(
+        account: BaseAccount,
+        compiled_contract: str,
+        *,
+        nonce: Optional[int] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract.
+        This method is deprecated, not covered by tests and will be removed in the future.
+        Please use current version of transaction signing methods.
+
+        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
+
+        :param account: BaseAccount used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param nonce: Nonce of the transaction.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance.
+        """
+
+        declare_tx = await account.sign_declare_v1(
+            compiled_contract=compiled_contract,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=0
+        )
+
+    # pylint: enable=line-too-long
     @staticmethod
     async def declare_v2(
         account: BaseAccount,
