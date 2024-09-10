@@ -158,6 +158,7 @@ class BaseAccount(ABC):
         :return: Invoke created from the calls.
         """
 
+    # pylint: disable=line-too-long
     @abstractmethod
     async def sign_declare_v1(
         self,
@@ -168,7 +169,10 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        Create and sign declare transaction version 1.
+        This method is deprecated, not covered by tests and will be removed in the future.
+        Please use current version of transaction signing methods.
+
+        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
         :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
         :param nonce: Nonce of the transaction.
@@ -176,6 +180,8 @@ class BaseAccount(ABC):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed Declare transaction.
         """
+
+    # pylint: enable=line-too-long
 
     @abstractmethod
     async def sign_declare_v2(

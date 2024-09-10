@@ -810,6 +810,7 @@ class Contract:
             cairo_version=cairo_version,
         )
 
+    # pylint: disable=line-too-long
     @staticmethod
     async def declare_v1(
         account: BaseAccount,
@@ -821,6 +822,10 @@ class Contract:
     ) -> DeclareResult:
         """
         Declares a contract.
+        This method is deprecated, not covered by tests and will be removed in the future.
+        Please use current version of transaction signing methods.
+
+        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
@@ -841,6 +846,7 @@ class Contract:
             declare_tx, account, compiled_contract, cairo_version=0
         )
 
+    # pylint: enable=line-too-long
     @staticmethod
     async def declare_v2(
         account: BaseAccount,
