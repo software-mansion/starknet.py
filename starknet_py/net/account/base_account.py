@@ -13,6 +13,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import (
     AccountTransaction,
+    DeclareV1,
     DeclareV2,
     DeclareV3,
     DeployAccountV1,
@@ -155,6 +156,25 @@ class BaseAccount(ABC):
         :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls.
+        """
+
+    @abstractmethod
+    async def sign_declare_v1(
+        self,
+        compiled_contract: str,
+        *,
+        nonce: Optional[int] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareV1:
+        """
+        Create and sign declare transaction version 1.
+
+        :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
+        :param nonce: Nonce of the transaction.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :return: Signed Declare transaction.
         """
 
     @abstractmethod

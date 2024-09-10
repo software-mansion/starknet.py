@@ -4,6 +4,7 @@ from marshmallow_oneofschema.one_of_schema import OneOfSchema
 from starknet_py.net.client_models import (
     DAMode,
     DeclareTransactionResponse,
+    DeclareTransactionV0,
     DeclareTransactionV1,
     DeclareTransactionV2,
     DeclareTransactionV3,
@@ -174,6 +175,15 @@ class InvokeTransactionV3Schema(TransactionV3Schema):
         return InvokeTransactionV3(**data)
 
 
+class DeclareTransactionV0Schema(DeprecatedTransactionSchema):
+    sender_address = Felt(data_key="sender_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV0:
+        return DeclareTransactionV0(**data)
+
+
 class DeclareTransactionV1Schema(DeprecatedTransactionSchema):
     sender_address = Felt(data_key="sender_address", required=True)
     class_hash = Felt(data_key="class_hash", required=True)
@@ -250,6 +260,7 @@ class DeployAccountTransactionV3Schema(TransactionV3Schema):
 
 class DeclareTransactionSchema(OneOfSchema):
     type_schemas = {
+        "0": DeclareTransactionV0Schema,
         "1": DeclareTransactionV1Schema,
         "2": DeclareTransactionV2Schema,
         "3": DeclareTransactionV3Schema,

@@ -811,6 +811,37 @@ class Contract:
         )
 
     @staticmethod
+    async def declare_v1(
+        account: BaseAccount,
+        compiled_contract: str,
+        *,
+        nonce: Optional[int] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> DeclareResult:
+        """
+        Declares a contract.
+
+        :param account: BaseAccount used to sign and send declare transaction.
+        :param compiled_contract: String containing compiled contract.
+        :param nonce: Nonce of the transaction.
+        :param max_fee: Max amount of Wei to be paid when executing transaction.
+        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :return: DeclareResult instance.
+        """
+
+        declare_tx = await account.sign_declare_v1(
+            compiled_contract=compiled_contract,
+            nonce=nonce,
+            max_fee=max_fee,
+            auto_estimate=auto_estimate,
+        )
+
+        return await _declare_contract(
+            declare_tx, account, compiled_contract, cairo_version=0
+        )
+
+    @staticmethod
     async def declare_v2(
         account: BaseAccount,
         compiled_contract: str,
