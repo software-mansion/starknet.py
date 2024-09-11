@@ -4,6 +4,7 @@ env:
   CAIRO_LANG_VERSION: "0.13.1"
   DEVNET_VERSION: "0.1.2"
   DEVNET_SHA: 7e7dbb5
+  LEDGER_APP_SHA: dd58c5c
 
 on:
   push:
@@ -190,7 +191,7 @@ jobs:
       - name: Clone LedgerHQ Starknet app repository
         run: |
           git clone https://github.com/LedgerHQ/app-starknet.git
-          git checkout main
+          git checkout ${{ env.LEDGER_APP_SHA }}
 
       - name: Build the app inside Docker container
         uses: addnab/docker-run-action@v3
