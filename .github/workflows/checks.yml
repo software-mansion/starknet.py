@@ -191,6 +191,7 @@ jobs:
       - name: Clone LedgerHQ Starknet app repository
         run: |
           git clone https://github.com/LedgerHQ/app-starknet.git
+          cd app-starknet
           git checkout ${{ env.LEDGER_APP_SHA }}
 
       - name: Build the app inside Docker container
