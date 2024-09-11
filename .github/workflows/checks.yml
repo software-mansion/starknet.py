@@ -191,8 +191,6 @@ jobs:
       - name: Clone LedgerHQ Starknet app repository
         run: |
           git clone https://github.com/LedgerHQ/app-starknet.git
-          cd app-starknet
-          git checkout ${{ env.LEDGER_APP_SHA }}
 
       - name: Build the app inside Docker container
         uses: addnab/docker-run-action@v3
@@ -200,7 +198,8 @@ jobs:
           image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
           options: --rm -v ${{ github.workspace }}:/apps
           run: |
-            cd /apps/app-starknet/starknet
+            cd /apps/app-starknet
+            git checkout ${{ env.LEDGER_APP_SHA }}
             cargo clean
             cargo ledger build nanox
 
