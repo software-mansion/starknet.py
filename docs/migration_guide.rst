@@ -2,15 +2,30 @@ Migration guide
 ===============
 
 ******************************
+0.24.2 Migration guide
+******************************
+
+.. currentmodule:: starknet_py.net.signer.stark_curve_signer
+
+1. Added :meth:`KeyPair.generate` method which allows to generate key pair based on cryptographically strong pseudo-random number.
+
+.. currentmodule:: starknet_py.contract
+
+2. ``abi`` parameter is now optional in :meth:`Contract.deploy_contract_v3`.
+
+3. Added quickfix for ``u96`` parsing for both pre and post ``2.8.0`` Cairo versions.
+
+
+******************************
 0.24.1 Migration guide
 ******************************
-This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, `u96` is now compiled to `BoundedInt` in ABI.
+This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, ``u96`` is now compiled to `BoundedInt` in ABI.
 
 0.24.1 Minor changes
 --------------------
 
-1. Fixed parsing ABI that contains `u96` data type.
-2. Fixed `l1_address` deserialization in `L2toL1MessageSchema`.
+1. Fixed parsing ABI that contains ``u96`` data type.
+2. Fixed ``l1_address`` deserialization in ``L2toL1MessageSchema``.
 
 ******************************
 0.24.0 Migration guide
