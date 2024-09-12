@@ -5,6 +5,9 @@ Migration guide
 0.24.2 Migration guide
 ******************************
 
+0.24.2 Minor changes
+--------------------
+
 .. currentmodule:: starknet_py.net.signer.stark_curve_signer
 
 1. Added :meth:`KeyPair.generate` method which allows to generate key pair based on cryptographically strong pseudo-random number.
