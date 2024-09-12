@@ -15,9 +15,9 @@ sierra_contract_class = create_sierra_compiled_contract(compiled_contract)
 @pytest.mark.parametrize(
     "transaction",
     [
-        Mock(spec=InvokeV3, calculate_hash=MagicMock(return_value=12345678)),
-        Mock(spec=DeployAccountV3, calculate_hash=MagicMock(return_value=12345678)),
-        Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=12345678)),
+        Mock(spec=InvokeV3, calculate_hash=MagicMock(return_value=111)),
+        Mock(spec=DeployAccountV3, calculate_hash=MagicMock(return_value=222)),
+        Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=333)),
     ],
 )
 def test_sign_transaction(transaction):

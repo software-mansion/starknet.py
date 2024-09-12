@@ -45,9 +45,9 @@ def test_init_with_invalid_derivation_path():
 @pytest.mark.parametrize(
     "transaction",
     [
-        Mock(spec=InvokeV3, calculate_hash=MagicMock(return_value=12345678)),
-        Mock(spec=DeployAccountV3, calculate_hash=MagicMock(return_value=12345678)),
-        Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=12345678)),
+        Mock(spec=InvokeV3, calculate_hash=MagicMock(return_value=111)),
+        Mock(spec=DeployAccountV3, calculate_hash=MagicMock(return_value=222)),
+        Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=333)),
     ],
 )
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
