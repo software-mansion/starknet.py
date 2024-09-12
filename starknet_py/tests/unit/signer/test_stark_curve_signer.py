@@ -2,14 +2,9 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
-from starknet_py.tests.e2e.fixtures.misc import load_contract
-
-compiled_contract = load_contract("HelloStarknet")["sierra"]
-sierra_contract_class = create_sierra_compiled_contract(compiled_contract)
 
 
 @pytest.mark.parametrize(
