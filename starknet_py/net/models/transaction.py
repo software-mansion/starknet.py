@@ -181,9 +181,15 @@ class DeclareV2(_DeprecatedAccountTransaction):
         )
 
 
+# pylint: disable=line-too-long
 @dataclass(frozen=True)
 class DeclareV1(_DeprecatedAccountTransaction):
     """
+    This class is deprecated, not covered by tests and will be removed in the future.
+    Please use current version of transactions.
+
+    Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
+
     Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
     """
@@ -223,6 +229,9 @@ class DeclareV1(_DeprecatedAccountTransaction):
             version=self.version,
             nonce=self.nonce,
         )
+
+
+# pylint: enable=line-too-long
 
 
 @dataclass(frozen=True)

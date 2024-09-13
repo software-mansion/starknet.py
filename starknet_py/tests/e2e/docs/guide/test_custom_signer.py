@@ -30,7 +30,7 @@ async def test_custom_signer():
 
     # Create an Account instance with the signer you've implemented
     custom_signer = CustomSigner()
-    client = FullNodeClient(node_url="your.node.url")
+    client = FullNodeClient(node_url="https://your.node.url")
     account = Account(
         client=client,
         address=0x1111,

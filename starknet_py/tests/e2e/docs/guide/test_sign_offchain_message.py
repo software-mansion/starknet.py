@@ -52,7 +52,7 @@ async def test_sign_offchain_message(account):
     # docs: start
 
     # Create an Account instance
-    client = FullNodeClient(node_url="your.node.url")
+    client = FullNodeClient(node_url="https://your.node.url")
     account = Account(
         client=client,
         address="0x1111",

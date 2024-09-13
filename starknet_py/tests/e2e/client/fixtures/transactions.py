@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-from typing import Tuple, cast
+from typing import Tuple
 
 import pytest
 import pytest_asyncio
@@ -12,8 +12,7 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
-from starknet_py.tests.e2e.fixtures.constants import CONTRACTS_COMPILED_V0_DIR, MAX_FEE
-from starknet_py.tests.e2e.fixtures.misc import read_contract
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.tests.e2e.utils import (
     get_deploy_account_details,
     get_deploy_account_transaction,
@@ -69,11 +68,11 @@ def block_with_deploy_account_number(
 
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_deploy_transaction_address(
-    account: Account, cairo1_hello_starknet_class_hash
+    account: Account, hello_starknet_class_hash
 ) -> int:
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment_raw(
-        class_hash=cairo1_hello_starknet_class_hash
+        class_hash=hello_starknet_class_hash
     )
     deploy_invoke_transaction = await account.sign_invoke_v1(
         calls=contract_deployment.call, max_fee=MAX_FEE
@@ -84,41 +83,9 @@ async def hello_starknet_deploy_transaction_address(
 
 
 @pytest_asyncio.fixture(scope="package")
-async def block_with_declare_v2_number(
-    cairo1_hello_starknet_tx_hash: int, client
-) -> int:
+async def block_with_declare_v2_number(hello_starknet_tx_hash: int, client) -> int:
     """
     Returns number of the block with DeclareV2 transaction
     """
-    declare_v2_receipt = await client.get_transaction_receipt(
-        cairo1_hello_starknet_tx_hash
-    )
+    declare_v2_receipt = await client.get_transaction_receipt(hello_starknet_tx_hash)
     return declare_v2_receipt.block_number
-
-
-@pytest_asyncio.fixture(scope="function")
-async def replaced_class(account: Account, map_class_hash: int) -> Tuple[int, int, int]:
-    """
-    Returns block_number, contract_address and class_hash of transaction replacing implementation.
-    """
-    compiled_contract = read_contract(
-        "replace_class_compiled.json", directory=CONTRACTS_COMPILED_V0_DIR
-    )
-
-    declare_result = await (
-        await Contract.declare_v1(account, compiled_contract, max_fee=MAX_FEE)
-    ).wait_for_acceptance()
-
-    deploy_result = await (
-        await declare_result.deploy_v1(max_fee=MAX_FEE)
-    ).wait_for_acceptance()
-
-    contract = deploy_result.deployed_contract
-
-    resp = await (
-        await contract.functions["replace_implementation"].invoke_v1(
-            new_class=map_class_hash, max_fee=MAX_FEE
-        )
-    ).wait_for_acceptance()
-
-    return cast(int, resp.block_number), contract.address, map_class_hash

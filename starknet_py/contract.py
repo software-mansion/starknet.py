@@ -4,7 +4,7 @@ import dataclasses
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List, Optional, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
 
@@ -35,12 +35,12 @@ from starknet_py.proxy.contract_abi_resolver import (
     ProxyConfig,
     prepare_proxy_config,
 )
-from starknet_py.serialization import (
-    FunctionSerializationAdapter,
-    TupleDataclass,
-    serializer_for_function,
-)
+from starknet_py.serialization import TupleDataclass, serializer_for_function
 from starknet_py.serialization.factory import serializer_for_function_v1
+from starknet_py.serialization.function_serialization_adapter import (
+    FunctionSerializationAdapterV0,
+    FunctionSerializationAdapterV1,
+)
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 from starknet_py.utils.sync import add_sync_methods
 
@@ -303,7 +303,9 @@ class DeployResult(SentTransaction):
 @dataclass
 class PreparedCallBase(Call):
     _client: Client
-    _payload_transformer: FunctionSerializationAdapter
+    _payload_transformer: Union[
+        FunctionSerializationAdapterV0, FunctionSerializationAdapterV1
+    ]
 
 
 @add_sync_methods
@@ -333,7 +335,7 @@ class PreparedFunctionCall(PreparedCallBase):
         self,
         block_hash: Optional[str] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> TupleDataclass:
+    ) -> Union[TupleDataclass, Tuple]:
         """
         Calls a method.
 
@@ -584,7 +586,7 @@ class ContractFunction:
         block_hash: Optional[str] = None,
         block_number: Optional[Union[int, Tag]] = None,
         **kwargs,
-    ) -> TupleDataclass:
+    ) -> Union[TupleDataclass, Tuple]:
         """
         Call contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         The result is translated from Cairo data to python values.
@@ -808,6 +810,7 @@ class Contract:
             cairo_version=cairo_version,
         )
 
+    # pylint: disable=line-too-long
     @staticmethod
     async def declare_v1(
         account: BaseAccount,
@@ -819,6 +822,10 @@ class Contract:
     ) -> DeclareResult:
         """
         Declares a contract.
+        This method is deprecated, not covered by tests and will be removed in the future.
+        Please use current version of transaction signing methods.
+
+        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
         :param account: BaseAccount used to sign and send declare transaction.
         :param compiled_contract: String containing compiled contract.
@@ -839,6 +846,7 @@ class Contract:
             declare_tx, account, compiled_contract, cairo_version=0
         )
 
+    # pylint: enable=line-too-long
     @staticmethod
     async def declare_v2(
         account: BaseAccount,
@@ -992,7 +1000,7 @@ class Contract:
     async def deploy_contract_v3(
         account: BaseAccount,
         class_hash: Hash,
-        abi: List,
+        abi: Optional[List] = None,
         constructor_args: Optional[Union[List, Dict]] = None,
         *,
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
@@ -1043,9 +1051,15 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        deployed_contract = Contract(
-            provider=account, address=address, abi=abi, cairo_version=cairo_version
-        )
+        if abi is not None:
+            deployed_contract = Contract(
+                provider=account, address=address, abi=abi, cairo_version=cairo_version
+            )
+        else:
+            deployed_contract = await Contract.from_address(
+                address=address, provider=account
+            )
+
         deploy_result = DeployResult(
             hash=res.transaction_hash,
             _client=account.client,

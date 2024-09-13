@@ -309,7 +309,7 @@ class Account(BaseAccount):
         low, high = await self._client.call_contract(
             Call(
                 to_addr=parse_address(token_address),
-                selector=get_selector_from_name("balanceOf"),
+                selector=get_selector_from_name("balance_of"),
                 calldata=[self.address],
             ),
             block_hash=block_hash,
@@ -361,6 +361,7 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
 
+    # pylint: disable=line-too-long
     async def sign_declare_v1(
         self,
         compiled_contract: str,
@@ -369,6 +370,13 @@ class Account(BaseAccount):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareV1:
+        """
+        This method is deprecated, not covered by tests and will be removed in the future.
+        Please use current version of transaction signing methods.
+
+        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
+
+        """
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
                 "Signing sierra contracts requires using `sign_declare_v2` method."
@@ -384,6 +392,8 @@ class Account(BaseAccount):
         declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
+
+    # pylint: enable=line-too-long
 
     async def sign_declare_v2(
         self,
@@ -435,7 +445,7 @@ class Account(BaseAccount):
             nonce = await self.get_nonce()
 
         declare_tx = DeclareV1(
-            contract_class=contract_class,
+            contract_class=contract_class.convert_to_deprecated_contract_class(),
             sender_address=self.address,
             max_fee=0,
             signature=[],
@@ -459,7 +469,7 @@ class Account(BaseAccount):
             nonce = await self.get_nonce()
 
         declare_tx = DeclareV2(
-            contract_class=contract_class,
+            contract_class=contract_class.convert_to_sierra_contract_class(),
             compiled_class_hash=compiled_class_hash,
             sender_address=self.address,
             max_fee=0,
@@ -484,7 +494,7 @@ class Account(BaseAccount):
             nonce = await self.get_nonce()
 
         declare_tx = DeclareV3(
-            contract_class=contract_class,
+            contract_class=contract_class.convert_to_sierra_contract_class(),
             compiled_class_hash=compiled_class_hash,
             sender_address=self.address,
             signature=[],

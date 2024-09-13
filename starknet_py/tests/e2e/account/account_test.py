@@ -1,9 +1,9 @@
+import sys
 from typing import cast
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
@@ -56,6 +56,10 @@ async def test_get_balance_throws_when_token_not_specified(account):
         await modified_account.get_balance()
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_balance_when_token_specified(account, erc20_contract):
     balance = await account.get_balance(erc20_contract.address)
@@ -63,18 +67,15 @@ async def test_balance_when_token_specified(account, erc20_contract):
     assert balance == 200
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
 @pytest.mark.asyncio
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
-    erc20_contract = Contract(
-        address=erc20_contract.address,
-        abi=erc20_contract.data.abi,
-        provider=account,
-        cairo_version=0,
-    )
-
     estimated_fee = (
-        await erc20_contract.functions["balanceOf"]
-        .prepare_invoke_v1("1234", max_fee=0)
+        await erc20_contract.functions["balance_of"]
+        .prepare_invoke_v1(account.address, max_fee=0)
         .estimate_fee(block_hash="latest")
     )
 
@@ -87,9 +88,14 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_for_declare_transaction(account, map_compiled_contract):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+async def test_estimate_fee_for_declare_transaction(
+    account, map_compiled_contract_and_class_hash
+):
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     estimated_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -105,15 +111,18 @@ async def test_estimate_fee_for_declare_transaction(account, map_compiled_contra
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_declare_transaction(
-    account, map_compiled_contract
+    account, map_compiled_contract_and_class_hash
 ):
-    declare_tx = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
+    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    declare_tx = await account.sign_declare_v3(
+        compiled_contract=compiled_contract,
+        compiled_class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
 
-    assert estimated_fee.unit == PriceUnit.WEI
+    assert estimated_fee.unit == PriceUnit.FRI
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
     assert (
@@ -462,6 +471,10 @@ async def test_sign_deploy_account_v3_auto_estimate(
     assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
 
 
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Functionality is not supported in v1 contract",
+)
 @pytest.mark.asyncio
 async def test_deploy_account_v1(client, deploy_account_details_factory, map_contract):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
@@ -660,23 +673,6 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     assert estimation.overall_fee > 0
 
 
-# TODO (#1419): Fix contract redeclaration
-@pytest.mark.skip(reason="Redeclaration occurred")
-@pytest.mark.asyncio
-async def test_sign_declare_v1_for_fee_estimation(account, map_compiled_contract):
-    transaction = await account.sign_declare_v1(
-        compiled_contract=map_compiled_contract, max_fee=MAX_FEE
-    )
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-    assert estimate_fee_transaction.version == transaction.version + 2**128
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
-    assert estimation.unit == PriceUnit.WEI
-    assert estimation.overall_fee > 0
-
-
 @pytest.mark.asyncio
 async def test_sign_deploy_account_v1_for_fee_estimation(
     client, deploy_account_details_factory
@@ -707,8 +703,8 @@ async def test_sign_deploy_account_v1_for_fee_estimation(
 
 
 @pytest.mark.asyncio
-async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_class_hash):
-    deployment = Deployer().create_contract_deployment(cairo1_hello_starknet_class_hash)
+async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash):
+    deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
     deploy_tx = await account.sign_invoke_v1(deployment.call, max_fee=MAX_FEE)
 
     new_balance = 30
@@ -737,13 +733,13 @@ async def test_sign_transaction_custom_nonce(account, cairo1_hello_starknet_clas
 
 
 @pytest.mark.asyncio
-async def test_argent_cairo1_account_deploy(
+async def test_argent_account_deploy(
     client,
-    argent_cairo1_account_class_hash,
+    argent_account_class_hash,
     deploy_account_details_factory,
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_cairo1_account_class_hash, argent_calldata=True
+        class_hash=argent_account_class_hash, argent_calldata=True
     )
 
     deploy_result = await Account.deploy_account_v1(
@@ -769,9 +765,9 @@ async def test_argent_cairo1_account_deploy(
 
 
 @pytest.mark.asyncio
-async def test_argent_cairo1_account_execute(
+async def test_argent_account_execute(
     deployed_balance_contract,
-    argent_cairo1_account: BaseAccount,
+    argent_account: BaseAccount,
 ):
     # verify that initial balance is 0
     get_balance_call = Call(
@@ -779,7 +775,7 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
-    get_balance = await argent_cairo1_account.client.call_contract(
+    get_balance = await argent_account.client.call_contract(
         call=get_balance_call, block_number="latest"
     )
 
@@ -791,11 +787,11 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
-    execute = await argent_cairo1_account.execute_v1(
+    execute = await argent_account.execute_v1(
         calls=increase_balance_by_20_call, max_fee=MAX_FEE
     )
-    await argent_cairo1_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
-    receipt = await argent_cairo1_account.client.get_transaction_receipt(
+    await argent_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    receipt = await argent_account.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )
 
@@ -807,7 +803,7 @@ async def test_argent_cairo1_account_execute(
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
-    get_balance = await argent_cairo1_account.client.call_contract(
+    get_balance = await argent_account.client.call_contract(
         call=get_balance_call, block_number="latest"
     )
 

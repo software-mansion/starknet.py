@@ -6,9 +6,9 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 
 
 @pytest.mark.asyncio
-async def test_declare_v2_tx(cairo1_minimal_contract_class_hash: int):
-    assert isinstance(cairo1_minimal_contract_class_hash, int)
-    assert cairo1_minimal_contract_class_hash != 0
+async def test_declare_v2_tx(minimal_contract_class_hash: int):
+    assert isinstance(minimal_contract_class_hash, int)
+    assert minimal_contract_class_hash != 0
 
 
 @pytest.mark.asyncio
