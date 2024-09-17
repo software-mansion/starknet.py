@@ -43,7 +43,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
+      - name: Install dependencies (+ledger)
         run: poetry install -E ledger
 
       # ====================== LINT, FORMAT, TYPECHECK ====================== #
@@ -96,7 +96,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E ledger
+        run: poetry install
 
       # ====================== CONTRACTS v2 ====================== #
 
@@ -171,7 +171,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
+      - name: Install dependencies (+ledger)
         run: poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
@@ -250,6 +250,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        python-version: [ "3.12" ]  
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
@@ -271,13 +273,13 @@ jobs:
       - name: Install Poetry
         run: pipx install poetry
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
+      - name: Install dependencies (+ledger)
         run: poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
@@ -359,7 +361,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
+      - name: Install dependencies (+ledger)
         run: poetry install -E ledger
 
       # ====================== RUN TESTS ====================== #
@@ -416,16 +418,16 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E ledger
+        run: poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
         run: ./starknet_py/tests/install_devnet.sh
 
-      # ====================== RUN TESTS ====================== #
+      # ====================== RUN DOC TESTS ====================== #
 
-      - name: Run tests
+      - name: Run doc tests
         run: |
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
@@ -477,7 +479,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E ledger
+        run: poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -495,9 +497,9 @@ jobs:
           cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
         shell: pwsh
 
-      # ====================== RUN TESTS ====================== #
+      # ====================== RUN DOC TESTS ====================== #
 
-      - name: Run tests
+      - name: Run doc tests
         run: |
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
