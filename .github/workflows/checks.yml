@@ -23,25 +23,30 @@ jobs:
   lint-format-typecheck:
     name: Lint - Format - Typecheck
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.12" ]
     steps:
+
+      # ====================== SETUP ====================== #
 
       - uses: actions/checkout@v4
 
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+      # ====================== SETUP PYTHON ====================== #
 
-      - name: Set up Python 3.12
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
-        run: |
-          poetry install -E ledger
+      - name: Install dependencies (+ledger)
+        run: poetry install -E ledger
+
+      # ====================== LINT, FORMAT, TYPECHECK ====================== #
 
       - name: Check poetry.lock
         run: |
@@ -75,10 +80,8 @@ jobs:
 
       - uses: actions/checkout@v4
       - uses: asdf-vm/actions/setup@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-          cache: 'pip'
+
+      # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
         run: |
@@ -93,10 +96,10 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: |
-          poetry install
+        run: poetry install
 
       # ====================== CONTRACTS v2 ====================== #
+
       - name: Cache contracts v2
         id: cache-contracts_v2
         uses: actions/cache@v4
@@ -146,6 +149,9 @@ jobs:
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v4
 
       - name: Download contracts
@@ -154,18 +160,10 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-          cache: 'pip'
-
       # ====================== SETUP PYTHON ====================== #
 
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+      - name: Install Poetry
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -173,9 +171,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
-        run: |
-          poetry install -E ledger
+      - name: Install dependencies (+ledger)
+        run: poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -253,11 +250,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        python-version: [ "3.12" ]  
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
       SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v4
 
       - name: Download contracts
@@ -266,28 +268,19 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-          cache: 'pip'
-
       # ====================== SETUP PYTHON ====================== #
 
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+      - name: Install Poetry
+        run: pipx install poetry
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
-        run: |
-          poetry install -E ledger
+      - name: Install dependencies (+ledger)
+        run: poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -327,6 +320,9 @@ jobs:
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
@@ -337,11 +333,6 @@ jobs:
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-          cache: 'pip'
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -358,13 +349,11 @@ jobs:
           $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
           cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
         shell: pwsh
+
       # ====================== SETUP PYTHON ====================== #
 
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+      - name: Install Poetry
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -372,9 +361,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install dependencies
-        run: |
-          poetry install -E ledger
+      - name: Install dependencies (+ledger)
+        run: poetry install -E ledger
 
       # ====================== RUN TESTS ====================== #
 
@@ -407,6 +395,9 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.12" ]
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v4
 
       - name: Download contracts
@@ -415,18 +406,10 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-          cache: 'pip'
-
       # ====================== SETUP PYTHON ====================== #
 
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+      - name: Install Poetry
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -435,17 +418,16 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: |
-          poetry install
+        run: poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
         run: ./starknet_py/tests/install_devnet.sh
 
-      # ====================== RUN TESTS ====================== #
+      # ====================== RUN DOCS TESTS ====================== #
 
-      - name: Run tests
+      - name: Run docs tests
         run: |
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
@@ -471,6 +453,9 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.12" ]
     steps:
+
+      # ====================== SETUP ====================== #
+
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
@@ -482,18 +467,10 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-          cache: 'pip'
-
       # ====================== SETUP PYTHON ====================== #
 
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry config installer.modern-installation false
+      - name: Install Poetry
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -502,8 +479,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: |
-          poetry install
+        run: poetry install
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -521,9 +497,9 @@ jobs:
           cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
         shell: pwsh
 
-      # ====================== RUN TESTS ====================== #
+      # ====================== RUN DOCS TESTS ====================== #
 
-      - name: Run tests
+      - name: Run docs tests
         run: |
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
