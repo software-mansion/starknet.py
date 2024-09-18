@@ -1,6 +1,6 @@
-from starknet_py.net.schemas.common import Enum
 from marshmallow import  ValidationError, fields
 from typing import Any , Optional
+from starknet_py.net.schemas.common import Enum
 
 class Revision(Enum):
     """
