@@ -37,7 +37,7 @@ Dependencies
 
 .. code-block:: bash
 
-    poetry install
+    poetry install -E ledger
 
 Contracts
 ^^^^^^^^^
@@ -64,7 +64,7 @@ Documentation
 .. code-block:: bash
 
     # Install additional dependencies for docs
-    poetry install -E docs
+    poetry install -E ledger -E docs
 
     # Generate HTML documentation
     poe docs_create

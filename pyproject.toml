@@ -29,11 +29,12 @@ furo = { version = "^2024.5.6", optional = true }
 pycryptodome = "^3.17"
 crypto-cpp-py = "1.4.4"
 eth-keyfile = "^0.8.1"
-ledgerwallet = "^0.5.0"
-bip-utils = "^2.9.3"
+ledgerwallet = { version = "^0.5.0", optional = true }
+bip-utils = { version = "^2.9.3", optional = true }
 
 [tool.poetry.extras]
 docs = ["sphinx", "enum-tools", "furo"]
+ledger = ["ledgerwallet", "bip-utils"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"

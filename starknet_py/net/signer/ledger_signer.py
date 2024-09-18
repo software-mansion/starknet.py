@@ -1,7 +1,4 @@
-from typing import List
-
-from bip_utils import Bip32KeyIndex, Bip32Path, Bip32Utils
-from ledgerwallet.client import LedgerClient
+from typing import TYPE_CHECKING, List
 
 from starknet_py.constants import (
     EIP_2645_PATH_LENGTH,
@@ -15,6 +12,27 @@ from starknet_py.net.models import AccountTransaction
 from starknet_py.net.models.chains import ChainId
 from starknet_py.net.signer import BaseSigner
 from starknet_py.utils.typed_data import TypedData
+
+
+class LateException:
+    def __init__(self, exc: Exception):
+        self.exc = exc
+
+    def __getattr__(self, item):
+        raise self.exc
+
+    def __call__(self, *args, **kwargs):
+        self.__getattr__("exc")
+
+
+try:
+    from bip_utils import Bip32KeyIndex, Bip32Path, Bip32Utils
+    from ledgerwallet.client import LedgerClient
+except ImportError as e:
+    if TYPE_CHECKING:
+        raise
+    dummy = LateException(e)
+    Bip32KeyIndex, Bip32Path, Bip32Utils, LedgerClient = dummy, dummy, dummy, dummy
 
 
 class LedgerStarknetApp:
