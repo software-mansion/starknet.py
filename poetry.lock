@@ -1736,13 +1736,13 @@ regex = ["regex"]
 
 [[package]]
 name = "ledgerwallet"
-version = "0.5.0"
+version = "0.5.1"
 description = "Library to communicate with Ledger Nano S/X and Speculos"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "ledgerwallet-0.5.0-py3-none-any.whl", hash = "sha256:28b61f6015c7e4027ea51f27b3b28ea6d28dfb99e7c49b7b35e363f26703785e"},
-    {file = "ledgerwallet-0.5.0.tar.gz", hash = "sha256:e0ec08c83e417fe05252f6cc5f47f3cc6bc6e3eb41735693ae0018297115e55b"},
+    {file = "ledgerwallet-0.5.1-py3-none-any.whl", hash = "sha256:1b860d25e022c989e8daed3a7b771eadb3e0035d64af987420f3734bdab53b39"},
+    {file = "ledgerwallet-0.5.1.tar.gz", hash = "sha256:32e9e0a6dd244fbe2c6313796525d5eeaaf00b4e235586d0bb62e1f3024c0c61"},
 ]
 
 [package.dependencies]
@@ -1848,20 +1848,20 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.7.0"
+version = "8.7.1"
 description = "Python library to convert dataclasses into marshmallow schemas."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "marshmallow_dataclass-8.7.0-py3-none-any.whl", hash = "sha256:9e528d72b83f2b6b0f60cb29fd38781a6f7ce2155295adb1ed33289826a93c4b"},
-    {file = "marshmallow_dataclass-8.7.0.tar.gz", hash = "sha256:0218008fec3fd4b5f739b2a0c6d7593bcc403308f6da953e341e4e359e268849"},
+    {file = "marshmallow_dataclass-8.7.1-py3-none-any.whl", hash = "sha256:405cbaaad9cea56b3de2f85eff32a9880e3bf849f652e7f6de7395e4b1ddc072"},
+    {file = "marshmallow_dataclass-8.7.1.tar.gz", hash = "sha256:4fb80e1bf7b31ce1b192aa87ffadee2cedb3f6f37bb0042f8500b07e6fad59c4"},
 ]
 
 [package.dependencies]
 marshmallow = ">=3.18.0"
-typeguard = ">=4.0.0,<4.1.0"
+typeguard = ">=4.0,<5"
 typing-extensions = {version = ">=4.2.0", markers = "python_version < \"3.11\""}
-typing-inspect = ">=0.9.0,<0.10.0"
+typing-inspect = ">=0.9.0"
 
 [package.extras]
 dev = ["pre-commit (>=2.17,<3.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx"]
