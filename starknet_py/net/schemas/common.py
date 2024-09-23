@@ -1,6 +1,6 @@
 import re
 import sys
-from enum import Enum
+from schemas.revisions import Revision
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -348,13 +348,6 @@ class StorageEntrySchema(Schema):
         return StorageEntry(**data)
 
 
-class Revision(Enum):
-    """
-    Enum representing the revision of the specification to be used.
-    """
-
-    V0 = 0
-    V1 = 1
 
 
 class RevisionField(fields.Field):
