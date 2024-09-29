@@ -1,6 +1,5 @@
 import re
 import sys
-from schemas.revisions import Revision
 from typing import Any, Mapping, Optional, Union
 
 from marshmallow import Schema, ValidationError, fields, post_load
@@ -18,6 +17,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     TransactionType,
 )
+from starknet_py.net.schemas.revisions import Revision
 
 # pylint: disable=unused-argument
 
@@ -346,8 +346,6 @@ class StorageEntrySchema(Schema):
     def make_dataclass(self, data, **kwargs):
         # pylint: disable=no-self-use
         return StorageEntry(**data)
-
-
 
 
 class RevisionField(fields.Field):

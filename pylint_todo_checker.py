@@ -2,6 +2,7 @@ import re
 import tokenize
 
 from pylint import checkers, interfaces
+from pylint.lint import PyLinter
 
 
 def register(linter: "PyLinter") -> None:

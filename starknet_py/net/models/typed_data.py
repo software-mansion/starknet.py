@@ -4,7 +4,7 @@ TypedDict structures for TypedData
 
 from typing import Any, Dict, List, Optional, TypedDict
 
-from starknet_py.net.schemas.common import Revision
+from starknet_py.net.schemas.revisions import Revision
 
 
 class ParameterDict(TypedDict):
