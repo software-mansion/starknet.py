@@ -2617,23 +2617,21 @@ tests = ["hypothesis (>=3.27.0)", "pytest (>=3.2.1,!=3.3.0)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.383"
+version = "1.1.371"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.383-py3-none-any.whl", hash = "sha256:d864d1182a313f45aaf99e9bfc7d2668eeabc99b29a556b5344894fd73cb1959"},
-    {file = "pyright-1.1.383.tar.gz", hash = "sha256:1df7f12407f3710c9c6df938d98ec53f70053e6c6bbf71ce7bcb038d42f10070"},
+    {file = "pyright-1.1.371-py3-none-any.whl", hash = "sha256:cce52e42ff73943243e7e5e24f2a59dee81b97d99f4e3cf97370b27e8a1858cd"},
+    {file = "pyright-1.1.371.tar.gz", hash = "sha256:777b508b92dda2db476214c400ce043aad8d8f3dd0e10d284c96e79f298308b5"},
 ]
 
 [package.dependencies]
 nodeenv = ">=1.6.0"
-typing-extensions = ">=4.1"
 
 [package.extras]
-all = ["nodejs-wheel-binaries", "twine (>=3.4.1)"]
+all = ["twine (>=3.4.1)"]
 dev = ["twine (>=3.4.1)"]
-nodejs = ["nodejs-wheel-binaries"]
 
 [[package]]
 name = "pytest"
@@ -3458,4 +3456,4 @@ ledger = ["bip-utils", "ledgerwallet"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8, <3.13"
-content-hash = "693c55c253d7e271498d7a2184c19ab4c3df02ed1a6feb96e61eecef63e4cd40"
+content-hash = "f2f8876c551e6fe2bfb496815b3cd6e92862b7cbbaa9291ac124e9523fab4dd0"
