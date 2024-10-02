@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Revision(Enum):
     """
     Enum representing the revision of the specification to be used.
