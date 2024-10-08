@@ -4,7 +4,7 @@ from starknet_py.net.client_models import (
     BlockStatus,
     L1DAMode,
     PendingStarknetBlock,
-    PendingStarknetBlockWithTxHashes,
+    PendingBlockWithTxHashes,
     StarknetBlock,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
@@ -30,7 +30,7 @@ async def test_latest_block(account):
 async def test_block_with_tx_hashes_pending(account):
     blk = await account.client.get_block_with_tx_hashes(block_number="pending")
 
-    assert isinstance(blk, PendingStarknetBlockWithTxHashes)
+    assert isinstance(blk, PendingBlockWithTxHashes)
     assert isinstance(blk.transactions, list)
 
 

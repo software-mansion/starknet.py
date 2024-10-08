@@ -14,7 +14,7 @@ from starknet_py.net.client_models import (
     DeployAccountTransactionResponse,
     DeployAccountTransactionV1,
     DeployAccountTransactionV3,
-    EstimatedFee,
+    FeeEstimate,
     InvokeTransactionV3,
     PriceUnit,
     ResourceBounds,
@@ -150,8 +150,8 @@ async def test_account_estimate_fee_for_transactions(account, map_contract):
     estimated_fee = await account.estimate_fee(tx=[invoke_tx_1, invoke_tx_2])
 
     assert len(estimated_fee) == 2
-    assert isinstance(estimated_fee[0], EstimatedFee)
-    assert isinstance(estimated_fee[1], EstimatedFee)
+    assert isinstance(estimated_fee[0], FeeEstimate)
+    assert isinstance(estimated_fee[1], FeeEstimate)
     assert estimated_fee[0].unit == PriceUnit.FRI
     assert estimated_fee[1].unit == PriceUnit.FRI
     assert isinstance(estimated_fee[0].overall_fee, int)
@@ -652,7 +652,7 @@ async def test_sign_invoke_v1_for_fee_estimation(account, map_contract):
     assert estimate_fee_transaction.version == transaction.version + 2**128
 
     estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
+    assert isinstance(estimation, FeeEstimate)
     assert estimation.unit == PriceUnit.WEI
     assert estimation.overall_fee > 0
 
@@ -668,7 +668,7 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     assert estimate_fee_transaction.version == transaction.version + 2**128
 
     estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
+    assert isinstance(estimation, FeeEstimate)
     assert estimation.unit == PriceUnit.FRI
     assert estimation.overall_fee > 0
 
@@ -697,7 +697,7 @@ async def test_sign_deploy_account_v1_for_fee_estimation(
     assert estimate_fee_transaction.version == transaction.version + 2**128
 
     estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
+    assert isinstance(estimation, FeeEstimate)
     assert estimation.unit == PriceUnit.WEI
     assert estimation.overall_fee > 0
 

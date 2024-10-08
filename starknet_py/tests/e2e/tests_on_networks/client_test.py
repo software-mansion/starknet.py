@@ -13,11 +13,11 @@ from starknet_py.net.client_models import (
     DeclareTransactionV3,
     DeployAccountTransactionV3,
     EmittedEvent,
-    EstimatedFee,
+    FeeEstimate,
     EventsChunk,
     InvokeTransactionV3,
     PendingBlockHeader,
-    PendingStarknetBlockWithReceipts,
+    PendingBlockWithReceipts,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
     Transaction,
@@ -176,7 +176,7 @@ async def test_estimate_message_fee(client_sepolia_testnet):
         ],
     )
 
-    assert isinstance(estimated_message, EstimatedFee)
+    assert isinstance(estimated_message, FeeEstimate)
     assert estimated_message.overall_fee > 0
     assert estimated_message.gas_price > 0
     assert estimated_message.gas_consumed > 0
@@ -425,7 +425,7 @@ async def test_get_pending_block_with_receipts(client_sepolia_testnet):
         block_number="pending"
     )
 
-    assert isinstance(block_with_receipts, PendingStarknetBlockWithReceipts)
+    assert isinstance(block_with_receipts, PendingBlockWithReceipts)
     assert len(block_with_receipts.transactions) >= 0
     assert all(
         getattr(block_with_receipts, field.name) is not None

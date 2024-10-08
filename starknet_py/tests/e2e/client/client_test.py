@@ -13,7 +13,7 @@ from starknet_py.net.client_models import (
     DeclaredContractHash,
     DeclareTransactionV2,
     DeployAccountTransactionV1,
-    EstimatedFee,
+    FeeEstimate,
     ExecutionResources,
     FeePayment,
     InvokeTransactionV3,
@@ -144,7 +144,7 @@ async def test_estimate_fee_invoke(account, contract_address):
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    assert isinstance(estimate_fee, EstimatedFee)
+    assert isinstance(estimate_fee, FeeEstimate)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
@@ -166,7 +166,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    assert isinstance(estimate_fee, EstimatedFee)
+    assert isinstance(estimate_fee, FeeEstimate)
     assert estimate_fee.unit == PriceUnit.FRI
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
@@ -188,7 +188,7 @@ async def test_estimate_fee_declare(
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
     estimate_fee = await account.client.estimate_fee(tx=declare_tx)
 
-    assert isinstance(estimate_fee, EstimatedFee)
+    assert isinstance(estimate_fee, FeeEstimate)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
@@ -201,7 +201,7 @@ async def test_estimate_fee_declare(
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
 
-    assert isinstance(estimate_fee, EstimatedFee)
+    assert isinstance(estimate_fee, FeeEstimate)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
     assert estimate_fee.gas_price > 0
@@ -231,7 +231,7 @@ async def test_estimate_fee_for_multiple_transactions(
     assert isinstance(estimated_fees, list)
 
     for estimated_fee in estimated_fees:
-        assert isinstance(estimated_fee, EstimatedFee)
+        assert isinstance(estimated_fee, FeeEstimate)
         assert estimated_fee.unit == PriceUnit.WEI
         assert estimated_fee.overall_fee > 0
         assert estimated_fee.gas_price > 0
