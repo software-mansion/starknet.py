@@ -14,7 +14,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Call,
     Calls,
-    EstimatedFee,
+    FeeEstimate,
     Hash,
     ResourceBounds,
     ResourceBoundsMapping,
@@ -144,7 +144,7 @@ class Account(BaseAccount):
 
         if auto_estimate:
             estimated_fee = await self.estimate_fee(transaction)
-            assert isinstance(estimated_fee, EstimatedFee)
+            assert isinstance(estimated_fee, FeeEstimate)
 
             max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
@@ -168,7 +168,7 @@ class Account(BaseAccount):
 
         if auto_estimate:
             estimated_fee = await self.estimate_fee(transaction)
-            assert isinstance(estimated_fee, EstimatedFee)
+            assert isinstance(estimated_fee, FeeEstimate)
 
             return estimated_fee.to_resource_bounds(
                 Account.ESTIMATED_AMOUNT_MULTIPLIER,
@@ -259,7 +259,7 @@ class Account(BaseAccount):
         skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+    ) -> Union[FeeEstimate, List[FeeEstimate]]:
         transactions = (
             await self.sign_for_fee_estimate(tx)
             if isinstance(tx, AccountTransaction)

@@ -5,18 +5,18 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     ContractsNonce,
     DeclaredContractHash,
-    DeployedContract,
-    PendingBlockStateUpdate,
+    DeployedContractItem,
+    PendingStateUpdate,
     PendingStarknetBlock,
-    PendingStarknetBlockWithReceipts,
-    PendingStarknetBlockWithTxHashes,
+    PendingBlockWithReceipts,
+    PendingBlockWithTxHashes,
     ReplacedClass,
     ResourcePrice,
     StarknetBlock,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     StateDiff,
-    StorageDiffItem,
+    ContractStorageDiffItem,
 )
 from starknet_py.net.schemas.common import (
     BlockStatusField,
@@ -81,7 +81,7 @@ class BlockHashAndNumberSchema(Schema):
         return BlockHashAndNumber(**data)
 
 
-class StorageDiffSchema(Schema):
+class ContractStorageDiffSchema(Schema):
     address = Felt(data_key="address", required=True)
     storage_entries = fields.List(
         fields.Nested(StorageEntrySchema()),
@@ -90,8 +90,8 @@ class StorageDiffSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> StorageDiffItem:
-        return StorageDiffItem(**data)
+    def make_dataclass(self, data, **kwargs) -> ContractStorageDiffItem:
+        return ContractStorageDiffItem(**data)
 
 
 class DeclaredContractHashSchema(Schema):
@@ -103,13 +103,13 @@ class DeclaredContractHashSchema(Schema):
         return DeclaredContractHash(**data)
 
 
-class DeployedContractSchema(Schema):
+class DeployedContractItemSchema(Schema):
     address = Felt(data_key="address", required=True)
     class_hash = NonPrefixedHex(data_key="class_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs):
-        return DeployedContract(**data)
+        return DeployedContractItem(**data)
 
 
 class ContractsNonceSchema(Schema):
@@ -132,7 +132,7 @@ class ReplacedClassSchema(Schema):
 
 class StateDiffSchema(Schema):
     storage_diffs = fields.List(
-        fields.Nested(StorageDiffSchema()),
+        fields.Nested(ContractStorageDiffSchema()),
         data_key="storage_diffs",
         required=True,
     )
@@ -147,7 +147,7 @@ class StateDiffSchema(Schema):
         required=True,
     )
     deployed_contracts = fields.List(
-        fields.Nested(DeployedContractSchema()),
+        fields.Nested(DeployedContractItemSchema()),
         data_key="deployed_contracts",
         required=True,
     )
@@ -176,21 +176,21 @@ class BlockStateUpdateSchema(Schema):
         return BlockStateUpdate(**data)
 
 
-class PendingBlockStateUpdateSchema(Schema):
+class PendingStateUpdateSchema(Schema):
     old_root = Felt(data_key="old_root", required=True)
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingBlockStateUpdate:
-        return PendingBlockStateUpdate(**data)
+    def make_dataclass(self, data, **kwargs) -> PendingStateUpdate:
+        return PendingStateUpdate(**data)
 
 
-class PendingStarknetBlockWithTxHashesSchema(PendingBlockHeaderSchema):
+class PendingBlockWithTxHashesSchema(PendingBlockHeaderSchema):
     transactions = fields.List(Felt(), data_key="transactions", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
-        return PendingStarknetBlockWithTxHashes(**data)
+    def make_dataclass(self, data, **kwargs) -> PendingBlockWithTxHashes:
+        return PendingBlockWithTxHashes(**data)
 
 
 class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
@@ -248,5 +248,5 @@ class PendingStarknetBlockWithReceiptsSchema(PendingBlockHeaderSchema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithReceipts:
-        return PendingStarknetBlockWithReceipts(**data)
+    def make_dataclass(self, data, **kwargs) -> PendingBlockWithReceipts:
+        return PendingBlockWithReceipts(**data)

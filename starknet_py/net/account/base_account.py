@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Calls,
-    EstimatedFee,
+    FeeEstimate,
     Hash,
     ResourceBounds,
     SentTransactionResponse,
@@ -60,7 +60,7 @@ class BaseAccount(ABC):
         skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+    ) -> Union[FeeEstimate, List[FeeEstimate]]:
         """
         Estimates the resources required by a given sequence of transactions when applied on a given state.
         If one of the transactions reverts or fails due to any reason (e.g. validation failure or an internal error),

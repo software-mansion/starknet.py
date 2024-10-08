@@ -5,7 +5,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTrace,
     DeclareTransactionTrace,
     DeployAccountTransactionTrace,
-    FunctionInvocation,
+    FunctionCall,
     InvokeTransactionTrace,
     L1HandlerTransactionTrace,
     OrderedEvent,
@@ -17,7 +17,7 @@ from starknet_py.net.schemas.common import CallTypeField, EntryPointTypeField, F
 from starknet_py.net.schemas.rpc.block import StateDiffSchema
 from starknet_py.net.schemas.rpc.general import (
     ComputationResourcesSchema,
-    EstimatedFeeSchema,
+    FeeEstimateSchema,
     ExecutionResourcesSchema,
 )
 from starknet_py.utils.schema import Schema
@@ -72,8 +72,8 @@ class FunctionInvocationSchema(Schema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> FunctionInvocation:
-        return FunctionInvocation(**data)
+    def make_dataclass(self, data, **kwargs) -> FunctionCall:
+        return FunctionCall(**data)
 
 
 class RevertedFunctionInvocationSchema(Schema):
@@ -202,7 +202,7 @@ class SimulatedTransactionSchema(Schema):
         unknown=EXCLUDE,
     )
     fee_estimation = fields.Nested(
-        EstimatedFeeSchema(), data_key="fee_estimation", required=True
+        FeeEstimateSchema(), data_key="fee_estimation", required=True
     )
 
     @post_load

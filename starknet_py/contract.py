@@ -26,7 +26,7 @@ from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_pro
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.client_models import Call, FeeEstimate, Hash, ResourceBounds, Tag
 from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
@@ -376,7 +376,7 @@ class PreparedFunctionInvoke(ABC, PreparedCallBase):
         block_number: Optional[Union[int, Tag]] = None,
         *,
         nonce: Optional[int] = None,
-    ) -> EstimatedFee:
+    ) -> FeeEstimate:
         """
         Estimate fee for prepared function call.
 
@@ -441,7 +441,7 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
         block_number: Optional[Union[int, Tag]] = None,
         *,
         nonce: Optional[int] = None,
-    ) -> EstimatedFee:
+    ) -> FeeEstimate:
         tx = await self.get_account.sign_invoke_v1(calls=self, nonce=nonce, max_fee=0)
         estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 
@@ -451,7 +451,7 @@ class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
             block_number=block_number,
         )
 
-        assert isinstance(estimated_fee, EstimatedFee)
+        assert isinstance(estimated_fee, FeeEstimate)
         return estimated_fee
 
 
@@ -496,7 +496,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         block_number: Optional[Union[int, Tag]] = None,
         *,
         nonce: Optional[int] = None,
-    ) -> EstimatedFee:
+    ) -> FeeEstimate:
         tx = await self.get_account.sign_invoke_v3(
             calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
         )
@@ -508,7 +508,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
             block_number=block_number,
         )
 
-        assert isinstance(estimated_fee, EstimatedFee)
+        assert isinstance(estimated_fee, FeeEstimate)
         return estimated_fee
 
 

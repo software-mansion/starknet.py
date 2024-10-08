@@ -14,14 +14,14 @@ from starknet_py.net.client_models import (
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
-    EstimatedFee,
+    FeeEstimate,
     EventsChunk,
     Hash,
     L1HandlerTransaction,
-    PendingBlockStateUpdate,
+    PendingStateUpdate,
     PendingStarknetBlock,
-    PendingStarknetBlockWithReceipts,
-    PendingStarknetBlockWithTxHashes,
+    PendingBlockWithReceipts,
+    PendingBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
     SimulatedTransaction,
@@ -53,10 +53,10 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
-    PendingBlockStateUpdateSchema,
+    PendingStateUpdateSchema,
     PendingStarknetBlockSchema,
     PendingStarknetBlockWithReceiptsSchema,
-    PendingStarknetBlockWithTxHashesSchema,
+    PendingBlockWithTxHashesSchema,
     StarknetBlockSchema,
     StarknetBlockWithReceiptsSchema,
     StarknetBlockWithTxHashesSchema,
@@ -67,7 +67,7 @@ from starknet_py.net.schemas.rpc.contract import (
     SyncStatusSchema,
 )
 from starknet_py.net.schemas.rpc.event import EventsChunkSchema
-from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema
+from starknet_py.net.schemas.rpc.general import FeeEstimateSchema
 from starknet_py.net.schemas.rpc.trace_api import (
     BlockTransactionTraceSchema,
     SimulatedTransactionSchema,
@@ -78,7 +78,7 @@ from starknet_py.net.schemas.rpc.transactions import (
     DeployAccountTransactionResponseSchema,
     SentTransactionSchema,
     TransactionReceiptSchema,
-    TransactionStatusResponseSchema,
+    TransactionStatusSchema,
     TypesOfTransactionsSchema,
 )
 from starknet_py.transaction_errors import TransactionNotReceivedError
@@ -131,7 +131,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlockWithTxHashes, PendingStarknetBlockWithTxHashes]:
+    ) -> Union[StarknetBlockWithTxHashes, PendingBlockWithTxHashes]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -143,8 +143,8 @@ class FullNodeClient(Client):
 
         if block_identifier == {"block_id": "pending"}:
             return cast(
-                PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res),
+                PendingBlockWithTxHashes,
+                PendingBlockWithTxHashesSchema().load(res),
             )
         return cast(
             StarknetBlockWithTxHashes,
@@ -167,7 +167,7 @@ class FullNodeClient(Client):
 
         if block_identifier == {"block_id": "pending"}:
             return cast(
-                PendingStarknetBlockWithReceipts,
+                PendingBlockWithReceipts,
                 PendingStarknetBlockWithReceiptsSchema().load(res),
             )
         return cast(
@@ -286,7 +286,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[BlockStateUpdate, PendingBlockStateUpdate]:
+    ) -> Union[BlockStateUpdate, PendingStateUpdate]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -298,8 +298,8 @@ class FullNodeClient(Client):
 
         if block_identifier == {"block_id": "pending"}:
             return cast(
-                PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res),
+                PendingStateUpdate,
+                PendingStateUpdateSchema().load(res),
             )
         return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res))
 
@@ -365,12 +365,12 @@ class FullNodeClient(Client):
         skip_validate: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[EstimatedFee, List[EstimatedFee]]:
+    ) -> Union[FeeEstimate, List[FeeEstimate]]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
-        if single_transaction := isinstance(tx, AccountTransaction):
+        if sitransaction := isinstance(tx, AccountTransaction):
             tx = [tx]
 
         res = await self._client.call(
@@ -388,11 +388,11 @@ class FullNodeClient(Client):
             res = res[0]
 
         return cast(
-            EstimatedFee,
-            EstimatedFeeSchema().load(res, many=not single_transaction),
+            FeeEstimate,
+            FeeEstimateSchema().load(res, many=not single_transaction),
         )
 
-    async def estimate_message_fee(
+    async def estimessage_fee(
         self,
         from_address: str,
         to_address: Hash,
@@ -400,11 +400,11 @@ class FullNodeClient(Client):
         payload: List[Hash],
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> EstimatedFee:
+    ) -> FeeEstimate:
         # pylint: disable=too-many-arguments
         """
         :param from_address: The address of the L1 (Ethereum) contract sending the message.
-        :param to_address: The target L2 (Starknet) address the message is sent to.
+        :paramddress: The target L2 (Starknet) address the message is sent to.
         :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
         :param payload: Payload of the message.
         :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
@@ -435,11 +435,11 @@ class FullNodeClient(Client):
                     **block_identifier,
                 },
             )
-            return cast(EstimatedFee, EstimatedFeeSchema().load(res))
+            return cast(FeeEstimate, FeeEstimateSchema().load(res))
         except ClientError as err:
             if err.code == RPC_CONTRACT_ERROR:
                 raise ClientError(
-                    err.message
+                    err.messag
                     + f" Note that your ETH address ('from_address': {from_address}) might be invalid"
                 ) from err
             raise err
@@ -688,7 +688,7 @@ class FullNodeClient(Client):
         )
         return cast(
             TransactionStatusResponse,
-            TransactionStatusResponseSchema().load(res),
+            TransactionStatusSchema().load(res),
         )
 
     # ------------------------------- Trace API -------------------------------

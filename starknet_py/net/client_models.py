@@ -513,7 +513,7 @@ class PendingStarknetBlock(PendingBlockHeader):
 
 
 @dataclass
-class PendingStarknetBlockWithTxHashes(PendingBlockHeader):
+class PendingBlockWithTxHashes(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet containing transaction hashes.
     """
@@ -522,7 +522,7 @@ class PendingStarknetBlockWithTxHashes(PendingBlockHeader):
 
 
 @dataclass
-class PendingStarknetBlockWithReceipts(PendingBlockHeader):
+class PendingBlockWithReceipts(PendingBlockHeader):
     """
     Dataclass representing a pending block on Starknet with txs and receipts result
     """
@@ -607,7 +607,7 @@ class StorageEntry:
 
 
 @dataclass
-class StorageDiffItem:
+class ContractStorageDiffItem:
     """
     Dataclass representing all storage changes for the contract.
     """
@@ -617,7 +617,7 @@ class StorageDiffItem:
 
 
 @dataclass
-class EstimatedFee:
+class FeeEstimate:
     """
     Dataclass representing estimated fee.
     """
@@ -665,7 +665,7 @@ class EstimatedFee:
 
 
 @dataclass
-class DeployedContract:
+class DeployedContractItem:
     """
     Dataclass representing basic data of the deployed contract.
     """
@@ -710,10 +710,10 @@ class StateDiff:
     Dataclass representing state changes in the block.
     """
 
-    storage_diffs: List[StorageDiffItem]
+    storage_diffs: List[ContractStorageDiffItem]
     deprecated_declared_classes: List[int]
     declared_classes: List[DeclaredContractHash]
-    deployed_contracts: List[DeployedContract]
+    deployed_contracts: List[DeployedContractItem]
     replaced_classes: List[ReplacedClass]
     nonces: List[ContractsNonce]
 
@@ -731,7 +731,7 @@ class BlockStateUpdate:
 
 
 @dataclass
-class PendingBlockStateUpdate:
+class PendingStateUpdate:
     """
     Dataclass representing a pending change in state of a block.
     """
@@ -1002,7 +1002,7 @@ class CallType(Enum):
 
 
 @dataclass
-class FunctionInvocation:
+class FunctionCall:
     """
     Dataclass representing an invocation of a function.
     """
@@ -1016,7 +1016,7 @@ class FunctionInvocation:
     entry_point_type: EntryPointType
     call_type: CallType
     result: List[int]
-    calls: List["FunctionInvocation"]
+    calls: List["FunctionCall"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
     computation_resources: ComputationResources
@@ -1037,10 +1037,10 @@ class InvokeTransactionTrace:
     Dataclass representing a transaction trace of an INVOKE transaction.
     """
 
-    execute_invocation: Union[FunctionInvocation, RevertedFunctionInvocation]
+    execute_invocation: Union[FunctionCall, RevertedFunctionInvocation]
     execution_resources: ExecutionResources
-    validate_invocation: Optional[FunctionInvocation] = None
-    fee_transfer_invocation: Optional[FunctionInvocation] = None
+    validate_invocation: Optional[FunctionCall] = None
+    fee_transfer_invocation: Optional[FunctionCall] = None
     state_diff: Optional[StateDiff] = None
 
 
@@ -1051,8 +1051,8 @@ class DeclareTransactionTrace:
     """
 
     execution_resources: ExecutionResources
-    validate_invocation: Optional[FunctionInvocation] = None
-    fee_transfer_invocation: Optional[FunctionInvocation] = None
+    validate_invocation: Optional[FunctionCall] = None
+    fee_transfer_invocation: Optional[FunctionCall] = None
     state_diff: Optional[StateDiff] = None
 
 
@@ -1062,10 +1062,10 @@ class DeployAccountTransactionTrace:
     Dataclass representing a transaction trace of an DEPLOY_ACCOUNT transaction.
     """
 
-    constructor_invocation: FunctionInvocation
+    constructor_invocation: FunctionCall
     execution_resources: ExecutionResources
-    validate_invocation: Optional[FunctionInvocation] = None
-    fee_transfer_invocation: Optional[FunctionInvocation] = None
+    validate_invocation: Optional[FunctionCall] = None
+    fee_transfer_invocation: Optional[FunctionCall] = None
     state_diff: Optional[StateDiff] = None
 
 
@@ -1076,7 +1076,7 @@ class L1HandlerTransactionTrace:
     """
 
     execution_resources: ExecutionResources
-    function_invocation: FunctionInvocation
+    function_invocation: FunctionCall
     state_diff: Optional[StateDiff] = None
 
 
@@ -1095,7 +1095,7 @@ class SimulatedTransaction:
     """
 
     transaction_trace: TransactionTrace
-    fee_estimation: EstimatedFee
+    fee_estimation: FeeEstimate
 
 
 @dataclass
