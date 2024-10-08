@@ -3,7 +3,7 @@ from marshmallow import fields, post_load
 from starknet_py.net.client_models import (
     ComputationResources,
     DataResources,
-    EstimatedFee,
+    FeeEstimate,
     ExecutionResources,
 )
 from starknet_py.net.schemas.common import Felt, PriceUnitField
@@ -62,7 +62,7 @@ class ExecutionResourcesSchema(ComputationResourcesSchema):
         return ExecutionResources(**data)
 
 
-class EstimatedFeeSchema(Schema):
+class FeeEstimateSchema(Schema):
     gas_consumed = Felt(data_key="gas_consumed", required=True)
     gas_price = Felt(data_key="gas_price", required=True)
     data_gas_consumed = Felt(data_key="data_gas_consumed", required=True)
@@ -71,5 +71,5 @@ class EstimatedFeeSchema(Schema):
     unit = PriceUnitField(data_key="unit", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> EstimatedFee:
-        return EstimatedFee(**data)
+    def make_dataclass(self, data, **kwargs) -> FeeEstimate:
+        return FeeEstimate(**data)

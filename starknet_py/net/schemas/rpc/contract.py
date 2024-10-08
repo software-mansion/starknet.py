@@ -7,7 +7,7 @@ from starknet_py.net.client_models import (
     CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
-    DeployedContract,
+    DeployedContractItem,
     DeprecatedCompiledContract,
     DeprecatedContractClass,
     EntryPoint,
@@ -40,8 +40,8 @@ class ContractDiffSchema(Schema):
     contract_hash = Felt(data_key="contract_hash", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> DeployedContract:
-        return DeployedContract(**data)
+    def make_dataclass(self, data, **kwargs) -> DeployedContractItem:
+        return DeployedContractItem(**data)
 
 
 class SierraEntryPointSchema(Schema):

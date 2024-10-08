@@ -22,7 +22,7 @@ from starknet_py.net.client_models import (
     ResourceBoundsMapping,
     SentTransactionResponse,
     TransactionReceipt,
-    TransactionStatusResponse,
+    TransactionStatus,
     TransactionWithReceipt,
 )
 from starknet_py.net.schemas.common import (
@@ -89,15 +89,15 @@ class TransactionReceiptSchema(Schema):
         return TransactionReceipt(**data)
 
 
-class TransactionStatusResponseSchema(Schema):
+class TransactionStatusSchema(Schema):
     finality_status = StatusField(data_key="finality_status", required=True)
     execution_status = ExecutionStatusField(
         data_key="execution_status", load_default=None
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> TransactionStatusResponse:
-        return TransactionStatusResponse(**data)
+    def make_dataclass(self, data, **kwargs) -> TransactionStatus:
+        return TransactionStatus(**data)
 
 
 class ResourceBoundsSchema(Schema):
