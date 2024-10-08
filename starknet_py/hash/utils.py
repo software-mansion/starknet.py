@@ -52,7 +52,7 @@ def compute_hash_on_elements(data: Sequence) -> int:
 
 
 def message_signature(
-    msg_hash: int, priv_key: int, seed: Optional[int] = 32
+    msg_hash: int, priv_key: int, seed: Optional[int] = None
 ) -> ECSignature:
     """
     Signs the message with private key.
