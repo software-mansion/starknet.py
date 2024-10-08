@@ -6,7 +6,7 @@ Migration guide
 ******************************
 
 0.25.0 Breaking changes
---------------------
+-----------------------
 
 .. currentmodule:: starknet_py.hash.utils
 
