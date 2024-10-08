@@ -2,6 +2,18 @@ Migration guide
 ===============
 
 ******************************
+0.25.0 Migration guide
+******************************
+
+0.25.0 Breaking changes
+--------------------
+
+.. currentmodule:: starknet_py.hash.utils
+
+1. :meth:`message_signature` param ``seed`` has now a default value of ``None`` instead of previous ``32``.
+
+
+******************************
 0.24.2 Migration guide
 ******************************
 
