@@ -15,7 +15,6 @@ on:
   workflow_dispatch:
 
 jobs:
-
   # ---------------------------------------------------------- #
   # ...................LINT-FORMAT-TYPECHECK.................. #
   # ---------------------------------------------------------- #
@@ -24,7 +23,6 @@ jobs:
     name: Lint - Format - Typecheck
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Install poetry
@@ -37,7 +35,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -68,9 +66,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.12" ]
+        python-version: ["3.12"]
     steps:
-
       # ====================== SETUP ====================== #
 
       - uses: actions/checkout@v4
@@ -78,7 +75,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install poetry
         run: |
@@ -90,7 +87,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -140,7 +137,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: ["3.8", "3.12"]
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
@@ -157,7 +154,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -171,7 +168,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -186,7 +183,6 @@ jobs:
 
       - name: Pull speculos image
         run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
-
 
       - name: Clone LedgerHQ Starknet app repository
         run: git clone https://github.com/LedgerHQ/app-starknet.git
@@ -271,7 +267,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -285,7 +281,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -327,14 +323,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: ["3.8", "3.12"]
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
-          toolchain: 1.79.0  # Doesn't work with "stable"
+          toolchain: 1.79.0 # Doesn't work with "stable"
 
       - name: Download contracts
         uses: actions/download-artifact@v4
@@ -345,7 +341,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -374,7 +370,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -411,7 +407,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: ["3.8", "3.12"]
     steps:
       - uses: actions/checkout@v4
 
@@ -424,7 +420,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -438,7 +434,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -510,7 +506,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -544,5 +540,4 @@ jobs:
           poetry run coverage xml
 
           - name: Upload coverage to Codecov
-            uses: codecov/codecov-action@v3
-        
+            uses: codecov/codecov-action@v4
