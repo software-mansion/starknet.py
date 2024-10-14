@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -75,7 +75,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: 'pip'
 
       - name: Install poetry
         run: |
@@ -87,7 +87,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -154,7 +154,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -168,7 +168,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -267,7 +267,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -281,7 +281,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -341,7 +341,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: 'pip'
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -370,7 +370,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -420,7 +420,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -434,7 +434,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -461,9 +461,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-    # ---------------------------------------------------------- #
-    # .................RUN-DOCS-TESTS-WINDOWS................... #
-    # ---------------------------------------------------------- #
+  # ---------------------------------------------------------- #
+  # .................RUN-DOCS-TESTS-WINDOWS................... #
+  # ---------------------------------------------------------- #
 
   run-docs-tests-windows:
     if: ${{ github.event_name != 'pull_request' }}
@@ -492,7 +492,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
+          cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
 
@@ -506,7 +506,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
@@ -535,9 +535,9 @@ jobs:
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
 
-          - name: Generate coverage in XML
-            run: |
+      - name: Generate coverage in XML
+        run: |
           poetry run coverage xml
 
-          - name: Upload coverage to Codecov
-            uses: codecov/codecov-action@v4
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
