@@ -359,7 +359,7 @@ class DevnetClient(FullNodeClient):
     ) -> SetTimeResponse:
         """
         Set the time of the devnet. Only available when there is no pending transaction.
-        Warning: block time can be set in the past and lead to unexpected behaviour!
+        Warning: block time can be set in the past and lead to unexpected behavior!
 
         :param time: Time to set in seconds. (Unix time)
         :param generate_block: If `True` a new block will be generated, default to False.
