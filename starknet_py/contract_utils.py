@@ -5,6 +5,7 @@ from starknet_py.common import create_casm_class, create_sierra_compiled_contrac
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
+from starknet_py.tests.e2e.fixtures.misc import UnknownArtifacts
 
 
 def _extract_compiled_class_hash(
