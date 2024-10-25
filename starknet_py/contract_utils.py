@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Optional, Tuple, Union
+
 from starknet_py.common import create_casm_class, create_sierra_compiled_contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
@@ -44,14 +45,17 @@ def _unpack_provider(
 
     raise ValueError("Argument provider is not of accepted type.")
 
-def load_contract(contract_name: str, package_name: str, binaries_directory_path: str = "target/dev"):
+
+def load_contract(
+    contract_name: str, package_name: str, binaries_directory_path: str = "target/dev"
+):
     """
     Load and return the contract's CASM, Sierra, and ABI information.
 
     Args:
         contract_name (str): The name of the contract to be loaded.
         package_name (str): The name of the Scarb package containing the contract.
-        binaries_directory_path (str, optional): The directory path to the Scarb-compiled binaries. 
+        binaries_directory_path (str, optional): The directory path to the Scarb-compiled binaries.
                                                  Defaults to "target/dev" relative to the working directory.
 
     Returns:
