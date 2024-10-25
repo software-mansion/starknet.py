@@ -42,7 +42,6 @@ def _unpack_provider(
         return provider.client, provider
 
     raise ValueError("Argument provider is not of accepted type.")
-       
 
 def load_contract(contract_name: str, package_name: str, binaries_directory_path: str = "target/dev"):
     """
@@ -60,16 +59,12 @@ def load_contract(contract_name: str, package_name: str, binaries_directory_path
             - "sierra" (str): Sierra intermediate representation of the contract.
             - "abi" (list): ABI (Application Binary Interface) of the contract.
     """
-    
     # Define the base directory for the compiled contracts
-    BASE_DIR = Path(binaries_directory_path)
-    
+    base_dir = Path(binaries_directory_path)
     # Create the path for the artifacts map file using pathlib
-    artifacts_map_path = BASE_DIR / f"{package_name}.starknet_artifacts.json"
-    
+    artifacts_map_path = base_dir / f"{package_name}.starknet_artifacts.json"
     # Read the content of the JSON file using read_text method of the Path object
     artifacts_map = json.loads(artifacts_map_path.read_text("utf-8"))
-    
     artifact_file_names = next(
         (
             item["artifacts"]
@@ -82,8 +77,7 @@ def load_contract(contract_name: str, package_name: str, binaries_directory_path
     if not isinstance(artifact_file_names, dict):  # pyright: ignore
         raise UnknownArtifacts(f"Artifacts for contract {contract_name} not found")
 
-    sierra = (BASE_DIR / artifact_file_names["sierra"]).read_text("utf-8")
-    casm = (BASE_DIR / artifact_file_names["casm"]).read_text("utf-8")
+    sierra = (base_dir / artifact_file_names["sierra"]).read_text("utf-8")
+    casm = (base_dir / artifact_file_names["casm"]).read_text("utf-8")
     abi = create_sierra_compiled_contract(sierra).parsed_abi
-    
     return {"casm": casm, "sierra": sierra, "abi": abi}
