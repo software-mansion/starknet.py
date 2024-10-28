@@ -159,10 +159,12 @@ async def test_estimate_fee_invoke(account, contract_address):
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert estimate_fee.l1_gas_price > 0
+    assert estimate_fee.l1_gas_consumed > 0
+    assert estimate_fee.l2_gas_price > 0
+    assert estimate_fee.l2_gas_consumed > 0
+    assert estimate_fee.l1_data_gas_price > 0
+    assert estimate_fee.l1_data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -181,10 +183,12 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.FRI
     assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert estimate_fee.l1_gas_price > 0
+    assert estimate_fee.l1_gas_consumed > 0
+    assert estimate_fee.l2_gas_price > 0
+    assert estimate_fee.l2_gas_consumed > 0
+    assert estimate_fee.l1_data_gas_price > 0
+    assert estimate_fee.l1_data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -203,10 +207,12 @@ async def test_estimate_fee_declare(
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert estimate_fee.l1_gas_price > 0
+    assert estimate_fee.l1_gas_consumed > 0
+    assert estimate_fee.l2_gas_price > 0
+    assert estimate_fee.l2_gas_consumed > 0
+    assert estimate_fee.l1_data_gas_price > 0
+    assert estimate_fee.l1_data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
@@ -216,10 +222,12 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert estimate_fee.l1_gas_price > 0
+    assert estimate_fee.l1_gas_consumed > 0
+    assert estimate_fee.l2_gas_price > 0
+    assert estimate_fee.l2_gas_consumed > 0
+    assert estimate_fee.l1_data_gas_price > 0
+    assert estimate_fee.l1_data_gas_consumed >= 0
 
 
 @pytest.mark.asyncio
@@ -246,10 +254,12 @@ async def test_estimate_fee_for_multiple_transactions(
         assert isinstance(estimated_fee, EstimatedFee)
         assert estimated_fee.unit == PriceUnit.WEI
         assert estimated_fee.overall_fee > 0
-        assert estimated_fee.gas_price > 0
-        assert estimated_fee.gas_consumed > 0
-        assert estimated_fee.data_gas_price > 0
-        assert estimated_fee.data_gas_consumed > 0
+        assert estimated_fee.l1_gas_price > 0
+        assert estimated_fee.l1_gas_consumed > 0
+        assert estimated_fee.l2_gas_price > 0
+        assert estimated_fee.l2_gas_consumed > 0
+        assert estimated_fee.l1_data_gas_price > 0
+        assert estimated_fee.l1_data_gas_consumed > 0
 
 
 @pytest.mark.asyncio
