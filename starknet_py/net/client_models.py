@@ -944,6 +944,7 @@ class TransactionStatusResponse:
 
     finality_status: TransactionStatus
     execution_status: Optional[TransactionExecutionStatus] = None
+    failure_reason: Optional[str] = None
 
 
 # ------------------------------- Trace API dataclasses -------------------------------

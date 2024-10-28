@@ -314,6 +314,12 @@ async def test_get_transaction_status(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
+async def test_get_transaction_status_with_failure_reason():
+    # TODO (#1498): Add a test for a transaction with failure_reason
+    pass
+
+
+@pytest.mark.asyncio
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
     block = await client_sepolia_testnet.get_block_with_txs(block_number=155)

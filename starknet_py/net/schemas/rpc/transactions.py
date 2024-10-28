@@ -94,6 +94,7 @@ class TransactionStatusResponseSchema(Schema):
     execution_status = ExecutionStatusField(
         data_key="execution_status", load_default=None
     )
+    failure_reason = fields.String(data_key="failure_reason", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionStatusResponse:
