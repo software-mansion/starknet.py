@@ -1106,3 +1106,78 @@ class BlockTransactionTrace:
 
     transaction_hash: int
     trace_root: TransactionTrace
+
+
+@dataclass
+class BinaryNode:
+    """
+    Dataclass representing an internal node whose both children are non-zero.
+    """
+
+    left: int
+    right: int
+
+
+@dataclass
+class EdgeNode:
+    """
+    Dataclass representing a path to the highest non-zero descendant node.
+    """
+
+    path: int
+    length: int
+    child: int
+
+
+MerkleNode = Union[BinaryNode, EdgeNode]
+
+
+@dataclass
+class NodeHashToNodeMappingItem:
+    node_hash: int
+    node: MerkleNode
+
+
+NodeHashToNodeMapping = NodeHashToNodeMappingItem
+
+
+@dataclass
+class ContractStorageKeys:
+    """
+    Dataclass representing a pair of contract address and storage keys.
+    """
+
+    contract_address: int
+    storage_keys: List[int]
+
+
+@dataclass
+class ContractLeafData:
+    nonce: int
+    class_hash: int
+
+
+@dataclass
+class GlobalRoots:
+    contracts_tree_root: int
+    classes_tree_root: int
+    block_hash: int
+
+
+@dataclass
+class ContractsProof:
+    nodes: NodeHashToNodeMapping
+    contract_leaves_data: List[ContractLeafData]
+    contracts_storage_proof: NodeHashToNodeMapping
+
+
+@dataclass
+class StorageProofResponse:
+    """
+    Dataclass representing a response to a storage proof request.
+    """
+
+    classes_proof: NodeHashToNodeMapping
+    contracts_proof: ContractsProof
+    contracts_storage_proofs: NodeHashToNodeMapping
+    global_roots: GlobalRoots

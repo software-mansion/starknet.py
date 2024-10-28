@@ -121,6 +121,12 @@ async def test_get_storage_at(client, contract_address):
 
 
 @pytest.mark.asyncio
+async def test_get_storage_proof():
+    # TODO (#1498): Add test for get_storage_proof
+    pass
+
+
+@pytest.mark.asyncio
 async def test_get_transaction_receipt(
     client, invoke_transaction_hash, block_with_invoke_number
 ):
