@@ -18,6 +18,7 @@ from starknet_py.net.client_models import (
     InvokeTransactionV3,
     L1HandlerTransaction,
     L2toL1Message,
+    MessageStatus,
     ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
@@ -351,3 +352,13 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionResponse:
         return DeployAccountTransactionResponse(**data)
+
+
+class MessageStatusSchema(Schema):
+    transaction_hash = NumberAsHex(data_key="transaction_hash", required=True)
+    finality_status = FinalityStatusField(data_key="finality_status", required=True)
+    failure_reason = fields.String(data_key="failure_reason", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> MessageStatus:
+        return MessageStatus(**data)

@@ -127,6 +127,12 @@ async def test_get_storage_proof():
 
 
 @pytest.mark.asyncio
+async def test_get_messages_status():
+    # TODO (#1498): Add test for get_messages_status
+    pass
+
+
+@pytest.mark.asyncio
 async def test_get_transaction_receipt(
     client, invoke_transaction_hash, block_with_invoke_number
 ):

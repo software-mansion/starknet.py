@@ -19,6 +19,8 @@ from starknet_py.net.client_models import (
     EventsChunk,
     Hash,
     L1HandlerTransaction,
+    MessagesStatusResponse,
+    MessageStatus,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithReceipts,
@@ -79,6 +81,7 @@ from starknet_py.net.schemas.rpc.trace_api import (
 from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
+    MessageStatusSchema,
     SentTransactionSchema,
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
@@ -476,6 +479,18 @@ class FullNodeClient(Client):
 
     async def get_chain_id(self) -> str:
         return await self._client.call(method_name="chainId", params={})
+
+    async def get_messages_status(
+        self, l1_transaction_hash: int
+    ) -> MessagesStatusResponse:
+        res = await self._client.call(
+            method_name="getMessagesStatus",
+            params={"l1_transaction_hash": l1_transaction_hash},
+        )
+        return cast(
+            List[MessageStatus],
+            MessageStatusSchema().load(res, many=True),
+        )
 
     async def get_syncing_status(self) -> Union[bool, SyncStatus]:
         """Returns an object about the sync status, or false if the node is not syncing"""

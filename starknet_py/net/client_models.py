@@ -1182,3 +1182,13 @@ class StorageProofResponse:
     contracts_proof: ContractsProof
     contracts_storage_proofs: NodeHashToNodeMapping
     global_roots: GlobalRoots
+
+
+@dataclass
+class MessageStatus:
+    transaction_hash: int
+    finality_status: TransactionFinalityStatus
+    failure_reason: Optional[str] = None
+
+
+MessagesStatusResponse = List[MessageStatus]
