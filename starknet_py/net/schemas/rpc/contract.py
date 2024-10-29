@@ -870,6 +870,8 @@ class HintField(fields.Field):
             elif CheatcodeSchema.cheatcode.data_key in value:
                 return CheatcodeSchema().load(value)
 
+        raise ValidationError(f"Invalid value provided for Hint: {value}.")
+
 
 class CasmClassSchema(Schema):
     prime = NumberAsHex(data_key="prime", required=True)
@@ -877,7 +879,6 @@ class CasmClassSchema(Schema):
     bytecode_segment_lengths = fields.List(
         fields.Integer(), data_key="bytecode_segment_lengths", load_default=None
     )
-    # TODO (#1498): Add more detailed `hints` type
     hints = fields.List(
         fields.List(
             HintField(),
@@ -886,7 +887,6 @@ class CasmClassSchema(Schema):
         data_key="hints",
         required=True,
     )
-    # TODO (#1498): Ensure `pythonic_hints` are not needed anymore
     compiler_version = fields.String(data_key="compiler_version", required=True)
     entry_points_by_type = fields.Nested(
         CasmClassEntryPointsByTypeSchema(),
