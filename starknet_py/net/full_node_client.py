@@ -38,7 +38,7 @@ from starknet_py.net.client_models import (
     Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
-    TransactionTrace,
+    TransactionTrace, CasmClass,
 )
 from starknet_py.net.client_utils import (
     _create_broadcasted_txn,
@@ -68,7 +68,7 @@ from starknet_py.net.schemas.rpc.block import (
 from starknet_py.net.schemas.rpc.contract import (
     DeprecatedContractClassSchema,
     SierraContractClassSchema,
-    SyncStatusSchema,
+    SyncStatusSchema, CasmClassSchema,
 )
 from starknet_py.net.schemas.rpc.event import EventsChunkSchema
 from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema
@@ -704,6 +704,13 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    async def get_compiled_casm(self, class_hash: int) -> CasmClass:
+        res = await self._client.call(
+            method_name="getCompiledCasm",
+            params={"class_hash": class_hash},
+        )
+        return cast(CasmClass, CasmClassSchema().load(res))
 
     async def spec_version(self) -> str:
         """

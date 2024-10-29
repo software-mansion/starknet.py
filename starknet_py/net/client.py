@@ -27,7 +27,7 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionReceipt,
     TransactionStatus,
-    TransactionStatusResponse,
+    TransactionStatusResponse, CasmClass,
 )
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -339,4 +339,13 @@ class Client(ABC):
 
         :param l1_transaction_hash: Hash of the L1 transaction
         :return: Status of the messages
+        """
+
+    @abstractmethod
+    async def get_compiled_casm(self, class_hash: int) -> CasmClass:
+        """
+        Get the contract class definition in the given block associated with the given hash.
+
+        :param class_hash: Hash of the contract class whose CASM will be returned
+        :return: CasmClass object
         """
