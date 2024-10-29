@@ -503,7 +503,6 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         *,
         nonce: Optional[int] = None,
     ) -> EstimatedFee:
-
         tx = await self.get_account.sign_invoke_v3(
             calls=self,
             nonce=nonce,
