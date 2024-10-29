@@ -19,7 +19,6 @@ from starknet_py.net.client_models import (
     InvokeTransactionV3,
     L1HandlerTransaction,
     PriceUnit,
-    ResourceBounds,
     ResourceBoundsMapping,
     SierraContractClass,
     SierraEntryPointsByType,
