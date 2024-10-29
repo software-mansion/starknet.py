@@ -381,9 +381,9 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
-class DataResources:
+class InnerCallExecutionResources:
     """
-    Dataclass representing the data-availability resources of the transaction
+    Dataclass representing resources consumed by the internal call
     """
 
     l1_gas: int
@@ -391,7 +391,7 @@ class DataResources:
 
 
 @dataclass
-class ExecutionResources(DataResources):
+class ExecutionResources(InnerCallExecutionResources):
     """
     Dataclass representing the resources consumed by the transaction, includes both computation and data.
     """
