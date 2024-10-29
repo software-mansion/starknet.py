@@ -11,20 +11,19 @@ async def test_invoke(map_contract: Contract):
         key=10, value=20
     )
     # docs-start: invoke
-    l1_resource_bounds = ResourceBounds(max_amount=5000, max_price_per_unit=int(1e12))
     resource_bounds = ResourceBoundsMapping(
-        l1_gas=l1_resource_bounds,
+        l1_gas=ResourceBounds(max_amount=5000, max_price_per_unit=int(1e12)),
         l2_gas=ResourceBounds.init_with_zeros(),
     )
     invoke_result = await prepared_function_call.invoke(resource_bounds=resource_bounds)
     # docs-end: invoke
-    prepared_function_call.l1_resource_bounds = None
+    prepared_function_call.resource_bounds = None
     # docs-start: invoke
-    # l1_resource_bounds can be estimated automatically
+    # resource_bounds can be estimated automatically
     invoke_result = await prepared_function_call.invoke(auto_estimate=True)
-    # or if l1_resource_bounds was specified in prepared_function_call
+    # or if resource_bounds was specified in prepared_function_call
     # docs-end: invoke
-    prepared_function_call.l1_resource_bounds = l1_resource_bounds
+    prepared_function_call.resource_bounds = resource_bounds
     # docs-start: invoke
     invoke_result = await prepared_function_call.invoke()
     # docs-end: invoke
