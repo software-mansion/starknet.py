@@ -2,6 +2,20 @@ Migration guide
 ===============
 
 ******************************
+0.25.0 Migration guide
+******************************
+
+Version 0.25.0 of **starknet.py** comes with support for RPC 0.8.0!
+
+0.25.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.3 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.3>`_
+- RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
+
+TODO (#1498): List changes
+
+******************************
 0.24.2 Migration guide
 ******************************
 
