@@ -26,7 +26,13 @@ from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_pro
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.client_models import (
+    Call,
+    EstimatedFee,
+    Hash,
+    ResourceBoundsMapping,
+    Tag,
+)
 from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.models.transaction import Declare, Invoke
 from starknet_py.net.udc_deployer.deployer import Deployer
@@ -231,7 +237,7 @@ class DeclareResult(SentTransaction):
         unique: bool = True,
         constructor_args: Optional[Union[List, Dict]] = None,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> "DeployResult":
         """
@@ -244,7 +250,7 @@ class DeclareResult(SentTransaction):
         :param unique: Determines if the contract should be salted with the account address.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param nonce: Nonce of the transaction with call to deployer.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
@@ -260,7 +266,7 @@ class DeclareResult(SentTransaction):
             deployer_address=deployer_address,
             cairo_version=self._cairo_version,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
             salt=salt,
             unique=unique,
@@ -462,11 +468,11 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
     Prepared date to send an InvokeV3 transaction.
     """
 
-    l1_resource_bounds: Optional[ResourceBounds]
+    resource_bounds: Optional[ResourceBoundsMapping]
 
     async def invoke(
         self,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
         *,
         nonce: Optional[int] = None,
@@ -474,7 +480,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         """
         Send an Invoke transaction version 3 for the prepared data.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
@@ -484,7 +490,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         transaction = await self.get_account.sign_invoke_v3(
             calls=self,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds or self.l1_resource_bounds,
+            resource_bounds=resource_bounds or self.resource_bounds,
             auto_estimate=auto_estimate,
         )
 
@@ -497,8 +503,11 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         *,
         nonce: Optional[int] = None,
     ) -> EstimatedFee:
+
         tx = await self.get_account.sign_invoke_v3(
-            calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
+            calls=self,
+            nonce=nonce,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
         )
         estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 
@@ -652,7 +661,7 @@ class ContractFunction:
     def prepare_invoke_v3(
         self,
         *args,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         **kwargs,
     ) -> PreparedFunctionInvokeV3:
         """
@@ -660,7 +669,7 @@ class ContractFunction:
         Creates a ``PreparedFunctionInvokeV3`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
             this transaction.
         :return: PreparedFunctionInvokeV3.
         """
@@ -670,7 +679,7 @@ class ContractFunction:
             to_addr=self.contract_data.address,
             calldata=calldata,
             selector=self.get_selector(self.name),
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             _contract_data=self.contract_data,
             _client=self.client,
             _account=self.account,
@@ -680,7 +689,7 @@ class ContractFunction:
     async def invoke_v3(
         self,
         *args,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
         nonce: Optional[int] = None,
         **kwargs,
@@ -689,7 +698,7 @@ class ContractFunction:
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare_invoke_v3(*args, **kwargs).invoke()``.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
@@ -697,7 +706,7 @@ class ContractFunction:
         """
         prepared_invoke = self.prepare_invoke_v3(*args, **kwargs)
         return await prepared_invoke.invoke(
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )
@@ -896,7 +905,7 @@ class Contract:
         compiled_contract_casm: Optional[str] = None,
         compiled_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
@@ -909,7 +918,7 @@ class Contract:
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
         :param compiled_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
@@ -923,7 +932,7 @@ class Contract:
             compiled_contract=compiled_contract,
             compiled_class_hash=compiled_class_hash,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
         )
 
@@ -1006,7 +1015,7 @@ class Contract:
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         cairo_version: int = 1,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
         salt: Optional[int] = None,
         unique: bool = True,
@@ -1024,7 +1033,7 @@ class Contract:
         :param cairo_version: Version of the Cairo in which contract is written.
             By default, it is set to 1.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
+        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
             this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param salt: Optional salt. Random value is selected if it is not provided.
@@ -1047,7 +1056,7 @@ class Contract:
         res = await account.execute_v3(
             calls=deploy_call,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
         )
 

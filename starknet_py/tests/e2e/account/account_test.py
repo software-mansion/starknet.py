@@ -92,10 +92,14 @@ async def test_estimate_fee_for_declare_transaction(
     account, map_compiled_contract_and_class_hash
 ):
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=resource_bounds,
     )
 
     estimated_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -114,10 +118,14 @@ async def test_account_estimate_fee_for_declare_transaction(
     account, map_compiled_contract_and_class_hash
 ):
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=resource_bounds,
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
@@ -134,16 +142,19 @@ async def test_account_estimate_fee_for_declare_transaction(
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_transactions(account, map_contract):
-
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     invoke_tx_1 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=resource_bounds,
         nonce=(await account.get_nonce()),
     )
 
     invoke_tx_2 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [5, 1]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=resource_bounds,
         nonce=(await account.get_nonce() + 1),
     )
 
@@ -265,9 +276,11 @@ async def test_sign_invoke_v1_auto_estimate(account, map_contract):
     "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
 )
 async def test_sign_invoke_v3(account, calls):
-    signed_tx = await account.sign_invoke_v3(
-        calls, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
     )
+    signed_tx = await account.sign_invoke_v3(calls, resource_bounds=resource_bounds)
 
     assert isinstance(signed_tx, InvokeV3)
     assert isinstance(signed_tx.signature, list)
@@ -347,11 +360,14 @@ async def test_sign_declare_v3(
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
-
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     signed_tx = await account.sign_declare_v3(
         compiled_contract,
         compiled_class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        ource_bounds=resource_bounds,
     )
 
     assert isinstance(signed_tx, DeclareV3)
@@ -429,10 +445,14 @@ async def test_sign_deploy_account_v3(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     signed_tx = await account.sign_deploy_account_v3(
         class_hash,
         salt,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=resource_bounds,
         constructor_calldata=calldata,
     )
 
@@ -515,13 +535,17 @@ async def test_deploy_account_v1(client, deploy_account_details_factory, map_con
 async def test_deploy_account_v3(client, deploy_account_details_factory):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
 
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     deploy_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=resource_bounds,
     )
     await deploy_result.wait_for_acceptance()
 
@@ -660,8 +684,12 @@ async def test_sign_invoke_v1_for_fee_estimation(account, map_contract):
 @pytest.mark.asyncio
 async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     call = map_contract.functions["put"].prepare_invoke_v3(key=1, value=2)
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     transaction = await account.sign_invoke_v3(
-        calls=call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=call, resource_bounds=resource_bounds
     )
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
@@ -825,8 +853,12 @@ async def test_account_execute_v3(account, deployed_balance_contract):
 
     (initial_balance,) = await account.client.call_contract(call=get_balance_call)
 
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=MAX_RESOURCE_BOUNDS_L1,
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     execute_increase_balance = await account.execute_v3(
-        calls=increase_balance_call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=increase_balance_call, resource_bounds=resource_bounds
     )
     receipt = await account.client.wait_for_tx(
         tx_hash=execute_increase_balance.transaction_hash

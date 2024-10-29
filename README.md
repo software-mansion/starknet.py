@@ -100,7 +100,7 @@ Example usage:
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.client_models import ResourceBounds
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 l1_resource_bounds = ResourceBounds(
     max_amount=int(1e5), max_price_per_unit=int(1e13)
 )
@@ -111,12 +111,12 @@ declare_result = await Contract.declare_v3(
     account,
     compiled_contract=compiled_contract,
     compiled_class_hash=class_hash,
-    l1_resource_bounds=l1_resource_bounds,
+    resource_bounds=resource_bounds,
 )
 
 await declare_result.wait_for_acceptance()
 deploy_result = await declare_result.deploy_v3(
-    l1_resource_bounds=l1_resource_bounds,
+    resource_bounds=resource_bounds,
 )
 # Wait until deployment transaction is accepted
 await deploy_result.wait_for_acceptance()
@@ -126,13 +126,15 @@ map_contract = deploy_result.deployed_contract
 k, v = 13, 4324
 # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
 # Account to create the contract object
+resource_bounds = ResourceBoundsMapping(
+    l1_gas = ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l2_gas = ResourceBounds.init_with_zeros()
+)
 await (
     await map_contract.functions["put"].invoke_v3(
         k,
         v,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=resource_bounds,
     )
 ).wait_for_acceptance()
 
@@ -150,7 +152,7 @@ calls = [
 # Executes only one transaction with prepared calls
 transaction_response = await account.execute_v3(
     calls=calls,
-    l1_resource_bounds=l1_resource_bounds,
+    resource_bounds=resource_bounds,
 )
 await account.client.wait_for_tx(transaction_response.transaction_hash)
 ```

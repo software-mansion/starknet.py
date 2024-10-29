@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.client_models import ResourceBounds
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 
 @pytest.mark.asyncio
@@ -25,14 +25,16 @@ async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_
     constructor_args = None
 
     # docs: start
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     deploy_result = await Contract.deploy_contract_v3(
         account=account,
         class_hash=class_hash,
         abi=abi,  # abi is optional
         constructor_args=constructor_args,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=resource_bounds,
     )
 
     # `Contract.deploy_contract_v1` and `Contract.deploy_contract_v3` methods have an optional parameter

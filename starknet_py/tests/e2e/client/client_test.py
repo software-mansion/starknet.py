@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     L1HandlerTransaction,
     PriceUnit,
     ResourceBounds,
+    ResourceBoundsMapping,
     SierraContractClass,
     SierraEntryPointsByType,
     TransactionExecutionStatus,
@@ -175,7 +176,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
             selector=get_selector_from_name("increase_balance"),
             calldata=[1000],
         ),
-        l1_resource_bounds=ResourceBounds.init_with_zeros(),
+        resource_bounds=ResourceBoundsMapping.init_with_zeros(),
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
     estimate_fee = await account.client.estimate_fee(tx=invoke_tx)

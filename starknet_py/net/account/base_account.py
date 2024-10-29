@@ -6,7 +6,7 @@ from starknet_py.net.client_models import (
     Calls,
     EstimatedFee,
     Hash,
-    ResourceBounds,
+    ResourceBoundsMapping,
     SentTransactionResponse,
     Tag,
 )
@@ -145,7 +145,7 @@ class BaseAccount(ABC):
         calls: Calls,
         *,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
         """
@@ -213,7 +213,7 @@ class BaseAccount(ABC):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeclareV3:
         """
@@ -263,7 +263,7 @@ class BaseAccount(ABC):
         *,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
@@ -305,7 +305,7 @@ class BaseAccount(ABC):
         self,
         calls: Calls,
         *,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:

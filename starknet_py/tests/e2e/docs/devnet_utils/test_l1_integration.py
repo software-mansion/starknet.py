@@ -1,7 +1,7 @@
 import pytest
 
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.client_models import ResourceBounds
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 
 @pytest.mark.skip(reason="Test require eth node running.")
@@ -37,12 +37,14 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     # docs: messaging-contract-start
     contract = await Contract.from_address(address=contract_address, provider=account)
 
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=50000, max_price_per_unit=int(1e12)),
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     await contract.functions["increase_balance"].invoke_v3(
         user=account.address,
         amount=100,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=50000, max_price_per_unit=int(1e12)
-        ),
+        resource_bounds=resource_bounds,
     )
 
     # docs: messaging-contract-end
@@ -50,13 +52,15 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
 
     # docs: messaging-contract-start
     # Invoking function that is emitting message
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=50000, max_price_per_unit=int(1e12)),
+        l2_gas=ResourceBounds.init_with_zeros(),
+    )
     await contract.functions["withdraw"].invoke_v3(
         user=account.address,
         amount=100,
         l1_address=eth_account_address,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=50000, max_price_per_unit=int(1e12)
-        ),
+        resource_bounds=resource_bounds,
     )
     # docs: messaging-contract-end
     assert await contract.functions["get_balance"].call(user=account.address) == (0,)
