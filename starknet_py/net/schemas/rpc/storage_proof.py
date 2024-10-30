@@ -35,19 +35,17 @@ class EdgeNodeSchema(Schema):
 
 
 class MerkleNodeSchema(Schema):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.binary_node_keys = set(BinaryNodeSchema().fields.keys())
-        self.edge_node_keys = set(EdgeNodeSchema().fields.keys())
-
     @post_load
     def make_dataclass(self, data, **kwargs) -> Union[BinaryNode, EdgeNode]:
         # pylint: disable=no-self-use
+        binary_node_keys = set(BinaryNodeSchema().fields.keys())
+        edge_node_keys = set(EdgeNodeSchema().fields.keys())
+
         data_keys = set(data.keys())
 
-        if data_keys == self.binary_node_keys:
+        if data_keys == binary_node_keys:
             return BinaryNode(**data)
-        elif data_keys == self.edge_node_keys:
+        elif data_keys == edge_node_keys:
             return EdgeNode(**data)
         raise ValidationError(f"Invalid data provided for MerkleNode: {data}.")
 
