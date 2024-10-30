@@ -624,7 +624,7 @@ class EstimatedFee:
         Calculates L2 max amount as `l2_max_amount` = `overall_fee` / `l2_gas_price`, unless `l2_gas_price` is 0,
         then L2 max amount is 0. Calculates `l2_max_price_per_unit` as `l2_max_price_per_unit` = `l2_gas_price`.
 
-        Then multiplies `l1_max_amount` and `l2_max_amount` by `amount_multiplier` and `l1_max_price_per_unit`
+        Then multiplies L1 max amount and L2 max amount by `amount_multiplier` and `l1_max_price_per_unit`
         and `l2_max_price_per_unit` by `unit_price_multiplier`.
 
         :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
