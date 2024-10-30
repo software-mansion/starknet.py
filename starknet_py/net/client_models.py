@@ -11,7 +11,7 @@ import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Literal, Optional, Union, cast
+from typing import Any, Iterable, List, Literal, Optional, Tuple, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -1185,6 +1185,3 @@ class MessageStatus:
     transaction_hash: int
     finality_status: TransactionFinalityStatus
     failure_reason: Optional[str] = None
-
-
-MessagesStatusResponse = List[MessageStatus]

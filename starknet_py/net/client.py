@@ -15,7 +15,7 @@ from starknet_py.net.client_models import (
     DeprecatedContractClass,
     EstimatedFee,
     Hash,
-    MessagesStatusResponse,
+    MessageStatus,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     SentTransactionResponse,
@@ -333,7 +333,7 @@ class Client(ABC):
     @abstractmethod
     async def get_messages_status(
         self, l1_transaction_hash: int
-    ) -> MessagesStatusResponse:
+    ) -> List[MessageStatus]:
         """
         Get L1 handler transaction data for all L1 to L2 messages sent by the given L1 transaction.
 

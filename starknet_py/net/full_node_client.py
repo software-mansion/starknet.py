@@ -19,7 +19,6 @@ from starknet_py.net.client_models import (
     EventsChunk,
     Hash,
     L1HandlerTransaction,
-    MessagesStatusResponse,
     MessageStatus,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
@@ -482,7 +481,7 @@ class FullNodeClient(Client):
 
     async def get_messages_status(
         self, l1_transaction_hash: int
-    ) -> MessagesStatusResponse:
+    ) -> List[MessageStatus]:
         res = await self._client.call(
             method_name="getMessagesStatus",
             params={"l1_transaction_hash": l1_transaction_hash},
