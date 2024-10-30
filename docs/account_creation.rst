@@ -33,5 +33,5 @@ Here is step by step example:
     If you are experiencing transaction failures with ``FEE_TRANSFER_FAILURE``
     make sure that the address you are trying to deploy is prefunded with enough
     tokens, and verify that ``max_fee`` argument in :meth:`~starknet_py.net.account.account.Account.sign_deploy_account_v1`
-    or ``l1_resource_bounds`` argument in :meth:`~starknet_py.net.account.account.Account.sign_deploy_account_v3` is set
+    or ``resource_bounds`` argument in :meth:`~starknet_py.net.account.account.Account.sign_deploy_account_v3` is set
     to a high enough value.

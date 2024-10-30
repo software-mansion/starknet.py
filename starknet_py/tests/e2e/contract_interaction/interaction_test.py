@@ -98,7 +98,7 @@ async def test_throws_invoke_v1_without_max_fee(map_contract):
 async def test_throws_invoke_v3_without_resource_bounds(map_contract):
     error_message = (
         "One of arguments: "
-        "l1_resource_bounds or auto_estimate must be specified when invoking a transaction."
+        "resource_bounds or auto_estimate must be specified when invoking a transaction."
     )
 
     with pytest.raises(ValueError, match=error_message):
@@ -120,7 +120,7 @@ async def test_throws_prepared_invoke_v1_without_max_fee(map_contract):
 async def test_throws_prepared_invoke_v3_without_resource_bounds(map_contract):
     error_message = (
         "One of arguments: "
-        "l1_resource_bounds or auto_estimate must be specified when invoking a transaction."
+        "resource_bounds or auto_estimate must be specified when invoking a transaction."
     )
 
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(2, 3)

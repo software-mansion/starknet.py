@@ -16,7 +16,7 @@ Transaction Fee
 
 All methods within the :ref:`Account` that involve on-chain modifications require either specifying a maximum transaction fee or using auto estimation.
 In the case of V1 and V2 transactions, the transaction fee, denoted in Wei, is configured by the ``max_fee`` parameter.
-For V3 transactions, however, the fee is expressed in Fri and is determined by the ``l1_resource_bounds`` parameter.
+For V3 transactions, however, the fee is expressed in Fri and is determined by the ``resource_bounds`` parameter.
 To enable auto estimation, set the ``auto_estimate`` parameter to ``True``.
 
 .. code-block:: python
