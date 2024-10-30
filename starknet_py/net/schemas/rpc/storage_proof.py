@@ -30,25 +30,30 @@ class MerkleNodeSchema(Schema):
         data_keys = set(data.keys())
 
         if data_keys == self.binary_node_keys:
-            return BinaryNodeSchema().load(data, **kwargs)
+            return BinaryNodeSchema().load(data)
         elif data_keys == self.edge_node_keys:
-            return EdgeNodeSchema().load(data, **kwargs)
-        else:
-            raise ValidationError(f"Invalid data provided for MerkleNode: {data}.")
+            return EdgeNodeSchema().load(data)
+        raise ValidationError(f"Invalid data provided for MerkleNode: {data}.")
 
 
 class NodeHashToNodeMappingField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if value is None:
             return None
-        return [NodeHashToNodeMappingItemSchema().dump(obj=item) for item in value]
+        if not isinstance(value, list):
+            raise ValidationError(
+                f"Invalid value provided for NodeHashToNodeMapping: {value}. Expected a list."
+            )
+        return [NodeHashToNodeMappingItemSchema().dump(item) for item in value]
 
     def _deserialize(self, value: Any, attr: Optional[str], data: Any, **kwargs):
         if value is None:
             return None
         if not isinstance(value, list):
-            raise ValidationError("Expected a list.")
-        return [NodeHashToNodeMappingItemSchema().load(data=obj) for obj in value]
+            raise ValidationError(
+                f"Invalid value provided for NodeHashToNodeMapping: {value}. Expected a list."
+            )
+        return [NodeHashToNodeMappingItemSchema().load(item) for item in value]
 
 
 class NodeHashToNodeMappingItemSchema(Schema):

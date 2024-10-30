@@ -1135,7 +1135,7 @@ class NodeHashToNodeMappingItem:
     node: MerkleNode
 
 
-NodeHashToNodeMapping = NodeHashToNodeMappingItem
+NodeHashToNodeMapping = List[NodeHashToNodeMappingItem]
 
 
 @dataclass
@@ -1176,7 +1176,7 @@ class StorageProofResponse:
 
     classes_proof: NodeHashToNodeMapping
     contracts_proof: ContractsProof
-    contracts_storage_proofs: NodeHashToNodeMapping
+    contracts_storage_proofs: List[NodeHashToNodeMapping]
     global_roots: GlobalRoots
 
 
