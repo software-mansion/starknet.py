@@ -18,6 +18,7 @@ from starknet_py.net.schemas.rpc.block import StateDiffSchema
 from starknet_py.net.schemas.rpc.general import (
     EstimatedFeeSchema,
     ExecutionResourcesSchema,
+    InnerCallExecutionResourcesSchema,
 )
 from starknet_py.utils.schema import Schema
 
@@ -67,7 +68,9 @@ class FunctionInvocationSchema(Schema):
         fields.Nested(OrderedMessageSchema()), data_key="messages", required=True
     )
     execution_resources = fields.Nested(
-        ExecutionResourcesSchema(), data_key="execution_resources", required=True
+        InnerCallExecutionResourcesSchema(),
+        data_key="execution_resources",
+        required=True,
     )
 
     @post_load

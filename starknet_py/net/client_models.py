@@ -1016,7 +1016,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    execution_resources: ExecutionResources
+    execution_resources: InnerCallExecutionResources
 
 
 @dataclass
