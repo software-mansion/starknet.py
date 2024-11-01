@@ -30,12 +30,8 @@ async def test_prepare_and_invoke_v1(map_contract):
 
 @pytest.mark.asyncio
 async def test_prepare_and_invoke_v3(map_contract):
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(
-        key=1, value=2, resource_bounds=resource_bounds
+        key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     assert isinstance(prepared_invoke, PreparedFunctionInvokeV3)
 
@@ -55,12 +51,8 @@ async def test_invoke_v1(map_contract):
 
 @pytest.mark.asyncio
 async def test_invoke_v3(map_contract):
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
     invocation = await map_contract.functions["put"].invoke_v3(
-        key=1, value=2, resource_bounds=resource_bounds
+        key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     assert isinstance(invocation.invoke_transaction, InvokeV3)
     assert invocation.invoke_transaction.resource_bounds == MAX_RESOURCE_BOUNDS
@@ -165,12 +157,8 @@ async def test_latest_max_fee_takes_precedence(map_contract):
 
 @pytest.mark.asyncio
 async def test_latest_resource_bounds_take_precedence(map_contract):
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
     prepared_function = map_contract.functions["put"].prepare_invoke_v3(
-        key=1, value=2, resource_bounds=resource_bounds
+        key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     updated_l1_resource_bounds = ResourceBounds(

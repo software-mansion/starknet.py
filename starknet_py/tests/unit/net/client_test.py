@@ -7,7 +7,6 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import (
     Call,
     DAMode,
-    ResourceBounds,
     ResourceBoundsMapping,
     Transaction,
     TransactionType,
@@ -24,7 +23,7 @@ from starknet_py.net.models.transaction import (
     InvokeV1,
     InvokeV3,
 )
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -96,14 +95,10 @@ def test_get_rpc_storage_key_raises_on_non_representable_key(key):
 async def test_broadcasted_txn_declare_v3(
     account, abi_types_compiled_contract_and_class_hash
 ):
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
     declare_v3 = await account.sign_declare_v3(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        resource_bounds=resource_bounds,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     brodcasted_txn = _create_broadcasted_txn(declare_v3)
@@ -133,17 +128,13 @@ async def test_broadcasted_txn_declare_v2(
 
 @pytest.mark.asyncio
 async def test_broadcasted_txn_invoke_v3(account, hello_starknet_contract):
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(
             hello_starknet_contract.address,
             get_selector_from_name("increaseBalance"),
             [10],
         ),
-        resource_bounds=resource_bounds,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     brodcasted_txn = _create_broadcasted_txn(invoke_tx)
@@ -178,14 +169,10 @@ async def test_broadcasted_txn_deploy_account_v3(account):
     class_hash = 0x1234
     salt = 0x123
     calldata = [1, 2, 3]
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
     signed_tx = await account.sign_deploy_account_v3(
         class_hash,
         salt,
-        resource_bounds=resource_bounds,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         constructor_calldata=calldata,
     )
     brodcasted_txn = _create_broadcasted_txn(signed_tx)
