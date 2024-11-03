@@ -624,7 +624,7 @@ class EstimatedFee:
         Calculates L2 max amount as `l2_max_amount` = `overall_fee` / `l2_gas_price`, unless `l2_gas_price` is 0,
         then L2 max amount is 0. Calculates `l2_max_price_per_unit` as `l2_max_price_per_unit` = `l2_gas_price`.
 
-        Then multiplies `l1_max_amount` and `l2_max_amount` by `amount_multiplier` and `l1_max_price_per_unit`
+        Then multiplies L1 max amount and L2 max amount by `amount_multiplier` and `l1_max_price_per_unit`
         and `l2_max_price_per_unit` by `unit_price_multiplier`.
 
         :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
@@ -1016,7 +1016,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    execution_resources: ExecutionResources
+    execution_resources: InnerCallExecutionResources
 
 
 @dataclass
@@ -1135,7 +1135,7 @@ class NodeHashToNodeMappingItem:
     node: MerkleNode
 
 
-NodeHashToNodeMapping = NodeHashToNodeMappingItem
+NodeHashToNodeMapping = List[NodeHashToNodeMappingItem]
 
 
 @dataclass
@@ -1176,7 +1176,7 @@ class StorageProofResponse:
 
     classes_proof: NodeHashToNodeMapping
     contracts_proof: ContractsProof
-    contracts_storage_proofs: NodeHashToNodeMapping
+    contracts_storage_proofs: List[NodeHashToNodeMapping]
     global_roots: GlobalRoots
 
 
@@ -1185,6 +1185,3 @@ class MessageStatus:
     transaction_hash: int
     finality_status: TransactionFinalityStatus
     failure_reason: Optional[str] = None
-
-
-MessagesStatusResponse = List[MessageStatus]

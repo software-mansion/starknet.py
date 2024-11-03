@@ -48,7 +48,7 @@ Alternatively, you can estimate fee automatically, as described in the :ref:`aut
     await contract.functions["put"].invoke_v1(k, v, max_fee=5000)
 
 The ``max_fee`` argument can be also defined in :meth:`~ContractFunction.prepare_invoke_v1`. Subsequently, the :meth:`~PreparedFunctionInvokeV1.invoke` method on a prepared call can be used either with ``max_fee`` omitted or with its value overridden.
-The same behavior applies to :meth:`~ContractFunction.prepare_invoke_v3` and ``l1_resource_bounds``.
+The same behavior applies to :meth:`~ContractFunction.prepare_invoke_v3` and ``resource_bounds``.
 
 .. code-block:: python
 
@@ -60,7 +60,7 @@ The same behavior applies to :meth:`~ContractFunction.prepare_invoke_v3` and ``l
 .. warning::
 
     For V1 transactions if ``max_fee`` is not specified at any step it will default to ``None``,
-    and will raise an exception when invoking a transaction, unless `auto_estimate` is specified and is set to `True`. The same applies to ``l1_resource_bounds`` and V3 transactions.
+    and will raise an exception when invoking a transaction, unless `auto_estimate` is specified and is set to `True`. The same applies to ``resource_bounds`` and V3 transactions.
 
 Please note you will need to have enough Wei (for V1 transaction) or Fri (for V3 transaction) in your Starknet account otherwise
 transaction will be rejected.

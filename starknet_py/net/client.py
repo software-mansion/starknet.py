@@ -16,7 +16,7 @@ from starknet_py.net.client_models import (
     DeprecatedContractClass,
     EstimatedFee,
     Hash,
-    MessagesStatusResponse,
+    MessageStatus,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     SentTransactionResponse,
@@ -107,7 +107,7 @@ class Client(ABC):
     @abstractmethod
     async def get_storage_proof(
         self,
-        block_id: Optional[Union[int, Hash, Tag]],
+        block_id: Union[int, Hash, Tag],
         class_hashes: Optional[List[int]],
         contract_addresses: Optional[List[int]],
         contract_storage_keys: Optional[List[ContractStorageKeys]],
@@ -115,12 +115,12 @@ class Client(ABC):
         """
         Get merkle paths in one of the state tries: global state, classes, individual contract.
 
-        :param block_id: Hash of the requested block, or number (height) of the requested block, or a block tag
-        :param class_hashes: List of the class hashes for which we want to prove membership in the classes trie
+        :param block_id: Hash of the requested block, or number (height) of the requested block, or a block tag.
+        :param class_hashes: List of the class hashes for which we want to prove membership in the classes trie.
         :param contract_addresses: List of the contract addresses for which we want to prove membership in the
-        contracts trie
-        :param contract_storage_keys: List of the contract address and storage keys pairs
-        :return: StorageProofResponse object
+                                    contracts trie.
+        :param contract_storage_keys: List of the contract address and storage keys pairs.
+        :return: StorageProofResponse object.
         """
 
     @abstractmethod
@@ -334,7 +334,7 @@ class Client(ABC):
     @abstractmethod
     async def get_messages_status(
         self, l1_transaction_hash: int
-    ) -> MessagesStatusResponse:
+    ) -> List[MessageStatus]:
         """
         Get L1 handler transaction data for all L1 to L2 messages sent by the given L1 transaction.
 

@@ -9,13 +9,12 @@ from starknet_py.contract import Contract
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
     prepare_net_for_tests,
 )
 from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFactory
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.contracts_v1 import declare_contract
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
@@ -38,15 +37,12 @@ async def deployed_balance_contract(
     balance_abi,
 ) -> Contract:
     class_hash, _ = balance_class_and_transaction_hash
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=MAX_RESOURCE_BOUNDS_L1,
-        l2_gas=ResourceBounds.init_with_zeros(),
-    )
+
     deploy_result = await Contract.deploy_contract_v3(
         account=account,
         abi=balance_abi,
         class_hash=class_hash,
-        resource_bounds=resource_bounds,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 
