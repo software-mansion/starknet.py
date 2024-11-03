@@ -360,7 +360,7 @@ class TestLessThanOrEqualSchema(Schema):
     )
 
 
-class TestLessThenOrEqualAddressInnerSchema(TestLessThanSchema):
+class TestLessThenOrEqualAddressInnerSchema(TestLessThanInnerSchema):
     pass
 
 
@@ -741,9 +741,7 @@ class SystemCallSchema(Schema):
 
 
 class CheatcodeInnerSchema(Schema):
-    selector = NumberAsHex(
-        data_key="selector", required=True
-    )  # Assuming NUM_AS_HEX is represented as a string
+    selector = NumberAsHex(data_key="selector", required=True)
     input_start = ResOperandField(data_key="input_start", required=True)
     input_end = ResOperandField(data_key="input_end", required=True)
     output_start = fields.Nested(
