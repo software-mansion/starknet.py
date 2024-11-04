@@ -133,6 +133,12 @@ async def test_get_messages_status():
 
 
 @pytest.mark.asyncio
+async def test_get_compiled_casm():
+    # TODO (#1498): Add test for get_compiled_casm
+    pass
+
+
+@pytest.mark.asyncio
 async def test_get_transaction_receipt(
     client, invoke_transaction_hash, block_with_invoke_number
 ):
