@@ -613,20 +613,18 @@ class EstimatedFee:
     overall_fee: int
     unit: PriceUnit
 
+    # TODO (#1498): Decrease multipliers
     def to_resource_bounds(
         self, amount_multiplier=1.5, unit_price_multiplier=1.5
     ) -> ResourceBoundsMapping:
         """
         Converts estimated fee to resource bounds with applied multipliers.
 
-        Calculates L1 max amount as `l1_max_amount` = `overall_fee` / `l1_gas_price`, unless `l1_gas_price` is 0,
-        then L1 max amount is 0. Calculates `l1_max_price_per_unit` as `l1_max_price_per_unit` = `l1_gas_price`.
+        Calculates L1 max amount as `l1_gas_consumed` * `amount_multiplier`.
+        Calculates L1 max price per unit as `l1_gas_price` * `unit_price_multiplier`.
 
-        Calculates L2 max amount as `l2_max_amount` = `overall_fee` / `l2_gas_price`, unless `l2_gas_price` is 0,
-        then L2 max amount is 0. Calculates `l2_max_price_per_unit` as `l2_max_price_per_unit` = `l2_gas_price`.
-
-        Then multiplies L1 max amount and L2 max amount by `amount_multiplier` and `l1_max_price_per_unit`
-        and `l2_max_price_per_unit` by `unit_price_multiplier`.
+        Calculates L2 max amount as `l2_gas_consumed` * `amount_multiplier`.
+        Calculates L2 max price per unit as `l2_gas_price` * `unit_price_multiplier`.
 
         :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
         :param unit_price_multiplier: Multiplier for max price per unit, defaults to 1.5.
@@ -639,20 +637,12 @@ class EstimatedFee:
             )
 
         l1_resource_bounds = ResourceBounds(
-            max_amount=int(
-                (self.overall_fee / self.l1_gas_price) * amount_multiplier
-                if self.l1_gas_price != 0
-                else 0
-            ),
+            max_amount=int(self.l1_gas_consumed * amount_multiplier),
             max_price_per_unit=int(self.l1_gas_price * unit_price_multiplier),
         )
 
         l2_resource_bounds = ResourceBounds(
-            max_amount=int(
-                (self.overall_fee / self.l2_gas_price) * amount_multiplier
-                if self.l2_gas_price != 0
-                else 0
-            ),
+            max_amount=int(self.l2_gas_consumed * amount_multiplier),
             max_price_per_unit=int(self.l2_gas_price * unit_price_multiplier),
         )
 
