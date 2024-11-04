@@ -1,12 +1,10 @@
 import json
+from typing import Any, Optional
 
 from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
-    AssertAllKeysUsed,
-    AssertCurrentAccessIndicesIsEmpty,
-    AssertLeAssertThirdArcExcluded,
     CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
@@ -20,6 +18,51 @@ from starknet_py.net.client_models import (
     SierraEntryPoint,
     SierraEntryPointsByType,
     SyncStatus,
+)
+from starknet_py.net.models.compiled_casm import (
+    AllocConstantSize,
+    AllocFelt252Dict,
+    AllocSegment,
+    AssertAllAccessesUsed,
+    AssertAllKeysUsed,
+    AssertCurrentAccessIndicesIsEmpty,
+    AssertLeAssertThirdArcExcluded,
+    AssertLeFindSmallArcs,
+    AssertLeIsFirstArcExcluded,
+    AssertLeIsSecondArcExcluded,
+    AssertLtAssertValidInput,
+    BinOp,
+    Cheatcode,
+    DebugPrint,
+    Deref,
+    DivMod,
+    DoubleDeref,
+    EvalCircuit,
+    Felt252DictEntryInit,
+    Felt252DictEntryUpdate,
+    Felt252DictRead,
+    Felt252DictWrite,
+    FieldSqrt,
+    GetCurrentAccessDelta,
+    GetCurrentAccessIndex,
+    GetNextDictKey,
+    GetSegmentArenaIndex,
+    Immediate,
+    InitSquashData,
+    LinearSplit,
+    RandomEcPoint,
+    ShouldContinueSquashLoop,
+    ShouldSkipSquashLoop,
+    SquareRoot,
+    SystemCall,
+    TestLessThan,
+    TestLessThanOrEqual,
+    TestLessThenOrEqualAddress,
+    U256InvModN,
+    Uint256DivMod,
+    Uint256SquareRoot,
+    Uint512DivModByUint256,
+    WideMul128,
 )
 from starknet_py.net.schemas.common import Felt, NumberAsHex
 from starknet_py.utils.schema import Schema
@@ -206,31 +249,9 @@ class DerefSchema(Schema):
     deref = fields.Nested(CellRefSchema(), data_key="Deref", required=True)
 
 
-class DoubleDerefItemField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
-        if isinstance(value, dict):
-            return CellRefSchema().load(value)
-        elif isinstance(value, int):
-            return value
-        else:
-            raise ValidationError(
-                "Invalid value: must be a CellRef object or an integer"
-            )
-
-    def _serialize(self, value, attr, obj, **kwargs):
-        if isinstance(value, dict):
-            return CellRefSchema().dump(value)
-        elif isinstance(value, int):
-            return value
-        raise ValidationError("Invalid value type during serialization")
-
-
 class DoubleDerefSchema(Schema):
-    double_deref = fields.List(
-        DoubleDerefItemField(),
-        data_key="DoubleDeref",
-        required=True,
-        validate=validate.Length(2),
+    double_deref = fields.Tuple(
+        (CellRefSchema(), fields.Integer()), data_key="DoubleDeref", required=True
     )
 
 
@@ -239,6 +260,14 @@ class ImmediateSchema(Schema):
 
 
 class BinOpBField(fields.Field):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        if isinstance(value, Deref):
+            return DerefSchema().dump(value)
+        elif isinstance(value, Immediate):
+            return ImmediateSchema().dump(value)
+
+        raise ValidationError(f"Invalid value type during serialization: {value}.")
+
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, dict):
             if DerefSchema.deref.data_key in value:
@@ -247,7 +276,7 @@ class BinOpBField(fields.Field):
                 return ImmediateSchema().load(value)
 
         raise ValidationError(
-            f"Invalid value provided for 'b': {value}. Must be a Deref object or an Immediate object."
+            f"Invalid value provided for 'b': {value}. Must be a Deref or an Immediate object."
         )
 
 
@@ -264,6 +293,18 @@ class BinOpSchema(Schema):
 
 
 class ResOperandField(fields.Field):
+    def _serialize(self, value, attr, obj, **kwargs):
+        if isinstance(value, Deref):
+            return DerefSchema().dump(value)
+        elif isinstance(value, DoubleDeref):
+            return DoubleDerefSchema().dump(value)
+        elif isinstance(value, Immediate):
+            return ImmediateSchema().dump(value)
+        elif isinstance(value, BinOp):
+            return BinOpSchema().dump(value)
+
+        raise ValidationError(f"Invalid value type during serialization: {value}.")
+
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, dict):
             if DerefSchema.deref.data_key in value:
@@ -746,7 +787,6 @@ class CheatcodeSchema(Schema):
 class HintField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, str):
-            # Deprecated hint checks
             if value in AssertCurrentAccessIndicesIsEmpty:
                 return value
             elif value in AssertAllKeysUsed:
@@ -754,108 +794,109 @@ class HintField(fields.Field):
             elif value in AssertLeAssertThirdArcExcluded:
                 return value
 
-        elif isinstance(value, dict):
-            # Deprecated hint
-            if AssertAllAccessesUsedSchema.assert_all_accesses_used.data_key in value:
-                return AssertAllAccessesUsedSchema().load(value)
-            elif (
-                AssertLtAssertValidInputSchema.assert_lt_assert_valid_input.data_key
-                in value
-            ):
-                return AssertLtAssertValidInputSchema().load(value)
-            elif Felt252DictReadSchema.felt252_dict_read.data_key in value:
-                return Felt252DictReadSchema().load(value)
-            elif Felt252DictWriteSchema.felt252_dict_write.data_key in value:
-                return Felt252DictWriteSchema().load(value)
+        elif isinstance(value, dict) and len(value.keys()) == 1:
+            key_to_schema_mapping = {
+                AssertAllAccessesUsedSchema.assert_all_accesses_used.data_key: AssertAllAccessesUsedSchema,
+                AssertLtAssertValidInputSchema.assert_lt_assert_valid_input.data_key: AssertLtAssertValidInputSchema,
+                Felt252DictReadSchema.felt252_dict_read.data_key: Felt252DictReadSchema,
+                Felt252DictWriteSchema.felt252_dict_write.data_key: Felt252DictWriteSchema,
+                AllocSegmentSchema.alloc_segment.data_key: AllocSegmentSchema,
+                TestLessThanSchema.test_less_than.data_key: TestLessThanSchema,
+                TestLessThanOrEqualSchema.test_less_than_or_equal.data_key: TestLessThanOrEqualSchema,
+                TestLessThenOrEqualAddressSchema.test_less_than_or_equal_address.data_key: TestLessThenOrEqualAddressSchema,
+                WideMul128Schema.wide_mul128.data_key: WideMul128Schema,
+                DivModSchema.div_mod.data_key: DivModSchema,
+                Uint256DivModSchema.uint256_div_mod.data_key: Uint256DivModSchema,
+                Uint512DivModByUint256Schema.uint512_div_mod_by_uint256.data_key: Uint512DivModByUint256Schema,
+                SquareRootSchema.square_root.data_key: SquareRootSchema,
+                Uint256SquareRootSchema.uint256_square_root.data_key: Uint256SquareRootSchema,
+                LinearSplitSchema.linear_split.data_key: LinearSplitSchema,
+                AllocFelt252DictSchema.alloc_felt252_dict.data_key: AllocFelt252DictSchema,
+                Felt252DictEntryInitSchema.felt252_dict_entry_init.data_key: Felt252DictEntryInitSchema,
+                Felt252DictEntryUpdateSchema.felt252_dict_entry_update.data_key: Felt252DictEntryUpdateSchema,
+                GetSegmentArenaIndexSchema.get_segment_arena_index.data_key: GetSegmentArenaIndexSchema,
+                InitSquashDataSchema.init_squash_data.data_key: InitSquashDataSchema,
+                GetCurrentAccessIndexSchema.get_current_access_index.data_key: GetCurrentAccessIndexSchema,
+                ShouldSkipSquashLoopSchema.should_skip_squash_loop.data_key: ShouldSkipSquashLoopSchema,
+                GetCurrentAccessDeltaSchema.get_current_access_delta.data_key: GetCurrentAccessDeltaSchema,
+                ShouldContinueSquashLoopSchema.should_continue_squash_loop.data_key: ShouldContinueSquashLoopSchema,
+                GetNextDictKeySchema.get_next_dict_key.data_key: GetNextDictKeySchema,
+                AssertLeFindSmallArcsSchema.assert_le_find_small_arcs.data_key: AssertLeFindSmallArcsSchema,
+                AssertLeIsFirstArcExcludedSchema.assert_le_is_first_arc_excluded.data_key: AssertLeIsFirstArcExcludedSchema,
+                AssertLeIsSecondArcExcludedSchema.assert_le_is_second_arc_excluded.data_key: AssertLeIsSecondArcExcludedSchema,
+                RandomEcPointSchema.random_ec_point.data_key: RandomEcPointSchema,
+                FieldSqrtSchema.field_sqrt.data_key: FieldSqrtSchema,
+                DebugPrintSchema.debug_print.data_key: DebugPrintSchema,
+                AllocConstantSizeSchema.alloc_constant_size.data_key: AllocConstantSizeSchema,
+                U256InvModNSchema.u256_inv_mod_n.data_key: U256InvModNSchema,
+                EvalCircuitSchema.eval_circuit.data_key: EvalCircuitSchema,
+                SystemCallSchema.system_call.data_key: SystemCallSchema,
+                CheatcodeSchema.cheatcode.data_key: CheatcodeSchema,
+            }
 
-            # Core hint
-            elif AllocSegmentSchema.alloc_segment.data_key in value:
-                return AllocSegmentSchema().load(value)
-            elif TestLessThanSchema.test_less_than.data_key in value:
-                return TestLessThanSchema().load(value)
-            elif TestLessThanOrEqualSchema.test_less_than_or_equal.data_key in value:
-                return TestLessThanOrEqualSchema().load(value)
-            elif (
-                TestLessThenOrEqualAddressSchema.test_less_than_or_equal_address.data_key
-                in value
-            ):
-                return TestLessThenOrEqualAddressSchema().load(value)
-            elif WideMul128Schema.wide_mul128.data_key in value:
-                return WideMul128Schema().load(value)
-            elif DivModSchema.div_mod.data_key in value:
-                return DivModSchema().load(value)
-            elif Uint256DivModSchema.uint256_div_mod.data_key in value:
-                return Uint256DivModSchema().load(value)
-            elif (
-                Uint512DivModByUint256Schema.uint512_div_mod_by_uint256.data_key
-                in value
-            ):
-                return Uint512DivModByUint256Schema().load(value)
-            elif SquareRootSchema.square_root.data_key in value:
-                return SquareRootSchema().load(value)
-            elif Uint256SquareRootSchema.uint256_square_root.data_key in value:
-                return Uint256SquareRootSchema().load(value)
-            elif LinearSplitSchema.linear_split.data_key in value:
-                return LinearSplitSchema().load(value)
-            elif AllocFelt252DictSchema.alloc_felt252_dict.data_key in value:
-                return AllocFelt252DictSchema().load(value)
-            elif Felt252DictEntryInitSchema.felt252_dict_entry_init.data_key in value:
-                return Felt252DictEntryInitSchema().load(value)
-            elif (
-                Felt252DictEntryUpdateSchema.felt252_dict_entry_update.data_key in value
-            ):
-                return Felt252DictEntryUpdateSchema().load(value)
-            elif GetSegmentArenaIndexSchema.get_segment_arena_index.data_key in value:
-                return GetSegmentArenaIndexSchema().load(value)
-            elif InitSquashDataSchema.init_squash_data.data_key in value:
-                return InitSquashDataSchema().load(value)
-            elif GetCurrentAccessIndexSchema.get_current_access_index.data_key in value:
-                return GetCurrentAccessIndexSchema().load(value)
-            elif ShouldSkipSquashLoopSchema.should_skip_squash_loop.data_key in value:
-                return ShouldSkipSquashLoopSchema().load(value)
-            elif GetCurrentAccessDeltaSchema.get_current_access_delta.data_key in value:
-                return GetCurrentAccessDeltaSchema().load(value)
-            elif (
-                ShouldContinueSquashLoopSchema.should_continue_squash_loop.data_key
-                in value
-            ):
-                return ShouldContinueSquashLoopSchema().load(value)
-            elif GetNextDictKeySchema.get_next_dict_key.data_key in value:
-                return GetNextDictKeySchema().load(value)
-            elif (
-                AssertLeFindSmallArcsSchema.assert_le_find_small_arcs.data_key in value
-            ):
-                return AssertLeFindSmallArcsSchema().load(value)
-            elif (
-                AssertLeIsFirstArcExcludedSchema.assert_le_is_first_arc_excluded.data_key
-                in value
-            ):
-                return AssertLeIsFirstArcExcludedSchema().load(value)
-            elif (
-                AssertLeIsSecondArcExcludedSchema.assert_le_is_second_arc_excluded.data_key
-                in value
-            ):
-                return AssertLeIsSecondArcExcludedSchema().load(value)
-            elif RandomEcPointSchema.random_ec_point.data_key in value:
-                return RandomEcPointSchema().load(value)
-            elif FieldSqrtSchema.field_sqrt.data_key in value:
-                return FieldSqrtSchema().load(value)
-            elif DebugPrintSchema.debug_print.data_key in value:
-                return DebugPrintSchema().load(value)
-            elif AllocConstantSizeSchema.alloc_constant_size.data_key in value:
-                return AllocConstantSizeSchema().load(value)
-            elif U256InvModNSchema.u256_inv_mod_n.data_key in value:
-                return U256InvModNSchema().load(value)
-            elif EvalCircuitSchema.eval_circuit.data_key in value:
-                return EvalCircuitSchema().load(value)
-
-            # Starknet hint
-            elif SystemCallSchema.system_call.data_key in value:
-                return SystemCallSchema().load(value)
-            elif CheatcodeSchema.cheatcode.data_key in value:
-                return CheatcodeSchema().load(value)
+            for data_key, schema_cls in key_to_schema_mapping.items():
+                if data_key in value:
+                    return schema_cls().load(value)
 
         raise ValidationError(f"Invalid value provided for Hint: {value}.")
+
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        if isinstance(value, AssertCurrentAccessIndicesIsEmpty):
+            return str(value.value)
+        elif isinstance(value, AssertAllKeysUsed):
+            return str(value.value)
+        elif isinstance(value, AssertLeAssertThirdArcExcluded):
+            return str(value.value)
+
+        model_to_schema_mapping = {
+            AllocConstantSize: AllocConstantSizeSchema,
+            AllocFelt252Dict: AllocFelt252DictSchema,
+            AllocSegment: AllocSegmentSchema,
+            AssertAllAccessesUsed: AssertAllAccessesUsedSchema,
+            AssertLeFindSmallArcs: AssertLeFindSmallArcsSchema,
+            AssertLeIsFirstArcExcluded: AssertLeIsFirstArcExcludedSchema,
+            AssertLeIsSecondArcExcluded: AssertLeIsSecondArcExcludedSchema,
+            AssertLtAssertValidInput: AssertLtAssertValidInputSchema,
+            BinOp: BinOpSchema,
+            Cheatcode: CheatcodeSchema,
+            DebugPrint: DebugPrintSchema,
+            Deref: DerefSchema,
+            DivMod: DivModSchema,
+            DoubleDeref: DoubleDerefSchema,
+            EvalCircuit: EvalCircuitSchema,
+            Felt252DictEntryInit: Felt252DictEntryInitSchema,
+            Felt252DictEntryUpdate: Felt252DictEntryUpdateSchema,
+            Felt252DictRead: Felt252DictReadSchema,
+            Felt252DictWrite: Felt252DictWriteSchema,
+            FieldSqrt: FieldSqrtSchema,
+            GetCurrentAccessDelta: GetCurrentAccessDeltaSchema,
+            GetCurrentAccessIndex: GetCurrentAccessIndexSchema,
+            GetNextDictKey: GetNextDictKeySchema,
+            GetSegmentArenaIndex: GetSegmentArenaIndexSchema,
+            Immediate: ImmediateSchema,
+            InitSquashData: InitSquashDataSchema,
+            LinearSplit: LinearSplitSchema,
+            RandomEcPoint: RandomEcPointSchema,
+            ShouldContinueSquashLoop: ShouldContinueSquashLoopSchema,
+            ShouldSkipSquashLoop: ShouldSkipSquashLoopSchema,
+            SquareRoot: SquareRootSchema,
+            SystemCall: SystemCallSchema,
+            TestLessThan: TestLessThanSchema,
+            TestLessThanOrEqual: TestLessThanOrEqualSchema,
+            TestLessThenOrEqualAddress: TestLessThenOrEqualAddressSchema,
+            U256InvModN: U256InvModNSchema,
+            Uint256DivMod: Uint256DivModSchema,
+            Uint256SquareRoot: Uint256SquareRootSchema,
+            Uint512DivModByUint256: Uint512DivModByUint256Schema,
+            WideMul128: WideMul128Schema,
+        }
+
+        for model, schema_cls in model_to_schema_mapping.items():
+            if isinstance(value, model):
+                schema = schema_cls()
+                return schema.dump(value)
+
+        raise ValidationError(f"Invalid value type during serialization: {value}.")
 
 
 class CasmClassSchema(Schema):
