@@ -916,7 +916,6 @@ class CasmClass:
     prime: int
     bytecode: List[int]
     hints: List[Tuple[int, Hint]]
-    pythonic_hints: List[Any]
     compiler_version: str
     entry_points_by_type: CasmClassEntryPointsByType
     bytecode_segment_lengths: Optional[List[int]]
