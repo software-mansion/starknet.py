@@ -908,6 +908,21 @@ class CasmClassEntryPointsByType:
 
 
 @dataclass
+class CasmClass:
+    """
+    Dataclass representing class compiled to Cairo assembly.
+    """
+
+    prime: int
+    bytecode: List[int]
+    hints: List[Tuple[int, Hint]]
+    pythonic_hints: List[Any]
+    compiler_version: str
+    entry_points_by_type: CasmClassEntryPointsByType
+    bytecode_segment_lengths: Optional[List[int]]
+
+
+@dataclass
 class TransactionStatusResponse:
     """
     Dataclass representing transaction status for the FullNodeClient.
@@ -1160,18 +1175,3 @@ class MessageStatus:
     transaction_hash: int
     finality_status: TransactionFinalityStatus
     failure_reason: Optional[str] = None
-
-
-@dataclass
-class CasmClass:
-    """
-    Dataclass representing class compiled to Cairo assembly.
-    """
-
-    prime: int
-    bytecode: List[int]
-    hints: List[Tuple[int, Hint]]
-    pythonic_hints: List[Any]
-    compiler_version: str
-    entry_points_by_type: CasmClassEntryPointsByType
-    bytecode_segment_lengths: Optional[List[int]]
