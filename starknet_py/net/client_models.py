@@ -26,11 +26,6 @@ from starknet_py.abi.v2.schemas import (
 )
 from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
-from starknet_py.net.schemas.rpc.contract import (
-    AssertAllKeysUsed,
-    AssertCurrentAccessIndicesIsEmpty,
-    AssertLeAssertThirdArcExcluded,
-)
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
 # pylint: disable=too-many-lines
@@ -1174,6 +1169,18 @@ class MessageStatus:
     transaction_hash: int
     finality_status: TransactionFinalityStatus
     failure_reason: Optional[str] = None
+
+
+class AssertCurrentAccessIndicesIsEmpty(Enum):
+    ASSERT_CURRENT_ACCESS_INDICES_IS_EMPTY = "AssertCurrentAccessIndicesIsEmpty"
+
+
+class AssertAllKeysUsed(Enum):
+    ASSERT_ALL_KEYS_USED = "AssertAllKeysUsed"
+
+
+class AssertLeAssertThirdArcExcluded(Enum):
+    ASSERT_LE_ASSERT_THIRD_ARC_EXCLUDED = "AssertLeAssertThirdArcExcluded"
 
 
 @dataclass

@@ -1,10 +1,12 @@
 import json
-from enum import Enum
 
 from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
+    AssertAllKeysUsed,
+    AssertCurrentAccessIndicesIsEmpty,
+    AssertLeAssertThirdArcExcluded,
     CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
@@ -188,18 +190,6 @@ class CellRefSchema(Schema):
     offset = fields.Integer(data_key="offset", required=True)
 
 
-class AssertCurrentAccessIndicesIsEmpty(Enum):
-    ASSERT_CURRENT_ACCESS_INDICES_IS_EMPTY = "AssertCurrentAccessIndicesIsEmpty"
-
-
-class AssertAllKeysUsed(Enum):
-    ASSERT_ALL_KEYS_USED = "AssertAllKeysUsed"
-
-
-class AssertLeAssertThirdArcExcluded(Enum):
-    ASSERT_LE_ASSERT_THIRD_ARC_EXCLUDED = "AssertLeAssertThirdArcExcluded"
-
-
 class AssertAllAccessesUsedInnerSchema(Schema):
     n_used_accesses = fields.Nested(CellRefSchema(), required=True)
 
@@ -250,14 +240,11 @@ class ImmediateSchema(Schema):
 
 class BinOpBField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
-        try:
-            return DerefSchema().load(value)
-        except ValidationError as _e:
-            pass
-        try:
-            return ImmediateSchema().load(value)
-        except ValidationError as _e:
-            pass
+        if isinstance(value, dict):
+            if DerefSchema.deref.data_key in value:
+                return DerefSchema().load(value)
+            elif ImmediateSchema.immediate.data_key in value:
+                return ImmediateSchema().load(value)
 
         raise ValidationError(
             f"Invalid value provided for 'b': {value}. Must be a Deref object or an Immediate object."
@@ -878,9 +865,8 @@ class CasmClassSchema(Schema):
         fields.Integer(), data_key="bytecode_segment_lengths", load_default=None
     )
     hints = fields.List(
-        fields.List(
-            HintField(),
-            validate=validate.Length(equal=2),
+        fields.Tuple(
+            (fields.Integer(), HintField()),
         ),
         data_key="hints",
         required=True,
