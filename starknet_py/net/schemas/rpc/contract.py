@@ -234,7 +234,9 @@ class CellRefSchema(Schema):
 
 
 class AssertAllAccessesUsedInnerSchema(Schema):
-    n_used_accesses = fields.Nested(CellRefSchema(), required=True)
+    n_used_accesses = fields.Nested(
+        CellRefSchema(), data_key="n_used_accesses", required=True
+    )
 
 
 class AssertAllAccessesUsedSchema(Schema):
@@ -266,7 +268,9 @@ class BinOpBField(fields.Field):
         elif isinstance(value, Immediate):
             return ImmediateSchema().dump(value)
 
-        raise ValidationError(f"Invalid value type during serialization: {value}.")
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}."
+        )
 
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, dict):
@@ -303,7 +307,9 @@ class ResOperandField(fields.Field):
         elif isinstance(value, BinOp):
             return BinOpSchema().dump(value)
 
-        raise ValidationError(f"Invalid value type during serialization: {value}.")
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}."
+        )
 
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, dict):
@@ -788,11 +794,11 @@ class HintField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, str):
             if value in AssertCurrentAccessIndicesIsEmpty:
-                return value
+                return AssertCurrentAccessIndicesIsEmpty(value)
             elif value in AssertAllKeysUsed:
-                return value
+                return AssertAllKeysUsed(value)
             elif value in AssertLeAssertThirdArcExcluded:
-                return value
+                return AssertLeAssertThirdArcExcluded(value)
 
         elif isinstance(value, dict) and len(value.keys()) == 1:
             key_to_schema_mapping = {
@@ -834,9 +840,11 @@ class HintField(fields.Field):
                 CheatcodeSchema.cheatcode.data_key: CheatcodeSchema,
             }
 
-            for data_key, schema_cls in key_to_schema_mapping.items():
-                if data_key in value:
-                    return schema_cls().load(value)
+            key = list(value.keys())[0]
+            schema_cls = key_to_schema_mapping.get(key)
+
+            if schema_cls is not None:
+                return schema_cls().load(value)
 
         raise ValidationError(f"Invalid value provided for Hint: {value}.")
 
@@ -891,12 +899,15 @@ class HintField(fields.Field):
             WideMul128: WideMul128Schema,
         }
 
-        for model, schema_cls in model_to_schema_mapping.items():
-            if isinstance(value, model):
-                schema = schema_cls()
-                return schema.dump(value)
+        schema_cls = model_to_schema_mapping.get(type(value))
 
-        raise ValidationError(f"Invalid value type during serialization: {value}.")
+        if schema_cls is not None:
+            schema = schema_cls()
+            return schema.dump(value)
+
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}."
+        )
 
 
 class CasmClassSchema(Schema):
