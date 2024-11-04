@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal, Tuple, Union
+from typing import List, Literal, Optional, Tuple, Union
+
+from starknet_py.net.client_models import CasmClassEntryPointsByType
 
 
 class AssertCurrentAccessIndicesIsEmpty(Enum):
@@ -526,3 +528,17 @@ Hint = Union[
     SystemCall,
     Cheatcode,
 ]
+
+
+@dataclass
+class CasmClass:
+    """
+    Dataclass representing class compiled to Cairo assembly.
+    """
+
+    prime: int
+    bytecode: List[int]
+    hints: List[Tuple[int, Hint]]
+    compiler_version: str
+    entry_points_by_type: CasmClassEntryPointsByType
+    bytecode_segment_lengths: Optional[List[int]]

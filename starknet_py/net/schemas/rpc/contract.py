@@ -5,7 +5,6 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
-    CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
     DeployedContract,
@@ -41,6 +40,7 @@ from starknet_py.net.models.compiled_casm import (
     AssertLtAssertValidInputInner,
     BinOp,
     BinOpInner,
+    CasmClass,
     CellRef,
     Cheatcode,
     CheatcodeInner,
@@ -307,7 +307,9 @@ class DerefSchema(Schema):
 
 class DoubleDerefSchema(Schema):
     double_deref = fields.Tuple(
-        (CellRefSchema(), fields.Integer()), data_key="DoubleDeref", required=True
+        (fields.Nested(CellRefSchema()), fields.Integer()),
+        data_key="DoubleDeref",
+        required=True,
     )
 
     @post_load

@@ -11,7 +11,7 @@ import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterable, List, Literal, Optional, Tuple, Union, cast
+from typing import Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -26,7 +26,6 @@ from starknet_py.abi.v2.schemas import (
 )
 from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
-from starknet_py.net.models.compiled_casm import Hint
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
 # pylint: disable=too-many-lines
@@ -906,20 +905,6 @@ class CasmClassEntryPointsByType:
     constructor: List[CasmClassEntryPoint]
     external: List[CasmClassEntryPoint]
     l1_handler: List[CasmClassEntryPoint]
-
-
-@dataclass
-class CasmClass:
-    """
-    Dataclass representing class compiled to Cairo assembly.
-    """
-
-    prime: int
-    bytecode: List[int]
-    hints: List[Tuple[int, Hint]]
-    compiler_version: str
-    entry_points_by_type: CasmClassEntryPointsByType
-    bytecode_segment_lengths: Optional[List[int]]
 
 
 @dataclass
