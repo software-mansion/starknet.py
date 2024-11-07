@@ -9,6 +9,7 @@ from starknet_py.net.ws_full_node_client_models import (
     NewTransactionStatus,
     PendingTransactionsNotification,
     ReorgData,
+    ReorgNotification,
     SubscribeResponse,
     TransactionStatusNotification,
     UnsubscribeResponse,
@@ -91,3 +92,12 @@ class ReorgDataSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ReorgData:
         return ReorgData(**data)
+
+
+class ReorgNotificationSchema(Schema):
+    subscription_id = fields.Integer(data_key="subscription_id", required=True)
+    result = fields.Nested(ReorgDataSchema(), data_key="result", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ReorgNotification:
+        return ReorgNotification(**data)

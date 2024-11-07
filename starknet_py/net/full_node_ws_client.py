@@ -8,7 +8,7 @@ from starknet_py.net.schemas.rpc.ws import (
     PendingTransactionsNotificationSchema,
     SubscribeResponseSchema,
     TransactionStatusNotificationSchema,
-    UnsubscribeResponseSchema,
+    UnsubscribeResponseSchema, ReorgNotificationSchema,
 )
 from starknet_py.net.ws_client import RpcWSClient
 from starknet_py.net.ws_full_node_client_models import (
@@ -16,6 +16,7 @@ from starknet_py.net.ws_full_node_client_models import (
     NewHeadsNotification,
     NewTransactionStatus,
     PendingTransactionsNotification,
+    ReorgNotification,
     SubscribeResponse,
     Transaction,
     TransactionStatusNotification,
@@ -102,6 +103,10 @@ class FullNodeWSClient:
                 PendingTransactionsNotification,
                 PendingTransactionsNotificationSchema,
             ),
+            "starknet_subscriptionReorg": (
+                ReorgNotification,
+                ReorgNotificationSchema,
+            ),
         }
 
         if method in method_to_model_mapping:
@@ -111,10 +116,6 @@ class FullNodeWSClient:
                 notification_schema().load(message["params"]),
             )
             handler(notification.result)
-
-        elif method == "starknet_subscriptionReorg":
-            # TODO(#1498): Implement reorg handling once inconsistencies in spec are resolved
-            pass
 
     async def subscribe_new_heads(
         self,
