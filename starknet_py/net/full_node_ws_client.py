@@ -85,31 +85,30 @@ class FullNodeWSClient:
         handler = self._subscriptions[subscription_id]
         method = message["method"]
 
-        if method == "starknet_subscriptionNewHeads":
-            notification = cast(
+        method_to_model_mapping = {
+            "starknet_subscriptionNewHeads": (
                 NewHeadsNotification,
-                NewHeadsNotificationSchema().load(message["params"]),
-            )
-            handler(notification.result)
-
-        elif method == "starknet_subscriptionEvents":
-            notification = cast(
+                NewHeadsNotificationSchema,
+            ),
+            "starknet_subscriptionEvents": (
                 EventsNotification,
-                EventsNotificationSchema().load(message["params"]),
-            )
-            handler(notification.result)
-
-        elif method == "starknet_subscriptionTransactionStatus":
-            notification = cast(
+                EventsNotificationSchema,
+            ),
+            "starknet_subscriptionTransactionStatus": (
                 TransactionStatusNotification,
-                TransactionStatusNotificationSchema().load(message["params"]),
-            )
-            handler(notification.result)
-
-        elif method == "starknet_subscriptionPendingTransactions":
-            notification = cast(
+                TransactionStatusNotificationSchema,
+            ),
+            "starknet_subscriptionPendingTransactions": (
                 PendingTransactionsNotification,
-                PendingTransactionsNotificationSchema().load(message["params"]),
+                PendingTransactionsNotificationSchema,
+            ),
+        }
+
+        if method in method_to_model_mapping:
+            notification, notification_schema = method_to_model_mapping[method]
+            notification = cast(
+                notification,
+                notification_schema().load(message["params"]),
             )
             handler(notification.result)
 
