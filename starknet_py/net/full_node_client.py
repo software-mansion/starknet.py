@@ -11,6 +11,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
+    CasmClass,
     ContractStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
@@ -47,7 +48,6 @@ from starknet_py.net.client_utils import (
     encode_l1_message,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models.compiled_casm import CasmClass
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     Declare,

@@ -4,11 +4,11 @@ from typing import Literal, Union, cast
 from marshmallow import EXCLUDE, ValidationError
 
 from starknet_py.net.client_models import (
+    CasmClass,
     DeprecatedCompiledContract,
     DeprecatedContractClass,
     SierraCompiledContract,
 )
-from starknet_py.net.models.compiled_casm import CasmClass
 from starknet_py.net.schemas.rpc.contract import (
     CasmClassSchema,
     ContractClassSchema,
