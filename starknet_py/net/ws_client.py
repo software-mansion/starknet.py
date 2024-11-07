@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Callable, Dict, Optional, Union, cast
 
 from websockets.asyncio.client import ClientConnection, connect
 
@@ -31,11 +31,28 @@ class WSClient:
         self,
         payload: Optional[Dict[str, Any]] = None,
     ):
+        """
+        Sends a message to the WebSocket server and returns the response.
+
+        :param payload: The message to send.
+        """
         assert self.connection is not None
         await self.connection.send(json.dumps(payload))
         data = await self.connection.recv()
 
         return data
+
+    async def listen(self, received_message_handler: Callable[[Dict[str, Any]], Any]):
+        """
+        Listens for incoming WebSocket messages.
+
+        :param received_message_handler: The function to call when a message is received.
+        """
+        assert self.connection is not None
+
+        async for message in self.connection:
+            message = cast(Dict, json.loads(message))
+            received_message_handler(message)
 
 
 class RpcWSClient(WSClient):
@@ -59,6 +76,7 @@ class RpcWSClient(WSClient):
         data = cast(Dict, json.loads(data))
 
         if "result" not in data:
+            # TODO(#1498): Possibly move `handle_rpc_error` from `RpcHttpClient` to separate function
             RpcHttpClient.handle_rpc_error(data)
 
-        return data
+        return data["result"]
