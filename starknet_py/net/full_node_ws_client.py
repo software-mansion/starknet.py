@@ -73,7 +73,6 @@ class FullNodeWSClient:
         await self._rpc_ws_client.listen(self._handle_received_message)
 
     def _handle_received_message(self, message: Dict):
-        print(message)
         if "params" not in message:
             # TODO(#1498): Possibly move `handle_rpc_error` from `RpcHttpClient` to separate function
             RpcHttpClient.handle_rpc_error(message)
@@ -154,7 +153,6 @@ class FullNodeWSClient:
         :return: The subscription ID.
         """
         params = {"from_address": from_address, "keys": keys, "block": block}
-        # params = {"block": block}
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeEvents", params
         )
