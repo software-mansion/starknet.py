@@ -153,7 +153,7 @@ class BaseAccount(ABC):
 
         :param calls: Single call or list of calls.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls.
         """
@@ -224,7 +224,7 @@ class BaseAccount(ABC):
         :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
             Computed from casm compiled contract.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeclareV3 transaction.
         """
@@ -275,7 +275,7 @@ class BaseAccount(ABC):
         :param constructor_calldata: Calldata to be ed to contract constructor
             and used to calculate deployed contract address.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
             Enough tokens must be prefunded before sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeployAccountV3 transaction.
@@ -313,7 +313,7 @@ class BaseAccount(ABC):
         Takes calls and executes transaction.
 
         :param calls: Single call or list of calls.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
         :param nonce: Nonce of the transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: SentTransactionResponse.

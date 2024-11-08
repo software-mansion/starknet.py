@@ -41,6 +41,7 @@ from starknet_py.net.client_models import (
     TransactionTrace,
 )
 from starknet_py.net.client_utils import (
+    _clear_none_values,
     _create_broadcasted_txn,
     _is_valid_eth_address,
     _to_rpc_felt,
@@ -335,18 +336,21 @@ class FullNodeClient(Client):
     async def get_storage_proof(
         self,
         block_id: Union[int, Hash, Tag],
-        class_hashes: Optional[List[int]],
-        contract_addresses: Optional[List[int]],
-        contract_storage_keys: Optional[List[ContractStorageKeys]],
+        class_hashes: Optional[List[int]] = None,
+        contract_addresses: Optional[List[int]] = None,
+        contract_storage_keys: Optional[List[ContractStorageKeys]] = None,
     ) -> StorageProofResponse:
+        params = {
+            "block_id": block_id,
+            "class_hashes": class_hashes,
+            "contract_addresses": contract_addresses,
+            "contract_storage_keys": contract_storage_keys,
+        }
+        params = _clear_none_values(params)
+
         res = await self._client.call(
             method_name="getStorageProof",
-            params={
-                "block_id": block_id,
-                "class_hashes": class_hashes,
-                "contract_addresses": contract_addresses,
-                "contract_storage_keys": contract_storage_keys,
-            },
+            params=params,
         )
         return cast(StorageProofResponse, StorageProofResponseSchema().load(res))
 
