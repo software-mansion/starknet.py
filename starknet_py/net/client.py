@@ -107,9 +107,9 @@ class Client(ABC):
     async def get_storage_proof(
         self,
         block_id: Union[int, Hash, Tag],
-        class_hashes: Optional[List[int]],
-        contract_addresses: Optional[List[int]],
-        contract_storage_keys: Optional[List[ContractStorageKeys]],
+        class_hashes: Optional[List[int]] = None,
+        contract_addresses: Optional[List[int]] = None,
+        contract_storage_keys: Optional[List[ContractStorageKeys]] = None,
     ) -> StorageProofResponse:
         """
         Get merkle paths in one of the state tries: global state, classes, individual contract.
