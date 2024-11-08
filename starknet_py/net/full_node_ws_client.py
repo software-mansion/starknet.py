@@ -26,7 +26,10 @@ from starknet_py.net.ws_full_node_client_models import (
 )
 
 BlockId = Union[int, Hash, Tag]
-
+HandlerNotification = Union[
+    NewHeadsNotification, EventsNotification, TransactionStatusNotification, PendingTransactionsNotification, ReorgNotification
+]
+Handler = Callable[[HandlerNotification], Any]
 
 class FullNodeWSClient:
     """
@@ -39,7 +42,7 @@ class FullNodeWSClient:
         """
         self.node_url: str = node_url
         self._rpc_ws_client: RpcWSClient = RpcWSClient(node_url)
-        self._subscriptions: Dict[int, Callable[[Any], None]] = {}
+        self._subscriptions: Dict[int, Handler] = {}
 
     async def connect(self):
         """
@@ -88,36 +91,40 @@ class FullNodeWSClient:
         handler = self._subscriptions[subscription_id]
         method = message["method"]
 
-        method_to_model_mapping = {
-            "starknet_subscriptionNewHeads": (
-                NewHeadsNotification,
-                NewHeadsNotificationSchema,
-            ),
-            "starknet_subscriptionEvents": (
-                EventsNotification,
-                EventsNotificationSchema,
-            ),
-            "starknet_subscriptionTransactionStatus": (
-                TransactionStatusNotification,
-                TransactionStatusNotificationSchema,
-            ),
-            "starknet_subscriptionPendingTransactions": (
-                PendingTransactionsNotification,
-                PendingTransactionsNotificationSchema,
-            ),
-            "starknet_subscriptionReorg": (
-                ReorgNotification,
-                ReorgNotificationSchema,
-            ),
-        }
-
-        if method in method_to_model_mapping:
-            notification, notification_schema = method_to_model_mapping[method]
+        if method == "starknet_subscriptionNewHeads":
             notification = cast(
-                notification,
-                notification_schema().load(message["params"]),
+                NewHeadsNotification,
+                NewHeadsNotificationSchema().load(message["params"]),
             )
-            handler(notification.result)
+            handler(notification)
+
+        elif method == "starknet_subscriptionEvents":
+            notification = cast(
+                EventsNotification,
+                EventsNotificationSchema().load(message["params"]),
+            )
+            handler(notification)
+
+        elif method == "starknet_subscriptionTransactionStatus":
+            notification = cast(
+                TransactionStatusNotification,
+                TransactionStatusNotificationSchema().load(message["params"]),
+            )
+            handler(notification)
+
+        elif method == "starknet_subscriptionPendingTransactions":
+            notification = cast(
+                PendingTransactionsNotification,
+                PendingTransactionsNotificationSchema().load(message["params"]),
+            )
+            handler(notification)
+
+        elif method == "starknet_subscriptionReorg":
+            notification = cast(
+                ReorgNotification,
+                ReorgNotificationSchema().load(message["params"]),
+            )
+            handler(notification)
 
     async def subscribe_new_heads(
         self,
