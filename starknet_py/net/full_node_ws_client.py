@@ -6,9 +6,10 @@ from starknet_py.net.schemas.rpc.ws import (
     EventsNotificationSchema,
     NewHeadsNotificationSchema,
     PendingTransactionsNotificationSchema,
+    ReorgNotificationSchema,
     SubscribeResponseSchema,
     TransactionStatusNotificationSchema,
-    UnsubscribeResponseSchema, ReorgNotificationSchema,
+    UnsubscribeResponseSchema,
 )
 from starknet_py.net.ws_client import RpcWSClient
 from starknet_py.net.ws_full_node_client_models import (

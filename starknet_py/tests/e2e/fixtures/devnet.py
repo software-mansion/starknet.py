@@ -7,7 +7,6 @@ from typing import Generator, List
 
 import pytest
 
-from starknet_py.net.full_node_ws_client import FullNodeWSClient
 from starknet_py.tests.e2e.fixtures.constants import SEPOLIA_RPC_URL
 
 
@@ -65,16 +64,11 @@ def devnet() -> Generator[str, None, None]:
 
 
 @pytest.fixture(scope="package")
-async def devnet_ws(devnet) -> Generator[str, None, None]:
+def devnet_ws(devnet) -> Generator[str, None, None]:
     """
-    Connects WebSocket client to devnet, returns its instance and disconnects after the tests.
+    Returns WebSocket address of devnet.
     """
-    ws_node_url = devnet.replace("http", "ws") + "/ws"
-    ws_client = FullNodeWSClient(ws_node_url)
-
-    await ws_client.connect()
-    yield ws_client
-    await ws_client.disconnect()
+    yield devnet.replace("http", "ws") + "/ws"
 
 
 @pytest.fixture(scope="package")
