@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union, cast
+from typing import Any, Dict, Union, cast
 
 from typing_extensions import get_args
 
@@ -86,3 +86,7 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
         Dict,
         BroadcastedTransactionSchema().dump(obj=transaction),
     )
+
+
+def _clear_none_values(input_dict: Dict[str, Any]):
+    return {key: value for key, value in input_dict.items() if value is not None}
