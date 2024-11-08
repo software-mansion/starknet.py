@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 from starknet_py.net.client_models import BlockHeader, EmittedEvent, Hash, Tag
+from starknet_py.net.client_utils import _clear_none_values
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.schemas.rpc.ws import (
     EventsNotificationSchema,
@@ -164,7 +165,7 @@ class FullNodeWSClient:
         self,
         handler: Callable[[NewTransactionStatus], Any],
         transaction_hash: int,
-        block: Optional[BlockId],
+        block: Optional[BlockId] = None,
     ) -> int:
         """
         Creates a WebSocket stream which will fire events when a transaction status is updated.
@@ -175,6 +176,7 @@ class FullNodeWSClient:
         :return: The subscription ID.
         """
         params = {"transaction_hash": transaction_hash, "block": block}
+        params = _clear_none_values(params)
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeTransactionStatus", params
         )

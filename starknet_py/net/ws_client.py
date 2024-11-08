@@ -30,7 +30,7 @@ class WSClient:
     async def send_raw(
         self,
         payload: Optional[Dict[str, Any]] = None,
-    ):
+    ) -> Union[str, bytes]:
         """
         Sends a message to the WebSocket server and returns the response.
 
