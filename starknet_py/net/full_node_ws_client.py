@@ -27,9 +27,14 @@ from starknet_py.net.ws_full_node_client_models import (
 
 BlockId = Union[int, Hash, Tag]
 HandlerNotification = Union[
-    NewHeadsNotification, EventsNotification, TransactionStatusNotification, PendingTransactionsNotification, ReorgNotification
+    NewHeadsNotification,
+    EventsNotification,
+    TransactionStatusNotification,
+    PendingTransactionsNotification,
+    ReorgNotification,
 ]
 Handler = Callable[[HandlerNotification], Any]
+
 
 class FullNodeWSClient:
     """
