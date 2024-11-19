@@ -35,7 +35,7 @@ For V3 transactions, ``max_amount`` and ``max_price_per_unit`` are scaled by ``1
     by changing ``ESTIMATED_FEE_MULTIPLIER`` for V1 and V2 transactions in :class:`~starknet_py.net.account.account.Account`.
     The same applies to ``ESTIMATED_AMOUNT_MULTIPLIER`` and ``ESTIMATED_UNIT_PRICE_MULTIPLIER`` for V3 transactions.
 
-The fee for a specific transaction or list of transactions can be also estimated using the :meth:`~starknet_py.net.account.account.Account.estimate_fee` of the :ref:`Account` class.
+The fee for a specific transaction or list of transactions can also be estimated using the :meth:`~starknet_py.net.account.account.Account.estimate_fee` of the :ref:`Account` class.
 
 Creating transactions without executing them
 --------------------------------------------
