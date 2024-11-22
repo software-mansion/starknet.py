@@ -57,7 +57,7 @@ class EventBaseDict(TypedDict):
 
 
 class EventStructMemberDict(TypedParameterDict):
-    kind: Union[Literal["key"], Literal["data"]]
+    kind: Literal["data", "key"]
 
 
 class EventStructDict(EventBaseDict):
