@@ -8,7 +8,11 @@ Migration guide
 0.24.3 Minor changes
 --------------------
 
-Updated `crypto-cpp-py <https://github.com/software-mansion-labs/crypto-cpp-py>`_ to version ``1.4.5``.
+1. Updated `crypto-cpp-py <https://github.com/software-mansion-labs/crypto-cpp-py>`_ to version ``1.4.5``.
+
+.. currentmodule:: starknet_py.net.signer.ledger_signer
+
+2. Ledger support (see :class:`LedgerSigner`) is now optional. To use it, install the package with ``poetry install -E ledger``.
 
 ******************************
 0.24.2 Migration guide
