@@ -2,6 +2,15 @@ Migration guide
 ===============
 
 ******************************
+0.24.3 Migration guide
+******************************
+
+0.24.3 Minor changes
+--------------------
+
+Updated `crypto-cpp-py <https://github.com/software-mansion-labs/crypto-cpp-py>`_ to version ``1.4.5``.
+
+******************************
 0.24.2 Migration guide
 ******************************
 
