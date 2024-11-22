@@ -12,7 +12,7 @@ Migration guide
 
 .. currentmodule:: starknet_py.net.signer.ledger_signer
 
-2. Ledger support (see :class:`LedgerSigner`) is now an optional. To use it, install the package with ``poetry install -E ledger``.
+2. Ledger support (see :class:`LedgerSigner`) is now optional. To use it, install the package with ``poetry install -E ledger``.
 
 ******************************
 0.24.2 Migration guide
