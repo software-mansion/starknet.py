@@ -11,6 +11,7 @@ L1_HANDLER_ENTRY = "l1_handler"
 IMPL_ENTRY = "impl"
 INTERFACE_ENTRY = "interface"
 
+KEY_KIND = "key"
 DATA_KIND = "data"
 NESTED_KIND = "nested"
 
@@ -56,7 +57,7 @@ class EventBaseDict(TypedDict):
 
 
 class EventStructMemberDict(TypedParameterDict):
-    kind: Literal["data"]
+    kind: Literal["data", "key"]
 
 
 class EventStructDict(EventBaseDict):

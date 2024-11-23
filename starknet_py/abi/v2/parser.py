@@ -234,6 +234,7 @@ class AbiParser:
             types=self._parse_members(
                 cast(List[TypedParameterDict], members_), event["name"]
             ),
+            keys=self._parse_keys(cast(List[EventStructMemberDict], members_)),
         )
 
     TypedParam = TypeVar(
@@ -249,6 +250,9 @@ class AbiParser:
             (name, self.type_parser.parse_inline_type(param["type"]))
             for name, param in members.items()
         )
+
+    def _parse_keys(self, params: List[EventStructMemberDict]) -> List[str]:
+        return [param["name"] for param in params if param["kind"] == "key"]
 
     def _parse_interface(self, interface: InterfaceDict) -> Abi.Interface:
         return Abi.Interface(

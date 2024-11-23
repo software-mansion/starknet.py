@@ -7,8 +7,7 @@ from starknet_py.cairo.data_types import EventType, StructType, UintType
 pool_id_struct = StructType("PoolId", OrderedDict(value=UintType(256)))
 
 pool_id_added_event: EventType = EventType(
-    "PoolIdAdded",
-    OrderedDict(pool_id=pool_id_struct),
+    "PoolIdAdded", OrderedDict(pool_id=pool_id_struct), []
 )
 
 abi_v2 = Abi(
