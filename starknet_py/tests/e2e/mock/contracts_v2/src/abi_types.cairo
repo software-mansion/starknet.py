@@ -3,6 +3,7 @@ use starknet::ContractAddress;
 use core::zeroable::NonZero;
 use core::zeroable::IsZeroResult;
 use core::zeroable::NonZeroIntoImpl;
+use core::integer::{u8_try_as_non_zero};
 
 #[derive(Drop, Serde)]
 enum ExampleEnum {
@@ -17,6 +18,7 @@ struct ExampleStruct {
     field_c: ExampleEnum,
     field_d: (),
     field_e: NonZero<felt252>,
+    field_f: NonZero<u8>,
 }
 
 #[starknet::interface]
@@ -34,12 +36,19 @@ pub fn felt_to_nonzero(value: felt252) -> NonZero<felt252> {
     }
 }
 
+pub fn u8_to_nonzero(value: u8) -> NonZero<u8> {
+    match u8_try_as_non_zero(value) {
+        Option::Some(x) => x,
+        Option::None => panic(ArrayTrait::new()),
+    }
+}
+
 #[starknet::contract]
 mod AbiTypes {
     use core::array::ArrayTrait;
     use core::traits::Into;
     use starknet::ContractAddress;
-    use super::{ExampleEnum, ExampleStruct, felt_to_nonzero};
+    use super::{ExampleEnum, ExampleStruct, felt_to_nonzero, u8_to_nonzero};
 
     #[storage]
     struct Storage {}
@@ -61,6 +70,7 @@ mod AbiTypes {
                 field_c: ExampleEnum::variant_b(400.into()),
                 field_d: (),
                 field_e: felt_to_nonzero(100),
+                field_f: u8_to_nonzero(100),
             }
         }
     }
