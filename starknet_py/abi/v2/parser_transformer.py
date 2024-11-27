@@ -9,6 +9,7 @@ from starknet_py.cairo.data_types import (
     BoolType,
     CairoType,
     FeltType,
+    NonZeroType,
     OptionType,
     TupleType,
     TypeIdentifier,
@@ -35,6 +36,7 @@ ABI_EBNF = """
         | type_span
         | tuple
         | type_identifier
+        | type_non_zero
     
     
     type_unit: "()"
@@ -49,6 +51,7 @@ ABI_EBNF = """
     type_option: "core::option::Option::<" (type | type_identifier) ">"
     type_array: "core::array::Array::<" (type | type_identifier) ">"
     type_span: "core::array::Span::<" (type | type_identifier) ">"
+    type_non_zero: "core::zeroable::NonZero<" (type | type_identifier) ">"
     
     tuple: "(" type? ("," type?)* ")"
     
@@ -184,6 +187,12 @@ class ParserTransformer(Transformer):
         Tuple contains values defined in the `types` argument.
         """
         return TupleType(types)
+
+    def type_non_zero(self, value: List[CairoType]) -> NonZeroType:
+        """
+        NonZero contains value which is never zero.
+        """
+        return NonZeroType(value[0])
 
 
 def parse(

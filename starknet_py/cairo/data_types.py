@@ -121,3 +121,12 @@ class EventType(CairoType):
 
     name: str
     types: OrderedDict[str, CairoType]
+
+
+@dataclass
+class NonZeroType(CairoType):
+    """
+    Type representation of Cairo NonZero.
+    """
+
+    type: CairoType
