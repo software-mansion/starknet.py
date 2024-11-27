@@ -60,7 +60,7 @@ mod AbiTypes {
                 field_b: 300,
                 field_c: ExampleEnum::variant_b(400.into()),
                 field_d: (),
-                field_e: felt_to_nonzero(0),
+                field_e: felt_to_nonzero(100),
             }
         }
     }
