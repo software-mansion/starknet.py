@@ -1,14 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+from starknet_py.constants import SNIP9InterfaceVersion, ANY_CALLER
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Calls,
     EstimatedFee,
     Hash,
     ResourceBounds,
+    ExecutionTimeBounds,
     SentTransactionResponse,
     Tag,
+    Call
 )
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import (
@@ -24,8 +27,42 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.models.typed_data import TypedDataDict
 
+class SNIP9SupportMixin(ABC):
 
-class BaseAccount(ABC):
+    @abstractmethod
+    async def get_snip9_nonce(self) -> int:
+        """
+        Generate special valid nonce (passed check_snip9_nonce) for external calls execution.
+        """
+
+    @abstractmethod
+    async def supports_interface(self, interface_id: SNIP9InterfaceVersion) -> bool:
+        """
+        Check if the account supports the given SNIP9 interface. Part of ISRC5 standard.
+        """
+
+    @abstractmethod
+    async def sign_outside_execution_call(
+        self,
+        calls: Calls,
+        execution_time_bounds: ExecutionTimeBounds,
+        *,
+        caller: AddressRepresentation = ANY_CALLER,
+        nonce: Optional[int] = None,
+        version: Optional[SNIP9InterfaceVersion] = None,
+    ) -> Call:
+        """
+        Creates a call for an external execution (SNIP-9 specification).
+
+        :param calls: Single call or list of calls to be executed by outside caller.
+        :param execution_time_bounds: Execution time bounds for the call.
+        :param caller: Address of the caller. IMPORTANT! By default it is ANY_CALLER.
+        :param nonce: Nonce for the transaction. Is populated automatically if not provided.
+        :param version: SNIP-9 interface version. Method will check which version account
+            supports and use the highest one and populate the value.
+        """
+
+class BaseAccount(SNIP9SupportMixin, ABC):
     """
     Base class for all account implementations.
 

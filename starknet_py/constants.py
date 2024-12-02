@@ -1,3 +1,4 @@
+from enum import IntEnum
 from pathlib import Path
 
 # Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
@@ -48,3 +49,8 @@ VERSION_RESPONSE_LENGTH = 3
 
 # SNIP-9 ANY_CALLER
 ANY_CALLER = 0x414e595f43414c4c4552
+
+# SNIP-9 INTERFACE_VERSION with ID
+class SNIP9InterfaceVersion(IntEnum):
+    V1 = 0x68cfd18b92d1907b8ba3cc324900277f5a3622099431ea85dd8089255e4181
+    V2 = 0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872

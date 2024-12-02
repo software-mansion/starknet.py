@@ -8,9 +8,11 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE, ANY_
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import verify_message_signature
+from starknet_py.hash.outside_execution import outside_execution_to_typed_data
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
-from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.account.base_account import BaseAccount, SNIP9SupportMixin
 from starknet_py.net.client import Client
+from starknet_py.constants import SNIP9InterfaceVersion
 from starknet_py.net.client_models import (
     Call,
     Calls,
@@ -21,6 +23,7 @@ from starknet_py.net.client_models import (
     ResourceBoundsMapping,
     SentTransactionResponse,
     SierraContractClass,
+    OutsideExecution,
     Tag,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -35,20 +38,17 @@ from starknet_py.net.models.transaction import (
     DeployAccountV3,
     InvokeV1,
     InvokeV3,
-    InvokeOutsideV1,
-    InvokeOutsideV2,
     TypeAccountTransaction,
 )
 from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
-from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
-from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
-from starknet_py.serialization.data_serializers.payload_serializer import (
+from starknet_py.serialization.data_serializers import (
+    ArraySerializer,
+    FeltSerializer,
     PayloadSerializer,
-)
-from starknet_py.serialization.data_serializers.struct_serializer import (
     StructSerializer,
+    UintSerializer,
 )
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
@@ -56,7 +56,7 @@ from starknet_py.utils.typed_data import TypedData
 
 
 @add_sync_methods
-class Account(BaseAccount):
+class Account(BaseAccount, SNIP9SupportMixin):
     """
     Default Account implementation.
     """
@@ -221,53 +221,6 @@ class Account(BaseAccount):
 
         return _add_max_fee_to_transaction(transaction, max_fee)
 
-    async def _prepare_invoke_outside_v1(
-        self,
-        calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
-        caller: AddressRepresentation, 
-        *,
-        nonce: Optional[int] = None,
-    ) -> InvokeOutsideV1:    
-        if nonce is None:
-            nonce = await self.get_SNIP9_nonce()
-        
-        transaction = InvokeOutsideV1(
-            calls=list(ensure_iterable(calls)),
-            execute_after=execution_time_bounds.execute_after,
-            execute_before=execution_time_bounds.execute_before,
-            caller_address=parse_address(caller),
-            signer_address=self.address,
-            nonce=nonce,
-            signature=[], # TODO(baitcode): should be default
-            version=1, 
-        )
-        
-        return transaction
-    
-    async def _prepare_invoke_outside_v2(
-        self,
-        calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
-        caller: AddressRepresentation, 
-        *, 
-        nonce: Optional[int] = None,
-    ) -> InvokeOutsideV2:   
-        if nonce is None:
-            nonce = await self.get_SNIP9_nonce()
-
-        transaction = InvokeOutsideV2(
-            calls=list(ensure_iterable(calls)),
-            execute_after=execution_time_bounds.execute_after,
-            execute_before=execution_time_bounds.execute_before,
-            caller_address=parse_address(caller),
-            signer_address=self.address,
-            nonce=nonce or await self.get_nonce(),
-            signature=[],
-            version=2, 
-        )
-        
-        return transaction
 
     async def _prepare_invoke_v3(
         self,
@@ -341,16 +294,16 @@ class Account(BaseAccount):
             self.address, block_hash=block_hash, block_number=block_number
         )
 
-    async def check_SNIP9_nonce(
-        self, 
+    async def _check_snip9_nonce(
+        self,
         nonce: int,
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> bool:
         (is_valid, ) = await self._client.call_contract(
-            Call(
-                to_addr=parse_address(self.address),
+            call=Call(
+                to_addr=self.address,
                 selector=get_selector_from_name("is_valid_outside_execution_nonce"),
                 calldata=[nonce],
             ),
@@ -358,13 +311,29 @@ class Account(BaseAccount):
         )
         return bool(is_valid)
 
-    async def get_SNIP9_nonce(self) -> int:
-        while True: # TODO(baitcode): add a limit to avoid infinite loop
-            
+    async def get_snip9_nonce(self, retry_count=10) -> int:
+        while retry_count > 0:
             random_stark_address = KeyPair.generate().public_key
-            
-            if await self.check_SNIP9_nonce(random_stark_address):
+            if await self._check_snip9_nonce(random_stark_address):
                 return random_stark_address
+            retry_count -= 1
+        raise RuntimeError("Failed to generate a valid nonce")
+
+    async def _get_snip9_version(self) -> Union[SNIP9InterfaceVersion, None]:
+        for version in [SNIP9InterfaceVersion.V1, SNIP9InterfaceVersion.V2]:
+            if await self.supports_interface(version):
+                return version
+        return None
+
+    async def supports_interface(self, interface_id: SNIP9InterfaceVersion) -> bool:
+        (does_support,) = await self._client.call_contract(
+            Call(
+                to_addr=self.address,
+                selector=get_selector_from_name("supports_interface"),
+                calldata=[interface_id],
+            )
+        )
+        return bool(does_support)
 
     async def get_balance(
         self,
@@ -420,39 +389,51 @@ class Account(BaseAccount):
         signature = self.signer.sign_transaction(execute_tx)
         return _add_signature_to_transaction(execute_tx, signature)
 
-    async def sign_execute_outside_v1(
+    async def sign_outside_execution_call(
         self,
         calls: Calls,
         execution_time_bounds: ExecutionTimeBounds,
         *,
         caller: AddressRepresentation = ANY_CALLER,
-        nonce: Optional[int] = None,        
-    ) -> InvokeOutsideV1:
-        execute_outside_tx = await self._prepare_invoke_outside_v1(
-            calls,
-            execution_time_bounds,
-            caller=caller,
-            nonce=nonce or await self.get_SNIP9_nonce(),
-        )
-        signature = self.signer.sign_transaction(execute_outside_tx)
-        return _add_signature_to_transaction(execute_outside_tx, signature)
+        nonce: Optional[int] = None,
+        version: Optional[SNIP9InterfaceVersion] = None,
+    ) -> Call:
+        if version is None:
+            version = await self._get_snip9_version()
 
-    async def sign_execute_outside_v2(
-        self,
-        calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
-        *,
-        caller: AddressRepresentation = ANY_CALLER,
-        nonce: Optional[int] = None,        
-    ) -> InvokeOutsideV2:
-        execute_outside_tx = await self._prepare_invoke_outside_v2(
-            calls,
-            execution_time_bounds,
-            caller=caller,
-            nonce=nonce or await self.get_SNIP9_nonce(),
+        if version is None:
+            raise RuntimeError("Can't initiate outside execution SNIP-9 is unsupported.")
+
+        if nonce is None:
+            nonce = await self.get_snip9_nonce()
+
+        outside_execution = OutsideExecution(
+            caller=parse_address(caller),
+            nonce=nonce,
+            execute_after=execution_time_bounds.execute_after_timestamp,
+            execute_before=execution_time_bounds.execute_before_timestamp,
+            calls=list(ensure_iterable(calls)),
         )
-        signature = self.signer.sign_transaction(execute_outside_tx)
-        return _add_signature_to_transaction(execute_outside_tx, signature)
+        chain_id = await self._get_chain_id()
+        signature = self.signer.sign_message(
+            outside_execution_to_typed_data(
+                outside_execution, version, chain_id
+            ),
+            self.address
+        )
+        selector_for_version = {
+            SNIP9InterfaceVersion.V1: "execute_from_outside",
+            SNIP9InterfaceVersion.V2: "execute_from_outside_v2"
+        }
+
+        return Call(
+            to_addr=self.address,
+            selector=get_selector_from_name(selector_for_version[version]),
+            calldata=_transaction_serialiser.serialize({
+                "external_execution": outside_execution.to_abi_dict(),
+                "signature": signature
+            })
+        )
 
     async def sign_invoke_v3(
         self,
@@ -703,37 +684,6 @@ class Account(BaseAccount):
             auto_estimate=auto_estimate,
         )
         return await self._client.send_transaction(execute_transaction)
-
-    async def execute_outside_v1(
-        self,
-        calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
-        caller: AddressRepresentation = ANY_CALLER,
-        nonce: Optional[int] = None,
-    ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_execute_outside_v1(
-            calls,
-            execution_time_bounds,
-            caller=caller,
-            nonce=nonce,
-        )
-        return await self._client.send_transaction(execute_transaction)
-    
-    async def execute_outside_v2(
-        self,
-        calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
-        caller: AddressRepresentation = ANY_CALLER,
-        nonce: Optional[int] = None,
-    ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_execute_outside_v2(
-            calls,
-            execution_time_bounds,
-            caller=caller,
-            nonce=nonce,
-        )
-        return await self._client.send_transaction(execute_transaction)
-    
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
         if isinstance(typed_data, TypedData):
@@ -1028,5 +978,20 @@ _execute_payload_serializer_v0 = PayloadSerializer(
 _execute_payload_serializer_v1 = PayloadSerializer(
     OrderedDict(
         calls=ArraySerializer(_call_description_cairo_v1),
+    )
+)
+
+_transaction_serialiser = StructSerializer(
+    OrderedDict(
+        external_execution=StructSerializer(
+            OrderedDict(
+                caller=FeltSerializer(),
+                nonce=FeltSerializer(),
+                execute_after=UintSerializer(bits=64),
+                execute_before=UintSerializer(bits=64),
+                calls=ArraySerializer(_call_description_cairo_v1),
+            )
+        ),
+        signature=ArraySerializer(FeltSerializer()),
     )
 )
