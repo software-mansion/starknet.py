@@ -295,7 +295,7 @@ class DeployAccountTransactionSchema(OneOfSchema):
 
     def get_data_type(self, data):
         return _extract_tx_version(data.get("version"))
-
+    
 
 class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)

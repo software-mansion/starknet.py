@@ -12,7 +12,7 @@ import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Literal, Optional, Union, cast
+from typing import Any, Iterable, List, Literal, Optional, Union, cast, Dict
 
 from marshmallow import EXCLUDE
 
@@ -27,9 +27,12 @@ from starknet_py.abi.v2.schemas import (
 )
 from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
+
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
+
 # pylint: disable=too-many-lines
+
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
@@ -124,12 +127,13 @@ class ExecutionTimeBounds:
     execute_after: datetime.datetime
     execute_before: datetime.datetime
 
-    @staticmethod
-    def init_without_bounds():
-        return ExecutionTimeBounds(
-            execute_after=datetime.datetime.min,
-            execute_before=datetime.datetime.max,
-        )
+    @property
+    def execute_after_timestamp(self) -> int:
+        return int(self.execute_after.timestamp())
+
+    @property
+    def execute_before_timestamp(self) -> int:
+        return int(self.execute_before.timestamp())
 
 
 @dataclass
@@ -192,7 +196,6 @@ class TransactionType(Enum):
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
     DEPLOY = "DEPLOY"
     L1_HANDLER = "L1_HANDLER"
-    OUTSIDE = "OUTSIDE"
 
 
 @dataclass
@@ -1124,3 +1127,33 @@ class BlockTransactionTrace:
 
     transaction_hash: int
     trace_root: TransactionTrace
+
+@dataclass
+class OutsideExecution:
+    """
+    Dataclass representing an outside execution. 
+    (SNIP-9)[https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md]
+    """
+
+    caller: int
+    nonce: int
+    execute_after: int
+    execute_before: int
+    calls: List[Call]
+
+    def to_abi_dict(self) -> Dict:
+        """
+        Returns a dictionary that can be serialized (compiled) into calldata
+        using StructSerializer
+        """
+        return {
+            "caller": self.caller,
+            "nonce": self.nonce,
+            "execute_after": self.execute_after,
+            "execute_before": self.execute_before,
+            "calls": [{
+                "to": call.to_addr,
+                "selector": call.selector,
+                "calldata": call.calldata
+            } for call in self.calls]
+        }

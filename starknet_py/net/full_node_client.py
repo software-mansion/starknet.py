@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union, cast, Dict
 
 import aiohttp
 
@@ -37,7 +37,6 @@ from starknet_py.net.client_models import (
     TransactionTrace,
 )
 from starknet_py.net.client_utils import (
-    _create_broadcasted_txn,
     _is_valid_eth_address,
     _to_rpc_felt,
     _to_storage_key,
@@ -81,9 +80,18 @@ from starknet_py.net.schemas.rpc.transactions import (
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
 )
+from starknet_py.net.schemas.broadcasted_txn import (
+    BroadcastedTransactionSchema,
+)
 from starknet_py.transaction_errors import TransactionNotReceivedError
 from starknet_py.utils.sync import add_sync_methods
 
+
+def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
+    return cast(
+        Dict,
+        BroadcastedTransactionSchema().dump(obj=transaction),
+    )
 
 @add_sync_methods
 class FullNodeClient(Client):
