@@ -6,6 +6,7 @@ They should be compliant with the latest Starknet version.
 
 import base64
 import dataclasses
+import datetime
 import gzip
 import json
 from abc import ABC, abstractmethod
@@ -25,6 +26,8 @@ from starknet_py.hash.transaction import (
     compute_declare_v3_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_deploy_account_v3_transaction_hash,
+    compute_invoke_outside_v1_transaction_hash,
+    compute_invoke_outside_v2_transaction_hash,
     compute_invoke_transaction_hash,
     compute_invoke_v3_transaction_hash,
 )
@@ -34,6 +37,8 @@ from starknet_py.net.client_models import (
     ResourceBoundsMapping,
     SierraContractClass,
     TransactionType,
+    Call,
+    
 )
 from starknet_py.net.schemas.common import Felt
 from starknet_py.net.schemas.rpc.contract import (
@@ -306,6 +311,70 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
             chain_id=chain_id,
         )
 
+@dataclass(frozen=True)
+class InvokeOutsideV1(AccountTransaction, ABC):
+    caller: int = field(metadata={"marshmallow_field": Felt()})
+    signer_address: int = field(metadata={"marshmallow_field": Felt()})
+    execute_after: int
+    execute_before: int
+    calls: List[Call]
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.OUTSIDE
+
+    def calculate_hash(self, chain_id: int) -> int:
+        return compute_invoke_outside_v1_transaction_hash(
+            chain_id,
+            caller_address=self.caller,
+            nonce=self.nonce,
+            execute_after=self.execute_after,
+            execute_before=self.execute_before,
+            signer_address=self.signer_address,
+            calls = [
+                {
+                    'to': call.to_addr,
+                    'selector': call.selector,
+                    'calldata_len': len(call.calldata),
+                    'calldata': call.calldata,
+                } for call in self.calls
+            ]
+        )
+
+
+@dataclass(frozen=True)
+class InvokeOutsideV2(AccountTransaction, ABC):
+    caller_address: int = field(metadata={"marshmallow_field": Felt()})
+    signer_address: int = field(metadata={"marshmallow_field": Felt()})
+
+    execute_after: datetime.datetime
+    execute_before: datetime.datetime
+
+    calls: List[Call]
+
+    @property
+    def type(self) -> TransactionType:
+        return TransactionType.OUTSIDE
+
+    def calculate_hash(self, chain_id: int) -> int:
+        return compute_invoke_outside_v2_transaction_hash(
+            chain_id,
+            caller_address=self.caller_address,
+            nonce=self.nonce,
+            execute_after=self.execute_after,
+            execute_before=self.execute_before,
+            signer_address=self.signer_address,
+            calls = [
+                {
+                    'To': call.to_addr,
+                    'Selector': call.selector,
+                    'Calldata': call.calldata,
+                } for call in self.calls
+            ]
+        )
+        
+
+
 
 @dataclass(frozen=True)
 class InvokeV3(_AccountTransactionV3):
@@ -366,7 +435,7 @@ class InvokeV1(_DeprecatedAccountTransaction):
 
 Declare = Union[DeclareV1, DeclareV2, DeclareV3]
 DeployAccount = Union[DeployAccountV1, DeployAccountV3]
-Invoke = Union[InvokeV1, InvokeV3]
+Invoke = Union[InvokeV1, InvokeV3, InvokeOutsideV1, InvokeOutsideV2]
 
 InvokeV1Schema = marshmallow_dataclass.class_schema(InvokeV1)
 DeclareV1Schema = marshmallow_dataclass.class_schema(DeclareV1)

@@ -79,6 +79,14 @@ class NumberAsHex(fields.Field):
             and re.fullmatch(self.REGEX_PATTERN, value) is not None
         )
 
+class Selector(NumberAsHex):
+    """
+    Field used to serialize and deserialize selector type.
+    """
+
+    MAX_VALUE = 2**32
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,7})$"
+
 
 class Felt(NumberAsHex):
     """
