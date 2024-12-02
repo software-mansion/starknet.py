@@ -7,6 +7,7 @@ This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLO
 to true. Consequently, any unknown fields in response will be excluded.
 """
 
+import datetime
 import json
 from abc import ABC
 from dataclasses import dataclass, field
@@ -114,6 +115,22 @@ class ResourceBounds:
     def init_with_zeros():
         return ResourceBounds(max_amount=0, max_price_per_unit=0)
 
+@dataclass
+class ExecutionTimeBounds:
+    """
+    Dataclass representing time bounds within which the given time bounds.
+    """
+
+    execute_after: datetime.datetime
+    execute_before: datetime.datetime
+
+    @staticmethod
+    def init_without_bounds():
+        return ExecutionTimeBounds(
+            execute_after=datetime.datetime.min,
+            execute_before=datetime.datetime.max,
+        )
+
 
 @dataclass
 class ResourceBoundsMapping:
@@ -175,6 +192,7 @@ class TransactionType(Enum):
     DEPLOY_ACCOUNT = "DEPLOY_ACCOUNT"
     DEPLOY = "DEPLOY"
     L1_HANDLER = "L1_HANDLER"
+    OUTSIDE = "OUTSIDE"
 
 
 @dataclass

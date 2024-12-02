@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, TypedDict
 from starknet_py.net.schemas.common import Revision
 
 
-class ParameterDict(TypedDict):
+class ParameterDict(TypedDict, total=False):
     """
     TypedDict representing a Parameter object
     """
