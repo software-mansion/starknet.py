@@ -297,6 +297,47 @@ class DeployAccountTransactionSchema(OneOfSchema):
         return _extract_tx_version(data.get("version"))
 
 
+class Call1Schema(Schema):
+    to = Felt(data_key="to_addr", required=True)
+    selector = Felt(data_key="selector", required=True)
+    calldata_len = fields.Function(lambda obj: len(obj.calldata))
+    calldata = fields.List(Felt(), data_key="calldata", required=True)
+
+class OutsideAccountTransactionV1Schema(DeprecatedTransactionSchema):
+    caller = Felt(data_key="caller", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+    execute_after = Felt(data_key="execute_after", required=True)
+    execute_before = Felt(data_key="execute_before", required=True)
+    calls = fields.List(fields.Nested(Call1Schema), data_key="calls", required=True,)
+
+
+class Call2Schema(Schema):
+    to = EthAddress(data_key="To", required=True)
+    # TODO(baitcode): Craete selector field
+    selector = Felt(data_key="Selector", required=True)
+    calldata = fields.List(Felt(), data_key="Calldata", required=True)
+
+class OutsideAccountTransactionV2Schema(DeprecatedTransactionSchema):
+    caller = EthAddress(data_key="Caller", required=True)
+    nonce = Felt(data_key="Nonce", required=True)
+    execute_after = Uint128(data_key="Execute After", required=True)
+    execute_before = Uint128(data_key="Execute Before", required=True)
+    calls = fields.List(fields.Nested(Call2Schema), data_key="Calls", required=True,)
+
+
+class OutsideAccountTransactionSchema(OneOfSchema):
+    type_schemas = {
+        "1": OutsideAccountTransactionV1Schema,
+        "2": OutsideAccountTransactionV2Schema,
+    }
+
+    def get_obj_type(self, obj):
+        return _extract_tx_version(obj.version)
+
+    def get_data_type(self, data):
+        return _extract_tx_version(data.get("version", "2"))
+
+
 class L1HandlerTransactionSchema(TransactionSchema):
     contract_address = Felt(data_key="contract_address", required=True)
     calldata = fields.List(Felt(), data_key="calldata", required=True)

@@ -26,6 +26,8 @@ from starknet_py.hash.transaction import (
     compute_declare_v3_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_deploy_account_v3_transaction_hash,
+    compute_invoke_outside_v1_transaction_hash,
+    compute_invoke_outside_v2_transaction_hash,
     compute_invoke_transaction_hash,
     compute_invoke_v3_transaction_hash,
 )
@@ -36,13 +38,13 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     TransactionType,
     Call,
+    
 )
-from starknet_py.net.schemas.common import Felt, Revision
+from starknet_py.net.schemas.common import Felt
 from starknet_py.net.schemas.rpc.contract import (
     ContractClassSchema,
     SierraContractClassSchema,
 )
-from starknet_py.utils import typed_data as td
 
 # TODO (#1219):
 #  consider unifying these classes with client_models
@@ -311,12 +313,10 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
 
 @dataclass(frozen=True)
 class InvokeOutsideV1(AccountTransaction, ABC):
-    caller_address: int = field(metadata={"marshmallow_field": Felt()})
+    caller: int = field(metadata={"marshmallow_field": Felt()})
     signer_address: int = field(metadata={"marshmallow_field": Felt()})
-
-    execute_after: datetime.datetime
-    execute_before: datetime.datetime
-
+    execute_after: int
+    execute_before: int
     calls: List[Call]
 
     @property
@@ -324,52 +324,22 @@ class InvokeOutsideV1(AccountTransaction, ABC):
         return TransactionType.OUTSIDE
 
     def calculate_hash(self, chain_id: int) -> int:
-        data = td.TypedData.from_dict({
-            'types': {
-                'StarkNetDomain': [
-                    {'name': 'name',    'type': 'felt'},
-                    {'name': 'version', 'type': 'felt'},
-                    {'name': 'chainId', 'type': 'felt'},
-                ],
-                'OutsideExecution': [
-                    {'name': 'caller',          'type': 'felt' },
-                    {'name': 'nonce',           'type': 'felt' },
-                    {'name': 'execute_after',   'type': 'felt' },
-                    {'name': 'execute_before',  'type': 'felt' },
-                    {'name': 'calls_len',       'type': 'felt' },
-                    {'name': 'calls',           'type': 'OutsideCall*' },
-                ],
-                'OutsideCall': [
-                    { 'name': 'to', 'type': 'felt' },
-                    { 'name': 'selector', 'type': 'felt' },
-                    { 'name': 'calldata_len', 'type': 'felt' },
-                    { 'name': 'calldata', 'type': 'felt*' },
-                ],
-            },
-            'primaryType': 'OutsideExecution',
-            'domain': {
-                'name': 'Account.execute_from_outside',
-                'version': '1',
-                'chainId': str(chain_id),
-                'revision': None,
-            },
-            'message': {
-                'caller': self.caller_address,
-                'nonce': self.nonce,
-                'execute_after': self.execute_after.timestamp(),
-                'execute_before': self.execute_before.timestamp(),
-                'calls_len': len(self.calls),
-                'calls': [
-                    {
-                        'to': call.to_addr,
-                        'selector': call.selector,
-                        'calldata_len': len(call.calldata),
-                        'calldata': call.calldata,
-                    } for call in self.calls
-                ],
-            },
-        })
-        return data.message_hash(self.signer_address)
+        return compute_invoke_outside_v1_transaction_hash(
+            chain_id,
+            caller_address=self.caller,
+            nonce=self.nonce,
+            execute_after=self.execute_after,
+            execute_before=self.execute_before,
+            signer_address=self.signer_address,
+            calls = [
+                {
+                    'to': call.to_addr,
+                    'selector': call.selector,
+                    'calldata_len': len(call.calldata),
+                    'calldata': call.calldata,
+                } for call in self.calls
+            ]
+        )
 
 
 @dataclass(frozen=True)
@@ -387,49 +357,23 @@ class InvokeOutsideV2(AccountTransaction, ABC):
         return TransactionType.OUTSIDE
 
     def calculate_hash(self, chain_id: int) -> int:
-        data = td.TypedData.from_dict({
-            'types': {
-                'StarknetDomain': [
-                    {'name': 'name',     'type': 'shortstring'},
-                    {'name': 'version',  'type': 'shortstring'},
-                    {'name': 'chainId',  'type': 'shortstring'},
-                    {'name': 'revision', 'type': 'shortstring'},
-                ],
-                'OutsideExecution': [
-                    {'name': 'Caller',          'type': 'ContractAddress' },
-                    {'name': 'Nonce',           'type': 'felt' },
-                    {'name': 'Execute After',   'type': 'u128' },
-                    {'name': 'Execute Before',  'type': 'u128' },
-                    {'name': 'Calls',           'type': 'Call*' },
-                ],
-                'Call': [
-                    { 'name': 'To', 'type': 'ContractAddress' },
-                    { 'name': 'Selector', 'type': 'selector' },
-                    { 'name': 'Calldata', 'type': 'felt*' },
-                ],
-            },
-            'primaryType': 'OutsideExecution',
-            'domain': {
-                'name': 'Account.execute_from_outside',
-                'version': '2',
-                'chainId': str(chain_id),
-                'revision': Revision.V1,
-            },
-            'message': {
-                'Caller': self.caller_address,
-                'Nonce': self.nonce,
-                'Execute After': self.execute_after.timestamp(),
-                'Execute Before': self.execute_before.timestamp(),
-                'Calls': [
-                    {
-                        'To': call.to_addr,
-                        'Selector': call.selector,
-                        'Calldata': call.calldata,
-                    } for call in self.calls
-                ],
-            },
-        })
-        return data.message_hash(self.signer_address)
+        return compute_invoke_outside_v2_transaction_hash(
+            chain_id,
+            caller_address=self.caller_address,
+            nonce=self.nonce,
+            execute_after=self.execute_after,
+            execute_before=self.execute_before,
+            signer_address=self.signer_address,
+            calls = [
+                {
+                    'To': call.to_addr,
+                    'Selector': call.selector,
+                    'Calldata': call.calldata,
+                } for call in self.calls
+            ]
+        )
+        
+
 
 
 @dataclass(frozen=True)

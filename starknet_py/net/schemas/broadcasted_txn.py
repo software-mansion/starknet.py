@@ -13,6 +13,7 @@ from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionV3Schema,
     DeployAccountTransactionSchema,
     InvokeTransactionSchema,
+    OutsideAccountTransactionSchema,
 )
 from starknet_py.net.schemas.utils import _extract_tx_version
 
@@ -63,6 +64,7 @@ class BroadcastedTransactionSchema(OneOfSchema):
         TransactionType.INVOKE.name: InvokeTransactionSchema(),
         TransactionType.DECLARE.name: BroadcastedDeclareSchema(),
         TransactionType.DEPLOY_ACCOUNT.name: DeployAccountTransactionSchema(),
+        TransactionType.OUTSIDE.name: OutsideAccountTransactionSchema(),
     }
 
     def get_obj_type(self, obj):

@@ -233,12 +233,12 @@ class Account(BaseAccount):
             nonce = await self.get_snip9_nonce()
 
         transaction = InvokeOutsideV1(
-            calls=list(ensure_iterable(calls)),
-            execute_after=execution_time_bounds.execute_after,
-            execute_before=execution_time_bounds.execute_before,
-            caller_address=parse_address(caller),
-            signer_address=self.address,
+            caller=parse_address(caller),
             nonce=nonce,
+            execute_after=int(execution_time_bounds.execute_after.timestamp()),
+            execute_before=int(execution_time_bounds.execute_before.timestamp()),
+            calls=list(ensure_iterable(calls)),
+            signer_address=self.address,
             signature=[],
             version=1,
         )
@@ -716,7 +716,33 @@ class Account(BaseAccount):
             caller=caller,
             nonce=nonce,
         )
-        return await self._client.send_transaction(execute_transaction)
+        
+        zz = await self._client.call_contract(
+            Call(
+                to_addr=execute_transaction.signer_address,
+                selector=get_selector_from_name("execute_from_outside"),
+                calldata=[
+                    {
+                        "caller": execute_transaction.caller,
+                        "signer_address": execute_transaction.signer_address,
+                        "execute_after": execute_transaction.execute_after,
+                        "execute_before": execute_transaction.execute_before,
+                        "calls": [
+                            {
+                                "to": call.to_addr,
+                                "selector": call.selector,
+                                "calldata": call.calldata,
+                            }
+                            for call in execute_transaction.calls,
+                        ]
+                    },
+                    execute_transaction.signature,
+                ]
+            )
+        )
+        
+
+        return zz
 
     async def execute_outside_v2(
         self,
@@ -732,7 +758,6 @@ class Account(BaseAccount):
             nonce=nonce,
         )
         return await self._client.send_transaction(execute_transaction)
-
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
         if isinstance(typed_data, TypedData):
