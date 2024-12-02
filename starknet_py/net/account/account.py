@@ -225,13 +225,13 @@ class Account(BaseAccount):
         self,
         calls: Calls,
         execution_time_bounds: ExecutionTimeBounds,
-        caller: AddressRepresentation, 
+        caller: AddressRepresentation,
         *,
         nonce: Optional[int] = None,
-    ) -> InvokeOutsideV1:    
+    ) -> InvokeOutsideV1:
         if nonce is None:
-            nonce = await self.get_SNIP9_nonce()
-        
+            nonce = await self.get_snip9_nonce()
+
         transaction = InvokeOutsideV1(
             calls=list(ensure_iterable(calls)),
             execute_after=execution_time_bounds.execute_after,
@@ -239,22 +239,22 @@ class Account(BaseAccount):
             caller_address=parse_address(caller),
             signer_address=self.address,
             nonce=nonce,
-            signature=[], # TODO(baitcode): should be default
-            version=1, 
+            signature=[],
+            version=1,
         )
-        
+
         return transaction
-    
+
     async def _prepare_invoke_outside_v2(
         self,
         calls: Calls,
         execution_time_bounds: ExecutionTimeBounds,
-        caller: AddressRepresentation, 
-        *, 
+        caller: AddressRepresentation,
+        *,
         nonce: Optional[int] = None,
-    ) -> InvokeOutsideV2:   
+    ) -> InvokeOutsideV2:
         if nonce is None:
-            nonce = await self.get_SNIP9_nonce()
+            nonce = await self.get_snip9_nonce()
 
         transaction = InvokeOutsideV2(
             calls=list(ensure_iterable(calls)),
@@ -264,9 +264,9 @@ class Account(BaseAccount):
             signer_address=self.address,
             nonce=nonce or await self.get_nonce(),
             signature=[],
-            version=2, 
+            version=2,
         )
-        
+
         return transaction
 
     async def _prepare_invoke_v3(
@@ -341,8 +341,8 @@ class Account(BaseAccount):
             self.address, block_hash=block_hash, block_number=block_number
         )
 
-    async def check_SNIP9_nonce(
-        self, 
+    async def check_snip9_nonce(
+        self,
         nonce: int,
         *,
         block_hash: Optional[Union[Hash, Tag]] = None,
@@ -358,12 +358,11 @@ class Account(BaseAccount):
         )
         return bool(is_valid)
 
-    async def get_SNIP9_nonce(self) -> int:
-        while True: # TODO(baitcode): add a limit to avoid infinite loop
-            
+    async def get_snip9_nonce(self) -> int:
+        while True:
             random_stark_address = KeyPair.generate().public_key
-            
-            if await self.check_SNIP9_nonce(random_stark_address):
+
+            if await self.check_snip9_nonce(random_stark_address):
                 return random_stark_address
 
     async def get_balance(
@@ -426,13 +425,13 @@ class Account(BaseAccount):
         execution_time_bounds: ExecutionTimeBounds,
         *,
         caller: AddressRepresentation = ANY_CALLER,
-        nonce: Optional[int] = None,        
+        nonce: Optional[int] = None,
     ) -> InvokeOutsideV1:
         execute_outside_tx = await self._prepare_invoke_outside_v1(
             calls,
             execution_time_bounds,
             caller=caller,
-            nonce=nonce or await self.get_SNIP9_nonce(),
+            nonce=nonce or await self.get_snip9_nonce(),
         )
         signature = self.signer.sign_transaction(execute_outside_tx)
         return _add_signature_to_transaction(execute_outside_tx, signature)
@@ -443,13 +442,13 @@ class Account(BaseAccount):
         execution_time_bounds: ExecutionTimeBounds,
         *,
         caller: AddressRepresentation = ANY_CALLER,
-        nonce: Optional[int] = None,        
+        nonce: Optional[int] = None,
     ) -> InvokeOutsideV2:
         execute_outside_tx = await self._prepare_invoke_outside_v2(
             calls,
             execution_time_bounds,
             caller=caller,
-            nonce=nonce or await self.get_SNIP9_nonce(),
+            nonce=nonce or await self.get_snip9_nonce(),
         )
         signature = self.signer.sign_transaction(execute_outside_tx)
         return _add_signature_to_transaction(execute_outside_tx, signature)
@@ -718,7 +717,7 @@ class Account(BaseAccount):
             nonce=nonce,
         )
         return await self._client.send_transaction(execute_transaction)
-    
+
     async def execute_outside_v2(
         self,
         calls: Calls,
@@ -733,7 +732,7 @@ class Account(BaseAccount):
             nonce=nonce,
         )
         return await self._client.send_transaction(execute_transaction)
-    
+
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
         if isinstance(typed_data, TypedData):

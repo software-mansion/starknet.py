@@ -318,11 +318,11 @@ class InvokeOutsideV1(AccountTransaction, ABC):
     execute_before: datetime.datetime
 
     calls: List[Call]
-    
+
     @property
     def type(self) -> TransactionType:
         return TransactionType.OUTSIDE
-    
+
     def calculate_hash(self, chain_id: int) -> int:
         data = td.TypedData.from_dict({
             'types': {
@@ -337,14 +337,14 @@ class InvokeOutsideV1(AccountTransaction, ABC):
                     {'name': 'execute_after',   'type': 'felt' },
                     {'name': 'execute_before',  'type': 'felt' },
                     {'name': 'calls_len',       'type': 'felt' },
-                    {'name': 'calls',           'type': 'OutsideCall*' }, 
+                    {'name': 'calls',           'type': 'OutsideCall*' },
                 ],
                 'OutsideCall': [
                     { 'name': 'to', 'type': 'felt' },
                     { 'name': 'selector', 'type': 'felt' },
                     { 'name': 'calldata_len', 'type': 'felt' },
                     { 'name': 'calldata', 'type': 'felt*' },
-                ],            
+                ],
             },
             'primaryType': 'OutsideExecution',
             'domain': {
@@ -370,7 +370,7 @@ class InvokeOutsideV1(AccountTransaction, ABC):
             },
         })
         return data.message_hash(self.signer_address)
-    
+
 
 @dataclass(frozen=True)
 class InvokeOutsideV2(AccountTransaction, ABC):
@@ -381,11 +381,11 @@ class InvokeOutsideV2(AccountTransaction, ABC):
     execute_before: datetime.datetime
 
     calls: List[Call]
-    
+
     @property
     def type(self) -> TransactionType:
         return TransactionType.OUTSIDE
-    
+
     def calculate_hash(self, chain_id: int) -> int:
         data = td.TypedData.from_dict({
             'types': {
@@ -400,13 +400,13 @@ class InvokeOutsideV2(AccountTransaction, ABC):
                     {'name': 'Nonce',           'type': 'felt' },
                     {'name': 'Execute After',   'type': 'u128' },
                     {'name': 'Execute Before',  'type': 'u128' },
-                    {'name': 'Calls',           'type': 'Call*' }, 
+                    {'name': 'Calls',           'type': 'Call*' },
                 ],
                 'Call': [
                     { 'name': 'To', 'type': 'ContractAddress' },
                     { 'name': 'Selector', 'type': 'selector' },
                     { 'name': 'Calldata', 'type': 'felt*' },
-                ],            
+                ],
             },
             'primaryType': 'OutsideExecution',
             'domain': {
@@ -430,7 +430,8 @@ class InvokeOutsideV2(AccountTransaction, ABC):
             },
         })
         return data.message_hash(self.signer_address)
-    
+
+
 @dataclass(frozen=True)
 class InvokeV3(_AccountTransactionV3):
     """
