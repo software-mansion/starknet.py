@@ -972,7 +972,6 @@ _call_description_cairo_v1 = StructSerializer(
         calldata=ArraySerializer(_felt_serializer),
     )
 )
-
 _execute_payload_serializer_v0 = PayloadSerializer(
     OrderedDict(
         call_array=ArraySerializer(_call_description_cairo_v0),
@@ -984,7 +983,6 @@ _execute_payload_serializer_v1 = PayloadSerializer(
         calls=ArraySerializer(_call_description_cairo_v1),
     )
 )
-
 _transaction_serialiser = StructSerializer(
     OrderedDict(
         external_execution=StructSerializer(
