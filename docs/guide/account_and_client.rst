@@ -47,7 +47,7 @@ Account also provides a way of creating signed transaction without sending them.
     :dedent: 4
 
 Creating "Outside transaction" and executing it. `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_
---------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
 
 Account also provides a way of creating a call and signing to allow for another account (caller) to execute it later on original account behalf. This will also allow caller to execute calls encoded in that transaction for free (signer will pay the fee).
 
