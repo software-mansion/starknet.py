@@ -44,8 +44,8 @@ async def test_account_outside_execution_any_caller(
         calldata=[100],
     )
 
-    # Create a special signed execution call. This call now be executed by
-    # caller specified. In this case, it is ANY_CALLER, a special constant
+    # Create a special signed execution call. This call can now be executed by
+    # the caller specified. In this case, caller is ANY_CALLER, a special constant
     # that allows any caller to execute the call.
     call = await account.sign_outside_execution_call(
         calls=[
