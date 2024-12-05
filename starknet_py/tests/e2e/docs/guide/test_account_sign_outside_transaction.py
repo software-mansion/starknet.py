@@ -2,9 +2,8 @@
 import pytest
 
 from starknet_py.net.account.account import Account
-from starknet_py.net.client_models import (
-    TransactionFinalityStatus
-)
+from starknet_py.net.client_models import TransactionFinalityStatus
+
 
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
@@ -35,10 +34,7 @@ async def test_account_outside_execution_any_caller(
 
     from starknet_py.constants import ANY_CALLER
     from starknet_py.hash.selector import get_selector_from_name
-    from starknet_py.net.client_models import (
-        Call,
-        ExecutionTimeBounds,
-    )
+    from starknet_py.net.client_models import Call, ExecutionTimeBounds
 
     # Create a call to increase the balance by 100. That will be executed
     # as part of external execution

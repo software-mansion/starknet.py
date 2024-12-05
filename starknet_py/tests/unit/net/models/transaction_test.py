@@ -1,10 +1,9 @@
 import datetime
 
-from starknet_py.hash.outside_execution import outside_execution_to_typed_data
-from starknet_py.net.client_models import OutsideExecution, Call
-from starknet_py.net.models import StarknetChainId
-
 from starknet_py.constants import SNIP9InterfaceVersion
+from starknet_py.hash.outside_execution import outside_execution_to_typed_data
+from starknet_py.net.client_models import Call, OutsideExecution
+from starknet_py.net.models import StarknetChainId
 
 
 def test_generate_message_hash_for_execute_outside_transaction():

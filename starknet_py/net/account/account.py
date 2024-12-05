@@ -4,26 +4,30 @@ from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
-from starknet_py.constants import FEE_CONTRACT_ADDRESS, QUERY_VERSION_BASE, ANY_CALLER
+from starknet_py.constants import (
+    ANY_CALLER,
+    FEE_CONTRACT_ADDRESS,
+    QUERY_VERSION_BASE,
+    SNIP9InterfaceVersion,
+)
 from starknet_py.hash.address import compute_address
+from starknet_py.hash.outside_execution import outside_execution_to_typed_data
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import verify_message_signature
-from starknet_py.hash.outside_execution import outside_execution_to_typed_data
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
 from starknet_py.net.account.base_account import BaseAccount, SNIP9SupportMixin
 from starknet_py.net.client import Client
-from starknet_py.constants import SNIP9InterfaceVersion
 from starknet_py.net.client_models import (
     Call,
     Calls,
     EstimatedFee,
-    Hash,
-    ResourceBounds,
     ExecutionTimeBounds,
+    Hash,
+    OutsideExecution,
+    ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
     SierraContractClass,
-    OutsideExecution,
     Tag,
 )
 from starknet_py.net.full_node_client import FullNodeClient

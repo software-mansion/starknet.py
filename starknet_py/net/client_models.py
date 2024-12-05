@@ -12,7 +12,7 @@ import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Literal, Optional, Union, cast, Dict
+from typing import Any, Dict, Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -27,9 +27,7 @@ from starknet_py.abi.v2.schemas import (
 )
 from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
-
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
-
 
 # pylint: disable=too-many-lines
 

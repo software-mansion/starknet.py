@@ -1,7 +1,5 @@
-from starknet_py.net.client_models import OutsideExecution
-
 from starknet_py.constants import SNIP9InterfaceVersion
-
+from starknet_py.net.client_models import OutsideExecution
 from starknet_py.net.schemas.common import Revision
 from starknet_py.utils import typed_data as td
 
