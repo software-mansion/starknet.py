@@ -80,6 +80,15 @@ class NumberAsHex(fields.Field):
         )
 
 
+class Selector(NumberAsHex):
+    """
+    Field used to serialize and deserialize selector type.
+    """
+
+    MAX_VALUE = 2**32
+    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,7})$"
+
+
 class Felt(NumberAsHex):
     """
     Field used to serialize and deserialize felt type.
@@ -361,11 +370,14 @@ class RevisionField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if value is None or value == Revision.V0:
             return str(Revision.V0.value)
-        return value.value
+        return str(value.value)
 
     def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
             value = int(value)
+
+        if isinstance(value, Revision):
+            value = value.value
 
         revisions = [revision.value for revision in Revision]
         if value not in revisions:
