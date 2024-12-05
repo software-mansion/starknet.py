@@ -823,6 +823,7 @@ async def test_argent_account_snip9_compatibility(
     result = await argent_account.supports_interface(SNIP9InterfaceVersion.V2)
     assert result is False
 
+
 @pytest.mark.asyncio
 async def test_account_execute_v3(account, deployed_balance_contract):
     get_balance_call = Call(
@@ -857,6 +858,7 @@ async def test_account_execute_v3(account, deployed_balance_contract):
     )
     assert initial_balance + 100 == balance_after_increase
 
+
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     client,
@@ -880,10 +882,12 @@ async def test_account_outside_execution_any_caller(
     await deploy_result.wait_for_acceptance()
     account = deploy_result.account
 
-    assert any([
-        await account.supports_interface(SNIP9InterfaceVersion.V1),
-        await account.supports_interface(SNIP9InterfaceVersion.V2),
-    ])
+    assert any(
+        [
+            await account.supports_interface(SNIP9InterfaceVersion.V1),
+            await account.supports_interface(SNIP9InterfaceVersion.V2),
+        ]
+    )
 
     increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
@@ -931,10 +935,12 @@ async def test_account_outside_execution_for_invalid_caller(
     await deploy_result.wait_for_acceptance()
     account = deploy_result.account
 
-    assert any([
-        await account.supports_interface(SNIP9InterfaceVersion.V1),
-        await account.supports_interface(SNIP9InterfaceVersion.V2),
-    ])
+    assert any(
+        [
+            await account.supports_interface(SNIP9InterfaceVersion.V1),
+            await account.supports_interface(SNIP9InterfaceVersion.V2),
+        ]
+    )
 
     increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
@@ -960,4 +966,4 @@ async def test_account_outside_execution_for_invalid_caller(
     with pytest.raises(TransactionRevertedError) as err:
         await account.client.wait_for_tx(tx.transaction_hash)
 
-    assert 'argent/invalid-caller' in err.value.message
+    assert "argent/invalid-caller" in err.value.message

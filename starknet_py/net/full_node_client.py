@@ -91,6 +91,7 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
         BroadcastedTransactionSchema().dump(obj=transaction),
     )
 
+
 @add_sync_methods
 class FullNodeClient(Client):
     # pylint: disable=too-many-public-methods

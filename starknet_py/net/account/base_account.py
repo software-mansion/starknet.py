@@ -63,6 +63,7 @@ class SNIP9SupportMixin(ABC):
             supports and use the highest one and populate the value.
         """
 
+
 class BaseAccount(SNIP9SupportMixin, ABC):
     """
     Base class for all account implementations.

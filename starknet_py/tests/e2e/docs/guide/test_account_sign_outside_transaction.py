@@ -1,4 +1,3 @@
-
 import pytest
 
 from starknet_py.net.account.account import Account
@@ -65,8 +64,6 @@ async def test_account_outside_execution_any_caller(
 
     # docs: end
 
-    receipt = await account.client.get_transaction_receipt(
-        tx_hash=tx.transaction_hash
-    )
+    receipt = await account.client.get_transaction_receipt(tx_hash=tx.transaction_hash)
 
     assert receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2

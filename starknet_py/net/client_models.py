@@ -116,6 +116,7 @@ class ResourceBounds:
     def init_with_zeros():
         return ResourceBounds(max_amount=0, max_price_per_unit=0)
 
+
 @dataclass
 class ExecutionTimeBounds:
     """
@@ -1126,10 +1127,11 @@ class BlockTransactionTrace:
     transaction_hash: int
     trace_root: TransactionTrace
 
+
 @dataclass
 class OutsideExecution:
     """
-    Dataclass representing an outside execution. 
+    Dataclass representing an outside execution.
     (SNIP-9)[https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md]
     """
 
@@ -1149,9 +1151,12 @@ class OutsideExecution:
             "nonce": self.nonce,
             "execute_after": self.execute_after,
             "execute_before": self.execute_before,
-            "calls": [{
-                "to": call.to_addr,
-                "selector": call.selector,
-                "calldata": call.calldata
-            } for call in self.calls]
+            "calls": [
+                {
+                    "to": call.to_addr,
+                    "selector": call.selector,
+                    "calldata": call.calldata,
+                }
+                for call in self.calls
+            ],
         }

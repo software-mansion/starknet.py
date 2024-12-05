@@ -220,11 +220,8 @@ class Account(BaseAccount, SNIP9SupportMixin):
             nonce=nonce,
             sender_address=self.address,
         )
-
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
-
         return _add_max_fee_to_transaction(transaction, max_fee)
-
 
     async def _prepare_invoke_v3(
         self,
@@ -305,13 +302,14 @@ class Account(BaseAccount, SNIP9SupportMixin):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> bool:
-        (is_valid, ) = await self._client.call_contract(
+        (is_valid,) = await self._client.call_contract(
             call=Call(
                 to_addr=self.address,
                 selector=get_selector_from_name("is_valid_outside_execution_nonce"),
                 calldata=[nonce],
             ),
-            block_hash=block_hash, block_number=block_number
+            block_hash=block_hash,
+            block_number=block_number,
         )
         return bool(is_valid)
 
@@ -406,7 +404,9 @@ class Account(BaseAccount, SNIP9SupportMixin):
             version = await self._get_snip9_version()
 
         if version is None:
-            raise RuntimeError("Can't initiate outside execution SNIP-9 is unsupported.")
+            raise RuntimeError(
+                "Can't initiate outside execution SNIP-9 is unsupported."
+            )
 
         if nonce is None:
             nonce = await self.get_snip9_nonce()
@@ -420,23 +420,23 @@ class Account(BaseAccount, SNIP9SupportMixin):
         )
         chain_id = await self._get_chain_id()
         signature = self.signer.sign_message(
-            outside_execution_to_typed_data(
-                outside_execution, version, chain_id
-            ),
-            self.address
+            outside_execution_to_typed_data(outside_execution, version, chain_id),
+            self.address,
         )
         selector_for_version = {
             SNIP9InterfaceVersion.V1: "execute_from_outside",
-            SNIP9InterfaceVersion.V2: "execute_from_outside_v2"
+            SNIP9InterfaceVersion.V2: "execute_from_outside_v2",
         }
 
         return Call(
             to_addr=self.address,
             selector=get_selector_from_name(selector_for_version[version]),
-            calldata=_transaction_serialiser.serialize({
-                "external_execution": outside_execution.to_abi_dict(),
-                "signature": signature
-            })
+            calldata=_transaction_serialiser.serialize(
+                {
+                    "external_execution": outside_execution.to_abi_dict(),
+                    "signature": signature,
+                }
+            ),
         )
 
     async def sign_invoke_v3(
