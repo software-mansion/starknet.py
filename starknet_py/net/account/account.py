@@ -15,7 +15,7 @@ from starknet_py.hash.outside_execution import outside_execution_to_typed_data
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import verify_message_signature
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
-from starknet_py.net.account.base_account import BaseAccount, SNIP9SupportMixin
+from starknet_py.net.account.base_account import BaseAccount, SNIP9SupportBaseMixin
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Call,
@@ -59,8 +59,9 @@ from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
 
 
+# pylint: disable=too-many-public-methods
 @add_sync_methods
-class Account(BaseAccount, SNIP9SupportMixin):
+class Account(BaseAccount, SNIP9SupportBaseMixin):
     """
     Default Account implementation.
     """

@@ -28,7 +28,7 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.models.typed_data import TypedDataDict
 
 
-class SNIP9SupportMixin(ABC):
+class SNIP9SupportBaseMixin(ABC):
 
     @abstractmethod
     async def get_snip9_nonce(self) -> int:
@@ -64,7 +64,7 @@ class SNIP9SupportMixin(ABC):
         """
 
 
-class BaseAccount(SNIP9SupportMixin, ABC):
+class BaseAccount(SNIP9SupportBaseMixin, ABC):
     """
     Base class for all account implementations.
 
