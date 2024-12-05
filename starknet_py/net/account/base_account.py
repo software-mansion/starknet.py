@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from starknet_py.constants import SNIP9InterfaceVersion, ANY_CALLER
+from starknet_py.constants import ANY_CALLER, SNIP9InterfaceVersion
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
+    Call,
     Calls,
     EstimatedFee,
+    ExecutionTimeBounds,
     Hash,
     ResourceBounds,
-    ExecutionTimeBounds,
     SentTransactionResponse,
     Tag,
-    Call
 )
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import (
@@ -27,7 +27,8 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.models.typed_data import TypedDataDict
 
-class SNIP9SupportMixin(ABC):
+
+class SNIP9SupportBaseMixin(ABC):
 
     @abstractmethod
     async def get_snip9_nonce(self) -> int:
@@ -62,7 +63,8 @@ class SNIP9SupportMixin(ABC):
             supports and use the highest one and populate the value.
         """
 
-class BaseAccount(SNIP9SupportMixin, ABC):
+
+class BaseAccount(SNIP9SupportBaseMixin, ABC):
     """
     Base class for all account implementations.
 

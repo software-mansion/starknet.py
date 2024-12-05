@@ -79,6 +79,7 @@ class NumberAsHex(fields.Field):
             and re.fullmatch(self.REGEX_PATTERN, value) is not None
         )
 
+
 class Selector(NumberAsHex):
     """
     Field used to serialize and deserialize selector type.
@@ -360,6 +361,7 @@ class Revision(Enum):
     """
     Enum representing the revision of the specification to be used.
     """
+
     V0 = 0
     V1 = 1
 

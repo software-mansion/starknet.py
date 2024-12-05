@@ -1,10 +1,8 @@
-
 import pytest
 
 from starknet_py.net.account.account import Account
-from starknet_py.net.client_models import (
-    TransactionFinalityStatus
-)
+from starknet_py.net.client_models import TransactionFinalityStatus
+
 
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
@@ -35,10 +33,7 @@ async def test_account_outside_execution_any_caller(
 
     from starknet_py.constants import ANY_CALLER
     from starknet_py.hash.selector import get_selector_from_name
-    from starknet_py.net.client_models import (
-        Call,
-        ExecutionTimeBounds,
-    )
+    from starknet_py.net.client_models import Call, ExecutionTimeBounds
 
     # Create a call to increase the balance by 100. That will be executed
     # as part of external execution
@@ -49,8 +44,8 @@ async def test_account_outside_execution_any_caller(
         calldata=[100],
     )
 
-    # Create a special signed execution call. This call now be executed by
-    # caller specified. In this case, it is ANY_CALLER, a special constant
+    # Create a special signed execution call. This call can now be executed by
+    # the caller specified. In this case, caller is ANY_CALLER, a special constant
     # that allows any caller to execute the call.
     call = await account.sign_outside_execution_call(
         calls=[
@@ -69,8 +64,6 @@ async def test_account_outside_execution_any_caller(
 
     # docs: end
 
-    receipt = await account.client.get_transaction_receipt(
-        tx_hash=tx.transaction_hash
-    )
+    receipt = await account.client.get_transaction_receipt(tx_hash=tx.transaction_hash)
 
     assert receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2

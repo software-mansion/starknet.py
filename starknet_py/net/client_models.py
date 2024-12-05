@@ -12,7 +12,7 @@ import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Literal, Optional, Union, cast, Dict
+from typing import Any, Dict, Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -27,9 +27,7 @@ from starknet_py.abi.v2.schemas import (
 )
 from starknet_py.abi.v2.shape import AbiDictEntry as AbiDictEntryV2
 from starknet_py.abi.v2.shape import AbiDictList as AbiDictListV2
-
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
-
 
 # pylint: disable=too-many-lines
 
@@ -117,6 +115,7 @@ class ResourceBounds:
     @staticmethod
     def init_with_zeros():
         return ResourceBounds(max_amount=0, max_price_per_unit=0)
+
 
 @dataclass
 class ExecutionTimeBounds:
@@ -1128,10 +1127,11 @@ class BlockTransactionTrace:
     transaction_hash: int
     trace_root: TransactionTrace
 
+
 @dataclass
 class OutsideExecution:
     """
-    Dataclass representing an outside execution. 
+    Dataclass representing an outside execution.
     (SNIP-9)[https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md]
     """
 
@@ -1151,9 +1151,12 @@ class OutsideExecution:
             "nonce": self.nonce,
             "execute_after": self.execute_after,
             "execute_before": self.execute_before,
-            "calls": [{
-                "to": call.to_addr,
-                "selector": call.selector,
-                "calldata": call.calldata
-            } for call in self.calls]
+            "calls": [
+                {
+                    "to": call.to_addr,
+                    "selector": call.selector,
+                    "calldata": call.calldata,
+                }
+                for call in self.calls
+            ],
         }
