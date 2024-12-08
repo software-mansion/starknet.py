@@ -212,3 +212,4 @@ Contract automatically serializes values to Cairo calldata. This includes adding
 See more info in [Serialization](https://starknetpy.readthedocs.io/en/latest/guide/serialization.html#serialization).
 
 Quickstart in docs - click [here](https://starknetpy.rtfd.io/en/latest/quickstart.html).
+
