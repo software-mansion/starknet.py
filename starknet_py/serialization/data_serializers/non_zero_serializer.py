@@ -2,7 +2,6 @@ import copy
 from dataclasses import dataclass
 from typing import Generator, Union
 
-from starknet_py.serialization import FeltSerializer
 from starknet_py.serialization._context import (
     Context,
     DeserializationContext,
@@ -11,10 +10,9 @@ from starknet_py.serialization._context import (
 from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
+from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.uint256_serializer import Uint256Dict
 from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
-
-CairoNumericTypeSerializer = Union[FeltSerializer, UintSerializer]
 
 
 @dataclass
@@ -25,7 +23,7 @@ class NonZeroSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     Deserializes data to int.
     """
 
-    serializer: CairoNumericTypeSerializer
+    serializer: Union[UintSerializer, FeltSerializer]
 
     def deserialize_with_context(self, context: DeserializationContext) -> int:
         reader_copy = copy.deepcopy(context.reader)

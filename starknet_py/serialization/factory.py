@@ -128,6 +128,10 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
         if isinstance(serializer, (UintSerializer, FeltSerializer)):
             return NonZeroSerializer(serializer)
 
+        raise InvalidTypeException(
+            f"Found invalid serializer {serializer.__class__.__name__} for NonZeroType."
+        )
+
     if isinstance(cairo_type, UnitType):
         return UnitSerializer()
 
