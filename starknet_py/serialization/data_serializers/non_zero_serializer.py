@@ -11,7 +11,10 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
     CairoDataSerializer,
 )
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
-from starknet_py.serialization.data_serializers.uint256_serializer import Uint256Dict
+from starknet_py.serialization.data_serializers.uint256_serializer import (
+    Uint256Dict,
+    Uint256Serializer,
+)
 from starknet_py.serialization.data_serializers.uint_serializer import UintSerializer
 
 
@@ -23,7 +26,7 @@ class NonZeroSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
     Deserializes data to int.
     """
 
-    serializer: Union[UintSerializer, FeltSerializer]
+    serializer: Union[UintSerializer, Uint256Serializer, FeltSerializer]
 
     def deserialize_with_context(self, context: DeserializationContext) -> int:
         reader_copy = copy.deepcopy(context.reader)
@@ -42,9 +45,17 @@ class NonZeroSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
 
     def serialize_with_context(
         self, context: SerializationContext, value: Union[int, Uint256Dict]
-    ) -> Generator[Union[int, Uint256Dict], None, None]:
+    ) -> Generator[int, None, None]:
         self._ensure_valid_nonzero(value, context)
-        return self.serializer.serialize_with_context(context, value)
+
+        if isinstance(value, dict):
+            if not isinstance(self.serializer, (UintSerializer, Uint256Serializer)):
+                raise ValueError(
+                    f"Expected serializer to be UintSerializer or Uint256Serializer, got {self.serializer.__class__.__name__}"
+                )
+            return self.serializer.serialize_with_context(context, value)
+        else:
+            return self.serializer.serialize_with_context(context, value)
 
     @staticmethod
     def _ensure_valid_nonzero(value: Union[int, Uint256Dict], context: Context):
