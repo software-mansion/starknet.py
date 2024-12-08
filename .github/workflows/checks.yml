@@ -200,7 +200,7 @@ jobs:
             cd /apps/app-starknet
             git checkout ${{ env.LEDGER_APP_SHA }}
             cargo clean
-            cargo ledger build nanox
+            cargo ledger build nanos
 
       - name: Start Speculos emulator container
         uses: addnab/docker-run-action@v3
@@ -209,11 +209,11 @@ jobs:
           options: --rm -d --name speculos-emulator -v ${{ github.workspace }}:/apps --publish 5000:5000 --publish 9999:9999
           run: |
             speculos \
-            -m nanox \
+            -m nanos \
             --apdu-port 9999 \
             --api-port 5000 \
             --display headless \
-            /apps/app-starknet/target/nanox/release/starknet
+            /apps/app-starknet/target/nanos/release/starknet
 
       - name: Wait for Speculos to start
         run: sleep 5
