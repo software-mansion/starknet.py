@@ -54,8 +54,8 @@ class NonZeroSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
                     f"Expected serializer to be UintSerializer or Uint256Serializer, got {self.serializer.__class__.__name__}"
                 )
             return self.serializer.serialize_with_context(context, value)
-        else:
-            return self.serializer.serialize_with_context(context, value)
+
+        return self.serializer.serialize_with_context(context, value)
 
     @staticmethod
     def _ensure_valid_nonzero(value: Union[int, Uint256Dict], context: Context):
