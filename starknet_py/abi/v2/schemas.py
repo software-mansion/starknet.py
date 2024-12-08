@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.abi.v2.shape import (
@@ -9,6 +9,7 @@ from starknet_py.abi.v2.shape import (
     FUNCTION_ENTRY,
     IMPL_ENTRY,
     INTERFACE_ENTRY,
+    KEY_KIND,
     L1_HANDLER_ENTRY,
     NESTED_KIND,
     STRUCT_ENTRY,
@@ -51,7 +52,9 @@ class L1HandlerAbiEntrySchema(FunctionBaseSchema):
 
 
 class EventStructMemberSchema(TypedParameterSchema):
-    kind = fields.Constant(DATA_KIND, data_key="kind", required=True)
+    kind = fields.String(
+        validate=validate.OneOf([KEY_KIND, DATA_KIND]), data_key="kind", required=True
+    )
 
 
 class EventStructAbiEntrySchema(Schema):
