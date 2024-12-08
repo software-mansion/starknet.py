@@ -51,7 +51,8 @@ class NonZeroSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
         if isinstance(value, dict):
             if not isinstance(self.serializer, (UintSerializer, Uint256Serializer)):
                 raise ValueError(
-                    f"Expected serializer to be UintSerializer or Uint256Serializer, got {self.serializer.__class__.__name__}"
+                    f"Expected serializer to be UintSerializer or"
+                    f"Uint256Serializer, got {self.serializer.__class__.__name__}"
                 )
             return self.serializer.serialize_with_context(context, value)
 
