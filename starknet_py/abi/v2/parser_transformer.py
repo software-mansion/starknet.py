@@ -1,5 +1,5 @@
 from math import log2
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 import lark
 from lark import Token, Transformer
@@ -9,6 +9,7 @@ from starknet_py.cairo.data_types import (
     BoolType,
     CairoType,
     FeltType,
+    NonZeroType,
     OptionType,
     TupleType,
     TypeIdentifier,
@@ -31,6 +32,7 @@ ABI_EBNF = """
         | type_class_hash
         | type_storage_address
         | type_option
+        | type_non_zero
         | type_array
         | type_span
         | tuple
@@ -49,6 +51,7 @@ ABI_EBNF = """
     type_option: "core::option::Option::<" (type | type_identifier) ">"
     type_array: "core::array::Array::<" (type | type_identifier) ">"
     type_span: "core::array::Span::<" (type | type_identifier) ">"
+    type_non_zero: "core::zeroable::NonZero::<" (type | type_identifier) ">"
     
     tuple: "(" type? ("," type?)* ")"
     
@@ -184,6 +187,12 @@ class ParserTransformer(Transformer):
         Tuple contains values defined in the `types` argument.
         """
         return TupleType(types)
+
+    def type_non_zero(self, value: List[Union[FeltType, UintType]]) -> NonZeroType:
+        """
+        NonZero contains value which is never zero.
+        """
+        return NonZeroType(value[0])
 
 
 def parse(
