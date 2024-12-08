@@ -42,7 +42,7 @@ class NonZeroSerializer(CairoDataSerializer[Union[int, Uint256Dict], int]):
 
     def serialize_with_context(
         self, context: SerializationContext, value: Union[int, Uint256Dict]
-    ) -> Generator[int, None, None]:
+    ) -> Generator[Union[int, Uint256Dict], None, None]:
         self._ensure_valid_nonzero(value, context)
         return self.serializer.serialize_with_context(context, value)
 
