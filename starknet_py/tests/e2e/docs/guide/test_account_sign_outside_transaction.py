@@ -40,7 +40,7 @@ async def test_account_outside_execution_any_caller(
 
     store_something_call = Call(
         to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("put"), 
+        selector=get_selector_from_name("put"),
         calldata=[20, 20],
     )
 
