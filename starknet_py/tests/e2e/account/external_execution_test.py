@@ -23,7 +23,7 @@ async def test_argent_account_snip9_compatibility(
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     argent_account: BaseAccount,
-    deployed_balance_contract,
+    map_contract,
 ):
 
     assert any(
@@ -33,17 +33,17 @@ async def test_account_outside_execution_any_caller(
         ]
     )
 
-    increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
-        calldata=[100],
+    put_call = Call(
+        to_addr=map_contract.address,
+        selector=get_selector_from_name("put"),
+        calldata=[20, 20],
     )
 
     call = await argent_account.sign_outside_execution_call(
         calls=[
-            increase_balance_call,
-            increase_balance_call,
-            increase_balance_call,
+            put_call,
+            put_call,
+            put_call,
         ],
         execution_time_bounds=ExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
@@ -59,7 +59,8 @@ async def test_account_outside_execution_any_caller(
 @pytest.mark.asyncio
 async def test_account_outside_execution_for_invalid_caller(
     argent_account: BaseAccount,
-    deployed_balance_contract,
+    account: BaseAccount,
+    map_contract,
 ):
     assert any(
         [
@@ -68,23 +69,23 @@ async def test_account_outside_execution_for_invalid_caller(
         ]
     )
 
-    increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
-        calldata=[100],
+    put_call = Call(
+        to_addr=map_contract.address,
+        selector=get_selector_from_name("put"),
+        calldata=[20, 20],
     )
 
     call = await argent_account.sign_outside_execution_call(
         calls=[
-            increase_balance_call,
-            increase_balance_call,
-            increase_balance_call,
+            put_call,
+            put_call,
+            put_call,
         ],
         execution_time_bounds=ExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
             execute_before=datetime.datetime.now() + datetime.timedelta(hours=1),
         ),
-        caller=deployed_balance_contract.address,
+        caller=account.address,
     )
 
     tx = await argent_account.execute_v1(calls=[call], max_fee=MAX_FEE)
@@ -98,7 +99,7 @@ async def test_account_outside_execution_for_invalid_caller(
 @pytest.mark.asyncio
 async def test_account_outside_execution_for_impossible_timebounds(
     argent_account: BaseAccount,
-    deployed_balance_contract,
+    map_contract,
 ):
 
     assert any(
@@ -108,17 +109,17 @@ async def test_account_outside_execution_for_impossible_timebounds(
         ]
     )
 
-    increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
-        calldata=[100],
+    put_call = Call(
+        to_addr=map_contract.address,
+        selector=get_selector_from_name("put"),
+        calldata=[20, 20],
     )
 
     call = await argent_account.sign_outside_execution_call(
         calls=[
-            increase_balance_call,
-            increase_balance_call,
-            increase_balance_call,
+            put_call,
+            put_call,
+            put_call,
         ],
         execution_time_bounds=ExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(days=10),
