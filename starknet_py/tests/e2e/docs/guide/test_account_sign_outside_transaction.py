@@ -1,32 +1,18 @@
 import pytest
 
-from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import TransactionFinalityStatus
 
 
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
-    client,
-    argent_account_class_hash,
-    deployed_balance_contract,
-    deploy_account_details_factory,
+    account,
+    map_contract
+    # client,
+    # argent_account_class_hash,
+    # deployed_balance_contract,
+    # deploy_account_details_factory,
 ):
     # pylint: disable=import-outside-toplevel,too-many-locals
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_account_class_hash, argent_calldata=True
-    )
-
-    deploy_result = await Account.deploy_account_v1(
-        address=address,
-        class_hash=class_hash,
-        salt=salt,
-        key_pair=key_pair,
-        client=client,
-        constructor_calldata=[key_pair.public_key, 0],
-        max_fee=int(1e18),
-    )
-    await deploy_result.wait_for_acceptance()
-    account = deploy_result.account
 
     # docs: start
     import datetime
@@ -39,9 +25,9 @@ async def test_account_outside_execution_any_caller(
     # as part of external execution
 
     increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
-        calldata=[0],
+        to_addr=map_contract.address,
+        selector=get_selector_from_name("put"),
+        calldata=[20, 20],
     )
 
     # Create a special signed execution call. This call can now be executed by
@@ -59,6 +45,7 @@ async def test_account_outside_execution_any_caller(
     )
 
     # Execute the call as a normal invoke transaction
+    # can be executed from any account specified in the caller field
     tx = await account.execute_v1(calls=[call], max_fee=int(1e18))
     await account.client.wait_for_tx(tx.transaction_hash)
 
