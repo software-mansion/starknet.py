@@ -6,11 +6,8 @@ from starknet_py.net.client_models import TransactionFinalityStatus
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     account,
+    argent_account,
     map_contract,
-    # client,
-    # argent_account_class_hash,
-    # deployed_balance_contract,
-    # deploy_account_details_factory,
 ):
     # pylint: disable=import-outside-toplevel,too-many-locals
 
@@ -33,7 +30,7 @@ async def test_account_outside_execution_any_caller(
     # Create a special signed execution call. This call can now be executed by
     # the caller specified. In this case, caller is ANY_CALLER, a special constant
     # that allows any caller to execute the call.
-    call = await account.sign_outside_execution_call(
+    call = await argent_account.sign_outside_execution_call(
         calls=[
             increase_balance_call,
         ],
