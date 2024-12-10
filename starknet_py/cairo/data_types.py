@@ -121,6 +121,7 @@ class EventType(CairoType):
 
     name: str
     types: OrderedDict[str, CairoType]
+    keys: List[str]
 
 
 @dataclass

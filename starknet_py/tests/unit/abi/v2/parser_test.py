@@ -22,6 +22,7 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
         "TestEnum",
         "TestOption",
         "TokenBridge",
+        "l1_l2",
     ],
 )
 def test_abi_parse(contract_name):
