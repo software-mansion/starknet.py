@@ -6,7 +6,7 @@ from starknet_py.net.client_models import TransactionFinalityStatus
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     account,
-    map_contract
+    map_contract,
     # client,
     # argent_account_class_hash,
     # deployed_balance_contract,
