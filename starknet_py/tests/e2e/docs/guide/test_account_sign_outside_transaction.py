@@ -21,7 +21,7 @@ async def test_account_outside_execution_any_caller(
     # Create a call to increase the balance by 100. That will be executed
     # as part of external execution
 
-    increase_balance_call = Call(
+    put_call = Call(
         to_addr=map_contract.address,
         selector=get_selector_from_name("put"),
         calldata=[20, 20],
@@ -32,7 +32,7 @@ async def test_account_outside_execution_any_caller(
     # that allows any caller to execute the call.
     call = await argent_account.sign_outside_execution_call(
         calls=[
-            increase_balance_call,
+            put_call,
         ],
         execution_time_bounds=ExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
