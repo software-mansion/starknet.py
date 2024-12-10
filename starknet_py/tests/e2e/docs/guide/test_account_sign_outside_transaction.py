@@ -38,10 +38,10 @@ async def test_account_outside_execution_any_caller(
     # Create a call to increase the balance by 100. That will be executed
     # as part of external execution
 
-    store_something_call = Call(
+    increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("put"),
-        calldata=[20, 20],
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[0],
     )
 
     # Create a special signed execution call. This call can now be executed by
@@ -49,7 +49,7 @@ async def test_account_outside_execution_any_caller(
     # that allows any caller to execute the call.
     call = await account.sign_outside_execution_call(
         calls=[
-            store_something_call,
+            increase_balance_call,
         ],
         execution_time_bounds=ExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
