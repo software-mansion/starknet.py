@@ -185,7 +185,7 @@ jobs:
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
       - name: Pull speculos image
-        run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+        run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:3.41.0
 
 
       - name: Clone LedgerHQ Starknet app repository
@@ -194,7 +194,7 @@ jobs:
       - name: Build the app inside Docker container
         uses: addnab/docker-run-action@v3
         with:
-          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:3.41.0
           options: --rm -v ${{ github.workspace }}:/apps
           run: |
             cd /apps/app-starknet
