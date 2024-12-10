@@ -1,12 +1,10 @@
 import re
-from typing import Dict, Union, cast
+from typing import Union
 
 from typing_extensions import get_args
 
 from starknet_py.hash.utils import encode_uint, encode_uint_list
 from starknet_py.net.client_models import Hash, L1HandlerTransaction, Tag
-from starknet_py.net.models.transaction import AccountTransaction
-from starknet_py.net.schemas.broadcasted_txn import BroadcastedTransactionSchema
 
 
 def hash_to_felt(value: Hash) -> str:
@@ -79,10 +77,3 @@ def _is_valid_eth_address(address: str) -> bool:
     A function checking if an address matches Ethereum address regex. Note that it doesn't validate any checksums etc.
     """
     return bool(re.fullmatch("^0x[a-fA-F0-9]{40}$", address))
-
-
-def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
-    return cast(
-        Dict,
-        BroadcastedTransactionSchema().dump(obj=transaction),
-    )
