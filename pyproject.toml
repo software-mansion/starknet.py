@@ -64,6 +64,7 @@ test = [
 ]
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
+
 test_ci_v1 = "coverage run -a -m pytest --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
 test_ci_v2 = "coverage run -a -m pytest --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
 
