@@ -15,7 +15,7 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 class NonZeroSerializer(CairoDataSerializer[Any, int]):
     """
     Serializer for NonZero type.
-    Can serialize Cairo numeric types which are non-zero.
+    Can serialize Cairo types which are non-zero.
     Deserializes data to int.
     """
 
@@ -36,4 +36,5 @@ class NonZeroSerializer(CairoDataSerializer[Any, int]):
 
     @staticmethod
     def _ensure_valid_nonzero(value: int, context: Context):
+        print(f"is {value} != 0")
         context.ensure_valid_value(value != 0, "expected value to be non-zero")
