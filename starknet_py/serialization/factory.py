@@ -124,13 +124,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
         return OptionSerializer(serializer_for_type(cairo_type.type))
 
     if isinstance(cairo_type, NonZeroType):
-        serializer = serializer_for_type(cairo_type.type)
-        if isinstance(serializer, (UintSerializer, Uint256Serializer, FeltSerializer)):
-            return NonZeroSerializer(serializer)
-
-        raise InvalidTypeException(
-            f"Found invalid serializer {serializer.__class__.__name__} for NonZeroType."
-        )
+        return NonZeroSerializer(serializer_for_type(cairo_type.type))
 
     if isinstance(cairo_type, UnitType):
         return UnitSerializer()
