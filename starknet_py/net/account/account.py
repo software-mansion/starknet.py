@@ -38,7 +38,8 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.net.signer.key_pair import KeyPair
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.serialization.data_serializers.array_serializer import ArraySerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.payload_serializer import (

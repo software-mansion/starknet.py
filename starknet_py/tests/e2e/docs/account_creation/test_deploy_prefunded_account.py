@@ -18,7 +18,7 @@ async def test_deploy_prefunded_account(
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
     from starknet_py.net.full_node_client import FullNodeClient
-    from starknet_py.net.signer.stark_curve_signer import KeyPair
+    from starknet_py.net.signer.key_pair import KeyPair
 
     # First, make sure to generate private key and salt
     # docs: end
