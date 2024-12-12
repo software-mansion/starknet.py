@@ -28,7 +28,6 @@ from starknet_py.net.full_node_client import (
     _to_rpc_felt,
 )
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.utils.sync import add_sync_methods
 
 
