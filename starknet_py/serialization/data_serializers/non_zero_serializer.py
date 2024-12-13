@@ -36,5 +36,4 @@ class NonZeroSerializer(CairoDataSerializer[Any, int]):
 
     @staticmethod
     def _ensure_valid_nonzero(value: int, context: Context):
-        print(f"is {value} != 0")
         context.ensure_valid_value(value != 0, "expected value to be non-zero")
