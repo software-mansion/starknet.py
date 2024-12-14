@@ -80,15 +80,6 @@ class NumberAsHex(fields.Field):
         )
 
 
-class Selector(NumberAsHex):
-    """
-    Field used to serialize and deserialize selector type.
-    """
-
-    MAX_VALUE = 2**32
-    REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,7})$"
-
-
 class Felt(NumberAsHex):
     """
     Field used to serialize and deserialize felt type.

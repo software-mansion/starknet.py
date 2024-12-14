@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from starknet_py.constants import ANY_CALLER, SNIP9InterfaceVersion
+from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceVersion
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import BaseAccount
 from starknet_py.net.client_models import Call, ExecutionTimeBounds
@@ -14,9 +14,13 @@ from starknet_py.transaction_errors import TransactionRevertedError
 async def test_argent_account_snip9_compatibility(
     argent_account: BaseAccount,
 ):
-    result = await argent_account.supports_interface(SNIP9InterfaceVersion.V1)
+    result = await argent_account.supports_interface(
+        OutsideExecutionInterfaceVersion.V1
+    )
     assert result is True
-    result = await argent_account.supports_interface(SNIP9InterfaceVersion.V2)
+    result = await argent_account.supports_interface(
+        OutsideExecutionInterfaceVersion.V2
+    )
     assert result is False
 
 
@@ -28,8 +32,12 @@ async def test_account_outside_execution_any_caller(
 
     assert any(
         [
-            await argent_account.supports_interface(SNIP9InterfaceVersion.V1),
-            await argent_account.supports_interface(SNIP9InterfaceVersion.V2),
+            await argent_account.supports_interface(
+                OutsideExecutionInterfaceVersion.V1
+            ),
+            await argent_account.supports_interface(
+                OutsideExecutionInterfaceVersion.V2
+            ),
         ]
     )
 
@@ -64,8 +72,12 @@ async def test_account_outside_execution_for_invalid_caller(
 ):
     assert any(
         [
-            await argent_account.supports_interface(SNIP9InterfaceVersion.V1),
-            await argent_account.supports_interface(SNIP9InterfaceVersion.V2),
+            await argent_account.supports_interface(
+                OutsideExecutionInterfaceVersion.V1
+            ),
+            await argent_account.supports_interface(
+                OutsideExecutionInterfaceVersion.V2
+            ),
         ]
     )
 
@@ -104,8 +116,12 @@ async def test_account_outside_execution_for_impossible_timebounds(
 
     assert any(
         [
-            await argent_account.supports_interface(SNIP9InterfaceVersion.V1),
-            await argent_account.supports_interface(SNIP9InterfaceVersion.V2),
+            await argent_account.supports_interface(
+                OutsideExecutionInterfaceVersion.V1
+            ),
+            await argent_account.supports_interface(
+                OutsideExecutionInterfaceVersion.V2
+            ),
         ]
     )
 

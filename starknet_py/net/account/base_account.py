@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from starknet_py.constants import ANY_CALLER, SNIP9InterfaceVersion
+from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceVersion
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Call,
@@ -28,16 +28,18 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.models.typed_data import TypedDataDict
 
 
-class SNIP9SupportBaseMixin(ABC):
+class OutsideExecutionSupportBaseMixin(ABC):
 
     @abstractmethod
-    async def get_snip9_nonce(self) -> int:
+    async def get_outside_execution_nonce(self) -> int:
         """
         Generate special valid nonce (passed check_snip9_nonce) for external calls execution.
         """
 
     @abstractmethod
-    async def supports_interface(self, interface_id: SNIP9InterfaceVersion) -> bool:
+    async def supports_interface(
+        self, interface_id: OutsideExecutionInterfaceVersion
+    ) -> bool:
         """
         Check if the account supports the given SNIP9 interface. Part of ISRC5 standard.
         """
@@ -50,7 +52,7 @@ class SNIP9SupportBaseMixin(ABC):
         *,
         caller: AddressRepresentation = ANY_CALLER,
         nonce: Optional[int] = None,
-        version: Optional[SNIP9InterfaceVersion] = None,
+        interface_version: Optional[OutsideExecutionInterfaceVersion] = None,
     ) -> Call:
         """
         Creates a call for an external execution (SNIP-9 specification).
@@ -64,7 +66,7 @@ class SNIP9SupportBaseMixin(ABC):
         """
 
 
-class BaseAccount(SNIP9SupportBaseMixin, ABC):
+class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
     """
     Base class for all account implementations.
 

@@ -49,7 +49,7 @@ Account also provides a way of creating signed transaction without sending them.
 Creating "Outside transaction" and executing it. `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_
 ---------------------------------------------------------------------------------------------------------------------------
 
-Account also provides a way of creating a call and signing to allow for another account (caller) to execute it later on original account behalf. This will also allow caller to execute calls encoded in that transaction for free (signer will pay the fee).
+Account also provides a way of creating a call and signing to allow for another account (caller) to execute it later on original account behalf. Account does not need to funded with tokens for transaction to execute as caller will pay the execution fee.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_sign_outside_transaction.py
     :language: python

@@ -1,19 +1,19 @@
-from starknet_py.constants import SNIP9InterfaceVersion
+from starknet_py.constants import OutsideExecutionInterfaceVersion
 from starknet_py.net.client_models import OutsideExecution
 from starknet_py.net.schemas.common import Revision
-from starknet_py.utils import typed_data as td
+from starknet_py.utils.typed_data import TypedData
 
 SNIP9_INTERFACE_ID_TO_SNIP12_REVISION = {
-    SNIP9InterfaceVersion.V1: Revision.V0,
-    SNIP9InterfaceVersion.V2: Revision.V1,
+    OutsideExecutionInterfaceVersion.V1: Revision.V0,
+    OutsideExecutionInterfaceVersion.V2: Revision.V1,
 }
 
 
 def outside_execution_to_typed_data(
     outside_execution: OutsideExecution,
-    snip9_version: SNIP9InterfaceVersion,
+    snip9_version: OutsideExecutionInterfaceVersion,
     chain_id: int,
-) -> td.TypedData:
+) -> TypedData:
     """
     SNIP-12 Typed Data for OutsideExecution implementation. For revision V0 and V1.
     """
@@ -21,7 +21,7 @@ def outside_execution_to_typed_data(
     revision = SNIP9_INTERFACE_ID_TO_SNIP12_REVISION[snip9_version]
 
     if revision == Revision.V0:
-        return td.TypedData.from_dict(
+        return TypedData.from_dict(
             {
                 "types": {
                     "StarkNetDomain": [
@@ -71,7 +71,7 @@ def outside_execution_to_typed_data(
         )
 
     # revision == Revision.V1
-    return td.TypedData.from_dict(
+    return TypedData.from_dict(
         {
             "types": {
                 "StarknetDomain": [

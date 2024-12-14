@@ -120,7 +120,8 @@ class ResourceBounds:
 @dataclass
 class ExecutionTimeBounds:
     """
-    Dataclass representing time bounds within which the given time bounds.
+    Dataclass representing time bounds within which outside execution
+    transaction is valid and allowed to be executed.
     """
 
     execute_after: datetime.datetime

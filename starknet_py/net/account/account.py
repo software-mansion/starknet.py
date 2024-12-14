@@ -8,14 +8,17 @@ from starknet_py.constants import (
     ANY_CALLER,
     FEE_CONTRACT_ADDRESS,
     QUERY_VERSION_BASE,
-    SNIP9InterfaceVersion,
+    OutsideExecutionInterfaceVersion,
 )
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.outside_execution import outside_execution_to_typed_data
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.utils import verify_message_signature
 from starknet_py.net.account.account_deployment_result import AccountDeploymentResult
-from starknet_py.net.account.base_account import BaseAccount, SNIP9SupportBaseMixin
+from starknet_py.net.account.base_account import (
+    BaseAccount,
+    OutsideExecutionSupportBaseMixin,
+)
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Call,
@@ -58,10 +61,9 @@ from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
 
-
-# pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods,disable=too-many-lines
 @add_sync_methods
-class Account(BaseAccount, SNIP9SupportBaseMixin):
+class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     """
     Default Account implementation.
     """
@@ -296,7 +298,7 @@ class Account(BaseAccount, SNIP9SupportBaseMixin):
             self.address, block_hash=block_hash, block_number=block_number
         )
 
-    async def _check_snip9_nonce(
+    async def _check_outside_execution_nonce(
         self,
         nonce: int,
         *,
@@ -314,21 +316,28 @@ class Account(BaseAccount, SNIP9SupportBaseMixin):
         )
         return bool(is_valid)
 
-    async def get_snip9_nonce(self, retry_count=10) -> int:
+    async def get_outside_execution_nonce(self, retry_count=10) -> int:
         while retry_count > 0:
             random_stark_address = KeyPair.generate().public_key
-            if await self._check_snip9_nonce(random_stark_address):
+            if await self._check_outside_execution_nonce(random_stark_address):
                 return random_stark_address
             retry_count -= 1
         raise RuntimeError("Failed to generate a valid nonce")
 
-    async def _get_snip9_version(self) -> Union[SNIP9InterfaceVersion, None]:
-        for version in [SNIP9InterfaceVersion.V1, SNIP9InterfaceVersion.V2]:
+    async def _get_outside_execution_version(
+        self,
+    ) -> Union[OutsideExecutionInterfaceVersion, None]:
+        for version in [
+            OutsideExecutionInterfaceVersion.V1,
+            OutsideExecutionInterfaceVersion.V2,
+        ]:
             if await self.supports_interface(version):
                 return version
         return None
 
-    async def supports_interface(self, interface_id: SNIP9InterfaceVersion) -> bool:
+    async def supports_interface(
+        self, interface_id: OutsideExecutionInterfaceVersion
+    ) -> bool:
         (does_support,) = await self._client.call_contract(
             Call(
                 to_addr=self.address,
@@ -399,18 +408,18 @@ class Account(BaseAccount, SNIP9SupportBaseMixin):
         *,
         caller: AddressRepresentation = ANY_CALLER,
         nonce: Optional[int] = None,
-        version: Optional[SNIP9InterfaceVersion] = None,
+        interface_version: Optional[OutsideExecutionInterfaceVersion] = None,
     ) -> Call:
-        if version is None:
-            version = await self._get_snip9_version()
+        if interface_version is None:
+            interface_version = await self._get_outside_execution_version()
 
-        if version is None:
+        if interface_version is None:
             raise RuntimeError(
                 "Can't initiate outside execution SNIP-9 is unsupported."
             )
 
         if nonce is None:
-            nonce = await self.get_snip9_nonce()
+            nonce = await self.get_outside_execution_nonce()
 
         outside_execution = OutsideExecution(
             caller=parse_address(caller),
@@ -421,17 +430,19 @@ class Account(BaseAccount, SNIP9SupportBaseMixin):
         )
         chain_id = await self._get_chain_id()
         signature = self.signer.sign_message(
-            outside_execution_to_typed_data(outside_execution, version, chain_id),
+            outside_execution_to_typed_data(
+                outside_execution, interface_version, chain_id
+            ),
             self.address,
         )
         selector_for_version = {
-            SNIP9InterfaceVersion.V1: "execute_from_outside",
-            SNIP9InterfaceVersion.V2: "execute_from_outside_v2",
+            OutsideExecutionInterfaceVersion.V1: "execute_from_outside",
+            OutsideExecutionInterfaceVersion.V2: "execute_from_outside_v2",
         }
 
         return Call(
             to_addr=self.address,
-            selector=get_selector_from_name(selector_for_version[version]),
+            selector=get_selector_from_name(selector_for_version[interface_version]),
             calldata=_transaction_serialiser.serialize(
                 {
                     "external_execution": outside_execution.to_abi_dict(),
