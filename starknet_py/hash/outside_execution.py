@@ -9,7 +9,7 @@ SNIP9_INTERFACE_ID_TO_SNIP12_REVISION = {
 }
 
 
-#TODO(#1537): Implement as method of OutsideExecution
+# TODO(#1537): Implement as method of OutsideExecution
 def outside_execution_to_typed_data(
     outside_execution: OutsideExecution,
     snip9_version: OutsideExecutionInterfaceVersion,
