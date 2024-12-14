@@ -61,6 +61,7 @@ from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
 
+
 # pylint: disable=too-many-public-methods,disable=too-many-lines
 @add_sync_methods
 class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
