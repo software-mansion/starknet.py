@@ -28,8 +28,8 @@ async def test_account_outside_execution_any_caller(
     )
 
     # Create a special signed execution call. This call can now be executed by
-    # the caller specified. In this case, caller is ANY_CALLER, a special constant
-    # that allows any caller to execute the call.
+    # the specified caller. In this case, caller is ANY_CALLER, a special constant
+    # that allows anyone to execute the call.
     call = await argent_account.sign_outside_execution_call(
         calls=[
             put_call,
