@@ -24,9 +24,9 @@ from starknet_py.net.client_models import (
     Call,
     Calls,
     EstimatedFee,
-    OutsideExecutionTimeBounds,
     Hash,
     OutsideExecution,
+    OutsideExecutionTimeBounds,
     ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
@@ -224,9 +224,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce=nonce,
             sender_address=self.address,
         )
-        
+
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
-        
+
         return _add_max_fee_to_transaction(transaction, max_fee)
 
     async def _prepare_invoke_v3(

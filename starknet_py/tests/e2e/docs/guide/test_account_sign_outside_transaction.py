@@ -16,7 +16,7 @@ async def test_account_outside_execution_any_caller(
 
     from starknet_py.constants import ANY_CALLER
     from starknet_py.hash.selector import get_selector_from_name
-    from starknet_py.net.client_models import Call, ExecutionTimeBounds
+    from starknet_py.net.client_models import Call, OutsideExecutionTimeBounds
 
     # Create a call to put value 20 under key 20. That will be executed
     # as part of outside execution.
@@ -34,7 +34,7 @@ async def test_account_outside_execution_any_caller(
         calls=[
             put_call,
         ],
-        execution_time_bounds=ExecutionTimeBounds(
+        execution_time_bounds=OutsideExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
             execute_before=datetime.datetime.now() + datetime.timedelta(hours=1),
         ),
