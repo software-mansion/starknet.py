@@ -12,14 +12,14 @@ OUTSIDE_EXECUTION_INTERFACE_ID_TO_TYPED_DATA_REVISION = {
 # TODO(#1537): Implement as method of OutsideExecution
 def outside_execution_to_typed_data(
     outside_execution: OutsideExecution,
-    snip9_version: OutsideExecutionInterfaceVersion,
+    ouside_execution_version: OutsideExecutionInterfaceVersion,
     chain_id: int,
 ) -> TypedData:
     """
     SNIP-12 Typed Data for OutsideExecution implementation. For revision V0 and V1.
     """
 
-    revision = OUTSIDE_EXECUTION_INTERFACE_ID_TO_TYPED_DATA_REVISION[snip9_version]
+    revision = OUTSIDE_EXECUTION_INTERFACE_ID_TO_TYPED_DATA_REVISION[ouside_execution_version]
 
     if revision == Revision.V0:
         return TypedData.from_dict(

@@ -416,7 +416,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
         if interface_version is None:
             raise RuntimeError(
-                "Can't initiate outside execution SNIP-9 is unsupported."
+                "Can't initiate call, outside execution is not supported."
             )
 
         if nonce is None:
@@ -444,9 +444,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         return Call(
             to_addr=self.address,
             selector=get_selector_from_name(selector_for_version[interface_version]),
-            calldata=_transaction_serialiser.serialize(
+            calldata=_outside_execution_serialiser.serialize(
                 {
-                    "external_execution": outside_execution.to_abi_dict(),
+                    "outside_execution": outside_execution.to_abi_dict(),
                     "signature": signature,
                 }
             ),
@@ -996,9 +996,9 @@ _execute_payload_serializer_v1 = PayloadSerializer(
         calls=ArraySerializer(_call_description_cairo_v1),
     )
 )
-_transaction_serialiser = StructSerializer(
+_outside_execution_serialiser = StructSerializer(
     OrderedDict(
-        external_execution=StructSerializer(
+        outside_execution=StructSerializer(
             OrderedDict(
                 caller=FeltSerializer(),
                 nonce=FeltSerializer(),

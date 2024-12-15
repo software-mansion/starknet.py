@@ -19,7 +19,7 @@ async def test_account_outside_execution_any_caller(
     from starknet_py.net.client_models import Call, ExecutionTimeBounds
 
     # Create a call to put value 20 under key 20. That will be executed
-    # as part of external execution.
+    # as part of outside execution.
 
     put_call = Call(
         to_addr=map_contract.address,
