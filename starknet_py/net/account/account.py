@@ -8,7 +8,7 @@ from starknet_py.constants import (
     ANY_CALLER,
     FEE_CONTRACT_ADDRESS,
     QUERY_VERSION_BASE,
-    OutsideExecutionInterfaceVersion,
+    OutsideExecutionInterfaceID,
 )
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.outside_execution import outside_execution_to_typed_data
@@ -327,17 +327,17 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
     async def _get_outside_execution_version(
         self,
-    ) -> Union[OutsideExecutionInterfaceVersion, None]:
+    ) -> Union[OutsideExecutionInterfaceID, None]:
         for version in [
-            OutsideExecutionInterfaceVersion.V1,
-            OutsideExecutionInterfaceVersion.V2,
+            OutsideExecutionInterfaceID.V1,
+            OutsideExecutionInterfaceID.V2,
         ]:
             if await self.supports_interface(version):
                 return version
         return None
 
     async def supports_interface(
-        self, interface_id: OutsideExecutionInterfaceVersion
+        self, interface_id: OutsideExecutionInterfaceID
     ) -> bool:
         (does_support,) = await self._client.call_contract(
             Call(
@@ -409,7 +409,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         *,
         caller: AddressRepresentation = ANY_CALLER,
         nonce: Optional[int] = None,
-        interface_version: Optional[OutsideExecutionInterfaceVersion] = None,
+        interface_version: Optional[OutsideExecutionInterfaceID] = None,
     ) -> Call:
         if interface_version is None:
             interface_version = await self._get_outside_execution_version()
@@ -437,14 +437,14 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             self.address,
         )
         selector_for_version = {
-            OutsideExecutionInterfaceVersion.V1: "execute_from_outside",
-            OutsideExecutionInterfaceVersion.V2: "execute_from_outside_v2",
+            OutsideExecutionInterfaceID.V1: "execute_from_outside",
+            OutsideExecutionInterfaceID.V2: "execute_from_outside_v2",
         }
 
         return Call(
             to_addr=self.address,
             selector=get_selector_from_name(selector_for_version[interface_version]),
-            calldata=_outside_execution_serialiser.serialize(
+            calldata=_outside_transaction_serialiser.serialize(
                 {
                     "outside_execution": outside_execution.to_abi_dict(),
                     "signature": signature,
@@ -996,7 +996,7 @@ _execute_payload_serializer_v1 = PayloadSerializer(
         calls=ArraySerializer(_call_description_cairo_v1),
     )
 )
-_outside_execution_serialiser = StructSerializer(
+_outside_transaction_serialiser = StructSerializer(
     OrderedDict(
         outside_execution=StructSerializer(
             OrderedDict(

@@ -1,18 +1,18 @@
-from starknet_py.constants import OutsideExecutionInterfaceVersion
+from starknet_py.constants import OutsideExecutionInterfaceID
 from starknet_py.net.client_models import OutsideExecution
 from starknet_py.net.schemas.common import Revision
 from starknet_py.utils.typed_data import TypedData
 
 OUTSIDE_EXECUTION_INTERFACE_ID_TO_TYPED_DATA_REVISION = {
-    OutsideExecutionInterfaceVersion.V1: Revision.V0,
-    OutsideExecutionInterfaceVersion.V2: Revision.V1,
+    OutsideExecutionInterfaceID.V1: Revision.V0,
+    OutsideExecutionInterfaceID.V2: Revision.V1,
 }
 
 
 # TODO(#1537): Implement as method of OutsideExecution
 def outside_execution_to_typed_data(
     outside_execution: OutsideExecution,
-    ouside_execution_version: OutsideExecutionInterfaceVersion,
+    outside_execution_version: OutsideExecutionInterfaceID,
     chain_id: int,
 ) -> TypedData:
     """
@@ -20,7 +20,7 @@ def outside_execution_to_typed_data(
     """
 
     revision = OUTSIDE_EXECUTION_INTERFACE_ID_TO_TYPED_DATA_REVISION[
-        ouside_execution_version
+        outside_execution_version
     ]
 
     if revision == Revision.V0:

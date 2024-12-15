@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceVersion
+from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceID
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
     Call,
@@ -38,7 +38,7 @@ class OutsideExecutionSupportBaseMixin(ABC):
 
     @abstractmethod
     async def supports_interface(
-        self, interface_id: OutsideExecutionInterfaceVersion
+        self, interface_id: OutsideExecutionInterfaceID
     ) -> bool:
         """
         Check if the account supports the given outside execution interface. Part of ISRC5 standard.
@@ -52,7 +52,7 @@ class OutsideExecutionSupportBaseMixin(ABC):
         *,
         caller: AddressRepresentation = ANY_CALLER,
         nonce: Optional[int] = None,
-        interface_version: Optional[OutsideExecutionInterfaceVersion] = None,
+        interface_version: Optional[OutsideExecutionInterfaceID] = None,
     ) -> Call:
         """
         Creates a call for an outcide execution (SNIP-9 specification).
