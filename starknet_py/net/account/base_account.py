@@ -7,7 +7,7 @@ from starknet_py.net.client_models import (
     Call,
     Calls,
     EstimatedFee,
-    ExecutionTimeBounds,
+    OutsideExecutionTimeBounds,
     Hash,
     ResourceBounds,
     SentTransactionResponse,
@@ -48,7 +48,7 @@ class OutsideExecutionSupportBaseMixin(ABC):
     async def sign_outside_execution_call(
         self,
         calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
+        execution_time_bounds: OutsideExecutionTimeBounds,
         *,
         caller: AddressRepresentation = ANY_CALLER,
         nonce: Optional[int] = None,

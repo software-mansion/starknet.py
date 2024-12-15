@@ -24,7 +24,7 @@ from starknet_py.net.client_models import (
     Call,
     Calls,
     EstimatedFee,
-    ExecutionTimeBounds,
+    OutsideExecutionTimeBounds,
     Hash,
     OutsideExecution,
     ResourceBounds,
@@ -224,7 +224,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce=nonce,
             sender_address=self.address,
         )
+        
         max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
+        
         return _add_max_fee_to_transaction(transaction, max_fee)
 
     async def _prepare_invoke_v3(
@@ -405,7 +407,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     async def sign_outside_execution_call(
         self,
         calls: Calls,
-        execution_time_bounds: ExecutionTimeBounds,
+        execution_time_bounds: OutsideExecutionTimeBounds,
         *,
         caller: AddressRepresentation = ANY_CALLER,
         nonce: Optional[int] = None,
@@ -985,6 +987,7 @@ _call_description_cairo_v1 = StructSerializer(
         calldata=ArraySerializer(_felt_serializer),
     )
 )
+
 _execute_payload_serializer_v0 = PayloadSerializer(
     OrderedDict(
         call_array=ArraySerializer(_call_description_cairo_v0),

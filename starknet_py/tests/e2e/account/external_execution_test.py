@@ -5,7 +5,7 @@ import pytest
 from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceID
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import BaseAccount
-from starknet_py.net.client_models import Call, ExecutionTimeBounds
+from starknet_py.net.client_models import Call, OutsideExecutionTimeBounds
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 from starknet_py.transaction_errors import TransactionRevertedError
 
@@ -14,13 +14,9 @@ from starknet_py.transaction_errors import TransactionRevertedError
 async def test_argent_account_snip9_compatibility(
     argent_account: BaseAccount,
 ):
-    result = await argent_account.supports_interface(
-        OutsideExecutionInterfaceID.V1
-    )
+    result = await argent_account.supports_interface(OutsideExecutionInterfaceID.V1)
     assert result is True
-    result = await argent_account.supports_interface(
-        OutsideExecutionInterfaceID.V2
-    )
+    result = await argent_account.supports_interface(OutsideExecutionInterfaceID.V2)
     assert result is False
 
 
@@ -32,12 +28,8 @@ async def test_account_outside_execution_any_caller(
 
     assert any(
         [
-            await argent_account.supports_interface(
-                OutsideExecutionInterfaceID.V1
-            ),
-            await argent_account.supports_interface(
-                OutsideExecutionInterfaceID.V2
-            ),
+            await argent_account.supports_interface(OutsideExecutionInterfaceID.V1),
+            await argent_account.supports_interface(OutsideExecutionInterfaceID.V2),
         ]
     )
 
@@ -53,7 +45,7 @@ async def test_account_outside_execution_any_caller(
             put_call,
             put_call,
         ],
-        execution_time_bounds=ExecutionTimeBounds(
+        execution_time_bounds=OutsideExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
             execute_before=datetime.datetime.now() + datetime.timedelta(hours=1),
         ),
@@ -72,12 +64,8 @@ async def test_account_outside_execution_for_invalid_caller(
 ):
     assert any(
         [
-            await argent_account.supports_interface(
-                OutsideExecutionInterfaceID.V1
-            ),
-            await argent_account.supports_interface(
-                OutsideExecutionInterfaceID.V2
-            ),
+            await argent_account.supports_interface(OutsideExecutionInterfaceID.V1),
+            await argent_account.supports_interface(OutsideExecutionInterfaceID.V2),
         ]
     )
 
@@ -93,7 +81,7 @@ async def test_account_outside_execution_for_invalid_caller(
             put_call,
             put_call,
         ],
-        execution_time_bounds=ExecutionTimeBounds(
+        execution_time_bounds=OutsideExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
             execute_before=datetime.datetime.now() + datetime.timedelta(hours=1),
         ),
@@ -116,12 +104,8 @@ async def test_account_outside_execution_for_impossible_timebounds(
 
     assert any(
         [
-            await argent_account.supports_interface(
-                OutsideExecutionInterfaceID.V1
-            ),
-            await argent_account.supports_interface(
-                OutsideExecutionInterfaceID.V2
-            ),
+            await argent_account.supports_interface(OutsideExecutionInterfaceID.V1),
+            await argent_account.supports_interface(OutsideExecutionInterfaceID.V2),
         ]
     )
 
@@ -137,7 +121,7 @@ async def test_account_outside_execution_for_impossible_timebounds(
             put_call,
             put_call,
         ],
-        execution_time_bounds=ExecutionTimeBounds(
+        execution_time_bounds=OutsideExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(days=10),
             execute_before=datetime.datetime.now() - datetime.timedelta(days=9),
         ),

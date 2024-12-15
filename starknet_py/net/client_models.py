@@ -31,7 +31,6 @@ from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
 # pylint: disable=too-many-lines
 
-
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
 
@@ -118,7 +117,7 @@ class ResourceBounds:
 
 
 @dataclass
-class ExecutionTimeBounds:
+class OutsideExecutionTimeBounds:
     """
     Dataclass representing time bounds within which outside execution
     transaction is valid and allowed to be executed.
