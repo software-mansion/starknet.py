@@ -61,7 +61,7 @@ class OutsideExecutionSupportBaseMixin(ABC):
         :param execution_time_bounds: Execution time bounds for the call.
         :param caller: Address of the caller. IMPORTANT! By default it is ANY_CALLER.
         :param nonce: Nonce for the transaction. Is populated automatically if not provided.
-        :param interface_version: SNIP-9 interface version. Method will check which version account
+        :param interface_version: Outside execution interface version. Method will check which version account
             supports and use the highest one and populate the value.
         """
 
