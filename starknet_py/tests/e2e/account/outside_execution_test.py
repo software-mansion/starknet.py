@@ -11,7 +11,7 @@ from starknet_py.transaction_errors import TransactionRevertedError
 
 
 @pytest.mark.asyncio
-async def test_argent_account_snip9_compatibility(
+async def test_argent_account_outside_execution_compatibility(
     argent_account: BaseAccount,
 ):
     result = await argent_account.supports_interface(OutsideExecutionInterfaceID.V1)

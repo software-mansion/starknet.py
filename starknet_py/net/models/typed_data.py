@@ -2,19 +2,25 @@
 TypedDict structures for TypedData
 """
 
+import sys
 from typing import Any, Dict, List, Optional, TypedDict
-
 from starknet_py.net.schemas.common import Revision
 
+if sys.version_info < (3, 11):
+    from typing_extensions import NotRequired
+else:
+    from typing import NotRequired
 
-class ParameterDict(TypedDict, total=False):
+
+
+class ParameterDict(TypedDict):
     """
     TypedDict representing a Parameter object
     """
 
     name: str
     type: str
-    contains: Optional[str]
+    contains: NotRequired[str]
 
 
 class DomainDict(TypedDict):
