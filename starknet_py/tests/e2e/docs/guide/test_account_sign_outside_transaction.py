@@ -18,13 +18,13 @@ async def test_account_outside_execution_any_caller(
     from starknet_py.hash.selector import get_selector_from_name
     from starknet_py.net.client_models import Call, OutsideExecutionTimeBounds
 
-    # Create a call to put value 20 under key 20. That will be executed
+    # Create a call to put value 1 under key 100. That will be executed
     # as part of outside execution.
 
     put_call = Call(
         to_addr=map_contract.address,
         selector=get_selector_from_name("put"),
-        calldata=[20, 20],
+        calldata=[1, 100],
     )
 
     # Create a special signed execution call. This call can now be executed by
