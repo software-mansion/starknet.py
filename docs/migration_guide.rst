@@ -2,6 +2,17 @@ Migration guide
 ===============
 
 ******************************
+[unreleased] Migration guide
+******************************
+
+[unreleased] Minor changes
+--------------------------
+
+.. currentmodule:: starknet_py.cairo.data_types
+
+1. Added :class:`NonZeroType` in order to fix parsing ABI which contains Cairo`s `core::zeroable::NonZero <https://github.com/starkware-libs/cairo/blob/a2b9dddeb3212c8d529538454745b27d7a34a6cd/corelib/src/zeroable.cairo#L78>`_
+
+******************************
 0.24.3 Migration guide
 ******************************
 
