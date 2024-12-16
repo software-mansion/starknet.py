@@ -7,11 +7,12 @@ This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLO
 to true. Consequently, any unknown fields in response will be excluded.
 """
 
+import datetime
 import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Literal, Optional, Union, cast
+from typing import Any, Dict, Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -113,6 +114,25 @@ class ResourceBounds:
     @staticmethod
     def init_with_zeros():
         return ResourceBounds(max_amount=0, max_price_per_unit=0)
+
+
+@dataclass
+class OutsideExecutionTimeBounds:
+    """
+    Dataclass representing time bounds within which outside execution
+    transaction is valid and allowed to be executed.
+    """
+
+    execute_after: datetime.datetime
+    execute_before: datetime.datetime
+
+    @property
+    def execute_after_timestamp(self) -> int:
+        return int(self.execute_after.timestamp())
+
+    @property
+    def execute_before_timestamp(self) -> int:
+        return int(self.execute_before.timestamp())
 
 
 @dataclass
@@ -1106,3 +1126,38 @@ class BlockTransactionTrace:
 
     transaction_hash: int
     trace_root: TransactionTrace
+
+
+@dataclass
+class OutsideExecution:
+    """
+    Dataclass representing an outside execution.
+    (SNIP-9)[https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md]
+    """
+
+    caller: int
+    nonce: int
+    execute_after: int
+    execute_before: int
+    calls: List[Call]
+
+    # TODO(#1537): Use serialiser to convert to ABI dict.
+    def to_abi_dict(self) -> Dict:
+        """
+        Returns a dictionary that can be serialized (compiled) into calldata
+        using StructSerializer
+        """
+        return {
+            "caller": self.caller,
+            "nonce": self.nonce,
+            "execute_after": self.execute_after,
+            "execute_before": self.execute_before,
+            "calls": [
+                {
+                    "to": call.to_addr,
+                    "selector": call.selector,
+                    "calldata": call.calldata,
+                }
+                for call in self.calls
+            ],
+        }

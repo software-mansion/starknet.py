@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceID
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
+    Call,
     Calls,
     EstimatedFee,
     Hash,
+    OutsideExecutionTimeBounds,
     ResourceBounds,
     SentTransactionResponse,
     Tag,
@@ -25,7 +28,45 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.models.typed_data import TypedDataDict
 
 
-class BaseAccount(ABC):
+class OutsideExecutionSupportBaseMixin(ABC):
+
+    @abstractmethod
+    async def get_outside_execution_nonce(self) -> int:
+        """
+        Generate special valid nonce for outside execution calls.
+        """
+
+    @abstractmethod
+    async def supports_interface(
+        self, interface_id: OutsideExecutionInterfaceID
+    ) -> bool:
+        """
+        Check if the account supports the given outside execution interface. Part of ISRC5 standard.
+        """
+
+    @abstractmethod
+    async def sign_outside_execution_call(
+        self,
+        calls: Calls,
+        execution_time_bounds: OutsideExecutionTimeBounds,
+        *,
+        caller: AddressRepresentation = ANY_CALLER,
+        nonce: Optional[int] = None,
+        interface_version: Optional[OutsideExecutionInterfaceID] = None,
+    ) -> Call:
+        """
+        Creates a call for an outcide execution (SNIP-9 specification).
+
+        :param calls: Single call or list of calls to be executed by outside caller.
+        :param execution_time_bounds: Execution time bounds for the call.
+        :param caller: Address of the caller. IMPORTANT! By default it is ANY_CALLER.
+        :param nonce: Nonce for the transaction. Is populated automatically if not provided.
+        :param interface_version: Outside execution interface version. Method will check which version account
+            supports and use the highest one and populate the value.
+        """
+
+
+class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
     """
     Base class for all account implementations.
 

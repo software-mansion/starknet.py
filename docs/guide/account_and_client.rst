@@ -46,6 +46,17 @@ Account also provides a way of creating signed transaction without sending them.
     :language: python
     :dedent: 4
 
+Outside execution
+-----------------
+
+Outside execution allows a protocol to submit a transaction on behalf of another account. This feature is implemented according to `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_.
+
+Account also provides a way of signing transaction which later can be execute by another account. Signer does not need to be funded with tokens as executor will pay the fee.
+
+.. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_account_sign_outside_transaction.py
+    :language: python
+    :dedent: 4
+
 Multicall
 ---------
 
