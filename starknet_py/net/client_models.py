@@ -1141,6 +1141,7 @@ class OutsideExecution:
     execute_before: int
     calls: List[Call]
 
+    # TODO(#1537): Use serialiser to convert to ABI dict.
     def to_abi_dict(self) -> Dict:
         """
         Returns a dictionary that can be serialized (compiled) into calldata
