@@ -1,5 +1,7 @@
 import pytest
 
+from starknet_py.net.signer.key_pair import KeyPair
+
 
 @pytest.mark.asyncio
 async def test_creating_account():
@@ -8,7 +10,7 @@ async def test_creating_account():
     from starknet_py.net.account.account import Account
     from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.models.chains import StarknetChainId
-    from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+    from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
     # Creates an instance of account which is already deployed
     # Account using transaction version=1 (has __validate__ function)
