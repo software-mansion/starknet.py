@@ -29,7 +29,7 @@ async def test_account_outside_execution_any_caller(
     # the specified caller. In this case, anyone will be able to execute it.
 
     # Note that signing account does not need to have any funds to sign the transaction.
-    call = await argent_account.sign_outside_transaction(
+    call = await argent_account.sign_outside_execution_call(
         calls=[
             put_call,
         ],
