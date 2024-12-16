@@ -78,8 +78,6 @@ async def test_account_outside_execution_for_invalid_caller(
     call = await argent_account.sign_outside_execution_call(
         calls=[
             put_call,
-            put_call,
-            put_call,
         ],
         execution_time_bounds=OutsideExecutionTimeBounds(
             execute_after=datetime.datetime.now() - datetime.timedelta(hours=1),
