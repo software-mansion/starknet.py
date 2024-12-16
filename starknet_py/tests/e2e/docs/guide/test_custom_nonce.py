@@ -17,7 +17,7 @@ async def test_custom_nonce(account):
     from starknet_py.net.client import Client
     from starknet_py.net.models import AddressRepresentation, StarknetChainId
     from starknet_py.net.signer import BaseSigner
-    from starknet_py.net.signer.stark_curve_signer import KeyPair
+    from starknet_py.net.signer.key_pair import KeyPair
 
     class MyAccount(Account):
         def __init__(

@@ -9,7 +9,7 @@ from starknet_py.net.client import Client
 from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccountV1
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
 

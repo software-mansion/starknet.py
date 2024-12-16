@@ -69,7 +69,7 @@ There are some examples how to do it:
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.chains import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 # Creates an instance of account which is already deployed
