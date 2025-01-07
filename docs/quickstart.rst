@@ -31,7 +31,7 @@ It supports an account contract which proxies the calls to other contracts on St
 Account can be created in two ways:
 
 * By constructor (It is required to provide an ``address`` and either ``key_pair`` or ``signer``).
-* By static methods ``Account.deploy_account_v1`` or ``Account.deploy_account_v3``
+* By static method ``Account.deploy_account_v3``
 
 There are some examples how to do it:
 

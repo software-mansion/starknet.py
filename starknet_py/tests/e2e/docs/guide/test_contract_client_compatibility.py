@@ -16,7 +16,7 @@ async def test_create_call_from_contract(map_contract, account):
     from starknet_py.net.client_models import Call
 
     # Prepare a call through Contract
-    call = contract.functions["get"].prepare_invoke_v1(key=1234)
+    call = contract.functions["get"].prepare_invoke_v3(key=1234)
     assert issubclass(type(call), Call)
 
     # Use call directly through Client
