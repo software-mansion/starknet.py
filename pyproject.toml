@@ -1,4 +1,4 @@
-[tool.poetry]
+[project]
 name = "starknet-py"
 version = "0.24.3"
 description = "A python SDK for Starknet"
@@ -32,7 +32,7 @@ eth-keyfile = "^0.8.1"
 ledgerwallet = { version = "^0.5.0", optional = true }
 bip-utils = { version = "^2.9.3", optional = true }
 
-[tool.poetry.extras]
+[project.optional-dependencies]
 docs = ["sphinx", "enum-tools", "furo"]
 ledger = ["ledgerwallet", "bip-utils"]
 
