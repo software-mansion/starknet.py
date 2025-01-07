@@ -45,7 +45,7 @@ jobs:
 
       - name: Check poetry.lock
         run: |
-          poetry lock --check
+          poetry check --lock
 
       - name: Lint
         run: |
