@@ -88,9 +88,11 @@ def full_node_account(client: FullNodeClient) -> BaseAccount:
     address = DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS
     private_key = DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY
 
-    node_url = client.url.replace("/rpc","")
+    node_url = client.url.replace("/rpc", "")
     devnet_client = DevnetClient(node_url=node_url)
-    devnet_client.mint_sync(DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS, 1e30, PriceUnit.FRI.value)
+    devnet_client.mint_sync(
+        DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS, 1e30, PriceUnit.FRI.value
+    )
 
     return Account(
         address=address,
