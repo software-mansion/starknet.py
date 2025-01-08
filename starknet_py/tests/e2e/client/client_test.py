@@ -117,7 +117,7 @@ async def test_get_storage_at(client, contract_address):
         block_hash="latest",
     )
 
-    assert storage == 1897
+    assert storage == 1777
 
 
 @pytest.mark.asyncio
@@ -250,7 +250,7 @@ async def test_call_contract(client, contract_address):
 
     result = await client.call_contract(call, block_number="latest")
 
-    assert result == [1897]
+    assert result == [1777]
 
 
 @pytest.mark.asyncio

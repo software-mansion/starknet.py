@@ -35,7 +35,7 @@ async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_
         ),
     )
 
-    # `Contract.deploy_contract_v3` methods have an optional parameter
+    # `Contract.deploy_contract_v3` method has an optional parameter
     # `deployer_address` that needs to be specified when using other network than mainnet or sepolia
     # Read more about it in the API section
 
