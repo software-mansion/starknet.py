@@ -8,7 +8,7 @@ exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
 packages = [
     { include = "starknet_py" }
 ]
-license = "MIT"
+license = { text = "MIT" }
 readme = "README.md"
 repository = "https://github.com/software-mansion/starknet.py"
 documentation = "https://starknetpy.rtfd.io/"
