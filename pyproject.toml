@@ -34,6 +34,10 @@ ledger = [
     "bip-utils>=2.9.3,<3.0.0",
 ]
 
+[project.urls]
+documentation = "https://starknetpy.rtfd.io/"
+repository = "https://github.com/software-mansion/starknet.py"
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
 black = "^24.4.2"
@@ -51,9 +55,7 @@ python-dotenv = "^1.0.0"
 setuptools = "^70.3.0"
 
 [tool.poetry]
-documentation = "https://starknetpy.rtfd.io/"
 exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
-repository = "https://github.com/software-mansion/starknet.py"
 include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
 packages = [
     { include = "starknet_py" }
