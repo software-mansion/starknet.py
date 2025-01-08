@@ -6,6 +6,7 @@ env:
   DEVNET_SHA: 7e7dbb5
   LEDGER_APP_SHA: dd58c5c
   LEDGER_APP_DEV_TOOLS_SHA: a037d42181f4bed9694246256e2c9e2a899e775c302a9c6482c81f87c28e1432
+  POETRY_VERSION: "1.8.5"
 
 on:
   push:
@@ -31,8 +32,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
-          poetry --version
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
@@ -46,7 +47,7 @@ jobs:
 
       - name: Check poetry.lock
         run: |
-          poetry check --lock
+          poetry lock --check
 
       - name: Lint
         run: |
@@ -84,7 +85,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -164,7 +166,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -275,7 +278,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
@@ -361,7 +365,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -422,7 +427,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -488,7 +494,8 @@ jobs:
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
