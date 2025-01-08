@@ -9,6 +9,7 @@ build:
   jobs:
     pre_install:
       - pip install poetry
+      - poetry self add poetry-plugin-export
       - poetry export -f requirements.txt --output requirements.txt --without-hashes -E docs -E ledger
 
 sphinx:
