@@ -1,8 +1,10 @@
 import pytest
 
 from starknet_py.contract import Contract
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.net.client import Client
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.net.client_models import PriceUnit
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
 
@@ -43,8 +45,8 @@ async def test_deploy_prefunded_account(
     # Prefund the address (using the token bridge or by sending fee tokens to the computed address)
     # Make sure the tx has been accepted on L2 before proceeding
     # docs: end
-    res = await eth_fee_contract.functions["transfer"].invoke_v1(
-        recipient=address, amount=int(1e16), max_fee=MAX_FEE
+    res = await eth_fee_contract.functions["transfer"].invoke_v3(
+        recipient=address, amount=int(1e16), l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
     )
     await res.wait_for_acceptance()
     # docs: start
@@ -54,6 +56,10 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = full_node_client_fixture
+    node_url = client.url.replace("/rpc", "")
+    devnet_client = DevnetClient(node_url=node_url)
+    await devnet_client.mint(address, int(1e30), PriceUnit.FRI.value)
+
     # docs: start
 
     # Use `Account.deploy_account_v3` static method to deploy an account
@@ -65,7 +71,7 @@ async def test_deploy_prefunded_account(
         client=client,
         constructor_calldata=[key_pair.public_key],
         l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+            max_amount=int(1e3), max_price_per_unit=int(1e11)
         ),
     )
     # Wait for deployment transaction to be accepted
