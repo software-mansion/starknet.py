@@ -2,18 +2,13 @@
 name = "starknet-py"
 version = "0.24.3"
 description = "A python SDK for Starknet"
-authors = [{ name = "Tomasz Rejowski", email = "tomasz.rejowski@swmansion.com" }, { name = "Jakub Ptak", email = "jakub.ptak@swmansion.com" }]
-include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
-exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
-packages = [
-    { include = "starknet_py" }
+authors = [
+    { name = "Tomasz Rejowski", email = "tomasz.rejowski@swmansion.com" },
+    { name = "Jakub Ptak", email = "jakub.ptak@swmansion.com" }
 ]
 license = { text = "MIT" }
 readme = "README.md"
-repository = "https://github.com/software-mansion/starknet.py"
-documentation = "https://starknetpy.rtfd.io/"
 requires-python = ">=3.9, <3.13"
-
 dependencies = [
     "asgiref>=3.4.1,<4.0.0",
     "marshmallow>=3.15.0,<4.0.0",
@@ -54,6 +49,15 @@ isort = "^5.11.4"
 pytest-rerunfailures = "^14.0"
 python-dotenv = "^1.0.0"
 setuptools = "^70.3.0"
+
+[tool.poetry]
+documentation = "https://starknetpy.rtfd.io/"
+exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
+repository = "https://github.com/software-mansion/starknet.py"
+include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
+packages = [
+    { include = "starknet_py" }
+]
 
 [tool.poe.tasks]
 test = [
