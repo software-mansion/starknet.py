@@ -161,7 +161,6 @@ await account.client.wait_for_tx(transaction_response.transaction_hash)
 from starknet_py.contract import Contract
 from starknet_py.net.client_models import ResourceBounds
 
-
 contract_address = (
     "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
 )
@@ -201,6 +200,7 @@ Although asynchronous API is recommended, you can also use Contract’s synchron
 
 ```python
 from starknet_py.contract import Contract
+from starknet_py.net.client_models import ResourceBounds
 
 contract_address = (
     "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -209,7 +209,11 @@ contract_address = (
 key = 1234
 contract = Contract.from_address_sync(address=contract_address, provider=account)
 
-invocation = contract.functions["put"].invoke_v1_sync(key, 7, max_fee=int(1e16))
+l1_resource_bounds = ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        ),
+
+invocation = contract.functions["put"].invoke_v3_sync(key, 7, l1_resource_bounds=l1_resource_bounds)
 invocation.wait_for_acceptance_sync()
 
 (saved,) = contract.functions["get"].call_sync(key)  # 7

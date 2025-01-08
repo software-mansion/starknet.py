@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.models import InvokeV1
+from starknet_py.net.models import InvokeV3
 
 
 @pytest.mark.asyncio
@@ -24,4 +24,4 @@ async def test_create_invoke_from_contract(map_contract, account):
     )
     # docs: end
 
-    assert isinstance(invoke_transaction, InvokeV1)
+    assert isinstance(invoke_transaction, InvokeV3)

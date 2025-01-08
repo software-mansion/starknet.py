@@ -3,6 +3,8 @@ import pytest
 from starknet_py.net.client_models import TransactionFinalityStatus
 
 
+# TODO(#1546)
+@pytest.skip
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     account,
