@@ -196,6 +196,9 @@ class DeclareResult(SentTransaction):
         """
         Deploys a contract.
 
+        .. deprecated:: 0.25.0
+            This method is deprecated and will be removed in future versions. Use deploy_v3 instead.
+
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/sepolia) by default.
             Must be set when using custom network other than ones listed above.
