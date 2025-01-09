@@ -158,7 +158,7 @@ class DeclareV2(_DeprecatedAccountTransaction):
     Represents a transaction in the Starknet network that is a version 2 declaration of a Starknet contract
     class. Supports only sierra compiled contracts.
 
-    .. deprecated:: 0.24.4
+    .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use :py:class:`~starknet_py.net.models.transaction.DeclareV3` instead.
     """
@@ -194,7 +194,7 @@ class DeclareV1(_DeprecatedAccountTransaction):
     Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
 
-    .. deprecated:: 0.24.4
+    .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use :py:class:`~starknet_py.net.models.transaction.DeclareV3` instead.
     """
@@ -279,7 +279,7 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
     Represents a transaction in the Starknet network that is a deployment of a Starknet account
     contract.
 
-    .. deprecated:: 0.24.4
+    .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use :py:class:`~starknet_py.net.models.transaction.DeployAccountV3` instead
     """
@@ -349,7 +349,7 @@ class InvokeV1(_DeprecatedAccountTransaction):
     Represents a transaction in the Starknet network that is an invocation of a Cairo contract
     function.
 
-    .. deprecated:: 0.24.4
+    .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use :py:class:`~starknet_py.net.models.transaction.InvokeV3` instead
     """

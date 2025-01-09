@@ -398,7 +398,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> InvokeV1:
         """
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`starknet_py.net.account.Account.sign_invoke_v3` instead.
         """
@@ -491,7 +491,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`starknet_py.net.account.Account.sign_declare_v3` instead.
 
@@ -530,7 +530,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> DeclareV2:
         """
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`starknet_py.net.account.Account.sign_declare_v3` instead.
         """
@@ -649,7 +649,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
         """
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`starknet_py.net.account.Account.sign_deploy_account_v3` instead.
         """
@@ -715,7 +715,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         """
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
             This method is deprecated and will be removed in future versions.
             Use :py:meth:`starknet_py.net.account.Account.execute_v3` instead.
         """
@@ -780,7 +780,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
 
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
             This method is deprecated and will be removed in future versions.
             Use :py:meth:`starknet_py.net.account.Account.deploy_account_v3` instead.
 

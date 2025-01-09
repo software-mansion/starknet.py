@@ -173,7 +173,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
         Takes calls and creates signed Invoke.
 
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`stanet_py.net.account.BaseAccount.sign_invoke_v3` instead.
 
@@ -214,7 +214,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
 
@@ -242,7 +242,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
         Create and sign declare transaction version 2 using sierra contract.
 
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
 
@@ -294,7 +294,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
         Create and sign deploy account transaction version 1.
 
-        .. deprecated:: 0.24.4
+        .. deprecated:: 0.25.0
            This method is deprecated and will be removed in future versions.
            Use :py:meth:`stanet_py.net.account.BaseAccount.sign_deploy_account_v3` instead.
 
