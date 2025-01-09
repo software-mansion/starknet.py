@@ -5,7 +5,7 @@ import warnings
 def deprecated(message):
     warnings.simplefilter("default", DeprecationWarning)
 
-    def deprecated_decorator(func):
+    def _deprecated_decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             warnings.warn(
@@ -17,4 +17,4 @@ def deprecated(message):
 
         return wrapper
 
-    return deprecated_decorator
+    return _deprecated_decorator
