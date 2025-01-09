@@ -42,6 +42,7 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapterV1,
 )
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
+from starknet_py.utils.deprecated import deprecated
 from starknet_py.utils.sync import add_sync_methods
 
 # pylint: disable=too-many-lines
@@ -181,6 +182,7 @@ class DeclareResult(SentTransaction):
         if self.declare_transaction is None:
             raise ValueError("Argument declare_transaction can't be None.")
 
+    @deprecated("Use deploy_v3")
     async def deploy_v1(
         self,
         *,
@@ -600,6 +602,7 @@ class ContractFunction:
             block_hash=block_hash, block_number=block_number
         )
 
+    @deprecated("Use prepare_invoke_v3")
     def prepare_invoke_v1(
         self,
         *args,
@@ -627,6 +630,7 @@ class ContractFunction:
             _payload_transformer=self._payload_transformer,
         )
 
+    @deprecated("Use invoke_v3")
     async def invoke_v1(
         self,
         *args,
@@ -811,6 +815,7 @@ class Contract:
         )
 
     # pylint: disable=line-too-long
+    @deprecated("Use deploy_contract_v3")
     @staticmethod
     async def declare_v1(
         account: BaseAccount,
@@ -847,6 +852,7 @@ class Contract:
         )
 
     # pylint: enable=line-too-long
+    @deprecated("Use declare_v3")
     @staticmethod
     async def declare_v2(
         account: BaseAccount,
@@ -931,6 +937,7 @@ class Contract:
             declare_tx, account, compiled_contract, cairo_version=1
         )
 
+    @deprecated("Use deploy_contract_v3")
     @staticmethod
     async def deploy_contract_v1(
         account: BaseAccount,

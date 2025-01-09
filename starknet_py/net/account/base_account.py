@@ -173,6 +173,10 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
         Takes calls and creates signed Invoke.
 
+        .. deprecated:: 0.24.4
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_invoke_v3` instead.
+
         :param calls: Single call or list of calls.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
@@ -210,8 +214,9 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        This method is deprecated, not covered by tests and will be removed in the future.
-        Please use current version of transaction signing methods.
+        .. deprecated:: 0.24.4
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
 
         Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
@@ -236,6 +241,10 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
     ) -> DeclareV2:
         """
         Create and sign declare transaction version 2 using sierra contract.
+
+        .. deprecated:: 0.24.4
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
 
         :param compiled_contract: string containing a compiled Starknet contract.
             Supports new contracts (compiled to sierra).
@@ -284,6 +293,10 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         # pylint: disable=too-many-arguments
         """
         Create and sign deploy account transaction version 1.
+
+        .. deprecated:: 0.24.4
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_deploy_account_v3` instead.
 
         :param class_hash: Class hash of the contract class to be deployed.
         :param contract_address_salt: A salt used to calculate deployed contract address.
