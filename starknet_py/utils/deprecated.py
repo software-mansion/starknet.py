@@ -1,5 +1,5 @@
-import warnings
 import functools
+import warnings
 
 
 def deprecated(message):
@@ -11,8 +11,10 @@ def deprecated(message):
             warnings.warn(
                 f"{func.__name__} is deprecated and will be removed in future versions. {message}",
                 category=DeprecationWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return func(*args, **kwargs)
+
         return wrapper
+
     return deprecated_decorator
