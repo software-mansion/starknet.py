@@ -168,16 +168,14 @@ async def argent_account(
         class_hash=argent_account_class_hash,
         argent_calldata=True,
     )
-    deploy_result = await Account.deploy_account_v3(
+    deploy_result = await Account.deploy_account_v1(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        max_fee=int(1e16),
     )
     await deploy_result.wait_for_acceptance()
     return deploy_result.account
