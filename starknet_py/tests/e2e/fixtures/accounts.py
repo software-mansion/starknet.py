@@ -90,9 +90,11 @@ def full_node_account(client: FullNodeClient) -> BaseAccount:
 
     node_url = client.url.replace("/rpc", "")
     devnet_client = DevnetClient(node_url=node_url)
-    asyncio.run(devnet_client.mint(  # pylint: disable=no-member, type: ignore
-        DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS, int(1e30), PriceUnit.FRI.value
-    ))
+    asyncio.run(
+        devnet_client.mint(  # pylint: disable=no-member, type: ignore
+            DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS, int(1e30), PriceUnit.FRI.value
+        )
+    )
 
     return Account(
         address=address,
