@@ -5,7 +5,7 @@ from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 
 
 @pytest_asyncio.fixture(scope="package")

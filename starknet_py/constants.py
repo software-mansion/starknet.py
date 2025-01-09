@@ -1,3 +1,4 @@
+from enum import IntEnum
 from pathlib import Path
 
 # Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
@@ -45,3 +46,12 @@ EIP_2645_PATH_LENGTH = 6
 PUBLIC_KEY_RESPONSE_LENGTH = 65
 SIGNATURE_RESPONSE_LENGTH = 65
 VERSION_RESPONSE_LENGTH = 3
+
+# Result of `encode_shortstring("ANY_CALLER")`
+ANY_CALLER = 0x414E595F43414C4C4552
+
+
+# OUTSIDE EXECUTION INTERFACE_VERSION with ID
+class OutsideExecutionInterfaceID(IntEnum):
+    V1 = 0x68CFD18B92D1907B8BA3CC324900277F5A3622099431EA85DD8089255E4181
+    V2 = 0x1D1144BB2138366FF28D8E9AB57456B1D332AC42196230C3A602003C89872
