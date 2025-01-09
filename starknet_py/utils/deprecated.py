@@ -14,7 +14,6 @@ def deprecated(message):
                 stacklevel=2,
             )
             return func(*args, **kwargs)
-
+        wrapper.__doc__ = func.__doc__
         return wrapper
-
     return _deprecated_decorator
