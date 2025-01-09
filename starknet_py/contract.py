@@ -42,7 +42,7 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapterV1,
 )
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
-from starknet_py.utils.deprecated import deprecated
+from starknet_py.utils.deprecation import _print_deprecation_warning
 from starknet_py.utils.sync import add_sync_methods
 
 # pylint: disable=too-many-lines
@@ -182,7 +182,6 @@ class DeclareResult(SentTransaction):
         if self.declare_transaction is None:
             raise ValueError("Argument declare_transaction can't be None.")
 
-    @deprecated("Use deploy_v3")
     async def deploy_v1(
         self,
         *,
@@ -209,6 +208,10 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+        _print_deprecation_warning(
+            "deploy_v1 is deprecated and will be removed in future versions. Use deploy_v3 instead."
+        )
+
         abi = self._get_abi()
 
         return await Contract.deploy_contract_v1(
@@ -602,7 +605,6 @@ class ContractFunction:
             block_hash=block_hash, block_number=block_number
         )
 
-    @deprecated("Use prepare_invoke_v3")
     def prepare_invoke_v1(
         self,
         *args,
@@ -617,6 +619,9 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
+        _print_deprecation_warning(
+            "prepare_invoke_v1 is deprecated and will be removed in future versions. Use prepare_invoke_v3 instead."
+        )
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionInvokeV1(
@@ -630,7 +635,6 @@ class ContractFunction:
             _payload_transformer=self._payload_transformer,
         )
 
-    @deprecated("Use invoke_v3")
     async def invoke_v1(
         self,
         *args,
@@ -648,6 +652,10 @@ class ContractFunction:
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
+        _print_deprecation_warning(
+            "invoke_v1 is deprecated and will be removed in future versions. Use invoke_v3 instead."
+        )
+
         prepared_invoke = self.prepare_invoke_v1(*args, **kwargs)
         return await prepared_invoke.invoke(
             max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
@@ -815,7 +823,6 @@ class Contract:
         )
 
     # pylint: disable=line-too-long
-    @deprecated("Use deploy_contract_v3")
     @staticmethod
     async def declare_v1(
         account: BaseAccount,
@@ -840,6 +847,9 @@ class Contract:
         :return: DeclareResult instance.
         """
 
+        _print_deprecation_warning(
+            "declare_v1 is deprecated and will be removed in future versions. Use declare_v3 instead."
+        )
         declare_tx = await account.sign_declare_v1(
             compiled_contract=compiled_contract,
             nonce=nonce,
@@ -852,7 +862,6 @@ class Contract:
         )
 
     # pylint: enable=line-too-long
-    @deprecated("Use declare_v3")
     @staticmethod
     async def declare_v2(
         account: BaseAccount,
@@ -877,6 +886,10 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
+
+        _print_deprecation_warning(
+            "declare_v2 is deprecated and will be removed in future versions. Use declare_v3 instead."
+        )
 
         compiled_class_hash = _extract_compiled_class_hash(
             compiled_contract_casm, compiled_class_hash
@@ -937,7 +950,6 @@ class Contract:
             declare_tx, account, compiled_contract, cairo_version=1
         )
 
-    @deprecated("Use deploy_contract_v3")
     @staticmethod
     async def deploy_contract_v1(
         account: BaseAccount,
@@ -973,6 +985,10 @@ class Contract:
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+        _print_deprecation_warning(
+            "deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
+        )
+
         deployer = Deployer(
             deployer_address=deployer_address,
             account_address=account.address if unique else None,
