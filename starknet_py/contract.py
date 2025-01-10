@@ -955,7 +955,8 @@ class Contract:
         )
 
     @deprecated(
-        reason="deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
+        reason="deploy_contract_v1 is deprecated and will be removed in future versions."
+        "Use deploy_contract_v3 instead."
     )
     @staticmethod
     async def deploy_contract_v1(
