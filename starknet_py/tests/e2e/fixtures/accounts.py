@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import asyncio
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -6,6 +7,7 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.contract import Contract
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
@@ -85,6 +87,14 @@ def full_node_account(client: FullNodeClient) -> BaseAccount:
     """
     address = DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS
     private_key = DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY
+
+    node_url = client.url.replace("/rpc", "")
+    devnet_client = DevnetClient(node_url=node_url)
+    asyncio.run(
+        devnet_client.mint(
+            DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS, int(1e30), PriceUnit.FRI.value
+        )
+    )
 
     return Account(
         address=address,
