@@ -7,6 +7,7 @@ from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
+from typing_extensions import deprecated
 
 from starknet_py.abi.v0 import Abi as AbiV0
 from starknet_py.abi.v0 import AbiParser as AbiParserV0
@@ -42,7 +43,6 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapterV1,
 )
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
-from starknet_py.utils.deprecation import _print_deprecation_warning
 from starknet_py.utils.sync import add_sync_methods
 
 # pylint: disable=too-many-lines
@@ -182,6 +182,9 @@ class DeclareResult(SentTransaction):
         if self.declare_transaction is None:
             raise ValueError("Argument declare_transaction can't be None.")
 
+    @deprecated(
+        "deploy_v1 is deprecated and will be removed in future versions. Use deploy_v3 instead."
+    )
     async def deploy_v1(
         self,
         *,
@@ -211,9 +214,6 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
-        _print_deprecation_warning(
-            "deploy_v1 is deprecated and will be removed in future versions. Use deploy_v3 instead."
-        )
 
         abi = self._get_abi()
 
@@ -608,6 +608,9 @@ class ContractFunction:
             block_hash=block_hash, block_number=block_number
         )
 
+    @deprecated(
+        "prepare_invoke_v1 is deprecated and will be removed in future versions. Use prepare_invoke_v3 instead."
+    )
     def prepare_invoke_v1(
         self,
         *args,
@@ -622,9 +625,6 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
-        _print_deprecation_warning(
-            "prepare_invoke_v1 is deprecated and will be removed in future versions. Use prepare_invoke_v3 instead."
-        )
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionInvokeV1(
@@ -638,6 +638,9 @@ class ContractFunction:
             _payload_transformer=self._payload_transformer,
         )
 
+    @deprecated(
+        "invoke_v1 is deprecated and will be removed in future versions. Use invoke_v3 instead."
+    )
     async def invoke_v1(
         self,
         *args,
@@ -655,9 +658,6 @@ class ContractFunction:
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
-        _print_deprecation_warning(
-            "invoke_v1 is deprecated and will be removed in future versions. Use invoke_v3 instead."
-        )
 
         prepared_invoke = self.prepare_invoke_v1(*args, **kwargs)
         return await prepared_invoke.invoke(
@@ -826,6 +826,9 @@ class Contract:
         )
 
     # pylint: disable=line-too-long
+    @deprecated(
+        "declare_v1 is deprecated and will be removed in future versions. Use declare_v3 instead."
+    )
     @staticmethod
     async def declare_v1(
         account: BaseAccount,
@@ -850,9 +853,6 @@ class Contract:
         :return: DeclareResult instance.
         """
 
-        _print_deprecation_warning(
-            "declare_v1 is deprecated and will be removed in future versions. Use declare_v3 instead."
-        )
         declare_tx = await account.sign_declare_v1(
             compiled_contract=compiled_contract,
             nonce=nonce,
@@ -865,6 +865,9 @@ class Contract:
         )
 
     # pylint: enable=line-too-long
+    @deprecated(
+        "declare_v2 is deprecated and will be removed in future versions. Use declare_v3 instead."
+    )
     @staticmethod
     async def declare_v2(
         account: BaseAccount,
@@ -889,10 +892,6 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
-
-        _print_deprecation_warning(
-            "declare_v2 is deprecated and will be removed in future versions. Use declare_v3 instead."
-        )
 
         compiled_class_hash = _extract_compiled_class_hash(
             compiled_contract_casm, compiled_class_hash
@@ -953,6 +952,9 @@ class Contract:
             declare_tx, account, compiled_contract, cairo_version=1
         )
 
+    @deprecated(
+        "deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
+    )
     @staticmethod
     async def deploy_contract_v1(
         account: BaseAccount,
@@ -988,9 +990,6 @@ class Contract:
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
-        _print_deprecation_warning(
-            "deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
-        )
 
         deployer = Deployer(
             deployer_address=deployer_address,
