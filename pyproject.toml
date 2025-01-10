@@ -21,7 +21,6 @@ dependencies = [
     "pycryptodome>=3.17,<4.0",
     "crypto-cpp-py==1.4.5",
     "eth-keyfile>=0.8.1,<1.0.0",
-    "deprecated (>=1.2.15,<2.0.0)"
 ]
 
 [project.optional-dependencies]
