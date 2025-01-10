@@ -26,7 +26,7 @@ async def test_simple_declare_and_deploy(account):
         compiled_contract=compiled_contract["sierra"],
         compiled_contract_casm=compiled_contract["casm"],
         l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+            max_amount=int(1e6), max_price_per_unit=int(1e13)
         ),
     )
     await declare_result.wait_for_acceptance()
