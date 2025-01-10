@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
+from deprecated import deprecated
 from marshmallow import ValidationError
-from typing_extensions import deprecated
 
 from starknet_py.abi.v0 import Abi as AbiV0
 from starknet_py.abi.v0 import AbiParser as AbiParserV0
@@ -183,7 +183,7 @@ class DeclareResult(SentTransaction):
             raise ValueError("Argument declare_transaction can't be None.")
 
     @deprecated(
-        "deploy_v1 is deprecated and will be removed in future versions. Use deploy_v3 instead."
+        reason="deploy_v1 is deprecated and will be removed in future versions. Use deploy_v3 instead."
     )
     async def deploy_v1(
         self,
@@ -609,7 +609,8 @@ class ContractFunction:
         )
 
     @deprecated(
-        "prepare_invoke_v1 is deprecated and will be removed in future versions. Use prepare_invoke_v3 instead."
+        reason="prepare_invoke_v1 is deprecated and will be removed in future versions."
+        "Use prepare_invoke_v3 instead."
     )
     def prepare_invoke_v1(
         self,
@@ -639,7 +640,8 @@ class ContractFunction:
         )
 
     @deprecated(
-        "invoke_v1 is deprecated and will be removed in future versions. Use invoke_v3 instead."
+        reason="invoke_v1 is deprecated and will be removed in future versions."
+        "Use invoke_v3 instead."
     )
     async def invoke_v1(
         self,
@@ -827,7 +829,7 @@ class Contract:
 
     # pylint: disable=line-too-long
     @deprecated(
-        "declare_v1 is deprecated and will be removed in future versions. Use declare_v3 instead."
+        reason="declare_v1 is deprecated and will be removed in future versions. Use declare_v3 instead."
     )
     @staticmethod
     async def declare_v1(
@@ -866,7 +868,7 @@ class Contract:
 
     # pylint: enable=line-too-long
     @deprecated(
-        "declare_v2 is deprecated and will be removed in future versions. Use declare_v3 instead."
+        reason="declare_v2 is deprecated and will be removed in future versions. Use declare_v3 instead."
     )
     @staticmethod
     async def declare_v2(
@@ -953,7 +955,7 @@ class Contract:
         )
 
     @deprecated(
-        "deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
+        reason="deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
     )
     @staticmethod
     async def deploy_contract_v1(

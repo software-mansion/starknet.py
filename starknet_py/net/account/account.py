@@ -3,7 +3,7 @@ import json
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-from typing_extensions import deprecated
+from deprecated import deprecated
 
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import (
@@ -391,7 +391,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         return _add_signature_to_transaction(tx=transaction, signature=signature)
 
     @deprecated(
-        "sign_invoke_v1 is deprecated and will be removed in future versions. Use sign_invoke_v3 instead."
+        reason="sign_invoke_v1 is deprecated and will be removed in future versions. Use sign_invoke_v3 instead."
     )
     async def sign_invoke_v1(
         self,
@@ -484,7 +484,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
     # pylint: disable=line-too-long
     @deprecated(
-        "sign_declare_v1 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
+        reason="sign_declare_v1 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
     )
     async def sign_declare_v1(
         self,
@@ -522,7 +522,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     # pylint: enable=line-too-long
 
     @deprecated(
-        "sign_declare_v2 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
+        reason="sign_declare_v2 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
     )
     async def sign_declare_v2(
         self,
@@ -640,8 +640,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         return declare_tx
 
     @deprecated(
-        "sign_deploy_account_v1 is deprecated and will be removed in future versions. Use sign_deploy_account_v3 "
-        "instead."
+        reason="sign_deploy_account_v1 is deprecated and will be removed in future versions."
+        "Use sign_deploy_account_v3 instead."
     )
     async def sign_deploy_account_v1(
         self,
@@ -708,7 +708,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
     @deprecated(
-        "execute_v1 is deprecated and will be removed in future versions. Use execute_v3 instead."
+        reason="execute_v1 is deprecated and will be removed in future versions. Use execute_v3 instead."
     )
     async def execute_v1(
         self,
@@ -763,7 +763,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         return verify_message_signature(message_hash, signature, self.signer.public_key)
 
     @deprecated(
-        "deploy_account_v1 is deprecated and will be removed in future versions. Use deploy_account_v3 instead."
+        reason="deploy_account_v1 is deprecated and will be removed in future versions."
+        "Use deploy_account_v3 instead."
     )
     @staticmethod
     async def deploy_account_v1(
