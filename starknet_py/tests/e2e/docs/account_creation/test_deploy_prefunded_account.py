@@ -44,12 +44,6 @@ async def test_deploy_prefunded_account(
 
     # Prefund the address (using the token bridge or by sending fee tokens to the computed address)
     # Make sure the tx has been accepted on L2 before proceeding
-    # docs: end
-    res = await eth_fee_contract.functions["transfer"].invoke_v3(
-        recipient=address, amount=int(1e16), l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
-    )
-    await res.wait_for_acceptance()
-    # docs: start
 
     # Define the client to be used to interact with Starknet
     client = FullNodeClient(node_url="https://your.node.url")
