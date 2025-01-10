@@ -5,6 +5,8 @@ Migration guide
 [unreleased] Migration guide
 ******************************
 
+This version of starknet.py requires Python 3.9 as a minimum version.
+
 [unreleased] Minor changes
 --------------------------
 
