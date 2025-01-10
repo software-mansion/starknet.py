@@ -1,17 +1,14 @@
 import pytest
 
-from starknet_py.contract import Contract
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import PriceUnit
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
 
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
-    eth_fee_contract: Contract,
     client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals, unused-variable
