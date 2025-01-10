@@ -640,7 +640,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         return declare_tx
 
     @deprecated(
-        "sign_deploy_account_v1 is deprecated and will be removed in future versions. Use sign_deploy_account_v3 instead."
+        "sign_deploy_account_v1 is deprecated and will be removed in future versions. Use sign_deploy_account_v3 "
+        "instead."
     )
     async def sign_deploy_account_v1(
         self,
