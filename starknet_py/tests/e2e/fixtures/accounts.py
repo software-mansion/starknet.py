@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-import asyncio
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -7,7 +6,6 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.contract import Contract
-from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
