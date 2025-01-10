@@ -1,9 +1,7 @@
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import PriceUnit
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
@@ -56,10 +54,6 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = full_node_client_fixture
-    node_url = client.url.replace("/rpc", "")
-    devnet_client = DevnetClient(node_url=node_url)
-    await devnet_client.mint(address, int(1e30), PriceUnit.FRI.value)
-
     # docs: start
 
     # Use `Account.deploy_account_v3` static method to deploy an account
