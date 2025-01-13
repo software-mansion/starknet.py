@@ -14,6 +14,7 @@ class PreparedNetworkData:
     # pylint: disable=too-many-instance-attributes
     class_hash: int
     contract_address: int
+    contract_address_2: int
     invoke_transaction_hash: int
     block_with_invoke_number: int
     declare_transaction_hash: int
@@ -29,6 +30,7 @@ async def prepare_net_for_tests(
     deploy_account_details: AccountToBeDeployedDetails,
     transaction_hash: int,
     contract: Contract,
+    contract_2: Contract,
     declare_class_hash: int,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
@@ -42,8 +44,16 @@ async def prepare_net_for_tests(
     )
     await invoke_res.wait_for_acceptance()
 
+    invoke_res_2 = await contract_2.functions["increase_balance"].invoke_v3(
+        amount=1777, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+    )
+    await invoke_res_2.wait_for_acceptance()
+
     block_with_invoke_number = (
         await account.client.get_transaction_receipt(invoke_res.hash)
+    ).block_number
+    block_with_invoke_number_2 = (
+        await account.client.get_transaction_receipt(invoke_res_2.hash)
     ).block_number
 
     address, key_pair, salt, class_hash = deploy_account_details
@@ -64,6 +74,7 @@ async def prepare_net_for_tests(
     block_with_deploy_account_hash = declare_account_receipt.block_hash
 
     assert block_with_invoke_number is not None
+    assert block_with_invoke_number_2 is not None
     assert block_with_declare_number is not None
     assert block_with_declare_hash is not None
     assert block_with_deploy_account_number is not None
@@ -72,6 +83,7 @@ async def prepare_net_for_tests(
     return PreparedNetworkData(
         class_hash=declare_class_hash,
         contract_address=contract.address,
+        contract_address_2=contract_2.address,
         invoke_transaction_hash=invoke_res.hash,
         block_with_invoke_number=block_with_invoke_number,
         declare_transaction_hash=transaction_hash,

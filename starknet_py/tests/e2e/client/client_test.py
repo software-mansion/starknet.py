@@ -110,14 +110,14 @@ async def test_get_block_by_number(
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at(client, contract_address):
+async def test_get_storage_at(client, contract_address_2):
     storage = await client.get_storage_at(
-        contract_address=contract_address,
+        contract_address=contract_address_2,
         key=get_storage_var_address("balance"),
         block_hash="latest",
     )
 
-    assert storage == 1897
+    assert storage == 1777
 
 
 @pytest.mark.asyncio
@@ -241,16 +241,16 @@ async def test_estimate_fee_for_multiple_transactions(
 
 
 @pytest.mark.asyncio
-async def test_call_contract(client, contract_address):
+async def test_call_contract(client, contract_address_2):
     call = Call(
-        to_addr=contract_address,
+        to_addr=contract_address_2,
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
 
     result = await client.call_contract(call, block_number="latest")
 
-    assert result == [1897]
+    assert result == [1777]
 
 
 @pytest.mark.asyncio

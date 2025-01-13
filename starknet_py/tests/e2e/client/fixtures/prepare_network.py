@@ -48,6 +48,24 @@ async def deployed_balance_contract(
     return deploy_result.deployed_contract
 
 
+@pytest_asyncio.fixture(scope="package")
+async def deployed_balance_contract_2(
+    account: BaseAccount,
+    balance_class_and_transaction_hash,
+    balance_abi,
+) -> Contract:
+    class_hash, _ = balance_class_and_transaction_hash
+    deploy_result = await Contract.deploy_contract_v3(
+        account=account,
+        abi=balance_abi,
+        class_hash=class_hash,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+    )
+    await deploy_result.wait_for_acceptance()
+
+    return deploy_result.deployed_contract
+
+
 @pytest.fixture(scope="package")
 def balance_abi() -> List:
     compiled_contract = create_sierra_compiled_contract(
@@ -140,6 +158,15 @@ def contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
 
 
 @pytest.fixture()
+def contract_address_2(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
+    """
+    Returns an address of the deployed contract
+    """
+    _, prepared_data = prepare_network
+    return prepared_data.contract_address_2
+
+
+@pytest.fixture()
 def class_hash(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
     Returns class hash of the deployed contract
@@ -155,6 +182,7 @@ async def prepare_network(
     deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
     balance_class_and_transaction_hash: Tuple[int, int],
     deployed_balance_contract: Contract,
+    deployed_balance_contract_2: Contract,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
@@ -168,6 +196,7 @@ async def prepare_network(
         deploy_account_details=details,
         transaction_hash=transaction_hash,
         contract=deployed_balance_contract,
+        contract_2=deployed_balance_contract_2,
         declare_class_hash=class_hash,
     )
 
