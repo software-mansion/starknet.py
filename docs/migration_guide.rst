@@ -13,7 +13,7 @@ This version of starknet.py requires Python 3.9 as a minimum version.
 
 2. Added `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_ support to :class:`~starknet_py.net.account.account.Account`. Now it's possible to create a :class:`~starknet_py.net.client_models.Call` for outside execution using :meth:`~starknet_py.net.account.account.Account.sign_outside_execution_call`.
 
-3. All methods and classes using transactions other than v3 are now deprecated.
+3. All methods and classes which use transactions other than v3 are now deprecated.
 
 0.25.0 Minor changes
 --------------------
