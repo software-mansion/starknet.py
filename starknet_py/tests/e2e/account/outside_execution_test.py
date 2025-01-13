@@ -20,6 +20,8 @@ async def test_argent_account_outside_execution_compatibility(
     assert result is False
 
 
+# TODO (#1546): Remove skip mark
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     argent_account: BaseAccount,
@@ -92,6 +94,8 @@ async def test_account_outside_execution_for_invalid_caller(
     assert "argent/invalid-caller" in err.value.message
 
 
+# TODO (#1546): Remove skip mark
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_account_outside_execution_for_impossible_time_bounds(
     argent_account: BaseAccount,

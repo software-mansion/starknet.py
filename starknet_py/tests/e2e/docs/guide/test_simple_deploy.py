@@ -15,7 +15,7 @@ async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_
     abi = hello_starknet_abi
 
     # docs: start
-    # To deploy contract just use `Contract.deploy_contract_v1` method
+    # To deploy contract just use `Contract.deploy_contract_v3` method
     # Note that class_hash and abi of the contract must be known
 
     # If constructor of the contract requires arguments, pass constructor_args parameter
@@ -35,7 +35,7 @@ async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_
         ),
     )
 
-    # `Contract.deploy_contract_v1` and `Contract.deploy_contract_v3` methods have an optional parameter
+    # `Contract.deploy_contract_v3` method has an optional parameter
     # `deployer_address` that needs to be specified when using other network than mainnet or sepolia
     # Read more about it in the API section
 

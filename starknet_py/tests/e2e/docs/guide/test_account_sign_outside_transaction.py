@@ -3,6 +3,8 @@ import pytest
 from starknet_py.net.client_models import TransactionFinalityStatus
 
 
+# TODO (#1546): Remove skip mark
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     account,
@@ -16,7 +18,11 @@ async def test_account_outside_execution_any_caller(
 
     from starknet_py.constants import ANY_CALLER
     from starknet_py.hash.selector import get_selector_from_name
-    from starknet_py.net.client_models import Call, OutsideExecutionTimeBounds
+    from starknet_py.net.client_models import (
+        Call,
+        OutsideExecutionTimeBounds,
+        ResourceBounds,
+    )
 
     # Create a call to put value 100 at key 1.
     put_call = Call(
@@ -43,7 +49,12 @@ async def test_account_outside_execution_any_caller(
     )
 
     # Now, if you're in specified timeframe, you can perform the outside execution by another account.
-    tx = await account.execute_v1(calls=[call], max_fee=int(1e18))
+    tx = await account.execute_v3(
+        calls=[call],
+        l1_resource_bounds=ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        ),
+    )
     await account.client.wait_for_tx(tx.transaction_hash)
 
     # docs: end

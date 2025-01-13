@@ -58,6 +58,7 @@ from starknet_py.serialization.data_serializers import (
     StructSerializer,
     UintSerializer,
 )
+from starknet_py.utils.deprecation import _print_deprecation_warning
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
@@ -396,6 +397,14 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeV1:
+        """
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`starknet_py.net.account.Account.sign_invoke_v3` instead.
+        """
+        _print_deprecation_warning(
+            "sign_invoke_v1 is deprecated and will re removed in future versions. Use sign_invoke_v3 instead."
+        )
         execute_tx = await self._prepare_invoke(
             calls,
             nonce=nonce,
@@ -482,12 +491,17 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        This method is deprecated, not covered by tests and will be removed in the future.
-        Please use current version of transaction signing methods.
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`starknet_py.net.account.Account.sign_declare_v3` instead.
 
         Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
         """
+        _print_deprecation_warning(
+            "sign_declare_v1 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
+        )
+
         if _is_sierra_contract(json.loads(compiled_contract)):
             raise ValueError(
                 "Signing sierra contracts requires using `sign_declare_v2` method."
@@ -515,6 +529,15 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeclareV2:
+        """
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`starknet_py.net.account.Account.sign_declare_v3` instead.
+        """
+        _print_deprecation_warning(
+            "sign_declare_v2 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
+        )
+
         declare_tx = await self._make_declare_v2_transaction(
             compiled_contract, compiled_class_hash, nonce=nonce
         )
@@ -625,7 +648,17 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV1:
+        """
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`starknet_py.net.account.Account.sign_deploy_account_v3` instead.
+        """
         # pylint: disable=too-many-arguments
+        _print_deprecation_warning(
+            "sign_deploy_account_v1 is deprecated and will be removed in future versions. Use sign_deploy_account_v3 "
+            "instead."
+        )
+
         deploy_account_tx = DeployAccountV1(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -681,6 +714,15 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         max_fee: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
+        """
+        .. deprecated:: 0.25.0
+            This method is deprecated and will be removed in future versions.
+            Use :py:meth:`starknet_py.net.account.Account.execute_v3` instead.
+        """
+        _print_deprecation_warning(
+            "execute_v1 is deprecated and will be removed in future versions. Use execute_v3 instead."
+        )
+
         execute_transaction = await self.sign_invoke_v1(
             calls,
             nonce=nonce,
@@ -738,6 +780,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         Deploys an account contract with provided class_hash on Starknet and returns
         an AccountDeploymentResult that allows waiting for transaction acceptance.
 
+        .. deprecated:: 0.25.0
+            This method is deprecated and will be removed in future versions.
+            Use :py:meth:`starknet_py.net.account.Account.deploy_account_v3` instead.
+
         Provided address must be first prefunded with enough tokens, otherwise the method will fail.
 
         If using Client for MAINNET, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
@@ -754,6 +800,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param max_fee: Max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
+        _print_deprecation_warning(
+            "deploy_account_v1 is deprecated and will be removed in future versions. Use deploy_account_v3 instead."
+        )
+
         calldata = (
             constructor_calldata
             if constructor_calldata is not None

@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
