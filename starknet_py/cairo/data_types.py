@@ -32,7 +32,7 @@ class TupleType(CairoType):
     Type representation of Cairo tuples without named fields.
     """
 
-    types: List[CairoType]  #: types of every tuple element.
+    types: List[CairoType]  #: Types of every tuple element.
 
 
 @dataclass
@@ -41,7 +41,7 @@ class NamedTupleType(CairoType):
     Type representation of Cairo tuples with named fields.
     """
 
-    types: OrderedDict[str, CairoType]  #: types of every tuple member.
+    types: OrderedDict[str, CairoType]  #: Types of every tuple member.
 
 
 @dataclass
@@ -50,7 +50,7 @@ class ArrayType(CairoType):
     Type representation of Cairo arrays.
     """
 
-    inner_type: CairoType  #: type of element inside array.
+    inner_type: CairoType  #: Type of element inside array.
 
 
 @dataclass
@@ -70,8 +70,8 @@ class EnumType(CairoType):
     Type representation of Cairo enums.
     """
 
-    name: str
-    variants: OrderedDict[str, CairoType]
+    name: str  #: Enum name.
+    variants: OrderedDict[str, CairoType]  #: Enum variants.
 
 
 @dataclass
@@ -80,7 +80,7 @@ class OptionType(CairoType):
     Type representation of Cairo options.
     """
 
-    type: CairoType
+    type: CairoType  #: Typed of element wrapped in the Option.
 
 
 @dataclass
@@ -89,7 +89,7 @@ class UintType(CairoType):
     Type representation of Cairo unsigned integers.
     """
 
-    bits: int
+    bits: int  #: Number of bits in the integer.
 
     def check_range(self, value: int):
         """
@@ -103,7 +103,7 @@ class TypeIdentifier(CairoType):
     Type representation of Cairo identifiers.
     """
 
-    name: str
+    name: str  #: Identifier name.
 
 
 @dataclass
@@ -119,9 +119,9 @@ class EventType(CairoType):
     Type representation of Cairo Event.
     """
 
-    name: str
-    types: OrderedDict[str, CairoType]
-    keys: List[str]
+    name: str  #: Event name.
+    types: OrderedDict[str, CairoType]  #: Types of every event member.
+    keys: List[str]  #: Keys of every event member.
 
 
 @dataclass
