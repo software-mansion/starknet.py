@@ -193,19 +193,19 @@ jobs:
 
       - name: Load cached speculos image
         if: steps.speculos-docker-image-cache.outputs.cache-hit == 'true'
-        run: docker load < /tmp/ledger-image.tar
+        run: docker load < /tmp/speculos-image-${{ env.LEDGER_APP_DEV_TOOLS_SHA }}.tar
 
-      - name: Pull speculos image (if not cached)
+      - name: Pull speculos image
         if: steps.speculos-docker-image-cache.outputs.cache-hit != 'true'
         run: |
           docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }}
-          docker save ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }} > /tmp/ledger-image.tar
+          docker save ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }} > /tmp/speculos-image-${{ env.LEDGER_APP_DEV_TOOLS_SHA }}.tar
 
       - name: Save pulled speculos image to cache
         if: steps.speculos-docker-image-cache.outputs.cache-hit != 'true'
         uses: actions/cache@v4
         with:
-          path: /tmp/ledger-image.tar
+          path: /tmp/speculos-image-${{ env.LEDGER_APP_DEV_TOOLS_SHA }}.tar
           key: speculos-image-${{ env.LEDGER_APP_DEV_TOOLS_SHA }}
 
       - name: Clone LedgerHQ Starknet app repository
