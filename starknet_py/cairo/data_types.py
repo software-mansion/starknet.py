@@ -130,4 +130,4 @@ class NonZeroType(CairoType):
     Type representation of Cairo NonZero.
     """
 
-    type: CairoType
+    type: CairoType  #: Type of element wrapped in NonZero.
