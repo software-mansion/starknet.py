@@ -42,10 +42,6 @@ Module containing representations of Cairo types. Mostly used to generate proper
     :exclude-members: __init__, __new__
     :members: bits
 
-.. autoclass:: TypeIdentifier
-    :exclude-members: __init__, __new__
-    :members: name
-
 .. autoclass:: UnitType
     :exclude-members: __init__, __new__
 
