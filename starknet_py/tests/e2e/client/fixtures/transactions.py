@@ -8,14 +8,17 @@ from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeployAccountV3
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     PreparedNetworkData,
 )
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.utils import (
-    get_deploy_account_details,
+    _get_random_private_key_unsafe,
     get_deploy_account_transaction,
+    new_address,
+    prepay_account,
 )
 
 
@@ -29,16 +32,23 @@ async def deploy_account_transaction(
     """
     Returns a DeployAccount transaction
     """
+    key_pair = KeyPair.from_private_key(_get_random_private_key_unsafe())
 
-    address, key_pair, salt, class_hash = await get_deploy_account_details(
-        class_hash=account_with_validate_deploy_class_hash,
+    address, salt = new_address(
+        account_with_validate_deploy_class_hash,
+        [key_pair.public_key],
+    )
+
+    await prepay_account(
+        address=address,
         eth_fee_contract=eth_fee_contract,
         strk_fee_contract=strk_fee_contract,
     )
+
     return await get_deploy_account_transaction(
         address=address,
         key_pair=key_pair,
-        class_hash=class_hash,
+        class_hash=account_with_validate_deploy_class_hash,
         salt=salt,
         client=FullNodeClient(devnet),
     )
