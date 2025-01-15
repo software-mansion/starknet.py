@@ -16,8 +16,8 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.utils import (
     _get_random_private_key_unsafe,
+    _new_address,
     get_deploy_account_transaction,
-    new_address,
     prepay_account,
 )
 
@@ -34,7 +34,7 @@ async def deploy_account_transaction(
     """
     key_pair = KeyPair.from_private_key(_get_random_private_key_unsafe())
 
-    address, salt = new_address(
+    address, salt = _new_address(
         account_with_validate_deploy_class_hash,
         [key_pair.public_key],
     )

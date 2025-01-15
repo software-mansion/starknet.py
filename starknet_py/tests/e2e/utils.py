@@ -15,7 +15,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
 
-def new_address(
+def _new_address(
     class_hash: int,
     calldata: List[int],
 ):

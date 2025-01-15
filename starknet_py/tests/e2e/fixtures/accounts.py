@@ -22,8 +22,8 @@ from starknet_py.tests.e2e.fixtures.constants import (
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     _get_random_private_key_unsafe,
+    _new_address,
     get_deploy_account_transaction,
-    new_address,
     prepay_account,
 )
 
@@ -119,7 +119,7 @@ class AccountToBeDeployedDetailsFactory:
         if argent_calldata:
             calldata.append(0)
 
-        address, salt = new_address(
+        address, salt = _new_address(
             class_hash=class_hash,
             calldata=calldata,
         )
@@ -178,7 +178,7 @@ async def argent_account(
     key_pair = KeyPair.from_private_key(_get_random_private_key_unsafe())
     constructor_calldata = [key_pair.public_key, 0]
 
-    address, salt = new_address(argent_account_class_hash, constructor_calldata)
+    address, salt = _new_address(argent_account_class_hash, constructor_calldata)
 
     await prepay_account(
         address=address,
@@ -215,7 +215,7 @@ async def argent_account_v040(
         1,
     ]
 
-    address, salt = new_address(argent_account_class_hash_v040, constructor_calldata)
+    address, salt = _new_address(argent_account_class_hash_v040, constructor_calldata)
 
     await prepay_account(
         address=address,
