@@ -510,7 +510,9 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         nonce: Optional[int] = None,
     ) -> EstimatedFee:
         tx = await self.get_account.sign_invoke_v3(
-            calls=self, nonce=nonce, resource_bounds=ResourceBoundsMapping.init_with_zeros()
+            calls=self,
+            nonce=nonce,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
         )
         estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 

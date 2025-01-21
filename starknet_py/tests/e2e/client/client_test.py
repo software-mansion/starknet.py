@@ -236,6 +236,7 @@ async def test_estimate_fee_for_multiple_transactions(
             for field in dataclasses.fields(EstimatedFee)
         )
 
+
 @pytest.mark.asyncio
 async def test_call_contract(client, contract_address):
     call = Call(
