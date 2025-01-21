@@ -73,14 +73,14 @@ test = [
 ]
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
-test_ci_v1 = "coverage run -a -m pytest --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
-test_ci_v2 = "coverage run -a -m pytest --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
 
 test_ci_on_networks = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/tests_on_networks"
 
 test_ci_docs = ["test_ci_docs_v1", "test_ci_docs_v2"]
-test_ci_docs_v1 = "coverage run -a -m pytest --contract_dir=v1 starknet_py/tests/e2e/docs"
-test_ci_docs_v2 = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/docs"
+test_ci_docs_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py/tests/e2e/docs"
+test_ci_docs_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py/tests/e2e/docs"
 
 test_report = "coverage report -m"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
