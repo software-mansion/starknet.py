@@ -680,7 +680,9 @@ class EstimatedFee:
         )
 
         return ResourceBoundsMapping(
-            l1_gas=l1_resource_bounds, l2_gas=ResourceBounds.init_with_zeros()
+            l1_gas=l1_resource_bounds,
+            l2_gas=ResourceBounds.init_with_zeros(),
+            l1_data_gas=ResourceBounds.init_with_zeros(),
         )
 
 
