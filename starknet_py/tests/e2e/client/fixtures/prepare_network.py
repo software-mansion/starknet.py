@@ -157,6 +157,9 @@ def contract_address(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     return prepared_data.contract_address
 
 
+# `contract_address` was used in other tests, which modified its storage values. This overlap
+# caused test interdependencies, leading to inconsistent results in `test_get_storage_at`
+# and `test_call_contract`, hence the introduction of `contract_address_2`.
 @pytest.fixture()
 def contract_address_2(prepare_network: Tuple[str, PreparedNetworkData]) -> int:
     """
