@@ -51,8 +51,8 @@ MAX_FEE = int(1e18)
 MAX_RESOURCE_BOUNDS_L1 = ResourceBounds(
     max_amount=int(1e5), max_price_per_unit=int(1e13)
 )
-MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
-    l1_gas=MAX_RESOURCE_BOUNDS_L1, l2_gas=ResourceBounds.init_with_zeros()
+MAX_RESOURCE_BOUNDS = ResourceBoundsMapping.init_with_l1_gas_only(
+    MAX_RESOURCE_BOUNDS_L1
 )
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"

@@ -22,7 +22,7 @@ from starknet_py.net.models.transaction import (
     InvokeV1,
     InvokeV3,
 )
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -97,7 +97,7 @@ async def test_broadcasted_txn_declare_v3(
     declare_v3 = await account.sign_declare_v3(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     brodcasted_txn = _create_broadcasted_txn(declare_v3)
@@ -133,7 +133,7 @@ async def test_broadcasted_txn_invoke_v3(account, hello_starknet_contract):
             get_selector_from_name("increaseBalance"),
             [10],
         ),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     brodcasted_txn = _create_broadcasted_txn(invoke_tx)
@@ -171,7 +171,7 @@ async def test_broadcasted_txn_deploy_account_v3(account):
     signed_tx = await account.sign_deploy_account_v3(
         class_hash,
         salt,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         constructor_calldata=calldata,
     )
     brodcasted_txn = _create_broadcasted_txn(signed_tx)

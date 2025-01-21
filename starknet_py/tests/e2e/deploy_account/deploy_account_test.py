@@ -3,7 +3,7 @@ import pytest
 from starknet_py.net.account.account import Account
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccountV3
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -43,7 +43,7 @@ async def test_deploy_account_v3(client, deploy_account_details_factory):
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     assert isinstance(deploy_account_tx, DeployAccountV3)

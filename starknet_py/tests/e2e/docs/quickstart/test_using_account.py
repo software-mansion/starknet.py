@@ -3,6 +3,8 @@ import sys
 
 import pytest
 
+from starknet_py.net.client_models import ResourceBoundsMapping
+
 directory = os.path.dirname(__file__)
 
 
@@ -20,8 +22,8 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
 
     # docs: end
     # docs: start
-    l1_resource_bounds = ResourceBounds(
-        max_amount=int(1e5), max_price_per_unit=int(1e13)
+    resource_bounds = ResourceBoundsMapping.init_with_l1_gas_only(
+        ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
     )
     # Declare and deploy an example contract which implements a simple k-v store.
     # Contract.declare_v3 takes string containing a compiled contract (sierra) and
@@ -30,12 +32,12 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
         account,
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=l1_resource_bounds,
+        resource_bounds=resource_bounds,
     )
 
     await declare_result.wait_for_acceptance()
     deploy_result = await declare_result.deploy_v3(
-        l1_resource_bounds=l1_resource_bounds,
+        resource_bounds=resource_bounds,
     )
     # Wait until deployment transaction is accepted
     await deploy_result.wait_for_acceptance()
@@ -69,7 +71,7 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
     # Executes only one transaction with prepared calls
     transaction_response = await account.execute_v3(
         calls=calls,
-        l1_resource_bounds=l1_resource_bounds,
+        resource_bounds=resource_bounds,
     )
     await account.client.wait_for_tx(transaction_response.transaction_hash)
     # docs: end

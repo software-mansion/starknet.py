@@ -16,7 +16,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.schemas.common import CallTypeField, EntryPointTypeField, Felt
 from starknet_py.net.schemas.rpc.block import StateDiffSchema
 from starknet_py.net.schemas.rpc.general import (
-    ComputationResourcesSchema,
     EstimatedFeeSchema,
     ExecutionResourcesSchema,
 )
@@ -67,8 +66,8 @@ class FunctionInvocationSchema(Schema):
     messages = fields.List(
         fields.Nested(OrderedMessageSchema()), data_key="messages", required=True
     )
-    computation_resources = fields.Nested(
-        ComputationResourcesSchema(), data_key="execution_resources", required=True
+    execution_resources = fields.Nested(
+        ExecutionResourcesSchema(), data_key="execution_resources", required=True
     )
 
     @post_load

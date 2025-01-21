@@ -2,6 +2,7 @@ import sys
 
 import pytest
 
+from starknet_py.net.client_models import ResourceBoundsMapping
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
@@ -25,16 +26,16 @@ async def test_simple_declare_and_deploy(account):
         account=account,
         compiled_contract=compiled_contract["sierra"],
         compiled_contract_casm=compiled_contract["casm"],
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e6), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
     await declare_result.wait_for_acceptance()
 
     deploy_result = await declare_result.deploy_v3(
         constructor_args=constructor_args,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
     await deploy_result.wait_for_acceptance()

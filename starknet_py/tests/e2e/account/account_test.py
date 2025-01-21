@@ -95,7 +95,7 @@ async def test_estimate_fee_for_declare_transaction(
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     estimated_fee = await account.client.estimate_fee(tx=declare_tx)
@@ -117,7 +117,7 @@ async def test_account_estimate_fee_for_declare_transaction(
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
@@ -137,13 +137,13 @@ async def test_account_estimate_fee_for_transactions(account, map_contract):
 
     invoke_tx_1 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         nonce=(await account.get_nonce()),
     )
 
     invoke_tx_2 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [5, 1]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         nonce=(await account.get_nonce() + 1),
     )
 
@@ -349,9 +349,7 @@ async def test_sign_declare_v3(
     ) = sierra_minimal_compiled_contract_and_class_hash
 
     signed_tx = await account.sign_declare_v3(
-        compiled_contract,
-        compiled_class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        compiled_contract, compiled_class_hash, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     assert isinstance(signed_tx, DeclareV3)
@@ -432,7 +430,7 @@ async def test_sign_deploy_account_v3(account):
     signed_tx = await account.sign_deploy_account_v3(
         class_hash,
         salt,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         constructor_calldata=calldata,
     )
 
@@ -521,7 +519,7 @@ async def test_deploy_account_v3(client, deploy_account_details_factory):
         salt=salt,
         key_pair=key_pair,
         client=client,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 

@@ -14,7 +14,7 @@ from starknet_py.tests.e2e.client.fixtures.prepare_net_for_gateway_test import (
     prepare_net_for_tests,
 )
 from starknet_py.tests.e2e.fixtures.accounts import AccountToBeDeployedDetailsFactory
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.contracts_v1 import declare_contract
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
@@ -41,7 +41,7 @@ async def deployed_balance_contract(
         account=account,
         abi=balance_abi,
         class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 

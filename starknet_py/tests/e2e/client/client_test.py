@@ -1,4 +1,5 @@
 # pylint: disable=too-many-arguments
+import dataclasses
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -147,10 +148,10 @@ async def test_estimate_fee_invoke(account, contract_address):
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.WEI
     assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert all(
+        getattr(estimate_fee, field.name) > 0
+        for field in dataclasses.fields(EstimatedFee)
+    )
 
 
 @pytest.mark.asyncio
@@ -168,11 +169,10 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
 
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.FRI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert all(
+        getattr(estimate_fee, field.name) > 0
+        for field in dataclasses.fields(EstimatedFee)
+    )
 
 
 @pytest.mark.asyncio
@@ -190,11 +190,10 @@ async def test_estimate_fee_declare(
 
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.WEI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert all(
+        getattr(estimate_fee, field.name) > 0
+        for field in dataclasses.fields(EstimatedFee)
+    )
 
 
 @pytest.mark.asyncio
@@ -203,11 +202,10 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
 
     assert isinstance(estimate_fee, EstimatedFee)
     assert estimate_fee.unit == PriceUnit.WEI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert all(
+        getattr(estimate_fee, field.name) > 0
+        for field in dataclasses.fields(EstimatedFee)
+    )
 
 
 @pytest.mark.asyncio
@@ -233,12 +231,10 @@ async def test_estimate_fee_for_multiple_transactions(
     for estimated_fee in estimated_fees:
         assert isinstance(estimated_fee, EstimatedFee)
         assert estimated_fee.unit == PriceUnit.WEI
-        assert estimated_fee.overall_fee > 0
-        assert estimated_fee.gas_price > 0
-        assert estimated_fee.gas_consumed > 0
-        assert estimated_fee.data_gas_price > 0
-        assert estimated_fee.data_gas_consumed > 0
-
+        assert all(
+            getattr(estimated_fee, field.name) > 0
+            for field in dataclasses.fields(EstimatedFee)
+        )
 
 @pytest.mark.asyncio
 async def test_call_contract(client, contract_address):

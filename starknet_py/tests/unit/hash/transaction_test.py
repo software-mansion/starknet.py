@@ -18,7 +18,8 @@ from starknet_py.net.client_models import DAMode, ResourceBounds, ResourceBounds
 def get_resource_bounds():
     return ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=0x186A0, max_price_per_unit=0x5AF3107A4000),
-        l2_gas=ResourceBounds(max_amount=0, max_price_per_unit=0),
+        l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
 
 

@@ -2,6 +2,8 @@ import sys
 
 import pytest
 
+from starknet_py.net.client_models import ResourceBoundsMapping
+
 # docs-abi: start
 abi = [
     {
@@ -54,8 +56,8 @@ async def test_using_existing_contracts(account, erc20_contract):
     invocation = await contract.functions["increase_allowance"].invoke_v3(
         sender,
         200,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            l1_resource_bounds=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
     await invocation.wait_for_acceptance()

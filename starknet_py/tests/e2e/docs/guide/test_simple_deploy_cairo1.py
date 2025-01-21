@@ -2,6 +2,7 @@ import sys
 
 import pytest
 
+from starknet_py.net.client_models import ResourceBoundsMapping
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
@@ -45,8 +46,8 @@ async def test_simple_deploy_cairo1(account, erc20_class_hash):
         class_hash=class_hash,
         abi=abi,
         constructor_args=constructor_args,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
 

@@ -27,7 +27,6 @@ from starknet_py.net.client_models import (
     Hash,
     OutsideExecution,
     OutsideExecutionTimeBounds,
-    ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
     SierraContractClass,
@@ -171,12 +170,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     async def _get_resource_bounds(
         self,
         transaction: AccountTransaction,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> ResourceBoundsMapping:
-        if auto_estimate and l1_resource_bounds is not None:
+        if auto_estimate and resource_bounds is not None:
             raise ValueError(
-                "Arguments auto_estimate and l1_resource_bounds are mutually exclusive."
+                "Arguments auto_estimate and resource_bounds are mutually exclusive."
             )
 
         if auto_estimate:
@@ -188,14 +187,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
                 Account.ESTIMATED_UNIT_PRICE_MULTIPLIER,
             )
 
-        if l1_resource_bounds is None:
+        if resource_bounds is None:
             raise ValueError(
-                "One of arguments: l1_resource_bounds or auto_estimate must be specified when invoking a transaction."
+                "One of arguments: resource_bounds or auto_estimate must be specified when invoking a transaction."
             )
 
-        return ResourceBoundsMapping(
-            l1_gas=l1_resource_bounds, l2_gas=ResourceBounds.init_with_zeros()
-        )
+        return resource_bounds
 
     async def _prepare_invoke(
         self,
@@ -235,7 +232,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         self,
         calls: Calls,
         *,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
@@ -243,7 +240,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         Takes calls and creates InvokeV3 from them.
 
         :param calls: Single call or a list of calls.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation; not recommended as it may lead to high costs.
         :return: InvokeV3 created from the calls (without the signature).
         """
@@ -262,7 +259,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         )
 
         resource_bounds = await self._get_resource_bounds(
-            transaction, l1_resource_bounds, auto_estimate
+            transaction, resource_bounds, auto_estimate
         )
         return _add_resource_bounds_to_transaction(transaction, resource_bounds)
 
@@ -469,12 +466,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         calls: Calls,
         *,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
         invoke_tx = await self._prepare_invoke_v3(
             calls,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )
@@ -554,7 +551,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeclareV3:
         declare_tx = await self._make_declare_v3_transaction(
@@ -563,7 +560,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce=nonce,
         )
         resource_bounds = await self._get_resource_bounds(
-            declare_tx, l1_resource_bounds, auto_estimate
+            declare_tx, resource_bounds, auto_estimate
         )
         declare_tx = _add_resource_bounds_to_transaction(declare_tx, resource_bounds)
 
@@ -683,7 +680,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         *,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
@@ -697,7 +694,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce=nonce,
         )
         resource_bounds = await self._get_resource_bounds(
-            deploy_account_tx, l1_resource_bounds, auto_estimate
+            deploy_account_tx, resource_bounds, auto_estimate
         )
         deploy_account_tx = _add_resource_bounds_to_transaction(
             deploy_account_tx, resource_bounds
@@ -735,13 +732,13 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         self,
         calls: Calls,
         *,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_v3(
             calls,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )
@@ -854,7 +851,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         client: Client,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> AccountDeploymentResult:
         # pylint: disable=too-many-arguments
@@ -873,8 +870,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
         calldata = (
@@ -900,7 +896,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             contract_address_salt=salt,
             constructor_calldata=calldata,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
         )
 

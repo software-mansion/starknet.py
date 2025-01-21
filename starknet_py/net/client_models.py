@@ -142,12 +142,22 @@ class ResourceBoundsMapping:
     """
 
     l1_gas: ResourceBounds
+    l1_data_gas: ResourceBounds
     l2_gas: ResourceBounds
 
     @staticmethod
     def init_with_zeros():
         return ResourceBoundsMapping(
             l1_gas=ResourceBounds.init_with_zeros(),
+            l1_data_gas=ResourceBounds.init_with_zeros(),
+            l2_gas=ResourceBounds.init_with_zeros(),
+        )
+
+    @staticmethod
+    def init_with_l1_gas_only(l1_resource_bounds: ResourceBounds):
+        return ResourceBoundsMapping(
+            l1_gas=l1_resource_bounds,
+            l1_data_gas=ResourceBounds.init_with_zeros(),
             l2_gas=ResourceBounds.init_with_zeros(),
         )
 
@@ -417,42 +427,13 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
-class DataResources:
-    """
-    Dataclass representing the data-availability resources of the transaction
-    """
-
-    l1_gas: int
-    l1_data_gas: int
-
-
-@dataclass
-class ComputationResources:
-    """
-    Dataclass representing the resources consumed by the VM.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-
-    steps: int
-    memory_holes: Optional[int]
-    range_check_builtin_applications: Optional[int]
-    pedersen_builtin_applications: Optional[int]
-    poseidon_builtin_applications: Optional[int]
-    ec_op_builtin_applications: Optional[int]
-    ecdsa_builtin_applications: Optional[int]
-    bitwise_builtin_applications: Optional[int]
-    keccak_builtin_applications: Optional[int]
-    segment_arena_builtin: Optional[int]
-
-
-@dataclass
-class ExecutionResources(ComputationResources):
+class ExecutionResources:
     """
     Dataclass representing the resources consumed by the transaction, includes both computation and data.
     """
 
-    data_availability: DataResources
+    l1_gas: int
+    l2_gas: int
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -530,10 +511,12 @@ class BlockStatus(Enum):
 
 @dataclass
 class PendingBlockHeader:
+    # pylint: disable=too-many-instance-attributes
     parent_hash: int
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l2_gas_price: ResourcePrice
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
@@ -581,6 +564,7 @@ class BlockHeader:
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l2_gas_price: ResourcePrice
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
@@ -1055,7 +1039,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    computation_resources: ComputationResources
+    computation_resources: ExecutionResources
 
 
 @dataclass

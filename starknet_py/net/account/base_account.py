@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     Hash,
     OutsideExecutionTimeBounds,
-    ResourceBounds,
+    ResourceBoundsMapping,
     SentTransactionResponse,
     Tag,
 )
@@ -190,7 +190,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         calls: Calls,
         *,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
         """
@@ -198,7 +198,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
 
         :param calls: Single call or list of calls.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls.
         """
@@ -263,7 +263,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeclareV3:
         """
@@ -274,7 +274,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
             Computed from casm compiled contract.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeclareV3 transaction.
         """
@@ -317,7 +317,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         *,
         constructor_calldata: Optional[List[int]] = None,
         nonce: int = 0,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
@@ -329,7 +329,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param constructor_calldata: Calldata to be ed to contract constructor
             and used to calculate deployed contract address.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
             Enough tokens must be prefunded before sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeployAccountV3 transaction.
@@ -359,7 +359,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         self,
         calls: Calls,
         *,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
@@ -367,7 +367,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         Takes calls and executes transaction.
 
         :param calls: Single call or list of calls.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param nonce: Nonce of the transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: SentTransactionResponse.

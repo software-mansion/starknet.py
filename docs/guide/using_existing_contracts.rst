@@ -44,26 +44,26 @@ Alternatively, you can estimate fee automatically, as described in the :ref:`aut
 
 .. code-block:: python
 
-    await contract.functions["put"].invoke_v3(k, v, l1_resource_bounds=ResourceBounds(
+    await contract.functions["put"].invoke_v3(k, v, resource_bounds=ResourceBoundsMapping.init_from_l1_gas_only(
             max_amount=int(1e5), max_price_per_unit=int(1e13)
         ))
 
-The ``l1_resource_bounds`` argument can be also defined in :meth:`~ContractFunction.prepare_invoke_v3`. Subsequently, the :meth:`~PreparedFunctionInvokeV3.invoke` method on a prepared call can be used either with ``l1_resource_bounds`` omitted or with its value overridden.
+The ``resource_bounds`` argument can be also defined in :meth:`~ContractFunction.prepare_invoke_v3`. Subsequently, the :meth:`~PreparedFunctionInvokeV3.invoke` method on a prepared call can be used either with ``resource_bounds`` omitted or with its value overridden.
 
 .. code-block:: python
 
-    prepared_call = contract.function["put"].prepare_invoke_v3(k, v, l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+    prepared_call = contract.function["put"].prepare_invoke_v3(k, v, resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ))
     await prepared_call.invoke()
-    # or l1_resource_bounds can be overridden
-    await prepared_call.invoke(l1_resource_bounds=ResourceBounds(
+    # or resource_bounds can be overridden
+    await prepared_call.invoke(resource_bounds=ResourceBounds(
             max_amount=int(1e5), max_price_per_unit=int(1e13)
         ))
 
 .. warning::
 
-    If ``l1_resource_bounds`` is not specified at any step it will default to ``None``,
+    If ``resource_bounds`` is not specified at any step it will default to ``None``,
     and will raise an exception when invoking a transaction, unless `auto_estimate` is specified and is set to `True`.
 
 Please note you will need to have enough Fri in your Starknet account otherwise

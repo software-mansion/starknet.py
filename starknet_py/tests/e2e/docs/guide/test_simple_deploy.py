@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.net.client_models import ResourceBounds
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 
 @pytest.mark.asyncio
@@ -30,8 +30,8 @@ async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_
         class_hash=class_hash,
         abi=abi,  # abi is optional
         constructor_args=constructor_args,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
 

@@ -4,7 +4,10 @@ import pytest
 
 from starknet_py.net.client_models import SierraContractClass
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import (
+    MAX_RESOURCE_BOUNDS,
+    MAX_RESOURCE_BOUNDS_L1,
+)
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
@@ -43,7 +46,7 @@ async def test_cairo1_contract(
         # compiled_contract is a string containing the content of the starknet-compile (.json file)
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     # Send transaction
