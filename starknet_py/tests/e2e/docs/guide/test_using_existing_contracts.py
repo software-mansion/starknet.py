@@ -57,7 +57,9 @@ async def test_using_existing_contracts(account, erc20_contract):
         sender,
         200,
         resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            l1_resource_bounds=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
+            l1_resource_bounds=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            )
         ),
     )
     await invocation.wait_for_acceptance()
