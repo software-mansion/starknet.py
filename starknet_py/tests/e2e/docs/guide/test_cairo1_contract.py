@@ -4,10 +4,7 @@ import pytest
 
 from starknet_py.net.client_models import SierraContractClass
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_RESOURCE_BOUNDS,
-    MAX_RESOURCE_BOUNDS_L1,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
@@ -78,7 +75,7 @@ async def test_cairo1_contract(
     )
 
     res = await account.execute_v3(
-        calls=contract_deployment.call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=contract_deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await account.client.wait_for_tx(res.transaction_hash)
 

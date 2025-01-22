@@ -33,11 +33,7 @@ from starknet_py.net.models.transaction import (
 )
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_FEE,
-    MAX_RESOURCE_BOUNDS,
-    MAX_RESOURCE_BOUNDS_L1,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.run_on_devnet
@@ -265,9 +261,7 @@ async def test_sign_invoke_v1_auto_estimate(account, map_contract):
     "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
 )
 async def test_sign_invoke_v3(account, calls):
-    signed_tx = await account.sign_invoke_v3(
-        calls, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
-    )
+    signed_tx = await account.sign_invoke_v3(calls, resource_bounds=MAX_RESOURCE_BOUNDS)
 
     assert isinstance(signed_tx, InvokeV3)
     assert isinstance(signed_tx.signature, list)
@@ -659,7 +653,7 @@ async def test_sign_invoke_v1_for_fee_estimation(account, map_contract):
 async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     call = map_contract.functions["put"].prepare_invoke_v3(key=1, value=2)
     transaction = await account.sign_invoke_v3(
-        calls=call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
@@ -824,7 +818,7 @@ async def test_account_execute_v3(account, deployed_balance_contract):
     (initial_balance,) = await account.client.call_contract(call=get_balance_call)
 
     execute_increase_balance = await account.execute_v3(
-        calls=increase_balance_call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     receipt = await account.client.wait_for_tx(
         tx_hash=execute_increase_balance.transaction_hash

@@ -10,7 +10,7 @@ from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
-    MAX_RESOURCE_BOUNDS_L1,
+    MAX_RESOURCE_BOUNDS,
     STRK_FEE_CONTRACT_ADDRESS,
 )
 
@@ -62,7 +62,7 @@ async def test_account_get_balance_strk(account, hello_starknet_contract):
     block = await account.client.get_block(block_number="latest")
 
     await hello_starknet_contract.functions["increase_balance"].invoke_v3(
-        amount=10, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        amount=10, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     new_balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)

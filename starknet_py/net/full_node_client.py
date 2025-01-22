@@ -364,6 +364,7 @@ class FullNodeClient(Client):
             method_name="getTransactionReceipt",
             params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
+        print(res)
         return cast(TransactionReceipt, TransactionReceiptSchema().load(res))
 
     async def estimate_fee(

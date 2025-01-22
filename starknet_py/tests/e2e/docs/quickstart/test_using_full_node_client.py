@@ -1,6 +1,10 @@
 import pytest
 
-from starknet_py.net.client_models import StarknetBlock, Transaction
+from starknet_py.net.client_models import (
+    ResourceBoundsMapping,
+    StarknetBlock,
+    Transaction,
+)
 
 
 @pytest.mark.run_on_devnet
@@ -17,10 +21,13 @@ async def test_using_full_node_client(client, map_contract):
     client = FullNodeClient(node_url=node_url)
     # docs: end
 
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    )
     await map_contract.functions["put"].prepare_invoke_v3(key=10, value=10).invoke(
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        )
+        resource_bounds=resource_bounds
     )
 
     client = full_node_client_fixture

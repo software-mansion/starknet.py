@@ -7,13 +7,9 @@ from starknet_py.contract import (
 )
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import Call, ResourceBounds
+from starknet_py.net.client_models import Call, ResourceBounds, ResourceBoundsMapping
 from starknet_py.net.models import InvokeV1, InvokeV3
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_FEE,
-    MAX_RESOURCE_BOUNDS,
-    MAX_RESOURCE_BOUNDS_L1,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -31,7 +27,7 @@ async def test_prepare_and_invoke_v1(map_contract):
 @pytest.mark.asyncio
 async def test_prepare_and_invoke_v3(map_contract):
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(
-        key=1, value=2, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     assert isinstance(prepared_invoke, PreparedFunctionInvokeV3)
 
@@ -52,7 +48,7 @@ async def test_invoke_v1(map_contract):
 @pytest.mark.asyncio
 async def test_invoke_v3(map_contract):
     invocation = await map_contract.functions["put"].invoke_v3(
-        key=1, value=2, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     assert isinstance(invocation.invoke_transaction, InvokeV3)
     assert invocation.invoke_transaction.resource_bounds == MAX_RESOURCE_BOUNDS
@@ -158,21 +154,27 @@ async def test_latest_max_fee_takes_precedence(map_contract):
 @pytest.mark.asyncio
 async def test_latest_resource_bounds_take_precedence(map_contract):
     prepared_function = map_contract.functions["put"].prepare_invoke_v3(
-        key=1, value=2, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
-    updated_resource_bounds = ResourceBounds(
-        max_amount=MAX_RESOURCE_BOUNDS_L1.max_amount + 100,
-        max_price_per_unit=MAX_RESOURCE_BOUNDS_L1.max_price_per_unit + 200,
+    updated_resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(
+            max_amount=MAX_RESOURCE_BOUNDS.l1_gas.max_amount + 100,
+            max_price_per_unit=MAX_RESOURCE_BOUNDS.l1_gas.max_price_per_unit + 200,
+        ),
+        l2_gas=ResourceBounds(
+            max_amount=MAX_RESOURCE_BOUNDS.l2_gas.max_amount + 100,
+            max_price_per_unit=MAX_RESOURCE_BOUNDS.l2_gas.max_price_per_unit + 200,
+        ),
+        l1_data_gas=ResourceBounds(
+            max_amount=MAX_RESOURCE_BOUNDS.l1_data_gas.max_amount + 100,
+            max_price_per_unit=MAX_RESOURCE_BOUNDS.l1_data_gas.max_price_per_unit + 200,
+        ),
     )
-    invocation = await prepared_function.invoke(
-        l1_resource_bounds=updated_resource_bounds
-    )
+    invocation = await prepared_function.invoke(resource_bounds=updated_resource_bounds)
 
     assert isinstance(invocation.invoke_transaction, InvokeV3)
-    assert (
-        invocation.invoke_transaction.resource_bounds.l1_gas == updated_resource_bounds
-    )
+    assert invocation.invoke_transaction.resource_bounds == updated_resource_bounds
     assert (
         invocation.invoke_transaction.resource_bounds.l2_gas
         == ResourceBounds.init_with_zeros()
