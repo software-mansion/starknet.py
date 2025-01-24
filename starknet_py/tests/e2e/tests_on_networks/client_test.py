@@ -177,13 +177,10 @@ async def test_estimate_message_fee(client_sepolia_testnet):
     )
 
     assert isinstance(estimated_message, EstimatedFee)
-    assert estimated_message.overall_fee > 0
-    assert estimated_message.l1_gas_price > 0
-    assert estimated_message.l1_gas_consumed > 0
-    assert estimated_message.l2_gas_price > 0
-    assert estimated_message.l2_gas_consumed > 0
-    assert estimated_message.l1_data_gas_price > 0
-    assert estimated_message.l1_data_gas_consumed >= 0
+    assert all(
+        getattr(estimated_message, field.name) > 0
+        for field in dataclasses.fields(EstimatedFee)
+    )
     assert estimated_message.unit is not None
 
 

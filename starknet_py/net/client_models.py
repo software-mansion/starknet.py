@@ -1223,7 +1223,7 @@ class StorageProofResponse:
 @dataclass
 class MessageStatus:
     transaction_hash: int
-    finality_status: TransactionFinalityStatus
+    finality_status: TransactionStatus
     failure_reason: Optional[str] = None
 
 
