@@ -178,7 +178,8 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/workflows/devnet.yml
 
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
@@ -289,7 +290,8 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/workflows/devnet.yml
 
       # ====================== RUN TESTS ====================== #
 
@@ -436,7 +438,8 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/workflows/devnet.yml
 
       # ====================== RUN TESTS ====================== #
 
