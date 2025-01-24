@@ -258,8 +258,7 @@ class DeclareResult(SentTransaction):
         :param unique: Determines if the contract should be salted with the account address.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param nonce: Nonce of the transaction with call to deployer.
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeployResult instance.
         """
@@ -488,8 +487,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         """
         Send an Invoke transaction version 3 for the prepared data.
 
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
@@ -683,8 +681,7 @@ class ContractFunction:
         Creates a ``PreparedFunctionInvokeV3`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :return: PreparedFunctionInvokeV3.
         """
 
@@ -712,8 +709,7 @@ class ContractFunction:
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare_invoke_v3(*args, **kwargs).invoke()``.
 
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
@@ -939,8 +935,7 @@ class Contract:
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
         :param compiled_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
@@ -1058,8 +1053,7 @@ class Contract:
         :param cairo_version: Version of the Cairo in which contract is written.
             By default, it is set to 1.
         :param nonce: Nonce of the transaction.
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.

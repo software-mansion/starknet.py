@@ -240,7 +240,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         Takes calls and creates InvokeV3 from them.
 
         :param calls: Single call or a list of calls.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas used in this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation; not recommended as it may lead to high costs.
         :return: InvokeV3 created from the calls (without the signature).
         """
@@ -870,8 +870,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
             ``[key_pair.public_key]`` will be used as calldata.
         :param nonce: Nonce of the transaction.
-        :param resource_bounds: Max amount and max price per unit of L1 and L2 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
         calldata = (
