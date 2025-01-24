@@ -114,6 +114,9 @@ class ResourceBoundsSchema(Schema):
 class ResourceBoundsMappingSchema(Schema):
     l1_gas = fields.Nested(ResourceBoundsSchema(), data_key="l1_gas", required=True)
     l2_gas = fields.Nested(ResourceBoundsSchema(), data_key="l2_gas", required=True)
+    l1_data_gas = fields.Nested(
+        ResourceBoundsSchema(), data_key="l1_data_gas", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ResourceBoundsMapping:

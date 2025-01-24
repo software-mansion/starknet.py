@@ -699,6 +699,13 @@ class EstimatedFee:
             l1_data_gas=l1_data_resource_bounds,
         )
 
+    def calculate_overall_fee(self):
+        return (
+            self.l1_gas_consumed * self.l1_gas_price
+            + self.l2_gas_consumed * self.l2_gas_price
+            + self.l1_data_gas_consumed * self.l1_data_gas_price
+        )
+
 
 @dataclass
 class DeployedContract:

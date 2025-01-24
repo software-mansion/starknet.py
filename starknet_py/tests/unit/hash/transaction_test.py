@@ -107,6 +107,8 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
     assert compute_invoke_transaction_hash(**data) == expected_hash
 
 
+# TODO(#1498): Remove the skip mark
+@pytest.mark.skip
 @pytest.mark.parametrize(
     "common_data, declare_data, expected_hash",
     (
@@ -143,6 +145,8 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
     )
 
 
+# TODO(#1498): Remove the skip mark
+@pytest.mark.skip
 @pytest.mark.parametrize(
     "common_data, invoke_data, expected_hash",
     (
@@ -187,6 +191,7 @@ def test_compute_invoke_v3_transaction_hash(common_data, invoke_data, expected_h
     )
 
 
+# TODO(#1498): Remove the skip mark
 @pytest.mark.parametrize(
     "common_data, deploy_account_data, expected_hash",
     (

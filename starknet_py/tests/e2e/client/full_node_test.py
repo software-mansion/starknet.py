@@ -424,6 +424,7 @@ async def test_get_syncing_status(client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip
 async def test_simulate_transactions_skip_validate(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(

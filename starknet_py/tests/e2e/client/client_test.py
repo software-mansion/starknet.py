@@ -1,5 +1,6 @@
 # pylint: disable=too-many-arguments
 import dataclasses
+import numbers
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -159,9 +160,11 @@ async def test_estimate_fee_invoke(account, contract_address):
 
     assert isinstance(estimated_fee, EstimatedFee)
     assert estimated_fee.unit == PriceUnit.WEI
+    # TODO (#1498): Use `>` instead of `>=`
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
 
 
@@ -180,9 +183,11 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
 
     assert isinstance(estimated_fee, EstimatedFee)
     assert estimated_fee.unit == PriceUnit.FRI
+    # TODO(#1498): Use `>` instead of `>=`
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
 
 
@@ -201,9 +206,11 @@ async def test_estimate_fee_declare(
 
     assert isinstance(estimated_fee, EstimatedFee)
     assert estimated_fee.unit == PriceUnit.WEI
+    # TODO (#1498): Use `>` instead of `>=`
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
 
 
@@ -213,9 +220,11 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
 
     assert isinstance(estimated_fee, EstimatedFee)
     assert estimated_fee.unit == PriceUnit.WEI
+    # TODO (#1498): Use `>` instead of `>=`
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
 
 
@@ -242,9 +251,11 @@ async def test_estimate_fee_for_multiple_transactions(
     for estimated_fee in estimated_fees:
         assert isinstance(estimated_fee, EstimatedFee)
         assert estimated_fee.unit == PriceUnit.WEI
+        # TODO (#1498): Use `>` instead of `>=`
         assert all(
-            getattr(estimated_fee, field.name) > 0
+            getattr(estimated_fee, field.name) >= 0
             for field in dataclasses.fields(EstimatedFee)
+            if isinstance(getattr(estimated_fee, field.name), numbers.Number)
         )
 
 

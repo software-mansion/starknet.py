@@ -101,4 +101,6 @@ async def test_block_with_receipts_latest(account):
     assert blk.l1_gas_price.price_in_fri > 0
     assert blk.l1_data_gas_price.price_in_wei >= 0
     assert blk.l1_data_gas_price.price_in_fri >= 0
+    assert blk.l2_gas_price.price_in_wei >= 0
+    assert blk.l2_gas_price.price_in_fri >= 0
     assert blk.l1_da_mode in L1DAMode

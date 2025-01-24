@@ -26,4 +26,14 @@ class EstimatedFeeSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> EstimatedFee:
+        # data = {
+        #     "l1_gas_consumed": 0x186A0,
+        #     "l1_data_gas_consumed": 0x1,
+        #     "l1_gas_price": 0x174876E800,
+        #     "l1_data_gas_price": 0x174876E800,
+        #     "l2_gas_consumed": 0x0,
+        #     "l2_gas_price": 0x0,
+        #     "overall_fee": 10000100000000000,
+        #     "unit": "FRI",
+        # }
         return EstimatedFee(**data)

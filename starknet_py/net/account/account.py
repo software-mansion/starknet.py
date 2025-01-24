@@ -158,6 +158,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             estimated_fee = await self.estimate_fee(transaction)
             assert isinstance(estimated_fee, EstimatedFee)
 
+            print(estimated_fee.overall_fee, Account.ESTIMATED_FEE_MULTIPLIER)
             max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
 
         if max_fee is None:
