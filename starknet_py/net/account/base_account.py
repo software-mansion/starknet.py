@@ -8,9 +8,8 @@ from starknet_py.net.client_models import (
     Calls,
     EstimatedFee,
     Hash,
-    ResourceBoundsMapping,
     OutsideExecutionTimeBounds,
-    ResourceBounds,
+    ResourceBoundsMapping,
     SentTransactionResponse,
     Tag,
 )

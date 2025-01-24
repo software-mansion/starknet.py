@@ -16,7 +16,7 @@ async def test_deploy_prefunded_account(
     # docs: start
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
-    from starknet_py.net.client_models import ResourceBounds
+    from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
     from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.signer.key_pair import KeyPair
 
@@ -60,8 +60,8 @@ async def test_deploy_prefunded_account(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key],
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e11)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e11))
         ),
     )
     # Wait for deployment transaction to be accepted

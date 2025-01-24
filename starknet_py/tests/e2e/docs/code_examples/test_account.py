@@ -53,6 +53,7 @@ async def test_execute_v3(account, contract_address):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     resp = await account.execute_v3(
         Call(

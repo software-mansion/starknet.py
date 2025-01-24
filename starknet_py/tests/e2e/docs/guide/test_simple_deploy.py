@@ -27,7 +27,8 @@ async def test_simple_deploy(account, hello_starknet_class_hash, hello_starknet_
     # docs: start
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
-        l2_gas=ResourceBounds.init_with_zeros(),
+        l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
     )
     deploy_result = await Contract.deploy_contract_v3(
         account=account,

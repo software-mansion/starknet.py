@@ -27,7 +27,6 @@ from starknet_py.net.client_models import (
     Hash,
     OutsideExecution,
     OutsideExecutionTimeBounds,
-    ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
     SierraContractClass,

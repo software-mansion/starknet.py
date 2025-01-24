@@ -142,12 +142,22 @@ class ResourceBoundsMapping:
     """
 
     l1_gas: ResourceBounds
+    l1_data_gas: ResourceBounds
     l2_gas: ResourceBounds
 
     @staticmethod
     def init_with_zeros():
         return ResourceBoundsMapping(
             l1_gas=ResourceBounds.init_with_zeros(),
+            l1_data_gas=ResourceBounds.init_with_zeros(),
+            l2_gas=ResourceBounds.init_with_zeros(),
+        )
+
+    @staticmethod
+    def init_with_l1_gas_only(l1_resource_bounds: ResourceBounds):
+        return ResourceBoundsMapping(
+            l1_gas=l1_resource_bounds,
+            l1_data_gas=ResourceBounds.init_with_zeros(),
             l2_gas=ResourceBounds.init_with_zeros(),
         )
 
@@ -684,7 +694,9 @@ class EstimatedFee:
         )
 
         return ResourceBoundsMapping(
-            l1_gas=l1_resource_bounds, l2_gas=l2_resource_bounds, l1_data_gas=l1_data_resource_bounds
+            l1_gas=l1_resource_bounds,
+            l2_gas=l2_resource_bounds,
+            l1_data_gas=l1_data_resource_bounds,
         )
 
 

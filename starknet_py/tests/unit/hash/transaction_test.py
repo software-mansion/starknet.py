@@ -11,15 +11,8 @@ from starknet_py.hash.transaction import (
     compute_invoke_v3_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.net.client_models import DAMode, ResourceBounds, ResourceBoundsMapping
-
-
-@pytest.fixture(name="default_resource_bounds")
-def get_resource_bounds():
-    return ResourceBoundsMapping(
-        l1_gas=ResourceBounds(max_amount=0x186A0, max_price_per_unit=0x5AF3107A4000),
-        l2_gas=ResourceBounds(max_amount=0, max_price_per_unit=0),
-    )
+from starknet_py.net.client_models import DAMode
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.parametrize(
@@ -138,14 +131,12 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
         ),
     ),
 )
-def test_compute_declare_v3_transaction_hash(
-    common_data, declare_data, expected_hash, default_resource_bounds
-):
+def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected_hash):
     assert (
         compute_declare_v3_transaction_hash(
             **declare_data,
             common_fields=CommonTransactionV3Fields(
-                **common_data, resource_bounds=default_resource_bounds
+                **common_data, resource_bounds=MAX_RESOURCE_BOUNDS
             ),
         )
         == expected_hash
@@ -184,14 +175,12 @@ def test_compute_declare_v3_transaction_hash(
         ),
     ),
 )
-def test_compute_invoke_v3_transaction_hash(
-    common_data, invoke_data, expected_hash, default_resource_bounds
-):
+def test_compute_invoke_v3_transaction_hash(common_data, invoke_data, expected_hash):
     assert (
         compute_invoke_v3_transaction_hash(
             **invoke_data,
             common_fields=CommonTransactionV3Fields(
-                **common_data, resource_bounds=default_resource_bounds
+                **common_data, resource_bounds=MAX_RESOURCE_BOUNDS
             ),
         )
         == expected_hash
@@ -225,14 +214,14 @@ def test_compute_invoke_v3_transaction_hash(
     ),
 )
 def test_compute_deploy_account_v3_transaction_hash(
-    common_data, deploy_account_data, expected_hash, default_resource_bounds
+    common_data, deploy_account_data, expected_hash
 ):
     assert (
         compute_deploy_account_v3_transaction_hash(
             **deploy_account_data,
             common_fields=CommonTransactionV3Fields(
                 **common_data,
-                resource_bounds=default_resource_bounds,
+                resource_bounds=MAX_RESOURCE_BOUNDS,
             ),
         )
         == expected_hash

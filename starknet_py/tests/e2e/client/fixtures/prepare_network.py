@@ -60,7 +60,7 @@ async def deployed_balance_contract_2(
         account=account,
         abi=balance_abi,
         class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 

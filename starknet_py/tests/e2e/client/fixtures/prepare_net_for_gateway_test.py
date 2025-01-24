@@ -45,7 +45,7 @@ async def prepare_net_for_tests(
     await invoke_res.wait_for_acceptance()
 
     invoke_res_2 = await contract_2.functions["increase_balance"].invoke_v3(
-        amount=1777, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        amount=1777, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await invoke_res_2.wait_for_acceptance()
 
