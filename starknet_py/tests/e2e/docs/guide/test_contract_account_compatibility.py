@@ -1,23 +1,27 @@
 import pytest
 
-from starknet_py.net.models import InvokeV1
+from starknet_py.net.models import InvokeV3
 
 
 @pytest.mark.asyncio
 async def test_create_invoke_from_contract(map_contract, account):
     # pylint: disable=import-outside-toplevel
     contract = map_contract
-    max_fee = int(1e20)
 
     # docs: start
-    from starknet_py.net.client_models import Call
+    from starknet_py.net.client_models import Call, ResourceBounds
 
     # Prepare a call through Contract
-    call = contract.functions["put"].prepare_invoke_v1(key=20, value=30)
+    call = contract.functions["put"].prepare_invoke_v3(key=20, value=30)
     assert issubclass(type(call), Call)
 
     # Crate an Invoke transaction from call
-    invoke_transaction = await account.sign_invoke_v1(call, max_fee=max_fee)
+    invoke_transaction = await account.sign_invoke_v3(
+        call,
+        l1_resource_bounds=ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        ),
+    )
     # docs: end
 
-    assert isinstance(invoke_transaction, InvokeV1)
+    assert isinstance(invoke_transaction, InvokeV3)

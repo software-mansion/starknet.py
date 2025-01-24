@@ -48,6 +48,7 @@ from starknet_py.serialization.function_serialization_adapter import (
     FunctionSerializationAdapterV1,
 )
 from starknet_py.utils.constructor_args_translator import _is_abi_v2
+from starknet_py.utils.deprecation import _print_deprecation_warning
 from starknet_py.utils.sync import add_sync_methods
 
 # pylint: disable=too-many-lines
@@ -201,6 +202,9 @@ class DeclareResult(SentTransaction):
         """
         Deploys a contract.
 
+        .. deprecated:: 0.25.0
+            This method is deprecated and will be removed in future versions. Use deploy_v3 instead.
+
         :param deployer_address: Address of the UDC. Is set to the address of
             the default UDC (same address on mainnet/sepolia) by default.
             Must be set when using custom network other than ones listed above.
@@ -213,6 +217,10 @@ class DeclareResult(SentTransaction):
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+        _print_deprecation_warning(
+            "deploy_v1 is deprecated and will be removed in future versions. Use deploy_v3 instead."
+        )
+
         abi = self._get_abi()
 
         return await Contract.deploy_contract_v1(
@@ -622,6 +630,9 @@ class ContractFunction:
         :param max_fee: Max amount of Wei to be paid when executing transaction.
         :return: PreparedFunctionCall.
         """
+        _print_deprecation_warning(
+            "prepare_invoke_v1 is deprecated and will be removed in future versions. Use prepare_invoke_v3 instead."
+        )
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionInvokeV1(
@@ -652,6 +663,10 @@ class ContractFunction:
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
+        _print_deprecation_warning(
+            "invoke_v1 is deprecated and will be removed in future versions. Use invoke_v3 instead."
+        )
+
         prepared_invoke = self.prepare_invoke_v1(*args, **kwargs)
         return await prepared_invoke.invoke(
             max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
@@ -843,6 +858,9 @@ class Contract:
         :return: DeclareResult instance.
         """
 
+        _print_deprecation_warning(
+            "declare_v1 is deprecated and will be removed in future versions. Use declare_v3 instead."
+        )
         declare_tx = await account.sign_declare_v1(
             compiled_contract=compiled_contract,
             nonce=nonce,
@@ -879,6 +897,10 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :return: DeclareResult instance.
         """
+
+        _print_deprecation_warning(
+            "declare_v2 is deprecated and will be removed in future versions. Use declare_v3 instead."
+        )
 
         compiled_class_hash = _extract_compiled_class_hash(
             compiled_contract_casm, compiled_class_hash
@@ -974,6 +996,10 @@ class Contract:
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
+        _print_deprecation_warning(
+            "deploy_contract_v1 is deprecated and will be removed in future versions. Use deploy_contract_v3 instead."
+        )
+
         deployer = Deployer(
             deployer_address=deployer_address,
             account_address=account.address if unique else None,

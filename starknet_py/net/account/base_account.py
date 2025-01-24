@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceID
 from starknet_py.net.client import Client
 from starknet_py.net.client_models import (
+    Call,
     Calls,
     EstimatedFee,
     Hash,
     ResourceBoundsMapping,
+    OutsideExecutionTimeBounds,
+    ResourceBounds,
     SentTransactionResponse,
     Tag,
 )
@@ -25,7 +29,45 @@ from starknet_py.net.models.transaction import (
 from starknet_py.net.models.typed_data import TypedDataDict
 
 
-class BaseAccount(ABC):
+class OutsideExecutionSupportBaseMixin(ABC):
+
+    @abstractmethod
+    async def get_outside_execution_nonce(self) -> int:
+        """
+        Generate special valid nonce for outside execution calls.
+        """
+
+    @abstractmethod
+    async def supports_interface(
+        self, interface_id: OutsideExecutionInterfaceID
+    ) -> bool:
+        """
+        Check if the account supports the given outside execution interface. Part of ISRC5 standard.
+        """
+
+    @abstractmethod
+    async def sign_outside_execution_call(
+        self,
+        calls: Calls,
+        execution_time_bounds: OutsideExecutionTimeBounds,
+        *,
+        caller: AddressRepresentation = ANY_CALLER,
+        nonce: Optional[int] = None,
+        interface_version: Optional[OutsideExecutionInterfaceID] = None,
+    ) -> Call:
+        """
+        Creates a call for an outcide execution (SNIP-9 specification).
+
+        :param calls: Single call or list of calls to be executed by outside caller.
+        :param execution_time_bounds: Execution time bounds for the call.
+        :param caller: Address of the caller. IMPORTANT! By default it is ANY_CALLER.
+        :param nonce: Nonce for the transaction. Is populated automatically if not provided.
+        :param interface_version: Outside execution interface version. Method will check which version account
+            supports and use the highest one and populate the value.
+        """
+
+
+class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
     """
     Base class for all account implementations.
 
@@ -132,6 +174,10 @@ class BaseAccount(ABC):
         """
         Takes calls and creates signed Invoke.
 
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_invoke_v3` instead.
+
         :param calls: Single call or list of calls.
         :param nonce: Nonce of the transaction.
         :param max_fee: Max amount of Wei to be paid when executing transaction.
@@ -169,8 +215,9 @@ class BaseAccount(ABC):
         auto_estimate: bool = False,
     ) -> DeclareV1:
         """
-        This method is deprecated, not covered by tests and will be removed in the future.
-        Please use current version of transaction signing methods.
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
 
         Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
@@ -195,6 +242,10 @@ class BaseAccount(ABC):
     ) -> DeclareV2:
         """
         Create and sign declare transaction version 2 using sierra contract.
+
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
 
         :param compiled_contract: string containing a compiled Starknet contract.
             Supports new contracts (compiled to sierra).
@@ -243,6 +294,10 @@ class BaseAccount(ABC):
         # pylint: disable=too-many-arguments
         """
         Create and sign deploy account transaction version 1.
+
+        .. deprecated:: 0.25.0
+           This method is deprecated and will be removed in future versions.
+           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_deploy_account_v3` instead.
 
         :param class_hash: Class hash of the contract class to be deployed.
         :param contract_address_salt: A salt used to calculate deployed contract address.

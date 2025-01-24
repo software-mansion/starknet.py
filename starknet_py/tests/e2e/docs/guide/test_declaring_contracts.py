@@ -16,9 +16,8 @@ async def test_declaring_contracts(
     (compiled_contract, class_hash) = map_compiled_contract_and_class_hash_copy_1
 
     # docs: start
-    # Account.sign_declare_v2 and Account.sign_declare_v3 take string containing a compiled contract (sierra)
+    # Account.sign_declare_v3 takes a string containing a compiled contract (sierra)
     # and a class hash (casm_class_hash)
-    # They return DeclareV2 and DeclareV3 respectively
 
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),

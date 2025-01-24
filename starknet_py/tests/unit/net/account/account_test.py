@@ -6,7 +6,8 @@ from starknet_py.constants import FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.net.signer.key_pair import KeyPair
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
     MAX_RESOURCE_BOUNDS,

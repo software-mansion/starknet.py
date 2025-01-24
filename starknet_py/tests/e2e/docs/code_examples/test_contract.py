@@ -11,7 +11,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV2, DeclareV3, StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 

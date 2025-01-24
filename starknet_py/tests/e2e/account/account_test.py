@@ -31,7 +31,7 @@ from starknet_py.net.models.transaction import (
     DeployAccountV3,
     InvokeV3,
 )
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 

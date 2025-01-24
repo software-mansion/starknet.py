@@ -1,15 +1,14 @@
 import pytest
 
-from starknet_py.contract import Contract
 from starknet_py.net.client import Client
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.net.client_models import PriceUnit
+from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
 
 @pytest.mark.asyncio
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
-    eth_fee_contract: Contract,
     client: Client,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals, unused-variable
@@ -17,8 +16,9 @@ async def test_deploy_prefunded_account(
     # docs: start
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
+    from starknet_py.net.client_models import ResourceBounds
     from starknet_py.net.full_node_client import FullNodeClient
-    from starknet_py.net.signer.stark_curve_signer import KeyPair
+    from starknet_py.net.signer.key_pair import KeyPair
 
     # First, make sure to generate private key and salt
     # docs: end
@@ -26,7 +26,6 @@ async def test_deploy_prefunded_account(
     salt = 1
     class_hash = account_with_validate_deploy_class_hash
     # docs: start
-
     key_pair = KeyPair.from_private_key(private_key)
 
     # You can also generate a key pair
@@ -42,29 +41,28 @@ async def test_deploy_prefunded_account(
 
     # Prefund the address (using the token bridge or by sending fee tokens to the computed address)
     # Make sure the tx has been accepted on L2 before proceeding
-    # docs: end
-    res = await eth_fee_contract.functions["transfer"].invoke_v1(
-        recipient=address, amount=int(1e16), max_fee=MAX_FEE
-    )
-    await res.wait_for_acceptance()
-    # docs: start
 
     # Define the client to be used to interact with Starknet
     client = FullNodeClient(node_url="https://your.node.url")
     # docs: end
 
     client = full_node_client_fixture
+    client_url = client.url.replace("/rpc", "")
+    await mint_token_on_devnet(client_url, address, int(1e21), PriceUnit.FRI.value)
+
     # docs: start
 
-    # Use `Account.deploy_account_v1` or `Account.deploy_account_v3` static methods to deploy an account
-    account_deployment_result = await Account.deploy_account_v1(
+    # Use `Account.deploy_account_v3` static method to deploy an account
+    account_deployment_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key],
-        max_fee=int(1e15),
+        l1_resource_bounds=ResourceBounds(
+            max_amount=int(1e5), max_price_per_unit=int(1e11)
+        ),
     )
     # Wait for deployment transaction to be accepted
     await account_deployment_result.wait_for_acceptance()

@@ -4,7 +4,8 @@ import pytest
 
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.net.signer.key_pair import KeyPair
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 
 @pytest.mark.parametrize(

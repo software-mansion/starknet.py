@@ -10,7 +10,7 @@ from starknet_py.net.client_models import Call, ResourceBounds, ResourceBoundsMa
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.typed_data import TypedDataDict
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 
 
 def test_init():
