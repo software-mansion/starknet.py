@@ -124,7 +124,6 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
-
         # TODO(#1498): Remove temporary adjustment of block
         res["l2_gas_price"] = {
             "price_in_fri": "0x1",
