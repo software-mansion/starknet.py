@@ -1,4 +1,3 @@
-import json
 from typing import Any, List, Optional, Tuple, Union, cast
 
 import aiohttp
@@ -434,7 +433,7 @@ class FullNodeClient(Client):
 
         if single_transaction := isinstance(tx, AccountTransaction):
             tx = [tx]
-
+        print(tx)
         # res = await self._client.call(
         #     method_name="estimateFee",
         #     params={
@@ -450,7 +449,7 @@ class FullNodeClient(Client):
         # ATM starknet-devnet-rs hasn't fully updated their API to RPC 0.8.0
         # so we create mocked response
         mocked_res = _generate_mocked_fee_estimates(tx)
-
+        print(mocked_res)
         return cast(
             EstimatedFee,
             EstimatedFeeSchema().load(mocked_res, many=not single_transaction),
@@ -950,7 +949,7 @@ def _generate_mocked_fee_estimates(
 
     if len(tx) == 1:
         base_mocked_res["unit"] = _unit_from_tx(tx[0])
-        return [base_mocked_res]
+        return base_mocked_res
 
     mocked_res = [base_mocked_res] * len(tx)
     for mocked_tx, single_tx in zip(mocked_res, tx):

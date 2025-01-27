@@ -124,51 +124,15 @@ async def test_get_storage_at(client, contract_address_2):
 
 
 @pytest.mark.asyncio
-async def test_get_storage_proof(client):
-    # TODO (#1498): Add test for get_storage_proof, devnet doesn't support it
+async def test_get_storage_proof():
+    # TODO (#1498): Implement, devnet doesn't support storage proofs
     pass
 
 
 @pytest.mark.asyncio
-async def test_get_messages_status(account, client, devnet, l1_l2_contract):
-    print(
-        "XXX",
-        _to_rpc_felt(0x4C8C57B3AB646EF56AEF3DEF69A01BC86D049B98F25EBFE3699334D86C24D5),
-    )
-    messages_status = await client.get_messages_status(
-        transaction_hash=_to_rpc_felt(
-            0x4C8C57B3AB646EF56AEF3DEF69A01BC86D049B98F25EBFE3699334D86C24D5
-        )
-    )
-    print(messages_status)
-    return
-    with patch(
-        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
-    ) as mocked_transaction_call_rpc:
-        return_value = {
-            "status": "ACCEPTED_ON_L1",
-            "block_hash": "0x38ce7678420eaff5cd62597643ca515d0887579a8be69563067fe79a624592b",
-            "block_number": 370459,
-            "transaction_index": 9,
-            "transaction": {
-                "version": "0x0",
-                "contract_address": "0x278f24c3e74cbf7a375ec099df306289beb0605a346277d200b791a7f811a19",
-                "entry_point_selector": "0x2d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5",
-                "nonce": "0x34c20",
-                "calldata": [
-                    "0xd8beaa22894cd33f24075459cfba287a10a104e4",
-                    "0x3f9c67ef1d31e24b386184b4ede63a869c4659de093ef437ee235cae4daf2be",
-                    "0x3635c9adc5dea00000",
-                    "0x0",
-                    "0x7cb4539b69a2371f75d21160026b76a7a7c1cacb",
-                ],
-                "transaction_hash": "0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9",
-                "type": "L1_HANDLER",
-            },
-        }
-        mocked_transaction_call_rpc.return_value = return_value["transaction"]
-
-        transaction = await client.get_transaction(tx_hash=0x1)
+async def test_get_messages_status():
+    # TODO (#1498): Implement
+    pass
 
 
 @pytest.mark.asyncio
