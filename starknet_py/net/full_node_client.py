@@ -546,6 +546,7 @@ class FullNodeClient(Client):
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
+        print(_to_rpc_felt(call.selector))
         res = await self._client.call(
             method_name="call",
             params={
@@ -850,9 +851,6 @@ class FullNodeClient(Client):
             res,
         )
 
-        pretty_json = json.dumps(res, indent=4)
-        print(pretty_json)
-
         return cast(
             List[SimulatedTransaction],
             SimulatedTransactionSchema().load(res, many=True),
@@ -929,6 +927,14 @@ def _update_recursively(searched_key: str, new_value: Any, data: Union[dict, lis
             _update_recursively(searched_key, new_value, item)
 
 
+def _unit_from_tx(tx: AccountTransaction) -> str:
+    return (
+        "WEI"
+        if isinstance(tx, (DeprecatedTransaction, _DeprecatedAccountTransaction))
+        else "FRI"
+    )
+
+
 def _generate_mocked_fee_estimates(
     tx: List[AccountTransaction],
 ) -> Union[dict, List[dict]]:
@@ -942,14 +948,12 @@ def _generate_mocked_fee_estimates(
         "overall_fee": "0x238709b837e800",
     }
 
+    if len(tx) == 1:
+        base_mocked_res["unit"] = _unit_from_tx(tx[0])
+        return [base_mocked_res]
+
     mocked_res = [base_mocked_res] * len(tx)
     for mocked_tx, single_tx in zip(mocked_res, tx):
-        mocked_tx["unit"] = (
-            "WEI"
-            if isinstance(
-                single_tx, (DeprecatedTransaction, _DeprecatedAccountTransaction)
-            )
-            else "FRI"
-        )
+        mocked_tx["unit"] = _unit_from_tx(single_tx)
 
     return mocked_res

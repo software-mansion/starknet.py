@@ -1,5 +1,6 @@
 import dataclasses
 import sys
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -26,6 +27,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
+from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
 from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_SEPOLIA
@@ -313,9 +315,27 @@ async def test_get_transaction_status(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_transaction_status_with_failure_reason():
-    # TODO (#1498): Add a test for a transaction with failure_reason
-    pass
+async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet):
+    # TODO(#1498): Potentially change tx for one that has a known failure reason
+    # Originally, tx with hash 0x048d0e94d643f54f517271bd54936aa958d787c1b5d9d0a013ece6868ba9c8b7
+    # has an unknown failure reason, therefore we need to mock it.
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_tx_status_call_rpc:
+        return_value = {
+            "execution_status": "REVERTED",
+            "finality_status": "ACCEPTED_ON_L2",
+            "failure_reason": "Some failure reason",
+        }
+        mocked_tx_status_call_rpc.return_value = return_value
+
+        tx_status = await client_sepolia_testnet.get_transaction_status(
+            tx_hash=0x048D0E94D643F54F517271BD54936AA958D787C1B5D9D0A013ECE6868BA9C8B7
+        )
+
+        assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L2
+        assert tx_status.execution_status == TransactionExecutionStatus.REVERTED
+        assert tx_status.failure_reason == "Some failure reason"
 
 
 @pytest.mark.asyncio
