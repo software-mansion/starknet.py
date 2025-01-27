@@ -31,7 +31,6 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionType,
 )
-from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
