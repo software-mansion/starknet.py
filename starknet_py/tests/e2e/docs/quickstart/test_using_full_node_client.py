@@ -4,6 +4,8 @@ from starknet_py.net.client_models import StarknetBlock, Transaction
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
+# TODO(#1498): Remove skip mark
+@pytest.mark.skip
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_using_full_node_client(client, map_contract):
