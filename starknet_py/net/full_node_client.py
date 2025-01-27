@@ -130,7 +130,7 @@ class FullNodeClient(Client):
             "price_in_fri": "0x1",
             "price_in_wei": "0x1",
         }
-        print(block_identifier)
+
         if block_identifier == {"block_id": "pending"}:
             return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
         return cast(StarknetBlock, StarknetBlockSchema().load(res))
@@ -545,7 +545,6 @@ class FullNodeClient(Client):
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
-        print(_to_rpc_felt(call.selector))
         res = await self._client.call(
             method_name="call",
             params={
