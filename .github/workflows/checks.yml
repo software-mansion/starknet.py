@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.9" , "3.12" ]
+        python-version: [ "3.12" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -104,8 +104,7 @@ jobs:
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
 
       - name: Compile contracts v2
-# Resolve the issue with the cache
-#        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
+        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v2
 
@@ -235,7 +234,6 @@ jobs:
 
       - name: Run tests
         run: |
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2/target/dev
           poetry run poe test_ci_v2
           poetry run poe test_ci_v1
 
