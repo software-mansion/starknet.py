@@ -183,6 +183,8 @@ jobs:
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
@@ -295,6 +297,8 @@ jobs:
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
@@ -443,6 +447,8 @@ jobs:
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
