@@ -437,3 +437,22 @@ async def argent_account_class_hash_v040(
         compiled_account_contract=compiled_contract,
         compiled_account_contract_casm=compiled_contract_casm,
     )
+
+
+@pytest_asyncio.fixture(scope="package")
+async def argent_account_v040_class_hash(
+    account: BaseAccount,
+) -> int:
+    # Use precompiled argent account contracts
+    # we don't have the source code for this contract
+    compiled_contract = read_contract(
+        "ArgentAccount.json", directory=PRECOMPILED_CONTRACTS_DIR / "argent-0.4.0"
+    )
+    compiled_contract_casm = read_contract(
+        "ArgentAccount.casm", directory=PRECOMPILED_CONTRACTS_DIR / "argent-0.4.0"
+    )
+    return await account_declare_class_hash(
+        account=account,
+        compiled_account_contract=compiled_contract,
+        compiled_account_contract_casm=compiled_contract_casm,
+    )
