@@ -8,7 +8,7 @@ Migration guide
 Version [Unreleased] of **starknet.py** comes with support for RPC 0.8.0!
 
 [Unreleased] Targeted versions
-------------------------
+------------------------------
 
 - Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
 - RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
