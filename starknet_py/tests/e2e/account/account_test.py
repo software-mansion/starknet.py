@@ -160,7 +160,7 @@ async def test_sending_multicall(account, map_contract, key, val):
 @pytest.mark.asyncio
 async def test_rejection_reason_in_transaction_receipt(map_contract):
     with pytest.raises(
-        ClientError, match="Max fee is smaller than the minimal transaction cost"
+        ClientError, match="The transaction's resources don't cover validation or the minimal transaction fee"
     ):
         await map_contract.functions["put"].invoke_v1(key=10, value=20, max_fee=1)
 
