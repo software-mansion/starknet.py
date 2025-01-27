@@ -294,7 +294,7 @@ jobs:
 
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
-        uses: ./.github/composite-actions/devnet/action.yml
+        uses: ./.github/composite-actions/devnet
 
       # ====================== RUN TESTS ====================== #
 
@@ -442,7 +442,7 @@ jobs:
 
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
-        uses: ./.github/composite-actions/devnet/action.yml
+        uses: ./.github/composite-actions/devnet
 
       # ====================== RUN TESTS ====================== #
 

@@ -8,6 +8,7 @@ runs:
         submodules: recursive
 
     - name: Clone starknet-devnet-rs
+      shell: bash
       run: |
         DEVNET_SHA="dd559716849ade47cc06be150edf250e5dccb2bf"
         git clone https://github.com/0xSpaceShard/starknet-devnet-rs.git starknet-devnet-rs
