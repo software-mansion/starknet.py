@@ -178,12 +178,17 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
+      - name: Show pwd
+        run: pwd
+
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:
           devnet_sha: ${{ env.DEVNET_SHA }}
 
+      - name: Show pwd 2
+        run: pwd
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
       - name: Pull speculos image
@@ -235,7 +240,6 @@ jobs:
 
       - name: Run tests
         run: |
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2/target/dev
           poetry run poe test_ci_v2
           poetry run poe test_ci_v1
 
