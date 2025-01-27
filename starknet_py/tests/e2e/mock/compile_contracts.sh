@@ -52,4 +52,5 @@ case "$1" in
 esac
 
 echo "Successfully compiled contracts!"
+ls CONTRACTS_DIRECTORY_V2
 exit 0
