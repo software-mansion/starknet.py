@@ -433,7 +433,7 @@ class FullNodeClient(Client):
 
         if single_transaction := isinstance(tx, AccountTransaction):
             tx = [tx]
-        print(tx)
+
         # res = await self._client.call(
         #     method_name="estimateFee",
         #     params={
@@ -448,8 +448,8 @@ class FullNodeClient(Client):
         # TODO(#1498): Remove the following line and uncomment above ones
         # ATM starknet-devnet-rs hasn't fully updated their API to RPC 0.8.0
         # so we create mocked response
-        mocked_res = _generate_mocked_fee_estimates(tx)
-        print(mocked_res)
+        mocked_res = _generate_mocked_fee_estimates(tx, single_transaction)
+
         return cast(
             EstimatedFee,
             EstimatedFeeSchema().load(mocked_res, many=not single_transaction),
@@ -936,6 +936,7 @@ def _unit_from_tx(tx: AccountTransaction) -> str:
 
 def _generate_mocked_fee_estimates(
     tx: List[AccountTransaction],
+    single_transaction: bool = False,
 ) -> Union[dict, List[dict]]:
     base_mocked_res = {
         "l1_gas_consumed": "0x186A0",
@@ -949,7 +950,9 @@ def _generate_mocked_fee_estimates(
 
     if len(tx) == 1:
         base_mocked_res["unit"] = _unit_from_tx(tx[0])
-        return base_mocked_res
+        if single_transaction:
+            return base_mocked_res
+        return [base_mocked_res]
 
     mocked_res = [base_mocked_res] * len(tx)
     for mocked_tx, single_tx in zip(mocked_res, tx):

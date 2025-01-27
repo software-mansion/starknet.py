@@ -8,7 +8,11 @@ async def test_multicall(account, deployed_balance_contract):
     (initial_balance,) = await balance_contract.functions["get_balance"].call()
     # docs: start
     from starknet_py.hash.selector import get_selector_from_name
-    from starknet_py.net.client_models import Call, ResourceBounds
+    from starknet_py.net.client_models import (
+        Call,
+        ResourceBounds,
+        ResourceBoundsMapping,
+    )
 
     increase_balance_by_20_call = Call(
         to_addr=balance_contract.address,
@@ -20,8 +24,8 @@ async def test_multicall(account, deployed_balance_contract):
     # Execute one transaction with multiple calls
     resp = await account.execute_v3(
         calls=calls,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
     await account.client.wait_for_tx(resp.transaction_hash)
