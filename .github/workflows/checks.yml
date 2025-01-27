@@ -232,6 +232,14 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
+      - name: Compile contracts v2
+        run: |
+          poetry run poe compile_contracts v2
+
+      - name: Compile contracts v1
+        run: |
+          poetry run poe compile_contracts v1
+
       - name: Run tests
         run: |
           poetry run poe test_ci_v2
@@ -305,15 +313,6 @@ jobs:
 
       - name: Run tests
         run: |
-          cd starknet_py/tests/e2e/mock
-          pwd
-          ls
-          cd contracts_v2
-          pwd
-          ls
-          cd target
-          pwd
-          ls
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
