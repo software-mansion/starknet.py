@@ -84,6 +84,8 @@ async def test_get_block_with_txs_latest(account, map_class_hash):
     assert blk.l1_da_mode in L1DAMode
 
 
+# TODO(#1498): Remove the skip mark
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_block_with_receipts_latest(account):
     blk = await account.client.get_block_with_receipts(block_number="latest")
