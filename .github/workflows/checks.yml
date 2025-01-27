@@ -232,6 +232,8 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
+      - uses: asdf-vm/actions/setup@v3
+
       - name: Compile contracts v2
         run: |
           poetry run poe compile_contracts v2
