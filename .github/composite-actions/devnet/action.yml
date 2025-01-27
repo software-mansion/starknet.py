@@ -1,4 +1,11 @@
 name: "Devnet Setup"
+
+inputs:
+  devnet_sha:
+    description: "Commit SHA for the starknet-devnet-rs repository"
+    required: true
+
+
 runs:
   using: "composite"
   steps:
@@ -7,19 +14,21 @@ runs:
       with:
         submodules: recursive
 
+    - name: Cache devnet build
+      id: cache-devnet
+      uses: actions/cache@v4
+      with:
+        path: starknet-devnet-rs/target/release
+        key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ inputs.devnet_sha }}
+
     - name: Clone starknet-devnet-rs
+      if: steps.cache-devnet.outputs.cache-hit != 'true'
       shell: bash
       run: |
         DEVNET_SHA="dd559716849ade47cc06be150edf250e5dccb2bf"
         git clone https://github.com/0xSpaceShard/starknet-devnet-rs.git starknet-devnet-rs
         cd starknet-devnet-rs
         git checkout "$DEVNET_SHA"
-
-    - name: Cache devnet build
-      uses: actions/cache@v4
-      with:
-        path: starknet-devnet-rs/target/release
-        key: ${{ runner.os }}-starknet-devnet-rs-target-release-dd559716849ade47cc06be150edf250e5dccb2bf
 
     - name: Build and install devnet
       shell: bash

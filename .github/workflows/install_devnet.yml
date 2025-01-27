@@ -1,0 +1,15 @@
+name: Devnet Setup Workflow
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+
+jobs:
+  devnet-setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Devnet Setup
+        uses: ./.github/composite-actions/devnet
