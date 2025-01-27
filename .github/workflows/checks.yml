@@ -178,9 +178,6 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Show dirs
-        run: ls -la
-
       - name: Install devnet
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
