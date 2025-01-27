@@ -104,7 +104,7 @@ jobs:
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
 
       - name: Compile contracts v2
-        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
+#        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v2
 
@@ -118,7 +118,7 @@ jobs:
           key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
 
       - name: Compile contracts v1
-        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
+#        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
         run: |
           poetry run poe compile_contracts v1
 
