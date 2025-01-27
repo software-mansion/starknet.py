@@ -113,14 +113,6 @@ parsed_abi = AbiParserV0(abi).parse()
 
 parsed_abi_v1 = AbiParserV1(event_abi_v1).parse()
 
-abi_v2 = json.loads(
-    load_contract(contract_name="NewSyntaxTestContract", version=ContractVersion.V2)[
-        "sierra"
-    ]
-)["abi"]
-
-parsed_abi_v2 = AbiParserV2(abi_v2).parse()
-
 
 def test_fn_serialization():
     expected_serialized = [
@@ -164,6 +156,13 @@ def test_event_serialization_v1():
 
 
 def test_event_serialization_v2():
+    abi_v2 = json.loads(
+        load_contract(contract_name="NewSyntaxTestContract", version=ContractVersion.V2)[
+            "sierra"
+        ]
+    )["abi"]
+
+    parsed_abi_v2 = AbiParserV2(abi_v2).parse()
     serializer = serializer_for_event(
         parsed_abi_v2.events[
             "contracts_v2::new_syntax_test_contract::"
