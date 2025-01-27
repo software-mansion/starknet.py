@@ -52,5 +52,5 @@ case "$1" in
 esac
 
 echo "Successfully compiled contracts!"
-ls $CONTRACTS_DIRECTORY_V2
+ls "$CONTRACTS_DIRECTORY_V2/target/dev"
 exit 0
