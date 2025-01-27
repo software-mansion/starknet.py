@@ -1,5 +1,4 @@
 name: "Devnet Setup"
-description: "Set up starknet-devnet locally for tests"
 runs:
   using: "composite"
   steps:
