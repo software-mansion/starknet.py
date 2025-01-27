@@ -305,9 +305,15 @@ jobs:
 
       - name: Run tests
         run: |
+          cd starknet_py/tests/e2e/mock
           pwd
           ls
-          ls starknet.py/starknet_py/tests/e2e/mock/contracts_v2/target/
+          cd contracts_v2
+          pwd
+          ls
+          cd target
+          pwd
+          ls
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
