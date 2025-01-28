@@ -178,6 +178,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
+#        TODO(#1498): We should use `install_devnet.sh` once devnet is updated
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:
@@ -302,6 +303,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
+#        TODO(#1498): We should use `install_devnet.sh` once devnet is updated
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:
@@ -452,6 +454,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
+#        TODO(#1498): We should use `install_devnet.sh` once devnet is updated
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:

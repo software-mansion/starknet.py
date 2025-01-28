@@ -1,3 +1,5 @@
+# TODO(#1498): This action should be removed after starknet-devnet-rs update
+
 name: "Devnet Setup"
 
 inputs:
