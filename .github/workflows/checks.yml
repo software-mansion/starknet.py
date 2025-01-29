@@ -3,6 +3,7 @@ name: Checks
 env:
   CAIRO_LANG_VERSION: "0.13.1"
   DEVNET_VERSION: "0.1.2"
+# TODO(#1498): Change `DEVNET_SHA` once devnet is updated
   DEVNET_SHA: dd55971
   LEDGER_APP_SHA: dd58c5c
   LEDGER_APP_DEV_TOOLS_SHA: a037d42181f4bed9694246256e2c9e2a899e775c302a9c6482c81f87c28e1432
@@ -235,12 +236,10 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-      - name: Compile contracts v2
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
         run: |
           poetry run poe compile_contracts v2
-
-      - name: Compile contracts v1
-        run: |
           poetry run poe compile_contracts v1
 
       - name: Run tests
@@ -464,12 +463,10 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-      - name: Compile contracts v2
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
         run: |
           poetry run poe compile_contracts v2
-
-      - name: Compile contracts v1
-        run: |
           poetry run poe compile_contracts v1
 
       - name: Run tests
