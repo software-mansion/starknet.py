@@ -1787,7 +1787,7 @@ class CasmClass:
 
     prime: int
     bytecode: List[int]
-    hints: List[Tuple[int, Hint]]
+    hints: List[Tuple[int, List[Hint]]]
     compiler_version: str
     entry_points_by_type: CasmClassEntryPointsByType
     bytecode_segment_lengths: Optional[List[int]]
