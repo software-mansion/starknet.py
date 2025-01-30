@@ -384,6 +384,7 @@ class FullNodeClient(Client):
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
 
+        # TODO (#1498): Remove temporary adjustment of transaction once devnet is updated
         resource_bounds = {
             "l1_gas": {"max_amount": "0x186a0", "max_price_per_unit": "0xe8d4a51000"},
             "l2_gas": {"max_amount": "0x0", "max_price_per_unit": "0x0"},
