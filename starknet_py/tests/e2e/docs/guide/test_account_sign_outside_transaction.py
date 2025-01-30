@@ -1,6 +1,9 @@
 import pytest
 
-from starknet_py.net.client_models import TransactionFinalityStatus
+from starknet_py.net.client_models import (
+    ResourceBoundsMapping,
+    TransactionFinalityStatus,
+)
 
 
 # TODO (#1546): Remove skip mark
@@ -51,8 +54,8 @@ async def test_account_outside_execution_any_caller(
     # Now, if you're in specified timeframe, you can perform the outside execution by another account.
     tx = await account.execute_v3(
         calls=[call],
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
     await account.client.wait_for_tx(tx.transaction_hash)

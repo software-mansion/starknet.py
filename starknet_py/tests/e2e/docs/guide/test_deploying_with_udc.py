@@ -84,9 +84,7 @@ async def test_deploying_with_udc(
     resp = await account.execute_v3(
         deploy_call,
         resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            l1_resource_bounds=ResourceBounds(
-                max_amount=int(1e5), max_price_per_unit=int(1e13)
-            )
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
 
@@ -106,9 +104,7 @@ async def test_deploying_with_udc(
     invoke_tx = await account.sign_invoke_v3(
         deploy_call,
         resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            l1_resource_bounds=ResourceBounds(
-                max_amount=int(1e5), max_price_per_unit=int(1e13)
-            )
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
         ),
     )
     resp = await account.client.send_transaction(invoke_tx)

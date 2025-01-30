@@ -44,7 +44,7 @@ Alternatively, you can estimate fee automatically, as described in the :ref:`aut
 
 .. code-block:: python
 
-    await contract.functions["put"].invoke_v3(k, v, l1_resource_bounds=ResourceBounds(
+    await contract.functions["put"].invoke_v3(k, v, resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
             max_amount=int(1e5), max_price_per_unit=int(1e13)
         ))
 
