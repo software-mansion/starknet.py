@@ -134,16 +134,16 @@ class FullNodeWSClient:
     async def subscribe_new_heads(
         self,
         handler: Callable[[BlockHeader], Any],
-        block: Optional[BlockId],
+        block_id: Optional[BlockId],
     ) -> int:
         """
         Creates a WebSocket stream which will fire events for new block headers.
 
         :param handler: The function to call when a new block header is received.
-        :param block: The block to get notifications from, default is latest, limited to 1024 blocks back.
+        :param block_id: The block to get notifications from, default is latest, limited to 1024 blocks back.
         :return: The subscription ID.
         """
-        params = {"block": block} if block else {}
+        params = {"block_id": block_id} if block_id else {}
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeNewHeads", params
         )
@@ -155,7 +155,7 @@ class FullNodeWSClient:
         handler: Callable[[EmittedEvent], Any],
         from_address: Optional[int] = None,
         keys: Optional[List[List[int]]] = None,
-        block: Optional[BlockId] = None,
+        block_id: Optional[BlockId] = None,
     ) -> int:
         """
         Creates a WebSocket stream which will fire events for new Starknet events with applied filters.
@@ -163,10 +163,10 @@ class FullNodeWSClient:
         :param handler: The function to call when a new event is received.
         :param from_address: Address which emitted the event.
         :param keys: The keys to filter events by.
-        :param block: The block to get notifications from, default is latest, limited to 1024 blocks back.
+        :param block_id: The block to get notifications from, default is latest, limited to 1024 blocks back.
         :return: The subscription ID.
         """
-        params = {"from_address": from_address, "keys": keys, "block": block}
+        params = {"from_address": from_address, "keys": keys, "block_id": block_id}
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeEvents", params
         )
@@ -177,17 +177,17 @@ class FullNodeWSClient:
         self,
         handler: Callable[[NewTransactionStatus], Any],
         transaction_hash: int,
-        block: Optional[BlockId] = None,
+        block_id: Optional[BlockId] = None,
     ) -> int:
         """
         Creates a WebSocket stream which will fire events when a transaction status is updated.
 
         :param handler: The function to call when a new transaction status is received.
         :param transaction_hash: The transaction hash to fetch status updates for.
-        :param block: The block to get notifications from, default is latest, limited to 1024 blocks back.
+        :param block_id: The block to get notifications from, default is latest, limited to 1024 blocks back.
         :return: The subscription ID.
         """
-        params = {"transaction_hash": transaction_hash, "block": block}
+        params = {"transaction_hash": transaction_hash, "block_id": block_id}
         params = _clear_none_values(params)
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeTransactionStatus", params
