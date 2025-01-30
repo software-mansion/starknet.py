@@ -1064,6 +1064,7 @@ class FunctionInvocation:
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
     execution_resources: ExecutionResources
+    is_reverted: bool
 
 
 @dataclass
