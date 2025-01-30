@@ -11,6 +11,7 @@ async def test_using_contract(account, map_contract):
     # pylint: disable=unused-variable,too-many-locals
     # docs: start
     from starknet_py.contract import Contract
+    from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
     contract_address = (
         "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -34,12 +35,17 @@ async def test_using_contract(account, map_contract):
         address=contract_address,
         abi=abi,
         provider=account,
-        cairo_version=1,
     )
 
     # All exposed functions are available at contract.functions.
     # Here we invoke a function, creating a new transaction.
-    invocation = await contract.functions["put"].invoke_v1(key, 7, max_fee=int(1e16))
+    invocation = await contract.functions["put"].invoke_v3(
+        key,
+        7,
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        ),
+    )
 
     # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
     await invocation.wait_for_acceptance()

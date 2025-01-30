@@ -168,6 +168,7 @@ async def test_latest_resource_bounds_take_precedence(map_contract):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=updated_l1_resource_bounds,
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     invocation = await prepared_function.invoke(resource_bounds=resource_bounds)
 

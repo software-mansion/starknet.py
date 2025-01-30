@@ -31,7 +31,7 @@ from starknet_py.net.models.transaction import (
     DeployAccountV3,
     InvokeV3,
 )
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS
 
@@ -76,11 +76,7 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     )
 
     assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_price * estimated_fee.gas_consumed
-        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
-        == estimated_fee.overall_fee
-    )
+    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -98,11 +94,7 @@ async def test_estimate_fee_for_declare_transaction(
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_price * estimated_fee.gas_consumed
-        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
-        == estimated_fee.overall_fee
-    )
+    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -121,11 +113,7 @@ async def test_account_estimate_fee_for_declare_transaction(
     assert estimated_fee.unit == PriceUnit.FRI
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_price * estimated_fee.gas_consumed
-        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
-        == estimated_fee.overall_fee
-    )
+    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -151,11 +139,7 @@ async def test_account_estimate_fee_for_transactions(account, map_contract):
     assert estimated_fee[1].unit == PriceUnit.FRI
     assert isinstance(estimated_fee[0].overall_fee, int)
     assert estimated_fee[0].overall_fee > 0
-    assert (
-        estimated_fee[0].gas_consumed * estimated_fee[0].gas_price
-        + estimated_fee[0].data_gas_consumed * estimated_fee[0].data_gas_price
-        == estimated_fee[0].overall_fee
-    )
+    assert estimated_fee[0].calculate_overall_fee() == estimated_fee[0].overall_fee
 
 
 @pytest.mark.asyncio
@@ -176,7 +160,8 @@ async def test_sending_multicall(account, map_contract, key, val):
 @pytest.mark.asyncio
 async def test_rejection_reason_in_transaction_receipt(map_contract):
     with pytest.raises(
-        ClientError, match="Max fee is smaller than the minimal transaction cost"
+        ClientError,
+        match="The transaction's resources don't cover validation or the minimal transaction fee",
     ):
         await map_contract.functions["put"].invoke_v1(key=10, value=20, max_fee=1)
 
@@ -343,7 +328,7 @@ async def test_sign_declare_v3(
     signed_tx = await account.sign_declare_v3(
         compiled_contract,
         compiled_class_hash,
-        ource_bounds=MAX_RESOURCE_BOUNDS,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     assert isinstance(signed_tx, DeclareV3)

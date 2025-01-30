@@ -48,6 +48,9 @@ class PendingBlockHeaderSchema(Schema):
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
+    l2_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l2_gas_price", required=True
+    )
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", required=True
     )
@@ -64,6 +67,9 @@ class BlockHeaderSchema(Schema):
     sequencer_address = Felt(data_key="sequencer_address", required=True)
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
+    )
+    l2_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l2_gas_price", required=True
     )
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", required=True

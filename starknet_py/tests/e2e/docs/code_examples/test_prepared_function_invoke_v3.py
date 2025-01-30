@@ -14,6 +14,7 @@ async def test_invoke(map_contract: Contract):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=5000, max_price_per_unit=int(1e12)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     invoke_result = await prepared_function_call.invoke(resource_bounds=resource_bounds)
     # docs-end: invoke

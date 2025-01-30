@@ -9,7 +9,7 @@ async def test_sign_offchain_message(account):
     from starknet_py.net.account.account import Account
     from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.models import StarknetChainId
-    from starknet_py.net.signer.stark_curve_signer import KeyPair
+    from starknet_py.net.signer.key_pair import KeyPair
     from starknet_py.utils.typed_data import TypedData
 
     # Create a TypedData dictionary

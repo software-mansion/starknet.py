@@ -43,6 +43,7 @@ def test_invoke_v3(map_contract: Contract):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=5000, max_price_per_unit=int(1e12)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     invoke_result = map_contract.functions["put"].invoke_v3(
         key=10,

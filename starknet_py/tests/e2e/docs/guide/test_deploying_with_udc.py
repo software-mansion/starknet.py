@@ -16,6 +16,7 @@ async def test_deploying_with_udc(
 ):
     # pylint: disable=unused-variable, import-outside-toplevel, too-many-locals
     # docs: start
+    from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
     from starknet_py.net.udc_deployer.deployer import Deployer
 
     # docs: end
@@ -80,7 +81,14 @@ async def test_deploying_with_udc(
     )
 
     # Once call is prepared, it can be executed with an account (preferred way)
-    resp = await account.execute_v1(deploy_call, max_fee=int(1e16))
+    resp = await account.execute_v3(
+        deploy_call,
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            l1_resource_bounds=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            )
+        ),
+    )
 
     # docs: end
     deploy_call, _ = deployer.create_contract_deployment(
@@ -92,11 +100,17 @@ async def test_deploying_with_udc(
             "arr": [1],
             "dict": {"value": 12, "nested_struct": {"value": 99}},
         },
-        cairo_version=1,
     )
     # docs: start
     # Or signed and send with an account
-    invoke_tx = await account.sign_invoke_v1(deploy_call, max_fee=int(1e16))
+    invoke_tx = await account.sign_invoke_v3(
+        deploy_call,
+        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
+            l1_resource_bounds=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            )
+        ),
+    )
     resp = await account.client.send_transaction(invoke_tx)
 
     # Wait for transaction

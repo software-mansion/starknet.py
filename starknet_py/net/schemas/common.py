@@ -367,6 +367,9 @@ class RevisionField(fields.Field):
         if isinstance(value, str):
             value = int(value)
 
+        if isinstance(value, Revision):
+            value = value.value
+
         revisions = [revision.value for revision in Revision]
         if value not in revisions:
             allowed_revisions_str = "".join(list(map(str, revisions)))
