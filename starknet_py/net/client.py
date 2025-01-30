@@ -332,13 +332,11 @@ class Client(ABC):
         """Return the currently configured Starknet chain id"""
 
     @abstractmethod
-    async def get_messages_status(
-        self, l1_transaction_hash: int
-    ) -> List[MessageStatus]:
+    async def get_messages_status(self, transaction_hash: str) -> List[MessageStatus]:
         """
         Get L1 handler transaction data for all L1 to L2 messages sent by the given L1 transaction.
 
-        :param l1_transaction_hash: Hash of the L1 transaction
+        :param transaction_hash: Hash of the L1 transaction
         :return: Status of the messages
         """
 

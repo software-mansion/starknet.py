@@ -28,6 +28,7 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
     resource_bounds = ResourceBoundsMapping(
         l1_gas=l1_resource_bounds,
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     # Declare and deploy an example contract which implements a simple k-v store.
     # Contract.declare_v3 takes string containing a compiled contract (sierra) and
@@ -54,6 +55,7 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
     resource_bounds = ResourceBoundsMapping(
         l1_gas=l1_resource_bounds,
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     await (
         await map_contract.functions["put"].invoke_v3(

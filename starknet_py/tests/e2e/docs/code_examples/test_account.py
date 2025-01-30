@@ -10,7 +10,7 @@ from starknet_py.net.client_models import Call, ResourceBounds, ResourceBoundsMa
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.typed_data import TypedDataDict
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 
 
 def test_init():
@@ -53,6 +53,7 @@ async def test_execute_v3(account, contract_address):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     resp = await account.execute_v3(
         Call(

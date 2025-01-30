@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -14,7 +13,7 @@ from starknet_py.net.client_models import PriceUnit
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import HttpMethod, RpcHttpClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
     DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,

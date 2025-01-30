@@ -11,7 +11,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV2, DeclareV3, StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
@@ -87,6 +87,7 @@ async def test_declare_v3(account):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     declare_result = await Contract.declare_v3(
         account,
@@ -150,6 +151,7 @@ async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=class_hash,
@@ -178,6 +180,7 @@ async def test_deploy_contract_v3_without_abi(account, hello_starknet_class_hash
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=hello_starknet_class_hash,

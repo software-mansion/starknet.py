@@ -1,0 +1,60 @@
+# TODO(#1498): This action should be removed after starknet-devnet-rs update
+
+name: "Devnet Setup"
+
+inputs:
+  devnet_sha:
+    description: "Commit SHA for the starknet-devnet-rs repository"
+    required: true
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Cache devnet build
+      id: cache-devnet
+      uses: actions/cache@v4
+      with:
+        path: starknet-devnet-rs/target/release
+        key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ inputs.devnet_sha }}
+
+    - name: Clone starknet-devnet-rs
+      if: steps.cache-devnet.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        git clone https://github.com/0xSpaceShard/starknet-devnet-rs.git starknet-devnet-rs
+        cd starknet-devnet-rs
+        git checkout ${{ inputs.devnet_sha }}
+
+    - name: Build and install devnet
+      shell: bash
+      run: |
+        DEVNET_INSTALL_DIR="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet/bin"
+        mkdir -p "$DEVNET_INSTALL_DIR"
+
+        if [[ ! -d starknet-devnet-rs/target/release ]]; then
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          export PATH="$HOME/.cargo/bin:$PATH"
+          
+          cd starknet-devnet-rs
+          cargo build --release
+          cp ./target/release/starknet-devnet "$DEVNET_INSTALL_DIR"
+        else
+          echo "Found existing starknet-devnet-rs build, skipping compilation."
+          cp starknet-devnet-rs/target/release/starknet-devnet "$DEVNET_INSTALL_DIR"
+        fi
+
+    - name: Verify devnet installation
+      shell: bash
+      run: |
+        DEVNET_INSTALL_DIR="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet/bin"
+        if [[ -x "$DEVNET_INSTALL_DIR/starknet-devnet" ]]; then
+          echo "starknet-devnet successfully installed at $DEVNET_INSTALL_DIR"
+        else
+          echo "starknet-devnet installation failed!" && exit 1
+        fi

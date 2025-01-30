@@ -2,18 +2,50 @@ Migration guide
 ===============
 
 ******************************
-0.25.0 Migration guide
+[Unreleased] Migration guide
 ******************************
 
-Version 0.25.0 of **starknet.py** comes with support for RPC 0.8.0!
+Version [Unreleased] of **starknet.py** comes with support for RPC 0.8.0!
 
-0.25.0 Targeted versions
-------------------------
+[Unreleased] Targeted versions
+------------------------------
 
-- Starknet - `0.13.3 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.3>`_
+- Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
 - RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
 
 TODO (#1498): List changes
+
+******************************
+0.25.0 Migration guide
+******************************
+
+This version of starknet.py requires Python 3.9 as a minimum version.
+
+.. currentmodule:: starknet_py.cairo.data_types
+
+1. Added :class:`NonZeroType` in order to fix parsing ABI which contains Cairo`s `core::zeroable::NonZero <https://github.com/starkware-libs/cairo/blob/a2b9dddeb3212c8d529538454745b27d7a34a6cd/corelib/src/zeroable.cairo#L78>`_.
+
+2. Added `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_ support to :class:`~starknet_py.net.account.account.Account`. Now it's possible to create a :class:`~starknet_py.net.client_models.Call` for outside execution using :meth:`~starknet_py.net.account.account.Account.sign_outside_execution_call`.
+
+3. All methods and classes which use transactions other than v3 are now deprecated.
+
+0.25.0 Minor changes
+--------------------
+
+1. Added ``keys`` field to :class:`EventType` which contains the list of event fields marked with ``#[key]`` in Cairo code.
+
+******************************
+0.24.3 Migration guide
+******************************
+
+0.24.3 Minor changes
+--------------------
+
+1. Updated `crypto-cpp-py <https://github.com/software-mansion-labs/crypto-cpp-py>`_ to version ``1.4.5``.
+
+.. currentmodule:: starknet_py.net.signer.ledger_signer
+
+2. Ledger support (see :class:`LedgerSigner`) is now optional. To use it, install the package with ``poetry install -E ledger``.
 
 ******************************
 0.24.2 Migration guide
@@ -200,7 +232,7 @@ Changes in the :class:`~starknet_py.net.account.account.Account`:
 - :meth:`sign_declare_transaction`, :meth:`sign_declare_v2_transaction`, :meth:`sign_deploy_account_transaction` and :meth:`sign_invoke_transaction` have been renamed to :meth:`~Account.sign_declare_v1`, :meth:`~Account.sign_declare_v2`, :meth:`~Account.sign_deploy_account_v1` and :meth:`~Account.sign_invoke_v1` respectively
 
 All new functions with ``v3`` in their name operate similarly to their ``v1`` and ``v2`` counterparts.
-Unlike their ``v1`` counterparts however, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``resource_bounds`` parameter is utilized to limit the Fri amount used.
+Unlike their ``v1`` counterparts however, ``v3`` transaction fees are paid in Fri (10^-18 STRK). Therefore,  ``max_fee`` parameter, which is typically set in Wei, is not applicable for ``v3`` functions. Instead, ``l1_resource_bounds`` parameter is utilized to limit the Fri amount used.
 The same applies to the new ``v3`` methods in the :class:`~starknet_py.contract.Contract` class.
 
 Changes in the :class:`~starknet_py.net.full_node_client.FullNodeClient`:

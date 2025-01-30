@@ -7,11 +7,12 @@ This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLO
 to true. Consequently, any unknown fields in response will be excluded.
 """
 
+import datetime
 import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterable, List, Literal, Optional, Tuple, Union, cast
+from typing import Dict, Iterable, List, Literal, Optional, Tuple, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -116,18 +117,47 @@ class ResourceBounds:
 
 
 @dataclass
+class OutsideExecutionTimeBounds:
+    """
+    Dataclass representing time bounds within which outside execution
+    transaction is valid and allowed to be executed.
+    """
+
+    execute_after: datetime.datetime
+    execute_before: datetime.datetime
+
+    @property
+    def execute_after_timestamp(self) -> int:
+        return int(self.execute_after.timestamp())
+
+    @property
+    def execute_before_timestamp(self) -> int:
+        return int(self.execute_before.timestamp())
+
+
+@dataclass
 class ResourceBoundsMapping:
     """
     Dataclass representing resource limits that can be used in the transaction.
     """
 
     l1_gas: ResourceBounds
+    l1_data_gas: ResourceBounds
     l2_gas: ResourceBounds
 
     @staticmethod
     def init_with_zeros():
         return ResourceBoundsMapping(
             l1_gas=ResourceBounds.init_with_zeros(),
+            l1_data_gas=ResourceBounds.init_with_zeros(),
+            l2_gas=ResourceBounds.init_with_zeros(),
+        )
+
+    @staticmethod
+    def init_with_l1_gas_only(l1_resource_bounds: ResourceBounds):
+        return ResourceBoundsMapping(
+            l1_gas=l1_resource_bounds,
+            l1_data_gas=ResourceBounds.init_with_zeros(),
             l2_gas=ResourceBounds.init_with_zeros(),
         )
 
@@ -239,6 +269,10 @@ class InvokeTransactionV0(DeprecatedTransaction):
 class InvokeTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing invoke transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.InvokeTransactionV3` instead.
     """
 
     calldata: List[int]
@@ -272,6 +306,10 @@ class DeclareTransactionV0(DeprecatedTransaction):
 class DeclareTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
     """
 
     sender_address: int
@@ -283,6 +321,10 @@ class DeclareTransactionV1(DeprecatedTransaction):
 class DeclareTransactionV2(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v2.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
     """
 
     sender_address: int
@@ -319,6 +361,10 @@ class DeployTransaction(Transaction):
 class DeployAccountTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing deploy account transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeployAccountTransactionV3` instead.
     """
 
     nonce: int
@@ -381,21 +427,12 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
-class InnerCallExecutionResources:
-    """
-    Dataclass representing resources consumed by the internal call
-    """
-
-    l1_gas: int
-    l1_data_gas: int
-
-
-@dataclass
-class ExecutionResources(InnerCallExecutionResources):
+class ExecutionResources:
     """
     Dataclass representing the resources consumed by the transaction, includes both computation and data.
     """
 
+    l1_gas: int
     l2_gas: int
 
 
@@ -474,10 +511,12 @@ class BlockStatus(Enum):
 
 @dataclass
 class PendingBlockHeader:
+    # pylint: disable=too-many-instance-attributes
     parent_hash: int
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l2_gas_price: ResourcePrice
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
@@ -525,6 +564,7 @@ class BlockHeader:
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l2_gas_price: ResourcePrice
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
@@ -625,6 +665,9 @@ class EstimatedFee:
         Calculates L2 max amount as `l2_gas_consumed` * `amount_multiplier`.
         Calculates L2 max price per unit as `l2_gas_price` * `unit_price_multiplier`.
 
+        Calculates L1 data max amount as `l1_data_gas_consumed` * `amount_multiplier`.
+        Calculates L1 data max price per unit as `l1_data_gas_price` * `unit_price_multiplier`.
+
         :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
         :param unit_price_multiplier: Multiplier for max price per unit, defaults to 1.5.
         :return: Resource bounds with applied multipliers.
@@ -645,8 +688,22 @@ class EstimatedFee:
             max_price_per_unit=int(self.l2_gas_price * unit_price_multiplier),
         )
 
+        l1_data_resource_bounds = ResourceBounds(
+            max_amount=int(self.l1_data_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l1_data_gas_price * unit_price_multiplier),
+        )
+
         return ResourceBoundsMapping(
-            l1_gas=l1_resource_bounds, l2_gas=l2_resource_bounds
+            l1_gas=l1_resource_bounds,
+            l2_gas=l2_resource_bounds,
+            l1_data_gas=l1_data_resource_bounds,
+        )
+
+    def calculate_overall_fee(self):
+        return (
+            self.l1_gas_consumed * self.l1_gas_price
+            + self.l2_gas_consumed * self.l2_gas_price
+            + self.l1_data_gas_consumed * self.l1_data_gas_price
         )
 
 
@@ -991,7 +1048,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    execution_resources: InnerCallExecutionResources
+    execution_resources: ExecutionResources
 
 
 @dataclass
@@ -1158,8 +1215,43 @@ class StorageProofResponse:
 @dataclass
 class MessageStatus:
     transaction_hash: int
-    finality_status: TransactionFinalityStatus
+    finality_status: TransactionStatus
     failure_reason: Optional[str] = None
+
+
+@dataclass
+class OutsideExecution:
+    """
+    Dataclass representing an outside execution.
+    (SNIP-9)[https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md]
+    """
+
+    caller: int
+    nonce: int
+    execute_after: int
+    execute_before: int
+    calls: List[Call]
+
+    # TODO(#1537): Use serialiser to convert to ABI dict.
+    def to_abi_dict(self) -> Dict:
+        """
+        Returns a dictionary that can be serialized (compiled) into calldata
+        using StructSerializer
+        """
+        return {
+            "caller": self.caller,
+            "nonce": self.nonce,
+            "execute_after": self.execute_after,
+            "execute_before": self.execute_before,
+            "calls": [
+                {
+                    "to": call.to_addr,
+                    "selector": call.selector,
+                    "calldata": call.calldata,
+                }
+                for call in self.calls
+            ],
+        }
 
 
 class AssertCurrentAccessIndicesIsEmpty(Enum):

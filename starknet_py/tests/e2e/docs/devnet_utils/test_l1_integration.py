@@ -40,6 +40,7 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=50000, max_price_per_unit=int(1e12)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     await contract.functions["increase_balance"].invoke_v3(
         user=account.address,
@@ -55,6 +56,7 @@ async def test_postman_load(devnet_client, l1_l2_contract, account):
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=50000, max_price_per_unit=int(1e12)),
         l2_gas=ResourceBounds.init_with_zeros(),
+        l1_data_gas=ResourceBounds.init_with_zeros(),
     )
     await contract.functions["withdraw"].invoke_v3(
         user=account.address,
