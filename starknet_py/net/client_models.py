@@ -950,7 +950,7 @@ class CasmClassEntryPoint:
 
     selector: int
     offset: int
-    builtins: Optional[List[str]]
+    builtins: List[str]
 
 
 @dataclass
@@ -1199,6 +1199,7 @@ class ContractStorageKeys:
 class ContractLeafData:
     nonce: int
     class_hash: int
+    storage_root: Optional[int]
 
 
 @dataclass

@@ -82,6 +82,7 @@ class NodeHashToNodeMappingItemSchema(Schema):
 class ContractLeafDataSchema(Schema):
     nonce = Felt(data_key="nonce", required=True)
     class_hash = Felt(data_key="class_hash", required=True)
+    storage_root = Felt(data_key="class_hash", required=False)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ContractLeafData:
