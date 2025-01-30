@@ -1214,7 +1214,6 @@ class GlobalRoots:
 class ContractsProof:
     nodes: NodeHashToNodeMapping
     contract_leaves_data: List[ContractLeafData]
-    contracts_storage_proof: NodeHashToNodeMapping
 
 
 @dataclass
