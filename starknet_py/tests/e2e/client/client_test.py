@@ -20,6 +20,7 @@ from starknet_py.net.client_models import (
     FeePayment,
     InvokeTransactionV3,
     L1HandlerTransaction,
+    MessageStatus,
     PriceUnit,
     ResourceBoundsMapping,
     SierraContractClass,
@@ -129,9 +130,29 @@ async def test_get_storage_proof():
 
 
 @pytest.mark.asyncio
-async def test_get_messages_status():
-    # TODO (#1498): Implement
-    pass
+async def test_get_messages_status(client):
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_message_status_call_rpc:
+        return_value = [
+            {
+                "transaction_hash": "0x1",
+                "finality_status": "ACCEPTED_ON_L2",
+            },
+            {
+                "transaction_hash": "0x2",
+                "finality_status": "REJECTED",
+                "failure_reason": "Some failure reason",
+            },
+        ]
+        mocked_message_status_call_rpc.return_value = return_value
+
+        messages_status = await client.get_messages_status(transaction_hash=0x1)
+
+        assert all(isinstance(message, MessageStatus) for message in messages_status)
+
+        assert messages_status[0].failure_reason is None
+        assert messages_status[1].failure_reason == "Some failure reason"
 
 
 @pytest.mark.asyncio
