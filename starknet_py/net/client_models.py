@@ -433,6 +433,7 @@ class ExecutionResources:
     """
 
     l1_gas: int
+    l1_data_gas: int
     l2_gas: int
 
 
