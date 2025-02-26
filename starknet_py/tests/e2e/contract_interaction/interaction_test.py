@@ -161,23 +161,34 @@ async def test_latest_resource_bounds_take_precedence(map_contract):
         key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
-    updated_l1_resource_bounds = ResourceBounds(
-        max_amount=MAX_RESOURCE_BOUNDS_L1.max_amount + 100,
-        max_price_per_unit=MAX_RESOURCE_BOUNDS_L1.max_price_per_unit + 200,
+    updated_resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(
+            max_amount=MAX_RESOURCE_BOUNDS.l1_gas.max_amount + 100,
+            max_price_per_unit=MAX_RESOURCE_BOUNDS.l1_gas.max_price_per_unit + 200,
+        ),
+        l2_gas=ResourceBounds(
+            max_amount=MAX_RESOURCE_BOUNDS.l2_gas.max_amount + 100,
+            max_price_per_unit=MAX_RESOURCE_BOUNDS.l2_gas.max_price_per_unit + 200,
+        ),
+        l1_data_gas=ResourceBounds(
+            max_amount=MAX_RESOURCE_BOUNDS.l1_data_gas.max_amount + 100,
+            max_price_per_unit=MAX_RESOURCE_BOUNDS.l1_data_gas.max_price_per_unit + 200,
+        ),
     )
-    resource_bounds = ResourceBoundsMapping(
-        l1_gas=updated_l1_resource_bounds,
-        l2_gas=ResourceBounds.init_with_zeros(),
-        l1_data_gas=ResourceBounds.init_with_zeros(),
-    )
-    invocation = await prepared_function.invoke(resource_bounds=resource_bounds)
+    invocation = await prepared_function.invoke(resource_bounds=updated_resource_bounds)
 
     assert isinstance(invocation.invoke_transaction, InvokeV3)
     assert (
-        invocation.invoke_transaction.resource_bounds.l1_gas == resource_bounds.l1_gas
+        invocation.invoke_transaction.resource_bounds.l1_gas
+        == updated_resource_bounds.l1_gas
     )
     assert (
-        invocation.invoke_transaction.resource_bounds.l2_gas == resource_bounds.l2_gas
+        invocation.invoke_transaction.resource_bounds.l2_gas
+        == updated_resource_bounds.l2_gas
+    )
+    assert (
+        invocation.invoke_transaction.resource_bounds.l1_data_gas
+        == updated_resource_bounds.l1_data_gas
     )
 
 
