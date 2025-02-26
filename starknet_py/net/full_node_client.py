@@ -414,6 +414,9 @@ class FullNodeClient(Client):
             },
         )
 
+        if single_transaction:
+            res = res[0]
+
         return cast(
             EstimatedFee,
             EstimatedFeeSchema().load(res, many=not single_transaction),
