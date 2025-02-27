@@ -12,6 +12,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
+    DAMode,
     DeclaredContractHash,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
@@ -547,6 +548,11 @@ async def test_get_declare_v3_transaction(
         signature=declare_v3_hello_starknet.signature,
         nonce=declare_v3_hello_starknet.nonce,
         version=declare_v3_hello_starknet.version,
+        account_deployment_data=[],
+        fee_data_availability_mode=DAMode.L1,
+        nonce_data_availability_mode=DAMode.L1,
+        paymaster_data=[],
+        tip=0,
     )
 
 
@@ -572,7 +578,11 @@ async def test_get_block_with_declare_v3(
             signature=declare_v3_hello_starknet.signature,
             nonce=declare_v3_hello_starknet.nonce,
             version=declare_v3_hello_starknet.version,
+            account_deployment_data=[],
+            fee_data_availability_mode=DAMode.L1,
+            nonce_data_availability_mode=DAMode.L1,
             paymaster_data=[],
+            tip=0,
         )
         in block.transactions
     )

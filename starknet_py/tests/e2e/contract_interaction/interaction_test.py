@@ -84,13 +84,50 @@ async def test_latest_resource_bounds_takes_precedence(map_contract):
     prepared_function = map_contract.functions["put"].prepare_invoke_v3(
         key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
-    # FIXME
     invocation = await prepared_function.invoke(
-        resource_bounds=MAX_RESOURCE_BOUNDS + 30
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(
+                max_amount=MAX_RESOURCE_BOUNDS.l1_gas.max_amount + 30,
+                max_price_per_unit=MAX_RESOURCE_BOUNDS.l1_gas.max_price_per_unit + 30,
+            ),
+            l2_gas=ResourceBounds(
+                max_amount=MAX_RESOURCE_BOUNDS.l2_gas.max_amount + 30,
+                max_price_per_unit=MAX_RESOURCE_BOUNDS.l2_gas.max_price_per_unit + 30,
+            ),
+            l1_data_gas=ResourceBounds(
+                max_amount=MAX_RESOURCE_BOUNDS.l1_data_gas.max_amount + 30,
+                max_price_per_unit=MAX_RESOURCE_BOUNDS.l1_data_gas.max_price_per_unit
+                + 30,
+            ),
+        )
     )
 
     assert isinstance(invocation.invoke_transaction, InvokeV3)
-    assert invocation.invoke_transaction.resource_bounds == MAX_RESOURCE_BOUNDS + 30
+
+    assert (
+        invocation.invoke_transaction.resource_bounds.l1_gas.max_amount
+        == MAX_RESOURCE_BOUNDS.l1_gas.max_amount + 30
+    )
+    assert (
+        invocation.invoke_transaction.resource_bounds.l1_gas.max_price_per_unit
+        == MAX_RESOURCE_BOUNDS.l1_gas.max_price_per_unit + 30
+    )
+    assert (
+        invocation.invoke_transaction.resource_bounds.l2_gas.max_amount
+        == MAX_RESOURCE_BOUNDS.l2_gas.max_amount + 30
+    )
+    assert (
+        invocation.invoke_transaction.resource_bounds.l2_gas.max_price_per_unit
+        == MAX_RESOURCE_BOUNDS.l2_gas.max_price_per_unit + 30
+    )
+    assert (
+        invocation.invoke_transaction.resource_bounds.l1_data_gas.max_amount
+        == MAX_RESOURCE_BOUNDS.l1_data_gas.max_amount + 30
+    )
+    assert (
+        invocation.invoke_transaction.resource_bounds.l1_data_gas.max_price_per_unit
+        == MAX_RESOURCE_BOUNDS.l1_data_gas.max_price_per_unit + 30
+    )
 
 
 @pytest.mark.asyncio
