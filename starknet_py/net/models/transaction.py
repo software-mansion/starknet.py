@@ -10,7 +10,7 @@ import gzip
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, TypeVar, Union
+from typing import List, TypeVar
 
 from marshmallow import fields
 
@@ -203,11 +203,6 @@ class InvokeV3(_AccountTransactionV3):
                 chain_id=chain_id,
             ),
         )
-
-
-Declare = Union[DeclareV3]
-DeployAccount = Union[DeployAccountV3]
-Invoke = Union[InvokeV3]
 
 
 def compress_program(data: dict, program_name: str = "program") -> dict:

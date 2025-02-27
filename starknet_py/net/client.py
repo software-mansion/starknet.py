@@ -30,10 +30,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
 )
 from starknet_py.net.models.transaction import (
-    AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
+    AccountTransaction, DeclareV3, DeployAccountV3, InvokeV3,
 )
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -254,7 +251,7 @@ class Client(ABC):
     @abstractmethod
     async def send_transaction(
         self,
-        transaction: Invoke,
+        transaction: InvokeV3,
     ) -> SentTransactionResponse:
         """
         Send a transaction to the network
@@ -265,7 +262,7 @@ class Client(ABC):
 
     @abstractmethod
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: DeployAccountV3
     ) -> DeployAccountTransactionResponse:
         """
         Deploy a pre-funded account contract to the network
@@ -275,7 +272,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(self, transaction: DeclareV3) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 

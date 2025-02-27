@@ -16,13 +16,12 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     Call,
     DeclareTransactionTrace,
-    DeclareTransactionV2,
     DeployAccountTransactionTrace,
     InvokeTransactionTrace,
     SierraContractClass,
     SimulatedTransaction,
     SyncStatus,
-    TransactionType,
+    TransactionType, DeclareTransactionV3,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
@@ -50,7 +49,7 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
-    assert isinstance(tx, DeclareTransactionV2)
+    assert isinstance(tx, DeclareTransactionV3)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
     assert tx.version == 2
@@ -115,13 +114,13 @@ async def test_get_transaction_receipt_deploy_account(
     client, deploy_account_details_factory
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-    deploy_result = await Account.deploy_account_v1(
+    deploy_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 
@@ -184,7 +183,7 @@ async def test_get_events_follow_continuation_token(
 ):
     total_invokes = 2
     for i in range(total_invokes):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
 
@@ -243,11 +242,11 @@ async def test_get_events_with_two_events(
     invokes_of_one = 1
     invokes_of_two = 2
     invokes_of_all = invokes_of_one + invokes_of_two
-    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
         1, 2, auto_estimate=True
     )
     for i in range(invokes_of_two):
-        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
 
@@ -294,7 +293,7 @@ async def test_get_events_start_from_continuation_token(
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(5):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
 
@@ -326,10 +325,10 @@ async def test_get_events_no_params(
 ):
     default_chunk_size = 1
     for i in range(3):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
-        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
     events_response = await client.get_events()
@@ -437,7 +436,7 @@ async def test_simulate_transactions_skip_validate(account, deployed_balance_con
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     invoke_tx = dataclasses.replace(invoke_tx, signature=[])
 
     simulated_txs = await account.client.simulate_transactions(
@@ -481,7 +480,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -491,7 +490,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
-    invoke_tx = await account.sign_invoke_v1(calls=[call, call], auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v3(calls=[call, call], auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )

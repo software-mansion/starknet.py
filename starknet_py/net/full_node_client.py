@@ -50,9 +50,9 @@ from starknet_py.net.client_utils import (
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
+    DeclareV3,
+    DeployAccountV3,
+    InvokeV3,
 )
 from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
@@ -525,7 +525,7 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res]
 
-    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: InvokeV3) -> SentTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -536,7 +536,7 @@ class FullNodeClient(Client):
         return cast(SentTransactionResponse, SentTransactionSchema().load(res))
 
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: DeployAccountV3
     ) -> DeployAccountTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
@@ -550,7 +550,7 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res),
         )
 
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(self, transaction: DeclareV3) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(

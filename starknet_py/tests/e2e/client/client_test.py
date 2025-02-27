@@ -13,8 +13,6 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
     DeclaredContractHash,
-    DeclareTransactionV2,
-    DeployAccountTransactionV1,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
@@ -30,7 +28,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
     TransactionStatusResponse,
-    TransactionType, DeclareTransactionV3,
+    TransactionType, DeclareTransactionV3, DeployAccountTransactionV3,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
@@ -50,7 +48,7 @@ async def test_get_declare_transaction(
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
-    assert isinstance(transaction, DeclareTransactionV2)
+    assert isinstance(transaction, DeclareTransactionV3)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
     assert transaction.sender_address == account.address
@@ -72,7 +70,7 @@ async def test_get_invoke_transaction(
 async def test_get_deploy_account_transaction(client, deploy_account_transaction_hash):
     transaction = await client.get_transaction(deploy_account_transaction_hash)
 
-    assert isinstance(transaction, DeployAccountTransactionV1)
+    assert isinstance(transaction, DeployAccountTransactionV3)
     assert transaction.hash == deploy_account_transaction_hash
     assert len(transaction.signature) > 0
     assert transaction.nonce == 0
@@ -527,6 +525,7 @@ async def test_get_class_by_hash_sierra_program(client, hello_starknet_class_has
 
 
 @pytest.mark.asyncio
+# FIXME
 async def test_get_declare_v3_transaction(
     client,
     hello_starknet_class_hash_tx_hash,
@@ -536,7 +535,7 @@ async def test_get_declare_v3_transaction(
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
-    assert isinstance(transaction, DeclareTransactionV2)
+    assert isinstance(transaction, DeclareTransactionV3)
     assert transaction == DeclareTransactionV3(
         class_hash=class_hash,
         compiled_class_hash=declare_v3_hello_starknet.compiled_class_hash,

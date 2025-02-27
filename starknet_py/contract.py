@@ -34,7 +34,7 @@ from starknet_py.net.client_models import (
     Tag,
 )
 from starknet_py.net.models import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import Declare, Invoke
+from starknet_py.net.models.transaction import DeclareV3, InvokeV3
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -147,7 +147,7 @@ class InvokeResult(SentTransaction):
     contract: ContractData = None  # pyright: ignore
     """Additional information about the Contract that made the transaction."""
 
-    invoke_transaction: Invoke = None  # pyright: ignore
+    invoke_transaction: InvokeV3 = None  # pyright: ignore
     """A InvokeTransaction instance used."""
 
     def __post_init__(self):
@@ -171,7 +171,7 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
     """Compiled contract that was declared."""
 
-    declare_transaction: Declare = None  # pyright: ignore
+    declare_transaction: DeclareV3 = None  # pyright: ignore
     """A Declare transaction that has been sent."""
 
     def __post_init__(self):
@@ -351,7 +351,7 @@ class PreparedFunctionInvoke(ABC, PreparedCallBase):
             specified transaction.
         """
 
-    async def _invoke(self, transaction: Invoke) -> InvokeResult:
+    async def _invoke(self, transaction: InvokeV3) -> InvokeResult:
         response = await self._client.send_transaction(transaction)
 
         invoke_result = InvokeResult(
@@ -836,7 +836,7 @@ class Contract:
 
 
 async def _declare_contract(
-    transaction: Declare,
+    transaction: DeclareV3,
     account: BaseAccount,
     compiled_contract: str,
     cairo_version: int,
