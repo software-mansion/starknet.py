@@ -16,7 +16,8 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
-    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY, MAX_RESOURCE_BOUNDS,
+    DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
+    MAX_RESOURCE_BOUNDS,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,

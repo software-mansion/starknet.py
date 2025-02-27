@@ -62,5 +62,7 @@ async def test_custom_nonce(account):
     # docs: end
 
     assert account.nonce_counter == 0
-    await account.sign_invoke_v3(calls=Call(0x1, 0x1, []), resource_bounds=MAX_RESOURCE_BOUNDS)
+    await account.sign_invoke_v3(
+        calls=Call(0x1, 0x1, []), resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     assert account.nonce_counter == 1

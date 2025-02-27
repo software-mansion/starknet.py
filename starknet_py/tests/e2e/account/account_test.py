@@ -24,11 +24,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import (
-    DeclareV3,
-    DeployAccountV3,
-    InvokeV3,
-)
+from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
@@ -69,7 +65,9 @@ async def test_balance_when_token_specified(account, erc20_contract):
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     estimated_fee = (
         await erc20_contract.functions["balance_of"]
-        .prepare_invoke_v3(account.address, resource_bounds=ResourceBoundsMapping.init_with_zeros())
+        .prepare_invoke_v3(
+            account.address, resource_bounds=ResourceBoundsMapping.init_with_zeros()
+        )
         .estimate_fee(block_hash="latest")
     )
 
@@ -166,7 +164,9 @@ async def test_rejection_reason_in_transaction_receipt(map_contract):
             l2_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
             l1_data_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
         )
-        await map_contract.functions["put"].invoke_v3(key=10, value=20, resource_bounds=resource_bounds)
+        await map_contract.functions["put"].invoke_v3(
+            key=10, value=20, resource_bounds=resource_bounds
+        )
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):
@@ -504,7 +504,9 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
 @pytest.mark.asyncio
 async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash):
     deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
-    deploy_tx = await account.sign_invoke_v3(deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS)
+    deploy_tx = await account.sign_invoke_v3(
+        deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     new_balance = 30
     invoke_tx = await account.sign_invoke_v3(

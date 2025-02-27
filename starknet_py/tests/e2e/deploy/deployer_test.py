@@ -166,7 +166,9 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
         salt=salt,
     )
 
-    deploy_invoke_tx = await account.sign_invoke_v3(deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS)
+    deploy_invoke_tx = await account.sign_invoke_v3(
+        deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 

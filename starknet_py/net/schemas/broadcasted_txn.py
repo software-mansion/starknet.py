@@ -2,9 +2,7 @@ from marshmallow import fields
 from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import TransactionType
-from starknet_py.net.schemas.rpc.contract import (
-    SierraCompiledContractSchema,
-)
+from starknet_py.net.schemas.rpc.contract import SierraCompiledContractSchema
 from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionV3Schema,
     DeployAccountTransactionSchema,

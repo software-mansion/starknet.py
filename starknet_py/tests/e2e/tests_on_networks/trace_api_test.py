@@ -12,6 +12,7 @@ from starknet_py.net.client_models import (
     RevertedFunctionInvocation,
 )
 
+
 @pytest.mark.asyncio
 async def test_trace_transaction_invoke_v3(client_sepolia_testnet):
     invoke_tx_hash = 0x26476DA48E56E5E7025543AD0BB9105DF00EE08571C6D17C4207462FF7717C4

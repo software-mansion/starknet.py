@@ -412,7 +412,9 @@ async def deploy_v3_contract(
         abi=abi,
         calldata=calldata,
     )
-    res = await account.execute_v3(calls=deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS)
+    res = await account.execute_v3(
+        calls=deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     await account.client.wait_for_tx(res.transaction_hash)
 
     return Contract(address, abi, provider=account)

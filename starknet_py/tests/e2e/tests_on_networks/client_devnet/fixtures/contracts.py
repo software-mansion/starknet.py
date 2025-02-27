@@ -2,7 +2,8 @@ import pytest_asyncio
 
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.contracts_v1 import (
-    declare_contract, deploy_v3_contract,
+    declare_contract,
+    deploy_v3_contract,
 )
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 

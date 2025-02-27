@@ -7,7 +7,6 @@ from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.contracts_v1 import deploy_v3_contract
 
-
 # TODO (#1219): investigate why some of these tests fails for contracts_compiled_v1
 
 

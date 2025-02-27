@@ -13,6 +13,8 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
     DeclaredContractHash,
+    DeclareTransactionV3,
+    DeployAccountTransactionV3,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
@@ -28,7 +30,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
     TransactionStatusResponse,
-    TransactionType, DeclareTransactionV3, DeployAccountTransactionV3,
+    TransactionType,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient

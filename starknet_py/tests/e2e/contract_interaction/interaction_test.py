@@ -1,9 +1,6 @@
 import pytest
 
-from starknet_py.contract import (
-    Contract,
-    PreparedFunctionInvokeV3,
-)
+from starknet_py.contract import Contract, PreparedFunctionInvokeV3
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, ResourceBounds, ResourceBoundsMapping
@@ -70,12 +67,16 @@ async def test_throws_prepared_invoke_v3_without_resource_bounds(map_contract):
 
 
 @pytest.mark.asyncio
-async def test_throws_when_invoke_v3_with_resource_bounds_and_auto_estimate(map_contract):
+async def test_throws_when_invoke_v3_with_resource_bounds_and_auto_estimate(
+    map_contract,
+):
     error_message = "Arguments max_fee and auto_estimate are mutually exclusive."
 
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=2, value=3)
     with pytest.raises(ValueError, match=error_message):
-        await prepared_invoke.invoke(resource_bounds=MAX_RESOURCE_BOUNDS, auto_estimate=True)
+        await prepared_invoke.invoke(
+            resource_bounds=MAX_RESOURCE_BOUNDS, auto_estimate=True
+        )
 
 
 @pytest.mark.asyncio
@@ -84,7 +85,9 @@ async def test_latest_resource_bounds_takes_precedence(map_contract):
         key=1, value=2, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     # FIXME
-    invocation = await prepared_function.invoke(resource_bounds=MAX_RESOURCE_BOUNDS + 30)
+    invocation = await prepared_function.invoke(
+        resource_bounds=MAX_RESOURCE_BOUNDS + 30
+    )
 
     assert isinstance(invocation.invoke_transaction, InvokeV3)
     assert invocation.invoke_transaction.resource_bounds == MAX_RESOURCE_BOUNDS + 30

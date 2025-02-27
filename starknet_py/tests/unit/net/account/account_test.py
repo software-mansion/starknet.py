@@ -45,7 +45,8 @@ async def test_account_get_balance_eth(account, hello_starknet_contract):
     block = await account.client.get_block(block_number="latest")
 
     await hello_starknet_contract.functions["increase_balance"].invoke_v3(
-        amount=10, resource_bounds=MAX_RESOURCE_BOUNDS,
+        amount=10,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     new_balance = await account.get_balance()
     old_balance = await account.get_balance(block_number=block.block_number)

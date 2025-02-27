@@ -52,7 +52,9 @@ async def test_account_outside_execution_any_caller(
         caller=ANY_CALLER,
     )
 
-    tx = await argent_account.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
+    tx = await argent_account.execute_v3(
+        calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     await argent_account.client.wait_for_tx(tx.transaction_hash)
 
 
@@ -86,7 +88,9 @@ async def test_account_outside_execution_for_invalid_caller(
         caller=account.address,
     )
 
-    tx = await argent_account.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
+    tx = await argent_account.execute_v3(
+        calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     with pytest.raises(TransactionRevertedError) as err:
         await argent_account.client.wait_for_tx(tx.transaction_hash)
@@ -124,7 +128,9 @@ async def test_account_outside_execution_for_impossible_time_bounds(
         caller=ANY_CALLER,
     )
 
-    tx = await argent_account.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
+    tx = await argent_account.execute_v3(
+        calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     with pytest.raises(TransactionRevertedError) as err:
         await argent_account.client.wait_for_tx(tx.transaction_hash)

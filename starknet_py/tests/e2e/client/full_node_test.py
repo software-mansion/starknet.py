@@ -16,12 +16,13 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     Call,
     DeclareTransactionTrace,
+    DeclareTransactionV3,
     DeployAccountTransactionTrace,
     InvokeTransactionTrace,
     SierraContractClass,
     SimulatedTransaction,
     SyncStatus,
-    TransactionType, DeclareTransactionV3,
+    TransactionType,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
