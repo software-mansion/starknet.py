@@ -197,6 +197,7 @@ async def test_get_events_follow_continuation_token(
         chunk_size=1,
     )
 
+    print("AAA", len(events_response.events), "BBB", total_invokes)
     assert len(events_response.events) == total_invokes
     assert events_response.continuation_token is None
 

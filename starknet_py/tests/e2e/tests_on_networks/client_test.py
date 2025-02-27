@@ -1,5 +1,4 @@
 import dataclasses
-import sys
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -30,7 +29,10 @@ from starknet_py.net.client_models import (
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
-from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_SEPOLIA
+from starknet_py.tests.e2e.fixtures.constants import (
+    EMPTY_CONTRACT_ADDRESS_SEPOLIA,
+    MAX_RESOURCE_BOUNDS,
+)
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -65,7 +67,9 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
@@ -80,7 +84,9 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
@@ -97,7 +103,9 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     with pytest.raises(
         ClientError,
@@ -115,7 +123,9 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=sys.maxsize)
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     with pytest.raises(
         ClientError,
@@ -133,7 +143,9 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16), nonce=0)
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS, nonce=0
+    )
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
         await account.client.send_transaction(sign_invoke)
@@ -147,7 +159,9 @@ async def test_transaction_not_received_invalid_signature(account_sepolia_testne
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
     with pytest.raises(
         ClientError,

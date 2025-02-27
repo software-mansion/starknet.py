@@ -346,12 +346,12 @@ async def account_declare_class_hash(
 
     casm_class = create_casm_class(compiled_account_contract_casm)
     casm_class_hash = compute_casm_class_hash(casm_class)
-    declare_v2_transaction = await account.sign_declare_v3(
+    declare_v3_transaction = await account.sign_declare_v3(
         compiled_contract=compiled_account_contract,
         compiled_class_hash=casm_class_hash,
         resource_bounds=MAX_RESOURCE_BOUNDS,
     )
-    resp = await account.client.declare(transaction=declare_v2_transaction)
+    resp = await account.client.declare(transaction=declare_v3_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
     return resp.class_hash
 
