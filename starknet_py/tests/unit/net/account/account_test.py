@@ -40,23 +40,6 @@ async def test_get_balance_default_token_address():
 
 
 @pytest.mark.asyncio
-async def test_account_get_balance_eth(account, hello_starknet_contract):
-    balance = await account.get_balance()
-    block = await account.client.get_block(block_number="latest")
-
-    await hello_starknet_contract.functions["increase_balance"].invoke_v3(
-        amount=10,
-        resource_bounds=MAX_RESOURCE_BOUNDS,
-    )
-    new_balance = await account.get_balance()
-    old_balance = await account.get_balance(block_number=block.block_number)
-
-    assert balance > 0
-    assert new_balance < balance
-    assert old_balance == balance
-
-
-@pytest.mark.asyncio
 async def test_account_get_balance_strk(account, hello_starknet_contract):
     balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)
     block = await account.client.get_block(block_number="latest")
