@@ -4,17 +4,11 @@ from marshmallow_oneofschema.one_of_schema import OneOfSchema
 from starknet_py.net.client_models import (
     DAMode,
     DeclareTransactionResponse,
-    DeclareTransactionV0,
-    DeclareTransactionV1,
-    DeclareTransactionV2,
     DeclareTransactionV3,
     DeployAccountTransactionResponse,
-    DeployAccountTransactionV1,
     DeployAccountTransactionV3,
     DeployTransaction,
     FeePayment,
-    InvokeTransactionV0,
-    InvokeTransactionV1,
     InvokeTransactionV3,
     L1HandlerTransaction,
     L2toL1Message,
@@ -147,26 +141,6 @@ class TransactionV3Schema(TransactionSchema):
     )
 
 
-class InvokeTransactionV0Schema(DeprecatedTransactionSchema):
-    calldata = fields.List(Felt(), data_key="calldata", required=True)
-    contract_address = Felt(data_key="contract_address", required=True)
-    entry_point_selector = Felt(data_key="entry_point_selector", required=True)
-
-    @post_load
-    def make_transaction(self, data, **kwargs) -> InvokeTransactionV0:
-        return InvokeTransactionV0(**data)
-
-
-class InvokeTransactionV1Schema(DeprecatedTransactionSchema):
-    calldata = fields.List(Felt(), data_key="calldata", required=True)
-    sender_address = Felt(data_key="sender_address", required=True)
-    nonce = Felt(data_key="nonce", required=True)
-
-    @post_load
-    def make_transaction(self, data, **kwargs) -> InvokeTransactionV1:
-        return InvokeTransactionV1(**data)
-
-
 class InvokeTransactionV3Schema(TransactionV3Schema):
     calldata = fields.List(Felt(), data_key="calldata", required=True)
     sender_address = Felt(data_key="sender_address", required=True)
@@ -178,36 +152,6 @@ class InvokeTransactionV3Schema(TransactionV3Schema):
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransactionV3:
         return InvokeTransactionV3(**data)
-
-
-class DeclareTransactionV0Schema(DeprecatedTransactionSchema):
-    sender_address = Felt(data_key="sender_address", required=True)
-    class_hash = Felt(data_key="class_hash", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV0:
-        return DeclareTransactionV0(**data)
-
-
-class DeclareTransactionV1Schema(DeprecatedTransactionSchema):
-    sender_address = Felt(data_key="sender_address", required=True)
-    class_hash = Felt(data_key="class_hash", required=True)
-    nonce = Felt(data_key="nonce", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV1:
-        return DeclareTransactionV1(**data)
-
-
-class DeclareTransactionV2Schema(DeprecatedTransactionSchema):
-    sender_address = Felt(data_key="sender_address", required=True)
-    class_hash = Felt(data_key="class_hash", required=True)
-    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
-    nonce = Felt(data_key="nonce", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeclareTransactionV2:
-        return DeclareTransactionV2(**data)
 
 
 class DeclareTransactionV3Schema(TransactionV3Schema):
@@ -237,19 +181,6 @@ class DeployTransactionSchema(TransactionSchema):
         return DeployTransaction(**data)
 
 
-class DeployAccountTransactionV1Schema(DeprecatedTransactionSchema):
-    nonce = Felt(data_key="nonce", required=True)
-    contract_address_salt = Felt(data_key="contract_address_salt", required=True)
-    constructor_calldata = fields.List(
-        Felt(), data_key="constructor_calldata", required=True
-    )
-    class_hash = Felt(data_key="class_hash", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionV1:
-        return DeployAccountTransactionV1(**data)
-
-
 class DeployAccountTransactionV3Schema(TransactionV3Schema):
     nonce = Felt(data_key="nonce", required=True)
     contract_address_salt = Felt(data_key="contract_address_salt", required=True)
@@ -265,9 +196,6 @@ class DeployAccountTransactionV3Schema(TransactionV3Schema):
 
 class DeclareTransactionSchema(OneOfSchema):
     type_schemas = {
-        "0": DeclareTransactionV0Schema,
-        "1": DeclareTransactionV1Schema,
-        "2": DeclareTransactionV2Schema,
         "3": DeclareTransactionV3Schema,
     }
 
@@ -277,8 +205,6 @@ class DeclareTransactionSchema(OneOfSchema):
 
 class InvokeTransactionSchema(OneOfSchema):
     type_schemas = {
-        "0": InvokeTransactionV0Schema,
-        "1": InvokeTransactionV1Schema,
         "3": InvokeTransactionV3Schema,
     }
 
@@ -291,7 +217,6 @@ class InvokeTransactionSchema(OneOfSchema):
 
 class DeployAccountTransactionSchema(OneOfSchema):
     type_schemas = {
-        "1": DeployAccountTransactionV1Schema,
         "3": DeployAccountTransactionV3Schema,
     }
 

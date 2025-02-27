@@ -16,7 +16,7 @@ U256_MAX = (1 << 256) - 1
 async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
     contract = load_contract(contract_name="Hello2", version=ContractVersion.V2)
 
-    declare_result = await Contract.declare_v2(
+    declare_result = await Contract.declare_v3(
         account=account,
         compiled_contract=contract["sierra"],
         compiled_contract_casm=contract["casm"],
@@ -24,7 +24,7 @@ async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
     )
     await declare_result.wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy_v1(auto_estimate=True)
+    deploy_result = await declare_result.deploy_v3(auto_estimate=True)
     await deploy_result.wait_for_acceptance()
 
     return declare_result, deploy_result

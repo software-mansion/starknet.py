@@ -3,7 +3,6 @@ import pytest
 from starknet_py.hash.transaction import (
     CommonTransactionV3Fields,
     TransactionHashPrefix,
-    compute_declare_v2_transaction_hash,
     compute_declare_v3_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_deploy_account_v3_transaction_hash,
@@ -64,27 +63,6 @@ def test_compute_transaction_hash(data, expected_hash):
 )
 def test_compute_deploy_account_transaction_hash(data, expected_hash):
     assert compute_deploy_account_transaction_hash(**data) == expected_hash
-
-
-@pytest.mark.parametrize(
-    "data, expected_hash",
-    (
-        (
-            {
-                "class_hash": 2,
-                "sender_address": 3,
-                "version": 4,
-                "max_fee": 5,
-                "chain_id": 6,
-                "nonce": 7,
-                "compiled_class_hash": 8,
-            },
-            0x67EA411072DD2EF3BA36D9680F040A02E599F80F4770E204ECBB2C47C226793,
-        ),
-    ),
-)
-def test_compute_declare_v2_transaction_hash(data, expected_hash):
-    assert compute_declare_v2_transaction_hash(**data) == expected_hash
 
 
 @pytest.mark.parametrize(

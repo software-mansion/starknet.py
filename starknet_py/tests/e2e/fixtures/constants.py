@@ -46,8 +46,6 @@ STRK_FEE_CONTRACT_ADDRESS = (
     "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
 )
 
-MAX_FEE = int(1e18)
-
 MAX_RESOURCE_BOUNDS_L1 = ResourceBounds(
     max_amount=int(1e5), max_price_per_unit=int(1e13)
 )

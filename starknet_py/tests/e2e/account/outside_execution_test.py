@@ -6,7 +6,7 @@ from starknet_py.constants import ANY_CALLER, OutsideExecutionInterfaceID
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import BaseAccount
 from starknet_py.net.client_models import Call, OutsideExecutionTimeBounds
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -52,7 +52,7 @@ async def test_account_outside_execution_any_caller(
         caller=ANY_CALLER,
     )
 
-    tx = await argent_account.execute_v1(calls=[call], max_fee=MAX_FEE)
+    tx = await argent_account.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
     await argent_account.client.wait_for_tx(tx.transaction_hash)
 
 
@@ -86,7 +86,7 @@ async def test_account_outside_execution_for_invalid_caller(
         caller=account.address,
     )
 
-    tx = await argent_account.execute_v1(calls=[call], max_fee=MAX_FEE)
+    tx = await argent_account.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
 
     with pytest.raises(TransactionRevertedError) as err:
         await argent_account.client.wait_for_tx(tx.transaction_hash)
@@ -124,7 +124,7 @@ async def test_account_outside_execution_for_impossible_time_bounds(
         caller=ANY_CALLER,
     )
 
-    tx = await argent_account.execute_v1(calls=[call], max_fee=MAX_FEE)
+    tx = await argent_account.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
 
     with pytest.raises(TransactionRevertedError) as err:
         await argent_account.client.wait_for_tx(tx.transaction_hash)
