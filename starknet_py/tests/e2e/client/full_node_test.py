@@ -53,7 +53,7 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
     assert isinstance(tx, DeclareTransactionV3)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
-    assert tx.version == 2
+    assert tx.version == 3
 
 
 @pytest.mark.run_on_devnet

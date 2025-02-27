@@ -32,7 +32,7 @@ async def declare_contract(
         compiled_class_hash=casm_class_hash,
         resource_bounds=MAX_RESOURCE_BOUNDS,
     )
-    assert declare_tx.version == 2
+    assert declare_tx.version == 3
 
     resp = await account.client.declare(declare_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
