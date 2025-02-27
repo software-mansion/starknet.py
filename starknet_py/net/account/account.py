@@ -137,30 +137,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     def client(self) -> Client:
         return self._client
 
-    async def _get_max_fee(
-        self,
-        transaction: AccountTransaction,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> int:
-        if auto_estimate and max_fee is not None:
-            raise ValueError(
-                "Arguments max_fee and auto_estimate are mutually exclusive."
-            )
-
-        if auto_estimate:
-            estimated_fee = await self.estimate_fee(transaction)
-            assert isinstance(estimated_fee, EstimatedFee)
-
-            max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
-
-        if max_fee is None:
-            raise ValueError(
-                "Argument max_fee must be specified when invoking a transaction."
-            )
-
-        return max_fee
-
     async def _get_resource_bounds(
         self,
         transaction: AccountTransaction,

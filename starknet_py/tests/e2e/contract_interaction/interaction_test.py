@@ -70,7 +70,9 @@ async def test_throws_prepared_invoke_v3_without_resource_bounds(map_contract):
 async def test_throws_when_invoke_v3_with_resource_bounds_and_auto_estimate(
     map_contract,
 ):
-    error_message = "Arguments max_fee and auto_estimate are mutually exclusive."
+    error_message = (
+        "Arguments auto_estimate and resource_bounds are mutually exclusive."
+    )
 
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=2, value=3)
     with pytest.raises(ValueError, match=error_message):
@@ -168,10 +170,10 @@ async def test_latest_resource_bounds_take_precedence(map_contract):
 
 
 @pytest.mark.asyncio
-async def test_prepare_without_max_fee(map_contract):
+async def test_prepare_without_resource_bounds(map_contract):
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=1, value=2)
 
-    assert prepared_invoke.max_fee is None
+    assert prepared_invoke.resource_bounds is None
 
 
 @pytest.mark.asyncio

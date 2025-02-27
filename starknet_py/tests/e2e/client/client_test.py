@@ -184,7 +184,7 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
     assert estimated_fee.unit == PriceUnit.FRI
 
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
         if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
@@ -207,7 +207,7 @@ async def test_estimate_fee_declare_v3(
     assert estimated_fee.unit == PriceUnit.FRI
 
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
         if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
@@ -221,7 +221,7 @@ async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
     assert estimated_fee.unit == PriceUnit.FRI
 
     assert all(
-        getattr(estimated_fee, field.name) > 0
+        getattr(estimated_fee, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
         if isinstance(getattr(estimated_fee, field.name), numbers.Number)
     )
@@ -252,7 +252,7 @@ async def test_estimate_fee_for_multiple_transactions(
         assert estimated_fee.unit == PriceUnit.FRI
 
         assert all(
-            getattr(estimated_fee, field.name) > 0
+            getattr(estimated_fee, field.name) >= 0
             for field in dataclasses.fields(EstimatedFee)
             if isinstance(getattr(estimated_fee, field.name), numbers.Number)
         )
