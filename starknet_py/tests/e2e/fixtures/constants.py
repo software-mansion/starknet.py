@@ -53,10 +53,9 @@ MAX_RESOURCE_BOUNDS_L1 = ResourceBounds(
 )
 
 MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
-    l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e12)),
-    # l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e12)),
-    l2_gas=ResourceBounds(max_amount=int(0), max_price_per_unit=int(0)),
-    l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e12)),
+    l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
 )
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"

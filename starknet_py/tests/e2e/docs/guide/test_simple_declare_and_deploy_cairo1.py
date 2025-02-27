@@ -25,16 +25,24 @@ async def test_simple_declare_and_deploy(account):
         account=account,
         compiled_contract=compiled_contract["sierra"],
         compiled_contract_casm=compiled_contract["casm"],
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     await declare_result.wait_for_acceptance()
 
     deploy_result = await declare_result.deploy_v3(
         constructor_args=constructor_args,
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     await deploy_result.wait_for_acceptance()

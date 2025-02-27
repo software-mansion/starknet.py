@@ -63,7 +63,9 @@ async def test_deploy_prefunded_account(
         resource_bounds=ResourceBoundsMapping(
             l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
             l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e17)),
-            l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     # Wait for deployment transaction to be accepted

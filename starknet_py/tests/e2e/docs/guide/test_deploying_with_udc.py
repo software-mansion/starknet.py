@@ -83,8 +83,12 @@ async def test_deploying_with_udc(
     # Once call is prepared, it can be executed with an account (preferred way)
     resp = await account.execute_v3(
         deploy_call,
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
 
@@ -103,8 +107,12 @@ async def test_deploying_with_udc(
     # Or signed and send with an account
     invoke_tx = await account.sign_invoke_v3(
         deploy_call,
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     resp = await account.client.send_transaction(invoke_tx)
