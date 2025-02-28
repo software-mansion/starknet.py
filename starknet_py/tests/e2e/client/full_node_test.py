@@ -477,8 +477,7 @@ async def test_simulate_transactions_skip_validate(account, deployed_balance_con
 
 
 @pytest.mark.asyncio
-# TODO(#1498): Remove skip
-@pytest.mark.skip
+@pytest.mark.skip("TODO(#1560): There is no `l1_data_gas` in `execution_resources` from devnet")
 async def test_simulate_transactions_skip_fee_charge(
     account, deployed_balance_contract
 ):
