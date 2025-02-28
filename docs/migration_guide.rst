@@ -29,6 +29,8 @@ Version [Unreleased] of **starknet.py** comes with support for RPC 0.8.0!
 
 6. ``execution_resources`` and ``is_reverted`` fields have been added to :class:`FunctionInvocation`.
 
+7. All methods and classes which used transactions other than v3, have been removed.
+
 ******************************
 0.25.0 Migration guide
 ******************************
