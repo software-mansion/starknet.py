@@ -20,7 +20,8 @@ dependencies = [
     "aiohttp>=3.8.4,<4.0.0",
     "pycryptodome>=3.17,<4.0",
     "crypto-cpp-py==1.4.5",
-    "eth-keyfile>=0.8.1,<1.0.0"
+    "eth-keyfile>=0.8.1,<1.0.0",
+    "websockets (>=14.2,<15.0)"
 ]
 
 [project.optional-dependencies]
@@ -74,7 +75,8 @@ test = [
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
 test_ci_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
-test_ci_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
+#test_ci_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/tests_on_networks"
 
 test_ci_on_networks = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/tests_on_networks"
 
