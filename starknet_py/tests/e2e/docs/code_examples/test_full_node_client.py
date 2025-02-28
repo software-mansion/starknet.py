@@ -141,8 +141,7 @@ async def test_get_class_by_hash(client, class_hash):
     # docs-end: get_class_by_hash
 
 
-# TODO(#1498): Investigate why there are not transactions in latest block
-@pytest.mark.skip
+@pytest.mark.skip("TODO(#15560)")
 @pytest.mark.asyncio
 async def test_get_transaction_by_block_id(client):
     # docs-start: get_transaction_by_block_id
