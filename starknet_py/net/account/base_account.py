@@ -16,12 +16,8 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    DeclareV1,
-    DeclareV2,
     DeclareV3,
-    DeployAccountV1,
     DeployAccountV3,
-    InvokeV1,
     InvokeV3,
     TypeAccountTransaction,
 )
@@ -162,29 +158,6 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
 
     @abstractmethod
-    async def sign_invoke_v1(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> InvokeV1:
-        """
-        Takes calls and creates signed Invoke.
-
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_invoke_v3` instead.
-
-        :param calls: Single call or list of calls.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: Invoke created from the calls.
-        """
-
-    @abstractmethod
     async def sign_invoke_v3(
         self,
         calls: Calls,
@@ -201,59 +174,6 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Invoke created from the calls.
-        """
-
-    # pylint: disable=line-too-long
-    @abstractmethod
-    async def sign_declare_v1(
-        self,
-        compiled_contract: str,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareV1:
-        """
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
-
-        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
-
-        :param compiled_contract: string containing a compiled Starknet contract. Supports old contracts.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: Signed Declare transaction.
-        """
-
-    # pylint: enable=line-too-long
-
-    @abstractmethod
-    async def sign_declare_v2(
-        self,
-        compiled_contract: str,
-        compiled_class_hash: int,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareV2:
-        """
-        Create and sign declare transaction version 2 using sierra contract.
-
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_declare_v3` instead.
-
-        :param compiled_contract: string containing a compiled Starknet contract.
-            Supports new contracts (compiled to sierra).
-        :param compiled_class_hash: a class hash of the sierra compiled contract used in the declare transaction.
-            Computed from casm compiled contract.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: Signed DeclareV2 transaction.
         """
 
     @abstractmethod
@@ -280,36 +200,6 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
 
     @abstractmethod
-    async def sign_deploy_account_v1(
-        self,
-        class_hash: int,
-        contract_address_salt: int,
-        constructor_calldata: Optional[List[int]] = None,
-        *,
-        nonce: int = 0,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeployAccountV1:
-        # pylint: disable=too-many-arguments
-        """
-        Create and sign deploy account transaction version 1.
-
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`stanet_py.net.account.BaseAccount.sign_deploy_account_v3` instead.
-
-        :param class_hash: Class hash of the contract class to be deployed.
-        :param contract_address_salt: A salt used to calculate deployed contract address.
-        :param constructor_calldata: Calldata to be ed to contract constructor
-            and used to calculate deployed contract address.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max fee to be paid for deploying account transaction. Enough tokens must be prefunded before
-            sending the transaction for it to succeed.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: Signed DeployAccount transaction.
-        """
-
-    @abstractmethod
     async def sign_deploy_account_v3(
         self,
         class_hash: int,
@@ -333,25 +223,6 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
             Enough tokens must be prefunded before sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :return: Signed DeployAccountV3 transaction.
-        """
-
-    @abstractmethod
-    async def execute_v1(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> SentTransactionResponse:
-        """
-        Takes calls and executes transaction.
-
-        :param calls: Single call or list of calls.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: SentTransactionResponse.
         """
 
     @abstractmethod

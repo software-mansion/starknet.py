@@ -23,7 +23,7 @@ def start_devnet(fork_mode: bool = False):
 
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(start_devnet_command)
-    time.sleep(5)
+    time.sleep(15)
     return devnet_port, proc
 
 
@@ -40,6 +40,8 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
         str(1),
         "--state-archive-capacity",
         "full",
+        "--initial-balance",
+        "1000000000000000000000000000000000000000000000000000000000000000000",
     ]
 
     if fork_mode:

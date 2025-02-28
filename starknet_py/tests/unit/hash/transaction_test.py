@@ -3,7 +3,6 @@ import pytest
 from starknet_py.hash.transaction import (
     CommonTransactionV3Fields,
     TransactionHashPrefix,
-    compute_declare_v2_transaction_hash,
     compute_declare_v3_transaction_hash,
     compute_deploy_account_transaction_hash,
     compute_deploy_account_v3_transaction_hash,
@@ -71,27 +70,6 @@ def test_compute_deploy_account_transaction_hash(data, expected_hash):
     (
         (
             {
-                "class_hash": 2,
-                "sender_address": 3,
-                "version": 4,
-                "max_fee": 5,
-                "chain_id": 6,
-                "nonce": 7,
-                "compiled_class_hash": 8,
-            },
-            0x67EA411072DD2EF3BA36D9680F040A02E599F80F4770E204ECBB2C47C226793,
-        ),
-    ),
-)
-def test_compute_declare_v2_transaction_hash(data, expected_hash):
-    assert compute_declare_v2_transaction_hash(**data) == expected_hash
-
-
-@pytest.mark.parametrize(
-    "data, expected_hash",
-    (
-        (
-            {
                 "sender_address": 3,
                 "version": 4,
                 "calldata": [5],
@@ -107,8 +85,6 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
     assert compute_invoke_transaction_hash(**data) == expected_hash
 
 
-# TODO(#1498): Remove the skip mark
-@pytest.mark.skip
 @pytest.mark.parametrize(
     "common_data, declare_data, expected_hash",
     (
@@ -129,7 +105,7 @@ def test_compute_invoke_transaction_hash(data, expected_hash):
                 "compiled_class_hash": 0x17B5169C770D0E49100AB0FC672A49CA90CC572F21F79A640B5227B19D3A447,
                 "account_deployment_data": [],
             },
-            0x7B31376D1C4F467242616530901E1B441149F1106EF765F202A50A6F917762B,
+            0x16081C54C3BEDC5079E0024896BFD85ED7E57FFD52B138CBC73AF0F34C7FCCE,
         ),
     ),
 )
@@ -145,8 +121,6 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
     )
 
 
-# TODO(#1498): Remove the skip mark
-@pytest.mark.skip
 @pytest.mark.parametrize(
     "common_data, invoke_data, expected_hash",
     (
@@ -175,7 +149,7 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
                 ],
                 "account_deployment_data": [],
             },
-            0x15F2CF38832542602E2D1C8BF0634893E6B43ACB6879E8A8F892F5A9B03C907,
+            0x119386B4AAAEF905BF027D3DD2734474C5E944942BF3FBD8FDB442704D32B8B,
         ),
     ),
 )

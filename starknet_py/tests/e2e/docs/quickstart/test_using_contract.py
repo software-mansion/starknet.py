@@ -42,8 +42,12 @@ async def test_using_contract(account, map_contract):
     invocation = await contract.functions["put"].invoke_v3(
         key,
         7,
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
 

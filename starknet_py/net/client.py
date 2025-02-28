@@ -10,7 +10,7 @@ from starknet_py.net.client_models import (
     BlockTransactionTrace,
     Call,
     CasmClass,
-    ContractStorageKeys,
+    ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
@@ -32,9 +32,9 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
+    DeclareV3,
+    DeployAccountV3,
+    InvokeV3,
 )
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -107,10 +107,10 @@ class Client(ABC):
     @abstractmethod
     async def get_storage_proof(
         self,
-        block_id: Union[int, Hash, Tag],
+        block_id: Union[int, Hash, Tag, dict],
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
-        contract_storage_keys: Optional[List[ContractStorageKeys]] = None,
+        contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
     ) -> StorageProofResponse:
         """
         Get merkle paths in one of the state tries: global state, classes, individual contract.
@@ -119,7 +119,7 @@ class Client(ABC):
         :param class_hashes: List of the class hashes for which we want to prove membership in the classes trie.
         :param contract_addresses: List of the contract addresses for which we want to prove membership in the
                                     contracts trie.
-        :param contract_storage_keys: List of the contract address and storage keys pairs.
+        :param contracts_storage_keys: List of the contract address and storage keys pairs.
         :return: StorageProofResponse object.
         """
 
@@ -255,7 +255,7 @@ class Client(ABC):
     @abstractmethod
     async def send_transaction(
         self,
-        transaction: Invoke,
+        transaction: InvokeV3,
     ) -> SentTransactionResponse:
         """
         Send a transaction to the network
@@ -266,7 +266,7 @@ class Client(ABC):
 
     @abstractmethod
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: DeployAccountV3
     ) -> DeployAccountTransactionResponse:
         """
         Deploy a pre-funded account contract to the network
@@ -276,7 +276,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(self, transaction: DeclareV3) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 

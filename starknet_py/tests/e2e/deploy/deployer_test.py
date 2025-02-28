@@ -6,7 +6,7 @@ from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.utils.constructor_args_translator import translate_constructor_args
 
 
@@ -16,8 +16,8 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
 
     contract_deployment = deployer.create_contract_deployment(class_hash=map_class_hash)
 
-    deploy_invoke_tx = await account.sign_invoke_v1(
-        contract_deployment.call, max_fee=MAX_FEE
+    deploy_invoke_tx = await account.sign_invoke_v3(
+        contract_deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -44,8 +44,8 @@ async def test_constructor_arguments_contract_deploy_without_abi(
         calldata=calldata,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1(
-        deploy_call, max_fee=MAX_FEE
+    deploy_invoke_transaction = await account.sign_invoke_v3(
+        deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -94,8 +94,8 @@ async def test_constructor_arguments_contract_deploy(
         calldata=calldata,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1(
-        deploy_call, max_fee=MAX_FEE
+    deploy_invoke_transaction = await account.sign_invoke_v3(
+        deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -166,7 +166,9 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
         salt=salt,
     )
 
-    deploy_invoke_tx = await account.sign_invoke_v1(deploy_call, max_fee=MAX_FEE)
+    deploy_invoke_tx = await account.sign_invoke_v3(
+        deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
 
@@ -213,8 +215,8 @@ async def test_create_deployment_call_raw(
         raw_calldata=raw_calldata,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1(
-        deploy_call, max_fee=MAX_FEE
+    deploy_invoke_transaction = await account.sign_invoke_v3(
+        deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -262,8 +264,8 @@ async def test_create_deployment_call_raw_supports_seed_0(
         salt=1,
     )
 
-    deploy_invoke_transaction = await account.sign_invoke_v1(
-        deploy_call, max_fee=MAX_FEE
+    deploy_invoke_transaction = await account.sign_invoke_v3(
+        deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     resp = await account.client.send_transaction(deploy_invoke_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)

@@ -44,9 +44,11 @@ Alternatively, you can estimate fee automatically, as described in the :ref:`aut
 
 .. code-block:: python
 
-    await contract.functions["put"].invoke_v3(k, v, resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ))
+    await contract.functions["put"].invoke_v3(k, v, resource_bounds=ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    ))
 
 The ``resource_bounds`` argument can be also defined in :meth:`~ContractFunction.prepare_invoke_v3`. Subsequently, the :meth:`~PreparedFunctionInvokeV3.invoke` method on a prepared call can be used either with ``resource_bounds`` omitted or with its value overridden.
 

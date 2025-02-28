@@ -18,7 +18,8 @@ from starknet_py.net.client_models import (
 )
 
 L1_GAS_ENCODED = encode_shortstring("L1_GAS")
-l2_GAS_ENCODED = encode_shortstring("L2_GAS")
+L2_GAS_ENCODED = encode_shortstring("L2_GAS")
+L1_DATA_ENCODED = encode_shortstring("L1_DATA")
 
 
 class TransactionHashPrefix(IntEnum):
@@ -68,12 +69,18 @@ class CommonTransactionV3Fields:
         )
 
         l2_gas_bounds = (
-            (l2_GAS_ENCODED << (128 + 64))
+            (L2_GAS_ENCODED << (128 + 64))
             + (self.resource_bounds.l2_gas.max_amount << 128)
             + self.resource_bounds.l2_gas.max_price_per_unit
         )
 
-        return [l1_gas_bounds, l2_gas_bounds]
+        l1_data_gas_bounds = (
+            (L1_DATA_ENCODED << (128 + 64))
+            + (self.resource_bounds.l1_data_gas.max_amount << 128)
+            + self.resource_bounds.l1_data_gas.max_price_per_unit
+        )
+
+        return [l1_gas_bounds, l2_gas_bounds, l1_data_gas_bounds]
 
     def get_data_availability_modes(self) -> int:
         return (
@@ -285,47 +292,6 @@ def compute_declare_transaction_hash(
         max_fee=max_fee,
         chain_id=chain_id,
         additional_data=[nonce],
-    )
-
-
-def compute_declare_v2_transaction_hash(
-    *,
-    contract_class: Optional[SierraContractClass] = None,
-    class_hash: Optional[int] = None,
-    compiled_class_hash: int,
-    chain_id: int,
-    sender_address: int,
-    max_fee: int,
-    version: int,
-    nonce: int,
-) -> int:
-    """
-    Computes class hash of a Declare transaction version 2.
-
-    :param contract_class: SierraContractClass of the contract.
-    :param class_hash: Class hash of the contract.
-    :param compiled_class_hash: Compiled class hash of the program.
-    :param chain_id: The network's chain ID.
-    :param sender_address: Address which sends the transaction.
-    :param max_fee: The transaction's maximum fee.
-    :param version: The transaction's version.
-    :param nonce: Nonce of the transaction.
-    :return: Hash of the transaction.
-    """
-    if class_hash is None:
-        if contract_class is None:
-            raise ValueError("Either contract_class or class_hash is required.")
-        class_hash = compute_sierra_class_hash(contract_class)
-
-    return compute_transaction_hash(
-        tx_hash_prefix=TransactionHashPrefix.DECLARE,
-        version=version,
-        contract_address=sender_address,
-        entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
-        calldata=[class_hash],
-        max_fee=max_fee,
-        chain_id=chain_id,
-        additional_data=[nonce, compiled_class_hash],
     )
 
 

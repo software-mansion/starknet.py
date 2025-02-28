@@ -6,12 +6,6 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
-async def test_declare_v2_tx(minimal_contract_class_hash: int):
-    assert isinstance(minimal_contract_class_hash, int)
-    assert minimal_contract_class_hash != 0
-
-
-@pytest.mark.asyncio
 async def test_declare_v3_tx(account, abi_types_compiled_contract_and_class_hash):
     declare_tx = await account.sign_declare_v3(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
