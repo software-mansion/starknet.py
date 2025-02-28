@@ -152,10 +152,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             estimated_fee = await self.estimate_fee(transaction)
             assert isinstance(estimated_fee, EstimatedFee)
 
-            return estimated_fee.to_resource_bounds(
-                Account.ESTIMATED_AMOUNT_MULTIPLIER,
-                Account.ESTIMATED_UNIT_PRICE_MULTIPLIER,
-            )
+            return estimated_fee.to_resource_bounds()
 
         if resource_bounds is None:
             raise ValueError(
