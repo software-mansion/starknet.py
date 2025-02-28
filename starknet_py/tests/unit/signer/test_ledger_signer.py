@@ -117,18 +117,17 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-async def test_deploy_account_and_transfer(client):
+async def test_deploy_account_and_transfer(argent_account_class_hash, client):
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
         chain_id=StarknetChainId.SEPOLIA,
     )
     # docs-deploy-account-and-transfer: start
-    class_hash = 0x61DAC032F228ABEF9C6626F995015233097AE253A7F72D68552DB02F2971B8F
     salt = 1
     calldata = [signer.public_key]
     address = compute_address(
         salt=salt,
-        class_hash=class_hash,
+        class_hash=argent_account_class_hash,
         constructor_calldata=calldata,
     )
     account = Account(
