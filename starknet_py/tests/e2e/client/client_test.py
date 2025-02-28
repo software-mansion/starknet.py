@@ -39,11 +39,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_RESOURCE_BOUNDS,
-    STRK_CLASS_HASH,
-    STRK_FEE_CONTRACT_ADDRESS,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
