@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, Union, cast
+from typing import Dict, Union, cast
 
 from typing_extensions import get_args
 

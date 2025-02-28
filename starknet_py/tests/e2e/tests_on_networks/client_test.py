@@ -21,7 +21,6 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
-    StorageProofResponse,
     Transaction,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
