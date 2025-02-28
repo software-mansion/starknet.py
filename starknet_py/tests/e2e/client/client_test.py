@@ -227,9 +227,9 @@ async def test_get_storage_proof(client):
         assert len(storage_proof.classes_proof) == 2
         assert len(storage_proof.contracts_proof.nodes) == 2
         assert len(storage_proof.contracts_storage_proofs) == 1
-        assert storage_proof.global_roots.block_hash == "0x123"
-        assert storage_proof.global_roots.classes_tree_root == "0x456"
-        assert storage_proof.global_roots.contracts_tree_root == "0x789"
+        assert storage_proof.global_roots.block_hash == int("0x123", 16)
+        assert storage_proof.global_roots.classes_tree_root == int("0x456", 16)
+        assert storage_proof.global_roots.contracts_tree_root == int("0x789", 16)
 
 
 @pytest.mark.asyncio
