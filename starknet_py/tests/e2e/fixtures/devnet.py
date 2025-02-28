@@ -40,6 +40,8 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
         str(1),
         "--state-archive-capacity",
         "full",
+        "--initial-balance",
+        "1000000000000000000000000000000000000000000000000000000000000000000",
     ]
 
     if fork_mode:
