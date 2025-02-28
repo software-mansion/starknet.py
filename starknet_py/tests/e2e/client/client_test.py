@@ -1,8 +1,6 @@
 # pylint: disable=too-many-arguments
 import dataclasses
-import json
 import numbers
-from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -23,9 +21,7 @@ from starknet_py.net.client_models import (
     FeePayment,
     InvokeTransactionV3,
     L1HandlerTransaction,
-    MerkleNode,
     MessageStatus,
-    NodeHashToNodeMappingItem,
     PriceUnit,
     ResourceBoundsMapping,
     SierraContractClass,
@@ -44,8 +40,6 @@ from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_FEE,
-    STRK_CLASS_HASH,
-    STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
