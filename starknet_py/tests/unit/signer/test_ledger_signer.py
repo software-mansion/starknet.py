@@ -148,7 +148,7 @@ async def test_deploy_account_and_transfer(argent_account_class_hash, client):
     )
     # docs-deploy-account-and-transfer: start
     signed_tx = await account.sign_deploy_account_v3(
-        class_hash=argent_account_class_hash,
+        class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=calldata,
         auto_estimate=True,
