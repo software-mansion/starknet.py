@@ -1,4 +1,4 @@
-# TODO(#1498): This action should be removed after starknet-devnet-rs update
+# TODO(#1498): This action should be removed after starknet-devnet-rs release is available
 
 name: "Devnet Setup"
 
