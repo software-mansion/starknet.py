@@ -40,7 +40,6 @@ from starknet_py.net.client_models import (
     TransactionTrace,
 )
 from starknet_py.net.client_utils import (
-    _clear_none_values,
     _create_broadcasted_txn,
     _is_valid_eth_address,
     _to_rpc_felt,
@@ -370,7 +369,6 @@ class FullNodeClient(Client):
             "contract_addresses": contract_addresses_serialized,
             "contracts_storage_keys": contracts_storage_keys_serialized,
         }
-        params = _clear_none_values(params)
 
         res = await self._client.call(
             method_name="getStorageProof",
