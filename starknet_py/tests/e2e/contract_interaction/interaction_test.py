@@ -106,30 +106,15 @@ async def test_latest_resource_bounds_takes_precedence(map_contract):
 
     assert isinstance(invocation.invoke_transaction, InvokeV3)
 
-    assert (
-        invocation.invoke_transaction.resource_bounds.l1_gas.max_amount
-        == MAX_RESOURCE_BOUNDS.l1_gas.max_amount + 30
-    )
-    assert (
-        invocation.invoke_transaction.resource_bounds.l1_gas.max_price_per_unit
-        == MAX_RESOURCE_BOUNDS.l1_gas.max_price_per_unit + 30
-    )
-    assert (
-        invocation.invoke_transaction.resource_bounds.l2_gas.max_amount
-        == MAX_RESOURCE_BOUNDS.l2_gas.max_amount + 30
-    )
-    assert (
-        invocation.invoke_transaction.resource_bounds.l2_gas.max_price_per_unit
-        == MAX_RESOURCE_BOUNDS.l2_gas.max_price_per_unit + 30
-    )
-    assert (
-        invocation.invoke_transaction.resource_bounds.l1_data_gas.max_amount
-        == MAX_RESOURCE_BOUNDS.l1_data_gas.max_amount + 30
-    )
-    assert (
-        invocation.invoke_transaction.resource_bounds.l1_data_gas.max_price_per_unit
-        == MAX_RESOURCE_BOUNDS.l1_data_gas.max_price_per_unit + 30
-    )
+    for resource in ["l1_gas", "l2_gas", "l1_data_gas"]:
+        for attr in ["max_amount", "max_price_per_unit"]:
+            assert (
+                getattr(
+                    getattr(invocation.invoke_transaction.resource_bounds, resource),
+                    attr,
+                )
+                == getattr(getattr(MAX_RESOURCE_BOUNDS, resource), attr) + 30
+            )
 
 
 @pytest.mark.asyncio
