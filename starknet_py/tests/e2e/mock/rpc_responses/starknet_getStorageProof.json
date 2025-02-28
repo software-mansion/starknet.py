@@ -395,8 +395,8 @@
       ]
     ],
     "global_roots": {
-      "block_hash": "0x123",
-      "classes_tree_root": "0x123",
+      "block_hash": "0x404446e37fc08c0bf4979821e50bdac7919b56d19d2df9e16f0aa7a0d506e50",
+      "classes_tree_root": "0x43568bf995aacf4b56615e97b7237c1b03d199344ad66d38f38fda250ef1586",
       "contracts_tree_root": "0x2ae204c3378558b33c132f4721612285d9988cc8dc99f47fce92adc6b38a189"
     }
   }
