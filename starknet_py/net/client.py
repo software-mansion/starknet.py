@@ -106,7 +106,7 @@ class Client(ABC):
     @abstractmethod
     async def get_storage_proof(
         self,
-        block_id: Union[int, Hash, Tag],
+        block_id: Union[int, Hash, Tag, dict],
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
         contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,

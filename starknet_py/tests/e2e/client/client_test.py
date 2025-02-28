@@ -211,26 +211,32 @@ async def test_get_storage_proof(client):
                 ],
                 "global_roots": {
                     "block_hash": "0x123",
-                    "classes_tree_root": "0x123",
-                    "contracts_tree_root": "0x123",
+                    "classes_tree_root": "0x456",
+                    "contracts_tree_root": "0x789",
                 },
             },
         }
         mocked_message_status_call_rpc.return_value = return_value["result"]
 
         storage_proof = await client.get_storage_proof(
-            block_id=556669,
-            contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
+            block_id="latest",
+            contract_addresses=[123],
             contracts_storage_keys=[
                 ContractsStorageKeys(
-                    contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
-                    storage_keys=[int("0x45524332305f62616c616e636573", 16)],
+                    contract_address=123,
+                    storage_keys=[123],
                 )
             ],
-            class_hashes=[int(STRK_CLASS_HASH, 16)],
+            class_hashes=[123],
         )
 
         assert isinstance(storage_proof, StorageProofResponse)
+        assert len(storage_proof.classes_proof) == 2
+        assert len(storage_proof.contracts_proof.nodes) == 2
+        assert len(storage_proof.contracts_storage_proofs) == 1
+        assert storage_proof.global_roots.block_hash == "0x123"
+        assert storage_proof.global_roots.classes_tree_root == "0x456"
+        assert storage_proof.global_roots.contracts_tree_root == "0x789"
 
 
 @pytest.mark.asyncio
