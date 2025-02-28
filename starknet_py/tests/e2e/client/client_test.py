@@ -528,7 +528,6 @@ async def test_get_class_by_hash_sierra_program(client, hello_starknet_class_has
 
 
 @pytest.mark.asyncio
-# FIXME
 async def test_get_declare_v3_transaction(
     client,
     hello_starknet_class_hash_tx_hash,
@@ -557,7 +556,6 @@ async def test_get_declare_v3_transaction(
 
 
 @pytest.mark.asyncio
-# FIXME
 async def test_get_block_with_declare_v3(
     client,
     hello_starknet_class_hash_tx_hash,
