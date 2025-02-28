@@ -12,6 +12,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
+    ContractsStorageKeys,
     DAMode,
     DeclaredContractHash,
     DeclareTransactionV3,
@@ -21,11 +22,14 @@ from starknet_py.net.client_models import (
     FeePayment,
     InvokeTransactionV3,
     L1HandlerTransaction,
+    MerkleNode,
     MessageStatus,
+    NodeHashToNodeMappingItem,
     PriceUnit,
     ResourceBoundsMapping,
     SierraContractClass,
     SierraEntryPointsByType,
+    StorageProofResponse,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -37,7 +41,11 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.constants import (
+    MAX_RESOURCE_BOUNDS,
+    STRK_CLASS_HASH,
+    STRK_FEE_CONTRACT_ADDRESS,
+)
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
@@ -125,12 +133,6 @@ async def test_get_storage_at(client, contract_address_2):
 
 
 @pytest.mark.asyncio
-async def test_get_storage_proof():
-    # TODO (#1498): Implement, devnet doesn't support storage proofs
-    pass
-
-
-@pytest.mark.asyncio
 async def test_get_messages_status(client):
     with patch(
         f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
@@ -154,6 +156,86 @@ async def test_get_messages_status(client):
 
         assert messages_status[0].failure_reason is None
         assert messages_status[1].failure_reason == "Some failure reason"
+
+
+@pytest.mark.asyncio
+async def test_get_storage_proof(client):
+    # Devnet doesn't support storage proofs, hence we need to use mock
+    # https://github.com/0xSpaceShard/starknet-devnet/blob/27594f86b86ca227fe85784dba4a93ddfed9650b/tests/integration/general_rpc_tests.rs#L56
+
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_message_status_call_rpc:
+        return_value = {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "classes_proof": [
+                    {"node": {"left": "0x123", "right": "0x123"}, "node_hash": "0x123"},
+                    {
+                        "node": {"child": "0x123", "length": 2, "path": "0x123"},
+                        "node_hash": "0x123",
+                    },
+                ],
+                "contracts_proof": {
+                    "contract_leaves_data": [
+                        {"class_hash": "0x123", "nonce": "0x0", "storage_root": "0x123"}
+                    ],
+                    "nodes": [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 232, "path": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                    ],
+                },
+                "contracts_storage_proofs": [
+                    [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 123, "path": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                    ]
+                ],
+                "global_roots": {
+                    "block_hash": "0x123",
+                    "classes_tree_root": "0x456",
+                    "contracts_tree_root": "0x789",
+                },
+            },
+        }
+        mocked_message_status_call_rpc.return_value = return_value["result"]
+
+        storage_proof = await client.get_storage_proof(
+            block_id="latest",
+            contract_addresses=[123],
+            contracts_storage_keys=[
+                ContractsStorageKeys(
+                    contract_address=123,
+                    storage_keys=[123],
+                )
+            ],
+            class_hashes=[123],
+        )
+
+        assert isinstance(storage_proof, StorageProofResponse)
+        assert len(storage_proof.classes_proof) == 2
+        assert len(storage_proof.contracts_proof.nodes) == 2
+        assert len(storage_proof.contracts_storage_proofs) == 1
+        assert storage_proof.global_roots.block_hash == "0x123"
+        assert storage_proof.global_roots.classes_tree_root == "0x456"
+        assert storage_proof.global_roots.contracts_tree_root == "0x789"
 
 
 @pytest.mark.asyncio

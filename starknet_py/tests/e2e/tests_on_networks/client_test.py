@@ -9,6 +9,7 @@ from starknet_py.net.client_models import (
     BlockHeader,
     BlockStatus,
     Call,
+    ContractsStorageKeys,
     DAMode,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
@@ -20,6 +21,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
+    StorageProofResponse,
     Transaction,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
@@ -32,6 +34,8 @@ from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
 from starknet_py.tests.e2e.fixtures.constants import (
     EMPTY_CONTRACT_ADDRESS_SEPOLIA,
     MAX_RESOURCE_BOUNDS,
+    STRK_CLASS_HASH,
+    STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.transaction_errors import TransactionRevertedError
 
@@ -469,4 +473,33 @@ async def test_get_pending_block_with_receipts(client_sepolia_testnet):
     assert all(
         getattr(block_with_receipts, field.name) is not None
         for field in dataclasses.fields(PendingBlockHeader)
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_storage_proof(client_sepolia_testnet):
+    storage_proof = await client_sepolia_testnet.get_storage_proof(
+        block_id={"block_number": 556669},
+        contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
+        contracts_storage_keys=[
+            ContractsStorageKeys(
+                contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
+                storage_keys=[int("0x45524332305f62616c616e636573", 16)],
+            )
+        ],
+        class_hashes=[int(STRK_CLASS_HASH, 16)],
+    )
+
+    assert len(storage_proof.classes_proof) == 17
+    assert len(storage_proof.contracts_proof.nodes) == 20
+    assert len(storage_proof.contracts_storage_proofs[0]) == 16
+
+    assert storage_proof.global_roots.block_hash == int(
+        "0x404446e37fc08c0bf4979821e50bdac7919b56d19d2df9e16f0aa7a0d506e50", 16
+    )
+    assert storage_proof.global_roots.classes_tree_root == int(
+        "0x43568bf995aacf4b56615e97b7237c1b03d199344ad66d38f38fda250ef1586", 16
+    )
+    assert storage_proof.global_roots.contracts_tree_root == int(
+        "0x2ae204c3378558b33c132f4721612285d9988cc8dc99f47fce92adc6b38a189", 16
     )

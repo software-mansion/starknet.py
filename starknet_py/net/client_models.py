@@ -1097,7 +1097,7 @@ NodeHashToNodeMapping = List[NodeHashToNodeMappingItem]
 
 
 @dataclass
-class ContractStorageKeys:
+class ContractsStorageKeys:
     """
     Dataclass representing a pair of contract address and storage keys.
     """
