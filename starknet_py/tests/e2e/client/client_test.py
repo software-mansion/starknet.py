@@ -167,7 +167,55 @@ async def test_get_storage_proof(client):
     with patch(
         f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
     ) as mocked_message_status_call_rpc:
-        return_value = _read_mock_rpc_response("starknet_getStorageProof")
+        return_value = {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "classes_proof": [
+                    {"node": {"left": "0x123", "right": "0x123"}, "node_hash": "0x123"},
+                    {
+                        "node": {"child": "0x123", "length": 2, "path": "0x123"},
+                        "node_hash": "0x123",
+                    },
+                ],
+                "contracts_proof": {
+                    "contract_leaves_data": [
+                        {"class_hash": "0x123", "nonce": "0x0", "storage_root": "0x123"}
+                    ],
+                    "nodes": [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 232, "path": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                    ],
+                },
+                "contracts_storage_proofs": [
+                    [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 123, "path": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                    ]
+                ],
+                "global_roots": {
+                    "block_hash": "0x123",
+                    "classes_tree_root": "0x123",
+                    "contracts_tree_root": "0x123",
+                },
+            },
+        }
         mocked_message_status_call_rpc.return_value = return_value["result"]
 
         storage_proof = await client.get_storage_proof(
@@ -647,9 +695,3 @@ async def test_get_new_state_update(
         )
         in state_update_first.state_diff.declared_classes
     )
-
-
-def _read_mock_rpc_response(method_name: str) -> dict:
-    mock_dir = Path(__file__).resolve().parent.parent / "mock" / "rpc_responses"
-    with open(mock_dir / f"{method_name}.json", "r") as file:
-        return json.load(file)
