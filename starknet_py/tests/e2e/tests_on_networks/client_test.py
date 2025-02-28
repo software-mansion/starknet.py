@@ -10,6 +10,7 @@ from starknet_py.net.client_models import (
     BlockHeader,
     BlockStatus,
     Call,
+    ContractsStorageKeys,
     DAMode,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
@@ -21,6 +22,7 @@ from starknet_py.net.client_models import (
     PendingStarknetBlockWithReceipts,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
+    StorageProofResponse,
     Transaction,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
@@ -30,7 +32,11 @@ from starknet_py.net.client_models import (
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
-from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_SEPOLIA
+from starknet_py.tests.e2e.fixtures.constants import (
+    EMPTY_CONTRACT_ADDRESS_SEPOLIA,
+    STRK_CLASS_HASH,
+    STRK_FEE_CONTRACT_ADDRESS,
+)
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -456,3 +462,20 @@ async def test_get_pending_block_with_receipts(client_sepolia_testnet):
         getattr(block_with_receipts, field.name) is not None
         for field in dataclasses.fields(PendingBlockHeader)
     )
+
+
+@pytest.mark.asyncio
+async def test_get_storage_proof(client_sepolia_testnet):
+    storage_proof = await client_sepolia_testnet.get_storage_proof(
+        block_id=556669,
+        contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
+        contracts_storage_keys=[
+            ContractsStorageKeys(
+                contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
+                storage_keys=[int("0x45524332305f62616c616e636573", 16)],
+            )
+        ],
+        class_hashes=[int(STRK_CLASS_HASH, 16)],
+    )
+
+    assert isinstance(storage_proof, StorageProofResponse)

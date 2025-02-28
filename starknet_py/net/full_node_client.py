@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 
@@ -11,7 +11,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    ContractStorageKeys,
+    ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
@@ -54,6 +54,7 @@ from starknet_py.net.models.transaction import (
     DeployAccount,
     Invoke,
 )
+from starknet_py.net.schemas.contracts_storage_keys import ContractsStorageKeysSchema
 from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
@@ -337,13 +338,37 @@ class FullNodeClient(Client):
         block_id: Union[int, Hash, Tag],
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
-        contract_storage_keys: Optional[List[ContractStorageKeys]] = None,
+        contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
     ) -> StorageProofResponse:
+        class_hashes_serialized = (
+            [_to_rpc_felt(class_hash) for class_hash in class_hashes]
+            if class_hashes
+            else []
+        )
+        contract_addresses_serialized = (
+            [_to_rpc_felt(contract_address) for contract_address in contract_addresses]
+            if contract_addresses
+            else []
+        )
+        contracts_storage_keys_serialized = (
+            (
+                [
+                    cast(
+                        Dict,
+                        ContractsStorageKeysSchema().dump(obj=key),
+                    )
+                    for key in contracts_storage_keys
+                ]
+            )
+            if contracts_storage_keys
+            else []
+        )
+
         params = {
             "block_id": block_id,
-            "class_hashes": class_hashes,
-            "contract_addresses": contract_addresses,
-            "contract_storage_keys": contract_storage_keys,
+            "class_hashes": class_hashes_serialized,
+            "contract_addresses": contract_addresses_serialized,
+            "contracts_storage_keys": contracts_storage_keys_serialized,
         }
         params = _clear_none_values(params)
 

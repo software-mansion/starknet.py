@@ -16,8 +16,8 @@ from starknet_py.utils.schema import Schema
 
 
 class BinaryNodeSchema(Schema):
-    left = fields.Integer(data_key="left", required=True)
-    right = fields.Integer(data_key="right", required=True)
+    left = Felt(data_key="left", required=True)
+    right = Felt(data_key="right", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BinaryNode:
@@ -35,19 +35,28 @@ class EdgeNodeSchema(Schema):
 
 
 class MerkleNodeSchema(Schema):
+    left = Felt(data_key="left", required=False)
+    right = Felt(data_key="right", required=False)
+    path = NumberAsHex(data_key="path", required=False)
+    length = fields.Integer(data_key="length", required=False)
+    child = Felt(data_key="child", required=False)
+
     @post_load
     def make_dataclass(self, data, **kwargs) -> Union[BinaryNode, EdgeNode]:
-        # pylint: disable=no-self-use
-        binary_node_keys = set(BinaryNodeSchema().fields.keys())
-        edge_node_keys = set(EdgeNodeSchema().fields.keys())
-
-        data_keys = set(data.keys())
-
-        if data_keys == binary_node_keys:
+        if "left" in data and "right" in data:
             return BinaryNode(**data)
-        elif data_keys == edge_node_keys:
+        elif "path" in data and "length" in data and "child" in data:
             return EdgeNode(**data)
         raise ValidationError(f"Invalid data provided for MerkleNode: {data}.")
+
+
+class NodeHashToNodeMappingItemSchema(Schema):
+    node_hash = Felt(data_key="node_hash", required=True)
+    node = fields.Nested(MerkleNodeSchema(), data_key="node", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NodeHashToNodeMappingItem:
+        return NodeHashToNodeMappingItem(**data)
 
 
 class NodeHashToNodeMappingField(fields.Field):
@@ -70,15 +79,6 @@ class NodeHashToNodeMappingField(fields.Field):
         return [NodeHashToNodeMappingItemSchema().load(item) for item in value]
 
 
-class NodeHashToNodeMappingItemSchema(Schema):
-    node_hash = Felt(data_key="node_hash", required=True)
-    node = fields.Nested(MerkleNodeSchema(), data_key="node", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> NodeHashToNodeMappingItem:
-        return NodeHashToNodeMappingItem(**data)
-
-
 class ContractLeafDataSchema(Schema):
     nonce = Felt(data_key="nonce", required=True)
     class_hash = Felt(data_key="class_hash", required=True)
@@ -90,9 +90,9 @@ class ContractLeafDataSchema(Schema):
 
 
 class GlobalRootsSchema(Schema):
-    contracts_tree_root = fields.Integer(data_key="contracts_tree_root", required=True)
-    classes_tree_root = fields.Integer(data_key="classes_tree_root", required=True)
-    block_hash = fields.Integer(data_key="block_hash", required=True)
+    contracts_tree_root = Felt(data_key="contracts_tree_root", required=True)
+    classes_tree_root = Felt(data_key="classes_tree_root", required=True)
+    block_hash = Felt(data_key="block_hash", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> GlobalRoots:

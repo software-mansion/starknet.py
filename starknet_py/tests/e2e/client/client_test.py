@@ -1,6 +1,8 @@
 # pylint: disable=too-many-arguments
 import dataclasses
+import json
 import numbers
+from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -12,6 +14,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
+    ContractsStorageKeys,
     DeclaredContractHash,
     DeclareTransactionV2,
     DeployAccountTransactionV1,
@@ -20,11 +23,14 @@ from starknet_py.net.client_models import (
     FeePayment,
     InvokeTransactionV3,
     L1HandlerTransaction,
+    MerkleNode,
     MessageStatus,
+    NodeHashToNodeMappingItem,
     PriceUnit,
     ResourceBoundsMapping,
     SierraContractClass,
     SierraEntryPointsByType,
+    StorageProofResponse,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
@@ -36,7 +42,11 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import DeclareV2
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import (
+    MAX_FEE,
+    STRK_CLASS_HASH,
+    STRK_FEE_CONTRACT_ADDRESS,
+)
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
     TransactionRejectedError,
@@ -124,12 +134,6 @@ async def test_get_storage_at(client, contract_address_2):
 
 
 @pytest.mark.asyncio
-async def test_get_storage_proof():
-    # TODO (#1498): Implement, devnet doesn't support storage proofs
-    pass
-
-
-@pytest.mark.asyncio
 async def test_get_messages_status(client):
     with patch(
         f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
@@ -153,6 +157,32 @@ async def test_get_messages_status(client):
 
         assert messages_status[0].failure_reason is None
         assert messages_status[1].failure_reason == "Some failure reason"
+
+
+@pytest.mark.asyncio
+async def test_get_storage_proof(client):
+    # Devnet doesn't support storage proofs, hence we need to use mock
+    # https://github.com/0xSpaceShard/starknet-devnet/blob/27594f86b86ca227fe85784dba4a93ddfed9650b/tests/integration/general_rpc_tests.rs#L56
+
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_message_status_call_rpc:
+        return_value = _read_mock_rpc_response("starknet_getStorageProof")
+        mocked_message_status_call_rpc.return_value = return_value["result"]
+
+        storage_proof = await client.get_storage_proof(
+            block_id=556669,
+            contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
+            contracts_storage_keys=[
+                ContractsStorageKeys(
+                    contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
+                    storage_keys=[int("0x45524332305f62616c616e636573", 16)],
+                )
+            ],
+            class_hashes=[int(STRK_CLASS_HASH, 16)],
+        )
+
+        assert isinstance(storage_proof, StorageProofResponse)
 
 
 @pytest.mark.asyncio
@@ -617,3 +647,9 @@ async def test_get_new_state_update(
         )
         in state_update_first.state_diff.declared_classes
     )
+
+
+def _read_mock_rpc_response(method_name: str) -> dict:
+    mock_dir = Path(__file__).resolve().parent.parent / "mock" / "rpc_responses"
+    with open(mock_dir / f"{method_name}.json", "r") as file:
+        return json.load(file)

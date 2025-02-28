@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    ContractStorageKeys,
+    ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
@@ -109,7 +109,7 @@ class Client(ABC):
         block_id: Union[int, Hash, Tag],
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
-        contract_storage_keys: Optional[List[ContractStorageKeys]] = None,
+        contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
     ) -> StorageProofResponse:
         """
         Get merkle paths in one of the state tries: global state, classes, individual contract.
@@ -118,7 +118,7 @@ class Client(ABC):
         :param class_hashes: List of the class hashes for which we want to prove membership in the classes trie.
         :param contract_addresses: List of the contract addresses for which we want to prove membership in the
                                     contracts trie.
-        :param contract_storage_keys: List of the contract address and storage keys pairs.
+        :param contracts_storage_keys: List of the contract address and storage keys pairs.
         :return: StorageProofResponse object.
         """
 
