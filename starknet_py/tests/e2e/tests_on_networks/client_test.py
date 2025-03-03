@@ -99,6 +99,22 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
 
 
 @pytest.mark.asyncio
+async def test_sign_invoke_v3_auto_estimate(account_sepolia_testnet):
+    account = account_sepolia_testnet
+    call = Call(
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_v3(calls=call, auto_estimate=True)
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+    assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
