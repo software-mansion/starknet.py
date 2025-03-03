@@ -271,11 +271,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download contracts
-        uses: actions/download-artifact@v4
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
 
       - uses: actions/setup-python@v4
         with:
