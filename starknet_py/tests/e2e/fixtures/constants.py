@@ -58,6 +58,12 @@ MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
     l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
 )
 
+MAX_RESOURCE_BOUNDS_SEPOLIA = ResourceBoundsMapping(
+    l1_gas=ResourceBounds(max_amount=int(1e4), max_price_per_unit=int(1e15)),
+    l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e10)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e4), max_price_per_unit=int(1e15)),
+)
+
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"
 TYPED_DATA_DIR = MOCK_DIR / "typed_data"
 CONTRACTS_DIR = MOCK_DIR / "contracts"

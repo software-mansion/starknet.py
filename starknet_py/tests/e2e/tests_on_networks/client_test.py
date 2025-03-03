@@ -1,4 +1,5 @@
 import dataclasses
+import numbers
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -19,6 +20,7 @@ from starknet_py.net.client_models import (
     InvokeTransactionV3,
     PendingBlockHeader,
     PendingStarknetBlockWithReceipts,
+    ResourceBounds,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
     Transaction,
@@ -32,7 +34,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
 from starknet_py.tests.e2e.fixtures.constants import (
     EMPTY_CONTRACT_ADDRESS_SEPOLIA,
-    MAX_RESOURCE_BOUNDS,
+    MAX_RESOURCE_BOUNDS_SEPOLIA,
     STRK_CLASS_HASH,
     STRK_FEE_CONTRACT_ADDRESS,
 )
@@ -71,7 +73,7 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
     invoke = await account.client.send_transaction(sign_invoke)
 
@@ -88,7 +90,7 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
     invoke = await account.client.send_transaction(sign_invoke)
 
@@ -106,14 +108,19 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l2_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+    )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=resource_bounds
     )
 
     with pytest.raises(
         ClientError,
         match=r"Client failed with code 55. "
-        r"Message: Account validation failed. Data: Max fee \(\d+\) is too low. Minimum fee: \d+.",
+        r"Message: Account validation failed. Data: Max L1Gas price \(\d+\) is lower than the actual gas price: \d+.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -126,14 +133,19 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
+        l2_gas=ResourceBounds(max_amount=int(1e14), max_price_per_unit=int(1e25)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=resource_bounds
     )
 
     with pytest.raises(
         ClientError,
         match=r"Client failed with code 55. "
-        r"Message: Account validation failed. Data: Max fee \(\d+\) exceeds balance \(\d+\).",
+        r"Message: Account validation failed\. Data: Resources bounds \(\{.*\}\) exceed balance \(\d+\)\.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -147,7 +159,7 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS, nonce=0
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA, nonce=0
     )
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
@@ -163,7 +175,7 @@ async def test_transaction_not_received_invalid_signature(account_sepolia_testne
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
     with pytest.raises(
@@ -199,6 +211,7 @@ async def test_estimate_message_fee(client_sepolia_testnet):
     assert all(
         getattr(estimated_message, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_message, field.name), numbers.Number)
     )
     assert estimated_message.unit is not None
 
@@ -275,9 +288,9 @@ async def test_get_tx_receipt_reverted(client_sepolia_testnet):
 @pytest.mark.parametrize(
     "block_number, index, expected_hash",
     [
-        (81116, 0, 0x38FC01353196AEEBA62C74A8C8479FFF94AAA8CD4C3655782D49D755BBE63A8),
+        (564251, 3, 0x03DD185CD5B69B180D75EF38F4AF31A845A4E77B3591250B7AE2930ADF0DDA77),
         (81116, 26, 0x3F873FE2CC884A88B8D4378EAC1786145F7167D61B0A9442DA15B0181582522),
-        (80910, 23, 0x67C1E282F64DAD5682B1F377A5FDA1778311D894B2EE47A06058790A8B08460),
+        (564280, 4, 0x0453E60A9A0C2F1C75CAAF08101F8FC28DFE7CD4A4FAEF1D709568D3ADC3508F),
     ],
 )
 @pytest.mark.asyncio
@@ -356,6 +369,7 @@ async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1561): Pending block may include txs other than v3.")
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
     block = await client_sepolia_testnet.get_block_with_txs(block_number=155)
@@ -447,6 +461,7 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1561): We need to find a block which has only v3 txs.")
 async def test_get_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
         block_number=48778
@@ -462,6 +477,9 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    "TODO(#1561): Block may have txs other than v3 which leads to schema validation failure."
+)
 async def test_get_pending_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
         block_number="pending"
