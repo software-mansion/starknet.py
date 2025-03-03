@@ -233,9 +233,10 @@ async def test_get_storage_proof(client):
 
 
 @pytest.mark.asyncio
-async def test_get_compiled_casm():
+async def test_get_compiled_casm(client):
     # TODO (#1498): Add test for get_compiled_casm
-    pass
+    strk_devnet_class_hash = 0x11374319A6E07B4F2738FA3BFA8CF2181BFB0DBB4D800215BAA87B83A57877E
+    compiled_casm = await client.get_compiled_casm(class_hash=strk_devnet_class_hash)
 
 
 @pytest.mark.asyncio
