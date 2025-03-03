@@ -295,6 +295,47 @@ def compute_declare_transaction_hash(
     )
 
 
+def compute_declare_v2_transaction_hash(
+    *,
+    contract_class: Optional[SierraContractClass] = None,
+    class_hash: Optional[int] = None,
+    compiled_class_hash: int,
+    chain_id: int,
+    sender_address: int,
+    max_fee: int,
+    version: int,
+    nonce: int,
+) -> int:
+    """
+    Computes class hash of a Declare transaction version 2.
+
+    :param contract_class: SierraContractClass of the contract.
+    :param class_hash: Class hash of the contract.
+    :param compiled_class_hash: Compiled class hash of the program.
+    :param chain_id: The network's chain ID.
+    :param sender_address: Address which sends the transaction.
+    :param max_fee: The transaction's maximum fee.
+    :param version: The transaction's version.
+    :param nonce: Nonce of the transaction.
+    :return: Hash of the transaction.
+    """
+    if class_hash is None:
+        if contract_class is None:
+            raise ValueError("Either contract_class or class_hash is required.")
+        class_hash = compute_sierra_class_hash(contract_class)
+
+    return compute_transaction_hash(
+        tx_hash_prefix=TransactionHashPrefix.DECLARE,
+        version=version,
+        contract_address=sender_address,
+        entry_point_selector=DEFAULT_ENTRY_POINT_SELECTOR,
+        calldata=[class_hash],
+        max_fee=max_fee,
+        chain_id=chain_id,
+        additional_data=[nonce, compiled_class_hash],
+    )
+
+
 def compute_declare_v3_transaction_hash(
     *,
     contract_class: Optional[SierraContractClass] = None,
