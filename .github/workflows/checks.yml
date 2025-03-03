@@ -324,9 +324,9 @@ jobs:
 
       - name: List contracts dir
         run: |
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/mock
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/mock/contracts_v2
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/mock/contracts_v2/target/dev
+          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock
+          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2
+          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2/target/dev
 
       - name: Run tests
         run: |
