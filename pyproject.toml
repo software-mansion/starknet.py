@@ -20,8 +20,7 @@ dependencies = [
     "aiohttp>=3.8.4,<4.0.0",
     "pycryptodome>=3.17,<4.0",
     "crypto-cpp-py==1.4.5",
-    "eth-keyfile>=0.8.1,<1.0.0",
-    "websockets (>=14.2,<15.0)"
+    "eth-keyfile>=0.8.1,<1.0.0"
 ]
 
 [project.optional-dependencies]
