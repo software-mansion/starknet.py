@@ -271,6 +271,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download contracts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.12"
@@ -288,20 +294,6 @@ jobs:
         with:
           python-version: "3.12"
           cache: 'poetry'
-
-      - name: Download contracts
-        uses: actions/download-artifact@v4
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
-
-      - uses: asdf-vm/actions/setup@v3
-
-#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
 
       - name: Install dependencies
         run: |
@@ -322,14 +314,13 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
-      - name: List contracts dir
-        run: |
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2
-          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2/target/dev
+      - uses: asdf-vm/actions/setup@v3
 
+#     TODO(#1498): Remove contracts compilation in the step below once issue with compilation is resolved
       - name: Run tests
         run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
