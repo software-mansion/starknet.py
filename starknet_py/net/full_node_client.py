@@ -737,7 +737,7 @@ class FullNodeClient(Client):
     async def get_compiled_casm(self, class_hash: int) -> CasmClass:
         res = await self._client.call(
             method_name="getCompiledCasm",
-            params={"class_hash": class_hash},
+            params={"class_hash": _to_rpc_felt(class_hash)},
         )
         return cast(CasmClass, CasmClassSchema().load(res))
 
