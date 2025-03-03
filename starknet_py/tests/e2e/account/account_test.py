@@ -536,8 +536,7 @@ async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash)
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME
+@pytest.mark.skip("TODO(#1560)")
 async def test_argent_account_deploy(
     client,
     argent_account_class_hash,

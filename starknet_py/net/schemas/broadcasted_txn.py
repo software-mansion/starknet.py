@@ -5,10 +5,9 @@ from starknet_py.net.client_models import TransactionType
 from starknet_py.net.schemas.rpc.contract import SierraCompiledContractSchema
 from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionV3Schema,
-    DeployAccountTransactionSchema,
-    InvokeTransactionSchema,
+    DeployAccountTransactionV3Schema,
+    InvokeTransactionV3Schema,
 )
-from starknet_py.net.schemas.utils import _extract_tx_version
 
 
 class BroadcastedDeclareV3Schema(DeclareTransactionV3Schema):
@@ -17,20 +16,11 @@ class BroadcastedDeclareV3Schema(DeclareTransactionV3Schema):
     )
 
 
-class BroadcastedDeclareSchema(OneOfSchema):
-    type_schemas = {
-        "3": BroadcastedDeclareV3Schema,
-    }
-
-    def get_obj_type(self, obj):
-        return _extract_tx_version(obj.version)
-
-
 class BroadcastedTransactionSchema(OneOfSchema):
     type_schemas = {
-        TransactionType.INVOKE.name: InvokeTransactionSchema(),
-        TransactionType.DECLARE.name: BroadcastedDeclareSchema(),
-        TransactionType.DEPLOY_ACCOUNT.name: DeployAccountTransactionSchema(),
+        TransactionType.INVOKE.name: InvokeTransactionV3Schema(),
+        TransactionType.DECLARE.name: BroadcastedDeclareV3Schema(),
+        TransactionType.DEPLOY_ACCOUNT.name: DeployAccountTransactionV3Schema(),
     }
 
     def get_obj_type(self, obj):
