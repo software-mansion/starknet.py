@@ -261,6 +261,7 @@ class InvokeTransactionV0(DeprecatedTransaction):
 class InvokeTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing invoke transaction v1.
+
     .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use `starknet_py.net.client_models.InvokeTransactionV3` instead.
@@ -297,6 +298,7 @@ class DeclareTransactionV0(DeprecatedTransaction):
 class DeclareTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v1.
+
     .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
@@ -311,6 +313,7 @@ class DeclareTransactionV1(DeprecatedTransaction):
 class DeclareTransactionV2(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v2.
+
     .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
@@ -350,6 +353,7 @@ class DeployTransaction(Transaction):
 class DeployAccountTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing deploy account transaction v1.
+
     .. deprecated:: 0.25.0
         This class is deprecated and will be removed in future versions.
         Use `starknet_py.net.client_models.DeployAccountTransactionV3` instead.
