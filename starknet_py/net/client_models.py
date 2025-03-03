@@ -247,6 +247,32 @@ class TransactionV3(Transaction):
 
 
 @dataclass
+class InvokeTransactionV0(DeprecatedTransaction):
+    """
+    Dataclass representing invoke transaction v0.
+    """
+
+    calldata: List[int]
+    contract_address: int
+    entry_point_selector: int
+
+
+@dataclass
+class InvokeTransactionV1(DeprecatedTransaction):
+    """
+    Dataclass representing invoke transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.InvokeTransactionV3` instead.
+    """
+
+    calldata: List[int]
+    sender_address: int
+    nonce: int
+
+
+@dataclass
 class InvokeTransactionV3(TransactionV3):
     """
     Dataclass representing invoke transaction v3.
@@ -256,6 +282,47 @@ class InvokeTransactionV3(TransactionV3):
     sender_address: int
     nonce: int
     account_deployment_data: List[int]
+
+
+@dataclass
+class DeclareTransactionV0(DeprecatedTransaction):
+    """
+    Dataclass representing declare transaction v0.
+    """
+
+    sender_address: int
+    class_hash: int
+
+
+@dataclass
+class DeclareTransactionV1(DeprecatedTransaction):
+    """
+    Dataclass representing declare transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
+    """
+
+    sender_address: int
+    class_hash: int
+    nonce: int
+
+
+@dataclass
+class DeclareTransactionV2(DeprecatedTransaction):
+    """
+    Dataclass representing declare transaction v2.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
+    """
+
+    sender_address: int
+    class_hash: int
+    compiled_class_hash: int
+    nonce: int
 
 
 @dataclass
@@ -277,6 +344,22 @@ class DeployTransaction(Transaction):
     Dataclass representing deploy transaction.
     """
 
+    contract_address_salt: int
+    constructor_calldata: List[int]
+    class_hash: int
+
+
+@dataclass
+class DeployAccountTransactionV1(DeprecatedTransaction):
+    """
+    Dataclass representing deploy account transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeployAccountTransactionV3` instead.
+    """
+
+    nonce: int
     contract_address_salt: int
     constructor_calldata: List[int]
     class_hash: int

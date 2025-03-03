@@ -101,6 +101,22 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
 
 
 @pytest.mark.asyncio
+async def test_sign_invoke_v3_auto_estimate(account_sepolia_testnet):
+    account = account_sepolia_testnet
+    call = Call(
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_v3(calls=call, auto_estimate=True)
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+    assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
+
+
+@pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
@@ -288,9 +304,9 @@ async def test_get_tx_receipt_reverted(client_sepolia_testnet):
 @pytest.mark.parametrize(
     "block_number, index, expected_hash",
     [
-        (564251, 3, 0x03DD185CD5B69B180D75EF38F4AF31A845A4E77B3591250B7AE2930ADF0DDA77),
+        (81116, 0, 0x38FC01353196AEEBA62C74A8C8479FFF94AAA8CD4C3655782D49D755BBE63A8),
         (81116, 26, 0x3F873FE2CC884A88B8D4378EAC1786145F7167D61B0A9442DA15B0181582522),
-        (564280, 4, 0x0453E60A9A0C2F1C75CAAF08101F8FC28DFE7CD4A4FAEF1D709568D3ADC3508F),
+        (80910, 23, 0x67C1E282F64DAD5682B1F377A5FDA1778311D894B2EE47A06058790A8B08460),
     ],
 )
 @pytest.mark.asyncio
@@ -369,7 +385,6 @@ async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1561): Pending block may include txs other than v3.")
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
     block = await client_sepolia_testnet.get_block_with_txs(block_number=155)
@@ -461,7 +476,6 @@ async def test_get_events_sepolia_testnet(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1561): We need to find a block which has only v3 txs.")
 async def test_get_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
         block_number=48778
@@ -477,9 +491,6 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(
-    "TODO(#1561): Block may have txs other than v3 which leads to schema validation failure."
-)
 async def test_get_pending_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
         block_number="pending"
