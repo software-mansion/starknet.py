@@ -298,14 +298,14 @@ jobs:
       - uses: asdf-vm/actions/setup@v3
 
 #     TODO(#1498): Remove below step once issue with compiled contracts is resolved
-#      - name: Compile contracts
-#        run: |
-#          poetry run poe compile_contracts v2
-#          poetry run poe compile_contracts v1
-#
-#      - name: Install dependencies
-#        run: |
-#          poetry install -E ledger
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
+
+      - name: Install dependencies
+        run: |
+          poetry install -E ledger
 
       # ====================== SETUP DEVNET ====================== #
 
@@ -324,8 +324,8 @@ jobs:
 
       - name: List contracts dir
         run: |
+          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock
           ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2
-          echo "-------"
           ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2/target/dev
 
       - name: Run tests
