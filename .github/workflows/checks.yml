@@ -322,6 +322,10 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
+      - name: List contracts dir
+        run: |
+          ls /home/runner/work/starknet.py/starknet.py/starknet_py/tests/e2e/fixtures/../mock/contracts_v2/target/dev
+
       - name: Run tests
         run: |
           poetry run poe test_ci_on_networks
