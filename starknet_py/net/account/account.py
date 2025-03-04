@@ -1,9 +1,8 @@
 import dataclasses
-import json
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
+from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.constants import (
     ANY_CALLER,
     FEE_CONTRACT_ADDRESS,
@@ -37,12 +36,8 @@ from starknet_py.net.models import AddressRepresentation, parse_address
 from starknet_py.net.models.chains import RECOGNIZED_CHAIN_IDS, Chain, parse_chain
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    DeclareV1,
-    DeclareV2,
     DeclareV3,
-    DeployAccountV1,
     DeployAccountV3,
-    InvokeV1,
     InvokeV3,
     TypeAccountTransaction,
 )
@@ -57,7 +52,6 @@ from starknet_py.serialization.data_serializers import (
     StructSerializer,
     UintSerializer,
 )
-from starknet_py.utils.deprecation import _print_deprecation_warning
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
@@ -143,30 +137,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     def client(self) -> Client:
         return self._client
 
-    async def _get_max_fee(
-        self,
-        transaction: AccountTransaction,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> int:
-        if auto_estimate and max_fee is not None:
-            raise ValueError(
-                "Arguments max_fee and auto_estimate are mutually exclusive."
-            )
-
-        if auto_estimate:
-            estimated_fee = await self.estimate_fee(transaction)
-            assert isinstance(estimated_fee, EstimatedFee)
-
-            max_fee = int(estimated_fee.overall_fee * Account.ESTIMATED_FEE_MULTIPLIER)
-
-        if max_fee is None:
-            raise ValueError(
-                "Argument max_fee must be specified when invoking a transaction."
-            )
-
-        return max_fee
-
     async def _get_resource_bounds(
         self,
         transaction: AccountTransaction,
@@ -190,40 +160,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             )
 
         return resource_bounds
-
-    async def _prepare_invoke(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> InvokeV1:
-        """
-        Takes calls and creates Invoke from them.
-
-        :param calls: Single call or list of calls.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :return: Invoke created from the calls (without the signature).
-        """
-        if nonce is None:
-            nonce = await self.get_nonce()
-
-        wrapped_calldata = _parse_calls(await self.cairo_version, calls)
-
-        transaction = InvokeV1(
-            calldata=wrapped_calldata,
-            signature=[],
-            max_fee=0,
-            version=1,
-            nonce=nonce,
-            sender_address=self.address,
-        )
-
-        max_fee = await self._get_max_fee(transaction, max_fee, auto_estimate)
-
-        return _add_max_fee_to_transaction(transaction, max_fee)
 
     async def _prepare_invoke_v3(
         self,
@@ -383,31 +319,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         signature = self.signer.sign_transaction(transaction)
         return _add_signature_to_transaction(tx=transaction, signature=signature)
 
-    async def sign_invoke_v1(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> InvokeV1:
-        """
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`starknet_py.net.account.Account.sign_invoke_v3` instead.
-        """
-        _print_deprecation_warning(
-            "sign_invoke_v1 is deprecated and will re removed in future versions. Use sign_invoke_v3 instead."
-        )
-        execute_tx = await self._prepare_invoke(
-            calls,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-        signature = self.signer.sign_transaction(execute_tx)
-        return _add_signature_to_transaction(execute_tx, signature)
-
     async def sign_outside_execution_call(
         self,
         calls: Calls,
@@ -475,73 +386,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
 
-    # pylint: disable=line-too-long
-    async def sign_declare_v1(
-        self,
-        compiled_contract: str,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareV1:
-        """
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`starknet_py.net.account.Account.sign_declare_v3` instead.
-
-        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
-
-        """
-        _print_deprecation_warning(
-            "sign_declare_v1 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
-        )
-
-        if _is_sierra_contract(json.loads(compiled_contract)):
-            raise ValueError(
-                "Signing sierra contracts requires using `sign_declare_v2` method."
-            )
-
-        declare_tx = await self._make_declare_v1_transaction(
-            compiled_contract, nonce=nonce
-        )
-
-        max_fee = await self._get_max_fee(
-            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
-        signature = self.signer.sign_transaction(declare_tx)
-        return _add_signature_to_transaction(declare_tx, signature)
-
-    # pylint: enable=line-too-long
-
-    async def sign_declare_v2(
-        self,
-        compiled_contract: str,
-        compiled_class_hash: int,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareV2:
-        """
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`starknet_py.net.account.Account.sign_declare_v3` instead.
-        """
-        _print_deprecation_warning(
-            "sign_declare_v2 is deprecated and will be removed in future versions. Use sign_declare_v3 instead."
-        )
-
-        declare_tx = await self._make_declare_v2_transaction(
-            compiled_contract, compiled_class_hash, nonce=nonce
-        )
-        max_fee = await self._get_max_fee(
-            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-        declare_tx = _add_max_fee_to_transaction(declare_tx, max_fee)
-        signature = self.signer.sign_transaction(declare_tx)
-        return _add_signature_to_transaction(declare_tx, signature)
-
     async def sign_declare_v3(
         self,
         compiled_contract: str,
@@ -563,49 +407,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
         signature = self.signer.sign_transaction(declare_tx)
         return _add_signature_to_transaction(declare_tx, signature)
-
-    async def _make_declare_v1_transaction(
-        self, compiled_contract: str, *, nonce: Optional[int] = None
-    ) -> DeclareV1:
-        contract_class = create_compiled_contract(compiled_contract=compiled_contract)
-
-        if nonce is None:
-            nonce = await self.get_nonce()
-
-        declare_tx = DeclareV1(
-            contract_class=contract_class.convert_to_deprecated_contract_class(),
-            sender_address=self.address,
-            max_fee=0,
-            signature=[],
-            nonce=nonce,
-            version=1,
-        )
-        return declare_tx
-
-    async def _make_declare_v2_transaction(
-        self,
-        compiled_contract: str,
-        compiled_class_hash: int,
-        *,
-        nonce: Optional[int] = None,
-    ) -> DeclareV2:
-        contract_class = create_sierra_compiled_contract(
-            compiled_contract=compiled_contract
-        )
-
-        if nonce is None:
-            nonce = await self.get_nonce()
-
-        declare_tx = DeclareV2(
-            contract_class=contract_class.convert_to_sierra_contract_class(),
-            compiled_class_hash=compiled_class_hash,
-            sender_address=self.address,
-            max_fee=0,
-            signature=[],
-            nonce=nonce,
-            version=2,
-        )
-        return declare_tx
 
     async def _make_declare_v3_transaction(
         self,
@@ -631,44 +432,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             resource_bounds=ResourceBoundsMapping.init_with_zeros(),
         )
         return declare_tx
-
-    async def sign_deploy_account_v1(
-        self,
-        class_hash: int,
-        contract_address_salt: int,
-        constructor_calldata: Optional[List[int]] = None,
-        *,
-        nonce: int = 0,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeployAccountV1:
-        """
-        .. deprecated:: 0.25.0
-           This method is deprecated and will be removed in future versions.
-           Use :py:meth:`starknet_py.net.account.Account.sign_deploy_account_v3` instead.
-        """
-        # pylint: disable=too-many-arguments
-        _print_deprecation_warning(
-            "sign_deploy_account_v1 is deprecated and will be removed in future versions. Use sign_deploy_account_v3 "
-            "instead."
-        )
-
-        deploy_account_tx = DeployAccountV1(
-            class_hash=class_hash,
-            contract_address_salt=contract_address_salt,
-            constructor_calldata=(constructor_calldata or []),
-            version=1,
-            max_fee=0,
-            signature=[],
-            nonce=nonce,
-        )
-
-        max_fee = await self._get_max_fee(
-            transaction=deploy_account_tx, max_fee=max_fee, auto_estimate=auto_estimate
-        )
-        deploy_account_tx = _add_max_fee_to_transaction(deploy_account_tx, max_fee)
-        signature = self.signer.sign_transaction(deploy_account_tx)
-        return _add_signature_to_transaction(deploy_account_tx, signature)
 
     async def sign_deploy_account_v3(
         self,
@@ -700,31 +463,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         signature = self.signer.sign_transaction(deploy_account_tx)
         return _add_signature_to_transaction(deploy_account_tx, signature)
 
-    async def execute_v1(
-        self,
-        calls: Calls,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> SentTransactionResponse:
-        """
-        .. deprecated:: 0.25.0
-            This method is deprecated and will be removed in future versions.
-            Use :py:meth:`starknet_py.net.account.Account.execute_v3` instead.
-        """
-        _print_deprecation_warning(
-            "execute_v1 is deprecated and will be removed in future versions. Use execute_v3 instead."
-        )
-
-        execute_transaction = await self.sign_invoke_v1(
-            calls,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-        return await self._client.send_transaction(execute_transaction)
-
     async def execute_v3(
         self,
         calls: Calls,
@@ -754,89 +492,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             typed_data = TypedData.from_dict(typed_data)
         message_hash = typed_data.message_hash(account_address=self.address)
         return verify_message_signature(message_hash, signature, self.signer.public_key)
-
-    @staticmethod
-    async def deploy_account_v1(
-        *,
-        address: AddressRepresentation,
-        class_hash: int,
-        salt: int,
-        key_pair: KeyPair,
-        client: Client,
-        constructor_calldata: Optional[List[int]] = None,
-        nonce: int = 0,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> AccountDeploymentResult:
-        # pylint: disable=too-many-arguments, too-many-locals
-
-        """
-        Deploys an account contract with provided class_hash on Starknet and returns
-        an AccountDeploymentResult that allows waiting for transaction acceptance.
-
-        .. deprecated:: 0.25.0
-            This method is deprecated and will be removed in future versions.
-            Use :py:meth:`starknet_py.net.account.Account.deploy_account_v3` instead.
-
-        Provided address must be first prefunded with enough tokens, otherwise the method will fail.
-
-        If using Client for MAINNET, SEPOLIA or SEPOLIA_INTEGRATION, this method will verify
-        if the address balance is high enough to cover deployment costs.
-
-        :param address: Calculated and prefunded address of the new account.
-        :param class_hash: Class hash of the account contract to be deployed.
-        :param salt: Salt used to calculate the address.
-        :param key_pair: KeyPair used to calculate address and sign deploy account transaction.
-        :param client: Client instance used for deployment.
-        :param constructor_calldata: Optional calldata to account contract constructor. If ``None`` is passed,
-            ``[key_pair.public_key]`` will be used as calldata.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max fee to be paid for deployment, must be less or equal to the amount of tokens prefunded.
-        :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        """
-        _print_deprecation_warning(
-            "deploy_account_v1 is deprecated and will be removed in future versions. Use deploy_account_v3 instead."
-        )
-
-        calldata = (
-            constructor_calldata
-            if constructor_calldata is not None
-            else [key_pair.public_key]
-        )
-
-        chain = await client.get_chain_id()
-
-        account = _prepare_account_to_deploy(
-            address=address,
-            class_hash=class_hash,
-            salt=salt,
-            key_pair=key_pair,
-            client=client,
-            chain=chain,
-            calldata=calldata,
-        )
-
-        deploy_account_tx = await account.sign_deploy_account_v1(
-            class_hash=class_hash,
-            contract_address_salt=salt,
-            constructor_calldata=calldata,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-
-        if parse_chain(chain) in RECOGNIZED_CHAIN_IDS:
-            balance = await account.get_balance()
-            if balance < deploy_account_tx.max_fee:
-                raise ValueError(
-                    "Not enough tokens at the specified address to cover deployment costs."
-                )
-
-        result = await client.deploy_account(deploy_account_tx)
-
-        return AccountDeploymentResult(
-            hash=result.transaction_hash, account=account, _client=account.client
-        )
 
     @staticmethod
     async def deploy_account_v3(

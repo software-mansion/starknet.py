@@ -7,11 +7,10 @@ from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
 from starknet_py.net.http_client import HttpClient, HttpMethod
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import DeployAccountV1
+from starknet_py.net.models import DeployAccountV3, StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 AccountToBeDeployedDetails = Tuple[int, KeyPair, int, int]
 
@@ -47,13 +46,13 @@ async def get_deploy_account_details(
         deployer_address=0,
     )
 
-    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke_v1(
-        recipient=address, amount=int(1e19), max_fee=MAX_FEE
+    transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke_v3(
+        recipient=address, amount=int(1e40), resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await transfer_wei_res.wait_for_acceptance()
 
-    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke_v1(
-        recipient=address, amount=int(1e19), max_fee=MAX_FEE
+    transfer_fri_res = await strk_fee_contract.functions["transfer"].invoke_v3(
+        recipient=address, amount=int(1e40), resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await transfer_fri_res.wait_for_acceptance()
 
@@ -62,7 +61,7 @@ async def get_deploy_account_details(
 
 async def get_deploy_account_transaction(
     *, address: int, key_pair: KeyPair, salt: int, class_hash: int, client: Client
-) -> DeployAccountV1:
+) -> DeployAccountV3:
     """
     Get a signed DeployAccount transaction from provided details
     """
@@ -73,11 +72,11 @@ async def get_deploy_account_transaction(
         key_pair=key_pair,
         chain=StarknetChainId.SEPOLIA,
     )
-    return await account.sign_deploy_account_v1(
+    return await account.sign_deploy_account_v3(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
 

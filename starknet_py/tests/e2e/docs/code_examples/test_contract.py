@@ -10,7 +10,7 @@ from starknet_py.net.client_models import (
     ResourceBoundsMapping,
 )
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.models import DeclareV2, DeclareV3, StarknetChainId
+from starknet_py.net.models import DeclareV3, StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
@@ -59,28 +59,6 @@ async def test_from_address(account, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_declare_v2(account):
-    compiled_contract = load_contract(
-        contract_name="TestContract", version=ContractVersion.V1
-    )
-    # docs-start: declare_v2
-    # here `compiled_contract` is a dict containing sierra and casm artifacts
-    declare_result = await Contract.declare_v2(
-        account,
-        compiled_contract=compiled_contract["sierra"],
-        compiled_contract_casm=compiled_contract["casm"],
-        max_fee=int(1e18),
-    )
-    # docs-end: declare_v2
-    await declare_result.wait_for_acceptance()
-
-    assert isinstance(declare_result.declare_transaction, DeclareV2)
-    assert isinstance(declare_result.hash, int)
-    assert isinstance(declare_result.class_hash, int)
-    assert declare_result.compiled_contract == compiled_contract["sierra"]
-
-
-@pytest.mark.asyncio
 async def test_declare_v3(account):
     contract = load_contract(contract_name="TestContract", version=ContractVersion.V2)
     # docs-start: declare_v3
@@ -103,40 +81,6 @@ async def test_declare_v3(account):
     assert isinstance(declare_result.hash, int)
     assert isinstance(declare_result.class_hash, int)
     assert declare_result.compiled_contract == contract["sierra"]
-
-
-@pytest.mark.asyncio
-async def test_deploy_contract_v1(account, class_hash):
-    # docs-start: deploy_contract_v1
-    deploy_result = await Contract.deploy_contract_v1(
-        account=account,
-        class_hash=class_hash,
-        abi=[
-            {
-                "inputs": [{"name": "amount", "type": "felt"}],
-                "name": "increase_balance",
-                "outputs": [],
-                "type": "function",
-            }
-        ],
-        max_fee=int(1e15),
-    )
-    # or when contract has a constructor with arguments
-    deploy_result = await Contract.deploy_contract_v1(
-        account=account,
-        class_hash=class_hash,
-        abi=[
-            {
-                "inputs": [{"name": "value", "type": "felt"}],
-                "name": "constructor",
-                "outputs": [],
-                "type": "constructor",
-            },
-        ],
-        constructor_args={"value": 1},
-        max_fee=int(1e15),
-    )
-    # docs-end: deploy_contract_v1
 
 
 @pytest.mark.asyncio
