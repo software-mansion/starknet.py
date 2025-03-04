@@ -1,4 +1,5 @@
 import dataclasses
+import numbers
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -19,6 +20,7 @@ from starknet_py.net.client_models import (
     InvokeTransactionV3,
     PendingBlockHeader,
     PendingStarknetBlockWithReceipts,
+    ResourceBounds,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
     Transaction,
@@ -32,7 +34,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
 from starknet_py.tests.e2e.fixtures.constants import (
     EMPTY_CONTRACT_ADDRESS_SEPOLIA,
-    MAX_RESOURCE_BOUNDS,
+    MAX_RESOURCE_BOUNDS_SEPOLIA,
     STRK_CLASS_HASH,
     STRK_FEE_CONTRACT_ADDRESS,
 )
@@ -71,7 +73,7 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
     invoke = await account.client.send_transaction(sign_invoke)
 
@@ -88,7 +90,7 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
     invoke = await account.client.send_transaction(sign_invoke)
 
@@ -122,14 +124,19 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l2_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+    )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=resource_bounds
     )
 
     with pytest.raises(
         ClientError,
         match=r"Client failed with code 55. "
-        r"Message: Account validation failed. Data: Max fee \(\d+\) is too low. Minimum fee: \d+.",
+        r"Message: Account validation failed. Data: Max L1Gas price \(\d+\) is lower than the actual gas price: \d+.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -142,14 +149,19 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
+        l2_gas=ResourceBounds(max_amount=int(1e14), max_price_per_unit=int(1e25)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
+    )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=resource_bounds
     )
 
     with pytest.raises(
         ClientError,
         match=r"Client failed with code 55. "
-        r"Message: Account validation failed. Data: Max fee \(\d+\) exceeds balance \(\d+\).",
+        r"Message: Account validation failed\. Data: Resources bounds \(\{.*\}\) exceed balance \(\d+\)\.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -163,7 +175,7 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS, nonce=0
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA, nonce=0
     )
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
@@ -179,7 +191,7 @@ async def test_transaction_not_received_invalid_signature(account_sepolia_testne
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
     with pytest.raises(
@@ -215,6 +227,7 @@ async def test_estimate_message_fee(client_sepolia_testnet):
     assert all(
         getattr(estimated_message, field.name) >= 0
         for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_message, field.name), numbers.Number)
     )
     assert estimated_message.unit is not None
 
