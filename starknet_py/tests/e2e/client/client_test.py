@@ -240,7 +240,6 @@ async def test_get_storage_proof(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1564)")
 async def test_get_compiled_casm(client):
     strk_devnet_class_hash = (
         0x11374319A6E07B4F2738FA3BFA8CF2181BFB0DBB4D800215BAA87B83A57877E
@@ -248,31 +247,29 @@ async def test_get_compiled_casm(client):
     compiled_casm = await client.get_compiled_casm(class_hash=strk_devnet_class_hash)
 
     assert isinstance(compiled_casm, CasmClass)
-    assert len(compiled_casm.bytecode) == 20477
-    assert len(compiled_casm.hints) == 931
+    assert len(compiled_casm.bytecode) == 9732
+    assert len(compiled_casm.hints) == 113
 
     first_hint = compiled_casm.hints[0][1][0]
     assert isinstance(first_hint, TestLessThanOrEqual)
     assert first_hint.test_less_than_or_equal.dst.offset == 0
     assert first_hint.test_less_than_or_equal.dst.register == "AP"
     assert isinstance(first_hint.test_less_than_or_equal.lhs, Immediate)
-    assert first_hint.test_less_than_or_equal.lhs.immediate == 0
+    assert first_hint.test_less_than_or_equal.lhs.immediate == 0x37BE
     assert isinstance(first_hint.test_less_than_or_equal.rhs, Deref)
     assert first_hint.test_less_than_or_equal.rhs.deref.offset == -6
     assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
 
     second_hint = compiled_casm.hints[1][1][0]
-    assert isinstance(second_hint, TestLessThan)
-    assert second_hint.test_less_than.dst.offset == 4
-    assert second_hint.test_less_than.dst.register == "AP"
-    assert isinstance(second_hint.test_less_than.lhs, Deref)
-    assert second_hint.test_less_than.lhs.deref.offset == -1
-    assert second_hint.test_less_than.lhs.deref.register == "AP"
-    assert isinstance(second_hint.test_less_than.rhs, Immediate)
-    assert (
-        second_hint.test_less_than.rhs.immediate
-        == 0x800000000000000000000000000000000000000000000000000000000000000
-    )
+    assert isinstance(second_hint, TestLessThanOrEqual)
+    assert isinstance(second_hint.test_less_than_or_equal.lhs, Deref)
+    assert second_hint.test_less_than_or_equal.lhs.deref.register == "AP"
+    assert second_hint.test_less_than_or_equal.lhs.deref.offset == -1
+    assert isinstance(second_hint.test_less_than_or_equal.rhs, Deref)
+    assert second_hint.test_less_than_or_equal.rhs.deref.register == "AP"
+    assert second_hint.test_less_than_or_equal.rhs.deref.offset == -169
+    assert second_hint.test_less_than_or_equal.dst.register == "AP"
+    assert second_hint.test_less_than_or_equal.dst.offset == 0
 
 
 @pytest.mark.asyncio
