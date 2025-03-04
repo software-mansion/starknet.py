@@ -1,4 +1,4 @@
-# TODO(#1498): This action should be removed after starknet-devnet-rs update
+# TODO(#1498): This action should be removed after starknet-devnet-rs release is available
 
 name: "Devnet Setup"
 
@@ -15,6 +15,11 @@ runs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+
+    - name: Install Rust 1.83.0 toolchain
+      shell: bash
+      run: |
+        rustup toolchain install 1.83.0-x86_64-unknown-linux-gnu
 
     - name: Cache devnet build
       id: cache-devnet
