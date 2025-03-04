@@ -35,7 +35,7 @@ from starknet_py.net.client_models import (
     TransactionStatusResponse,
     TransactionType,
 )
-from starknet_py.net.executables_models import (
+from starknet_py.net.executable_models import (
     CasmClass,
     Deref,
     Immediate,

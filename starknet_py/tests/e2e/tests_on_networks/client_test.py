@@ -29,7 +29,7 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.executables_models import (
+from starknet_py.net.executable_models import (
     CasmClass,
     Deref,
     Immediate,

@@ -17,7 +17,7 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     SyncStatus,
 )
-from starknet_py.net.executables_models import CasmClass
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.schemas.common import Felt, NumberAsHex
 from starknet_py.net.schemas.rpc.executables_api import HintSchema
 from starknet_py.utils.schema import Schema

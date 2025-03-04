@@ -11,7 +11,7 @@ from starknet_py.hash.compiled_class_hash_objects import (
     NestedIntList,
 )
 from starknet_py.net.client_models import CasmClassEntryPoint
-from starknet_py.net.executables_models import CasmClass
+from starknet_py.net.executable_models import CasmClass
 
 CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
 

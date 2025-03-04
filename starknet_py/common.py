@@ -8,7 +8,7 @@ from starknet_py.net.client_models import (
     DeprecatedContractClass,
     SierraCompiledContract,
 )
-from starknet_py.net.executables_models import CasmClass
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.schemas.rpc.contract import (
     CasmClassSchema,
     ContractClassSchema,
