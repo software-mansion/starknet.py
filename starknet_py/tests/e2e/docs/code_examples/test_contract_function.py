@@ -5,14 +5,6 @@ from starknet_py.contract import Contract, ContractFunction
 from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 
-def test_prepare_invoke_v1(map_contract: Contract):
-    # docs-start: prepare_invoke_v1
-    prepared_function_call = map_contract.functions["put"].prepare_invoke_v1(
-        key=10, value=20
-    )
-    # docs-end: prepare_invoke_v1
-
-
 def test_prepare_invoke_v3(map_contract: Contract):
     # docs-start: prepare_invoke_v3
     prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
@@ -28,14 +20,6 @@ async def test_call(map_contract: Contract):
     # or when call has to be done at specific block
     call_result = map_contract.functions["get"].call(key=10, block_number="latest")
     # docs-end: call
-
-
-def test_invoke_v1(map_contract: Contract):
-    # docs-start: invoke_v1
-    invoke_result = map_contract.functions["put"].invoke_v1(
-        key=10, value=20, max_fee=int(1e15)
-    )
-    # docs-end: invoke_v1
 
 
 def test_invoke_v3(map_contract: Contract):
