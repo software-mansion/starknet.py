@@ -326,7 +326,7 @@ class ShouldSkipSquashLoop:
 
 @dataclass
 class GetCurrentAccessDeltaInner:
-    index_delta_minus_1: CellRef
+    index_delta_minus1: CellRef
 
 
 @dataclass
