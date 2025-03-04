@@ -39,7 +39,6 @@ from starknet_py.net.executable_models import (
     CasmClass,
     Deref,
     Immediate,
-    TestLessThan,
     TestLessThanOrEqual,
 )
 from starknet_py.net.full_node_client import FullNodeClient
