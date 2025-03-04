@@ -234,8 +234,7 @@ async def test_sign_invoke_v3(account, calls):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME: Fix this test
+@pytest.mark.skip("TODO(#1558)")
 async def test_sign_invoke_v3_auto_estimate(account, map_contract):
     signed_tx = await account.sign_invoke_v3(
         Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
@@ -278,8 +277,7 @@ async def test_sign_declare_v3(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME: Fix this test
+@pytest.mark.skip("TODO(#1558)")
 async def test_sign_declare_v3_auto_estimate(
     account, sierra_minimal_compiled_contract_and_class_hash
 ):
@@ -329,8 +327,7 @@ async def test_sign_deploy_account_v3(account):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME: Fix this test
+@pytest.mark.skip("TODO(#1558)")
 async def test_sign_deploy_account_v3_auto_estimate(
     account, account_with_validate_deploy_class_hash
 ):
@@ -398,8 +395,7 @@ async def test_deploy_account_raises_on_incorrect_address(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME
+@pytest.mark.skip("TODO(#1560)")
 async def test_deploy_account_raises_on_no_enough_funds(
     deploy_account_details_factory, client
 ):
@@ -569,8 +565,7 @@ async def test_argent_account_deploy(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME
+@pytest.mark.skip("TODO(#1560)")
 async def test_argent_account_execute(
     deployed_balance_contract,
     argent_account: BaseAccount,
