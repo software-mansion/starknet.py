@@ -9,7 +9,6 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    CasmClass,
     ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
@@ -30,6 +29,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     TransactionStatusResponse,
 )
+from starknet_py.net.executables_models import CasmClass
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     DeclareV3,

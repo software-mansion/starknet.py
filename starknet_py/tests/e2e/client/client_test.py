@@ -12,17 +12,14 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
-    CasmClass,
     ContractsStorageKeys,
     DAMode,
     DeclaredContractHash,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
-    Deref,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
-    Immediate,
     InvokeTransactionV3,
     L1HandlerTransaction,
     MessageStatus,
@@ -31,14 +28,19 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     SierraEntryPointsByType,
     StorageProofResponse,
-    TestLessThan,
-    TestLessThanOrEqual,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
     TransactionStatus,
     TransactionStatusResponse,
     TransactionType,
+)
+from starknet_py.net.executables_models import (
+    CasmClass,
+    Deref,
+    Immediate,
+    TestLessThan,
+    TestLessThanOrEqual,
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
