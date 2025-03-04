@@ -63,6 +63,7 @@ from starknet_py.net.client_models import (
     GetNextDictKeyInner,
     GetSegmentArenaIndex,
     GetSegmentArenaIndexInner,
+    Hint,
     Immediate,
     InitSquashData,
     InitSquashDataInner,
@@ -336,9 +337,9 @@ class BinOpBField(fields.Field):
 
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, dict):
-            if DerefSchema.deref.data_key in value:
+            if "Deref" in value:
                 return DerefSchema().load(value)
-            elif ImmediateSchema.immediate.data_key in value:
+            elif "Immediate" in value:
                 return ImmediateSchema().load(value)
 
         raise ValidationError(
@@ -573,14 +574,14 @@ class DivModSchema(Schema):
 
 
 class Uint256DivModInnerSchema(Schema):
-    dividend_0 = ResOperandField(data_key="dividend0", required=True)
-    dividend_1 = ResOperandField(data_key="dividend1", required=True)
-    divisor_0 = ResOperandField(data_key="divisor0", required=True)
-    divisor_1 = ResOperandField(data_key="divisor1", required=True)
-    quotient_0 = fields.Nested(CellRefSchema(), data_key="quotient0", required=True)
-    quotient_1 = fields.Nested(CellRefSchema(), data_key="quotient1", required=True)
-    remainder_0 = fields.Nested(CellRefSchema(), data_key="remainder0", required=True)
-    remainder_1 = fields.Nested(CellRefSchema(), data_key="remainder1", required=True)
+    dividend0 = ResOperandField(data_key="dividend0", required=True)
+    dividend1 = ResOperandField(data_key="dividend1", required=True)
+    divisor0 = ResOperandField(data_key="divisor0", required=True)
+    divisor1 = ResOperandField(data_key="divisor1", required=True)
+    quotient0 = fields.Nested(CellRefSchema(), data_key="quotient0", required=True)
+    quotient1 = fields.Nested(CellRefSchema(), data_key="quotient1", required=True)
+    remainder0 = fields.Nested(CellRefSchema(), data_key="remainder0", required=True)
+    remainder1 = fields.Nested(CellRefSchema(), data_key="remainder1", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Uint256DivModInner:
@@ -598,18 +599,18 @@ class Uint256DivModSchema(Schema):
 
 
 class Uint512DivModByUint256InnerSchema(Schema):
-    dividend_0 = ResOperandField(data_key="dividend0", required=True)
-    dividend_1 = ResOperandField(data_key="dividend1", required=True)
-    dividend_2 = ResOperandField(data_key="dividend2", required=True)
-    dividend_3 = ResOperandField(data_key="dividend3", required=True)
-    divisor_0 = ResOperandField(data_key="divisor0", required=True)
-    divisor_1 = ResOperandField(data_key="divisor1", required=True)
-    quotient_0 = fields.Nested(CellRefSchema(), data_key="quotient0", required=True)
-    quotient_1 = fields.Nested(CellRefSchema(), data_key="quotient1", required=True)
-    quotient_2 = fields.Nested(CellRefSchema(), data_key="quotient2", required=True)
-    quotient_3 = fields.Nested(CellRefSchema(), data_key="quotient3", required=True)
-    remainder_0 = fields.Nested(CellRefSchema(), data_key="remainder0", required=True)
-    remainder_1 = fields.Nested(CellRefSchema(), data_key="remainder1", required=True)
+    dividend0 = ResOperandField(data_key="dividend0", required=True)
+    dividend1 = ResOperandField(data_key="dividend1", required=True)
+    dividend2 = ResOperandField(data_key="dividend2", required=True)
+    dividend3 = ResOperandField(data_key="dividend3", required=True)
+    divisor0 = ResOperandField(data_key="divisor0", required=True)
+    divisor1 = ResOperandField(data_key="divisor1", required=True)
+    quotient0 = fields.Nested(CellRefSchema(), data_key="quotient0", required=True)
+    quotient1 = fields.Nested(CellRefSchema(), data_key="quotient1", required=True)
+    quotient2 = fields.Nested(CellRefSchema(), data_key="quotient2", required=True)
+    quotient3 = fields.Nested(CellRefSchema(), data_key="quotient3", required=True)
+    remainder0 = fields.Nested(CellRefSchema(), data_key="remainder0", required=True)
+    remainder1 = fields.Nested(CellRefSchema(), data_key="remainder1", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Uint512DivModByUint256Inner:
@@ -650,8 +651,8 @@ class SquareRootSchema(Schema):
 class Uint256SquareRootInnerSchema(Schema):
     value_low = ResOperandField(data_key="value_low", required=True)
     value_high = ResOperandField(data_key="value_high", required=True)
-    sqrt_0 = fields.Nested(CellRefSchema(), data_key="sqrt0", required=True)
-    sqrt_1 = fields.Nested(CellRefSchema(), data_key="sqrt1", required=True)
+    sqrt0 = fields.Nested(CellRefSchema(), data_key="sqrt0", required=True)
+    sqrt1 = fields.Nested(CellRefSchema(), data_key="sqrt1", required=True)
     remainder_low = fields.Nested(
         CellRefSchema(), data_key="remainder_low", required=True
     )
@@ -845,7 +846,7 @@ class ShouldSkipSquashLoopSchema(Schema):
 
 
 class GetCurrentAccessDeltaInnerSchema(Schema):
-    index_delta_minus_1 = fields.Nested(
+    index_delta_minus1 = fields.Nested(
         CellRefSchema(), data_key="index_delta_minus1", required=True
     )
 
@@ -1049,18 +1050,18 @@ class AllocConstantSizeSchema(Schema):
 
 
 class U256InvModNInnerSchema(Schema):
-    b_0 = ResOperandField(data_key="b0", required=True)
-    b_1 = ResOperandField(data_key="b1", required=True)
-    n_0 = ResOperandField(data_key="n0", required=True)
-    n_1 = ResOperandField(data_key="n1", required=True)
-    g_0_or_no_inv = fields.Nested(
+    b0 = ResOperandField(data_key="b0", required=True)
+    b1 = ResOperandField(data_key="b1", required=True)
+    n0 = ResOperandField(data_key="n0", required=True)
+    n1 = ResOperandField(data_key="n1", required=True)
+    g0_or_no_inv = fields.Nested(
         CellRefSchema(), data_key="g0_or_no_inv", required=True
     )
-    g_1_option = fields.Nested(CellRefSchema(), data_key="g1_option", required=True)
-    s_or_r_0 = fields.Nested(CellRefSchema(), data_key="s_or_r0", required=True)
-    s_or_r_1 = fields.Nested(CellRefSchema(), data_key="s_or_r1", required=True)
-    t_or_k_0 = fields.Nested(CellRefSchema(), data_key="t_or_k0", required=True)
-    t_or_k_1 = fields.Nested(CellRefSchema(), data_key="t_or_k1", required=True)
+    g1_option = fields.Nested(CellRefSchema(), data_key="g1_option", required=True)
+    s_or_r0 = fields.Nested(CellRefSchema(), data_key="s_or_r0", required=True)
+    s_or_r1 = fields.Nested(CellRefSchema(), data_key="s_or_r1", required=True)
+    t_or_k0 = fields.Nested(CellRefSchema(), data_key="t_or_k0", required=True)
+    t_or_k1 = fields.Nested(CellRefSchema(), data_key="t_or_k1", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> U256InvModNInner:
@@ -1140,124 +1141,74 @@ class CheatcodeSchema(Schema):
         return Cheatcode(**data)
 
 
-class HintField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
-        if isinstance(value, str):
-            if value in AssertCurrentAccessIndicesIsEmpty:
-                return AssertCurrentAccessIndicesIsEmpty(value)
-            elif value in AssertAllKeysUsed:
-                return AssertAllKeysUsed(value)
-            elif value in AssertLeAssertThirdArcExcluded:
-                return AssertLeAssertThirdArcExcluded(value)
-
-        elif isinstance(value, dict) and len(value.keys()) == 1:
-            key_to_schema_mapping = {
-                AssertAllAccessesUsedSchema.assert_all_accesses_used.data_key: AssertAllAccessesUsedSchema,
-                AssertLtAssertValidInputSchema.assert_lt_assert_valid_input.data_key: AssertLtAssertValidInputSchema,
-                Felt252DictReadSchema.felt252_dict_read.data_key: Felt252DictReadSchema,
-                Felt252DictWriteSchema.felt252_dict_write.data_key: Felt252DictWriteSchema,
-                AllocSegmentSchema.alloc_segment.data_key: AllocSegmentSchema,
-                TestLessThanSchema.test_less_than.data_key: TestLessThanSchema,
-                TestLessThanOrEqualSchema.test_less_than_or_equal.data_key: TestLessThanOrEqualSchema,
-                TestLessThenOrEqualAddressSchema.test_less_than_or_equal_address.data_key: TestLessThenOrEqualAddressSchema,
-                WideMul128Schema.wide_mul128.data_key: WideMul128Schema,
-                DivModSchema.div_mod.data_key: DivModSchema,
-                Uint256DivModSchema.uint256_div_mod.data_key: Uint256DivModSchema,
-                Uint512DivModByUint256Schema.uint512_div_mod_by_uint256.data_key: Uint512DivModByUint256Schema,
-                SquareRootSchema.square_root.data_key: SquareRootSchema,
-                Uint256SquareRootSchema.uint256_square_root.data_key: Uint256SquareRootSchema,
-                LinearSplitSchema.linear_split.data_key: LinearSplitSchema,
-                AllocFelt252DictSchema.alloc_felt252_dict.data_key: AllocFelt252DictSchema,
-                Felt252DictEntryInitSchema.felt252_dict_entry_init.data_key: Felt252DictEntryInitSchema,
-                Felt252DictEntryUpdateSchema.felt252_dict_entry_update.data_key: Felt252DictEntryUpdateSchema,
-                GetSegmentArenaIndexSchema.get_segment_arena_index.data_key: GetSegmentArenaIndexSchema,
-                InitSquashDataSchema.init_squash_data.data_key: InitSquashDataSchema,
-                GetCurrentAccessIndexSchema.get_current_access_index.data_key: GetCurrentAccessIndexSchema,
-                ShouldSkipSquashLoopSchema.should_skip_squash_loop.data_key: ShouldSkipSquashLoopSchema,
-                GetCurrentAccessDeltaSchema.get_current_access_delta.data_key: GetCurrentAccessDeltaSchema,
-                ShouldContinueSquashLoopSchema.should_continue_squash_loop.data_key: ShouldContinueSquashLoopSchema,
-                GetNextDictKeySchema.get_next_dict_key.data_key: GetNextDictKeySchema,
-                AssertLeFindSmallArcsSchema.assert_le_find_small_arcs.data_key: AssertLeFindSmallArcsSchema,
-                AssertLeIsFirstArcExcludedSchema.assert_le_is_first_arc_excluded.data_key: AssertLeIsFirstArcExcludedSchema,
-                AssertLeIsSecondArcExcludedSchema.assert_le_is_second_arc_excluded.data_key: AssertLeIsSecondArcExcludedSchema,
-                RandomEcPointSchema.random_ec_point.data_key: RandomEcPointSchema,
-                FieldSqrtSchema.field_sqrt.data_key: FieldSqrtSchema,
-                DebugPrintSchema.debug_print.data_key: DebugPrintSchema,
-                AllocConstantSizeSchema.alloc_constant_size.data_key: AllocConstantSizeSchema,
-                U256InvModNSchema.u256_inv_mod_n.data_key: U256InvModNSchema,
-                EvalCircuitSchema.eval_circuit.data_key: EvalCircuitSchema,
-                SystemCallSchema.system_call.data_key: SystemCallSchema,
-                CheatcodeSchema.cheatcode.data_key: CheatcodeSchema,
-            }
-
-            key = list(value.keys())[0]
-            schema_cls = key_to_schema_mapping.get(key)
-
-            if schema_cls is not None:
-                return schema_cls().load(value)
-
-        raise ValidationError(f"Invalid value provided for Hint: {value}.")
-
-    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
-        if isinstance(value, AssertCurrentAccessIndicesIsEmpty):
-            return str(value.value)
-        elif isinstance(value, AssertAllKeysUsed):
-            return str(value.value)
-        elif isinstance(value, AssertLeAssertThirdArcExcluded):
-            return str(value.value)
-
-        model_to_schema_mapping = {
-            AllocConstantSize: AllocConstantSizeSchema,
-            AllocFelt252Dict: AllocFelt252DictSchema,
-            AllocSegment: AllocSegmentSchema,
-            AssertAllAccessesUsed: AssertAllAccessesUsedSchema,
-            AssertLeFindSmallArcs: AssertLeFindSmallArcsSchema,
-            AssertLeIsFirstArcExcluded: AssertLeIsFirstArcExcludedSchema,
-            AssertLeIsSecondArcExcluded: AssertLeIsSecondArcExcludedSchema,
-            AssertLtAssertValidInput: AssertLtAssertValidInputSchema,
-            BinOp: BinOpSchema,
-            Cheatcode: CheatcodeSchema,
-            DebugPrint: DebugPrintSchema,
-            Deref: DerefSchema,
-            DivMod: DivModSchema,
-            DoubleDeref: DoubleDerefSchema,
-            EvalCircuit: EvalCircuitSchema,
-            Felt252DictEntryInit: Felt252DictEntryInitSchema,
-            Felt252DictEntryUpdate: Felt252DictEntryUpdateSchema,
-            Felt252DictRead: Felt252DictReadSchema,
-            Felt252DictWrite: Felt252DictWriteSchema,
-            FieldSqrt: FieldSqrtSchema,
-            GetCurrentAccessDelta: GetCurrentAccessDeltaSchema,
-            GetCurrentAccessIndex: GetCurrentAccessIndexSchema,
-            GetNextDictKey: GetNextDictKeySchema,
-            GetSegmentArenaIndex: GetSegmentArenaIndexSchema,
-            Immediate: ImmediateSchema,
-            InitSquashData: InitSquashDataSchema,
-            LinearSplit: LinearSplitSchema,
-            RandomEcPoint: RandomEcPointSchema,
-            ShouldContinueSquashLoop: ShouldContinueSquashLoopSchema,
-            ShouldSkipSquashLoop: ShouldSkipSquashLoopSchema,
-            SquareRoot: SquareRootSchema,
-            SystemCall: SystemCallSchema,
-            TestLessThan: TestLessThanSchema,
-            TestLessThanOrEqual: TestLessThanOrEqualSchema,
-            TestLessThenOrEqualAddress: TestLessThenOrEqualAddressSchema,
-            U256InvModN: U256InvModNSchema,
-            Uint256DivMod: Uint256DivModSchema,
-            Uint256SquareRoot: Uint256SquareRootSchema,
-            Uint512DivModByUint256: Uint512DivModByUint256Schema,
-            WideMul128: WideMul128Schema,
+HINT_TYPE_SCHEMAS_MAPPING = {
+            "AllocConstantSize": AllocConstantSizeSchema,
+            "AllocFelt252Dict": AllocFelt252DictSchema,
+            "AllocSegment": AllocSegmentSchema,
+            "AssertAllAccessesUsed": AssertAllAccessesUsedSchema,
+            "AssertLeFindSmallArcs": AssertLeFindSmallArcsSchema,
+            "AssertLeIsFirstArcExcluded": AssertLeIsFirstArcExcludedSchema,
+            "AssertLeIsSecondArcExcluded": AssertLeIsSecondArcExcludedSchema,
+            "AssertLtAssertValidInput": AssertLtAssertValidInputSchema,
+            "BinOp": BinOpSchema,
+            "Cheatcode": CheatcodeSchema,
+            "DebugPrint": DebugPrintSchema,
+            "Deref": DerefSchema,
+            "DivMod": DivModSchema,
+            "DoubleDeref": DoubleDerefSchema,
+            "EvalCircuit": EvalCircuitSchema,
+            "Felt252DictEntryInit": Felt252DictEntryInitSchema,
+            "Felt252DictEntryUpdate": Felt252DictEntryUpdateSchema,
+            "Felt252DictRead": Felt252DictReadSchema,
+            "Felt252DictWrite": Felt252DictWriteSchema,
+            "FieldSqrt": FieldSqrtSchema,
+            "GetCurrentAccessDelta": GetCurrentAccessDeltaSchema,
+            "GetCurrentAccessIndex": GetCurrentAccessIndexSchema,
+            "GetNextDictKey": GetNextDictKeySchema,
+            "GetSegmentArenaIndex": GetSegmentArenaIndexSchema,
+            "Immediate": ImmediateSchema,
+            "InitSquashData": InitSquashDataSchema,
+            "LinearSplit": LinearSplitSchema,
+            "RandomEcPoint": RandomEcPointSchema,
+            "ShouldContinueSquashLoop": ShouldContinueSquashLoopSchema,
+            "ShouldSkipSquashLoop": ShouldSkipSquashLoopSchema,
+            "SquareRoot": SquareRootSchema,
+            "SystemCall": SystemCallSchema,
+            "TestLessThan": TestLessThanSchema,
+            "TestLessThanOrEqual": TestLessThanOrEqualSchema,
+            "TestLessThenOrEqualAddress": TestLessThenOrEqualAddressSchema,
+            "U256InvModN": U256InvModNSchema,
+            "Uint256DivMod": Uint256DivModSchema,
+            "Uint256SquareRoot": Uint256SquareRootSchema,
+            "Uint512DivModByUint256": Uint512DivModByUint256Schema,
+            "WideMul128": WideMul128Schema,
         }
 
-        schema_cls = model_to_schema_mapping.get(type(value))
 
-        if schema_cls is not None:
-            schema = schema_cls()
-            return schema.dump(value)
+class HintSchema(Schema):
+    def load(self, data, *args, **kwargs) -> Hint:
+        if not isinstance(data, dict) or len(data) != 1:
+            raise ValidationError("Hint must be a dict with a single key.")
 
-        raise ValidationError(
-            f"Invalid value provided for {self.__class__.__name__}: {value}."
-        )
+        key = next(iter(data))
+
+        if key not in HINT_TYPE_SCHEMAS_MAPPING:
+            raise ValidationError(f"Unknown Hint type: {key}")
+
+        schema = HINT_TYPE_SCHEMAS_MAPPING[key]()
+
+        return schema.load(data)
+
+    def dump(self, obj, *args, **kwargs):
+        if not isinstance(obj, dict) or len(obj) != 1:
+            raise ValidationError("Hint must be a dict with a single key.")
+
+        key = next(iter(obj))
+
+        if key not in HINT_TYPE_SCHEMAS_MAPPING:
+            raise ValidationError(f"Invalid value provided for Hint type: {key}")
+
+        return {key: HINT_TYPE_SCHEMAS_MAPPING[key].dump(obj[key])}
 
 
 class CasmClassSchema(Schema):
@@ -1268,7 +1219,7 @@ class CasmClassSchema(Schema):
     )
     hints = fields.List(
         fields.Tuple(
-            (fields.Integer(), HintField()),
+            (fields.Integer(), fields.List(fields.Nested(HintSchema()))),
         ),
         data_key="hints",
         required=True,
