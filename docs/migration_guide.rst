@@ -17,7 +17,7 @@ Version [Unreleased] of **starknet.py** comes with support for RPC 0.8.0!
 
 .. py:currentmodule:: starknet_py.net.full_node_client
 
-2. New methods have been added: :meth:`~FullNodeClient.get_storage_proof` and :meth:`~FullNodeClient.get_storage_proof_v2`.
+2. New methods have been added: :meth:`~FullNodeClient.get_storage_proof` and :meth:`~FullNodeClient.get_messages_status`.
 
 .. py:currentmodule:: starknet_py.net.client_models
 
