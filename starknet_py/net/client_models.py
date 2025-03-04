@@ -1393,14 +1393,14 @@ class DivMod:
 @dataclass
 class Uint256DivModInner:
     # pylint: disable=too-many-instance-attributes
-    dividend_0: ResOperand
-    dividend_1: ResOperand
-    divisor_0: ResOperand
-    divisor_1: ResOperand
-    quotient_0: CellRef
-    quotient_1: CellRef
-    remainder_0: CellRef
-    remainder_1: CellRef
+    dividend0: ResOperand
+    dividend1: ResOperand
+    divisor0: ResOperand
+    divisor1: ResOperand
+    quotient0: CellRef
+    quotient1: CellRef
+    remainder0: CellRef
+    remainder1: CellRef
 
 
 @dataclass
@@ -1411,18 +1411,18 @@ class Uint256DivMod:
 @dataclass
 class Uint512DivModByUint256Inner:
     # pylint: disable=too-many-instance-attributes
-    dividend_0: ResOperand
-    dividend_1: ResOperand
-    dividend_2: ResOperand
-    dividend_3: ResOperand
-    divisor_0: ResOperand
-    divisor_1: ResOperand
-    quotient_0: CellRef
-    quotient_1: CellRef
-    quotient_2: CellRef
-    quotient_3: CellRef
-    remainder_0: CellRef
-    remainder_1: CellRef
+    dividend0: ResOperand
+    dividend1: ResOperand
+    dividend2: ResOperand
+    dividend3: ResOperand
+    divisor0: ResOperand
+    divisor1: ResOperand
+    quotient0: CellRef
+    quotient1: CellRef
+    quotient2: CellRef
+    quotient3: CellRef
+    remainder0: CellRef
+    remainder1: CellRef
 
 
 @dataclass
@@ -1445,8 +1445,8 @@ class SquareRoot:
 class Uint256SquareRootInner:
     value_low: ResOperand
     value_high: ResOperand
-    sqrt_0: CellRef
-    sqrt_1: CellRef
+    sqrt0: CellRef
+    sqrt1: CellRef
     remainder_low: CellRef
     remainder_high: CellRef
     sqrt_mul_2_minus_remainder_ge_u128: CellRef
@@ -1657,16 +1657,16 @@ class AllocConstantSize:
 @dataclass
 class U256InvModNInner:
     # pylint: disable=too-many-instance-attributes
-    b_0: ResOperand
-    b_1: ResOperand
-    n_0: ResOperand
-    n_1: ResOperand
-    g_0_or_no_inv: CellRef
-    g_1_option: CellRef
-    s_or_r_0: CellRef
-    s_or_r_1: CellRef
-    t_or_k_0: CellRef
-    t_or_k_1: CellRef
+    b0: ResOperand
+    b1: ResOperand
+    n0: ResOperand
+    n1: ResOperand
+    g0_or_no_inv: CellRef
+    g1_option: CellRef
+    s_or_r0: CellRef
+    s_or_r1: CellRef
+    t_or_k0: CellRef
+    t_or_k1: CellRef
 
 
 @dataclass
