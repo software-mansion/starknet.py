@@ -152,7 +152,7 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
         l2_gas=ResourceBounds(max_amount=int(1e14), max_price_per_unit=int(1e25)),
-        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
     )
     sign_invoke = await account.sign_invoke_v3(
         calls=call, resource_bounds=resource_bounds
