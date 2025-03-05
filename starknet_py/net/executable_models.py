@@ -282,7 +282,7 @@ class Felt252DictEntryUpdate:
 @dataclass
 class GetSegmentArenaIndexInner:
     dict_end_ptr: ResOperand
-    dict_index: ResOperand
+    dict_index: CellRef
 
 
 @dataclass
@@ -292,7 +292,7 @@ class GetSegmentArenaIndex:
 
 @dataclass
 class InitSquashDataInner:
-    dict_access: ResOperand
+    dict_accesses: ResOperand
     ptr_diff: ResOperand
     n_accesses: ResOperand
     big_keys: CellRef

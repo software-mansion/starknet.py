@@ -588,7 +588,7 @@ class Felt252DictEntryUpdateSchema(Schema):
 
 class GetSegmentArenaIndexInnerSchema(Schema):
     dict_end_ptr = ResOperandField(data_key="dict_end_ptr", required=True)
-    dict_index = ResOperandField(data_key="dict_index", required=True)
+    dict_index = fields.Nested(CellRefSchema(), data_key="dict_index", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> GetSegmentArenaIndexInner:
@@ -608,7 +608,7 @@ class GetSegmentArenaIndexSchema(Schema):
 
 
 class InitSquashDataInnerSchema(Schema):
-    dict_access = ResOperandField(data_key="dict_access", required=True)
+    dict_accesses = ResOperandField(data_key="dict_accesses", required=True)
     ptr_diff = ResOperandField(data_key="ptr_diff", required=True)
     n_accesses = ResOperandField(data_key="n_accesses", required=True)
     big_keys = fields.Nested(CellRefSchema(), data_key="big_keys", required=True)
@@ -1013,6 +1013,7 @@ HINT_TYPE_SCHEMAS_MAPPING = {
 
 class HintSchema(Schema):
     def load(self, data, *args, **kwargs) -> Hint:
+        print(data)
         if not isinstance(data, dict) or len(data) != 1:
             raise ValidationError("Hint must be a dict with a single key.")
 
