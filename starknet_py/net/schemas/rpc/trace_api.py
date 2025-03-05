@@ -71,6 +71,7 @@ class FunctionInvocationSchema(Schema):
         data_key="execution_resources",
         required=True,
     )
+    is_reverted = fields.Boolean(data_key="is_reverted", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> FunctionInvocation:

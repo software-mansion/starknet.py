@@ -1,20 +1,13 @@
-from marshmallow import fields, post_dump, pre_load
+from marshmallow import fields
 from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import TransactionType
-from starknet_py.net.models.transaction import compress_program, decompress_program
-from starknet_py.net.schemas.rpc.contract import (
-    ContractClassSchema,
-    SierraCompiledContractSchema,
-)
+from starknet_py.net.schemas.rpc.contract import SierraCompiledContractSchema
 from starknet_py.net.schemas.rpc.transactions import (
-    DeclareTransactionV1Schema,
-    DeclareTransactionV2Schema,
     DeclareTransactionV3Schema,
-    DeployAccountTransactionSchema,
-    InvokeTransactionSchema,
+    DeployAccountTransactionV3Schema,
+    InvokeTransactionV3Schema,
 )
-from starknet_py.net.schemas.utils import _extract_tx_version
 
 
 class BroadcastedDeclareV3Schema(DeclareTransactionV3Schema):
@@ -23,46 +16,11 @@ class BroadcastedDeclareV3Schema(DeclareTransactionV3Schema):
     )
 
 
-class BroadcastedDeclareV2Schema(DeclareTransactionV2Schema):
-    contract_class = fields.Nested(
-        SierraCompiledContractSchema(), data_key="contract_class", required=True
-    )
-
-
-class BroadcastedDeclareV1Schema(DeclareTransactionV1Schema):
-    contract_class = fields.Nested(
-        ContractClassSchema(), data_key="contract_class", required=True
-    )
-
-    @post_dump
-    def post_dump(self, data, **kwargs):
-        # Allowing **kwargs is needed here because marshmallow is passing additional parameters here
-        # along with data, which we don't handle.
-        # pylint: disable=unused-argument, no-self-use
-        return compress_program(data)
-
-    @pre_load
-    def decompress_program(self, data, **kwargs):
-        # pylint: disable=unused-argument, no-self-use
-        return decompress_program(data)
-
-
-class BroadcastedDeclareSchema(OneOfSchema):
-    type_schemas = {
-        "1": BroadcastedDeclareV1Schema,
-        "2": BroadcastedDeclareV2Schema,
-        "3": BroadcastedDeclareV3Schema,
-    }
-
-    def get_obj_type(self, obj):
-        return _extract_tx_version(obj.version)
-
-
 class BroadcastedTransactionSchema(OneOfSchema):
     type_schemas = {
-        TransactionType.INVOKE.name: InvokeTransactionSchema(),
-        TransactionType.DECLARE.name: BroadcastedDeclareSchema(),
-        TransactionType.DEPLOY_ACCOUNT.name: DeployAccountTransactionSchema(),
+        TransactionType.INVOKE.name: InvokeTransactionV3Schema(),
+        TransactionType.DECLARE.name: BroadcastedDeclareV3Schema(),
+        TransactionType.DEPLOY_ACCOUNT.name: DeployAccountTransactionV3Schema(),
     }
 
     def get_obj_type(self, obj):

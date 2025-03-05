@@ -1,5 +1,7 @@
 import pytest
 
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+
 
 @pytest.mark.asyncio
 async def test_full_node_client(client, map_contract):
@@ -12,8 +14,8 @@ async def test_full_node_client(client, map_contract):
     client = FullNodeClient(node_url=node_url)
     # docs: end
 
-    await map_contract.functions["put"].prepare_invoke_v1(key=10, value=10).invoke(
-        max_fee=int(1e20)
+    await map_contract.functions["put"].prepare_invoke_v3(key=10, value=10).invoke(
+        resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     client = full_node_client_fixture

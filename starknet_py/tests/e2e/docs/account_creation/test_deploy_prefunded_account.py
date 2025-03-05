@@ -48,7 +48,7 @@ async def test_deploy_prefunded_account(
 
     client = full_node_client_fixture
     client_url = client.url.replace("/rpc", "")
-    await mint_token_on_devnet(client_url, address, int(1e21), PriceUnit.FRI.value)
+    await mint_token_on_devnet(client_url, address, int(1e24), PriceUnit.FRI.value)
 
     # docs: start
 
@@ -60,8 +60,12 @@ async def test_deploy_prefunded_account(
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key],
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e11))
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     # Wait for deployment transaction to be accepted

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 
@@ -11,12 +11,10 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
-    CasmClass,
-    ContractStorageKeys,
+    ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
-    DeprecatedTransaction,
     EstimatedFee,
     EventsChunk,
     Hash,
@@ -42,21 +40,21 @@ from starknet_py.net.client_models import (
     TransactionTrace,
 )
 from starknet_py.net.client_utils import (
-    _clear_none_values,
     _create_broadcasted_txn,
     _is_valid_eth_address,
     _to_rpc_felt,
     _to_storage_key,
     encode_l1_message,
 )
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
-    _DeprecatedAccountTransaction,
+    DeclareV3,
+    DeployAccountV3,
+    InvokeV3,
 )
+from starknet_py.net.schemas.contracts_storage_keys import ContractsStorageKeysSchema
 from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
@@ -126,11 +124,6 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
-        # TODO(#1498): Remove temporary adjustment of block
-        res["l2_gas_price"] = {
-            "price_in_fri": "0x1",
-            "price_in_wei": "0x1",
-        }
 
         if block_identifier == {"block_id": "pending"}:
             return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
@@ -157,12 +150,6 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        # TODO (#1498): Remove temporary adjustment of block
-        res["l2_gas_price"] = {
-            "price_in_fri": "0x1",
-            "price_in_wei": "0x1",
-        }
-
         if block_identifier == {"block_id": "pending"}:
             return cast(
                 PendingStarknetBlockWithTxHashes,
@@ -186,12 +173,6 @@ class FullNodeClient(Client):
             method_name="getBlockWithReceipts",
             params=block_identifier,
         )
-
-        # TODO (#1498): Remove temporary adjustment of block
-        res["l2_gas_price"] = {
-            "price_in_fri": "0x1",
-            "price_in_wei": "0x1",
-        }
 
         if block_identifier == {"block_id": "pending"}:
             return cast(
@@ -355,18 +336,41 @@ class FullNodeClient(Client):
 
     async def get_storage_proof(
         self,
-        block_id: Union[int, Hash, Tag],
+        block_id: Union[int, Hash, Tag, dict],
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
-        contract_storage_keys: Optional[List[ContractStorageKeys]] = None,
+        contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
     ) -> StorageProofResponse:
+        class_hashes_serialized = (
+            [_to_rpc_felt(class_hash) for class_hash in class_hashes]
+            if class_hashes
+            else []
+        )
+        contract_addresses_serialized = (
+            [_to_rpc_felt(contract_address) for contract_address in contract_addresses]
+            if contract_addresses
+            else []
+        )
+        contracts_storage_keys_serialized = (
+            (
+                [
+                    cast(
+                        Dict,
+                        ContractsStorageKeysSchema().dump(obj=key),
+                    )
+                    for key in contracts_storage_keys
+                ]
+            )
+            if contracts_storage_keys
+            else []
+        )
+
         params = {
             "block_id": block_id,
-            "class_hashes": class_hashes,
-            "contract_addresses": contract_addresses,
-            "contract_storage_keys": contract_storage_keys,
+            "class_hashes": class_hashes_serialized,
+            "contract_addresses": contract_addresses_serialized,
+            "contracts_storage_keys": contracts_storage_keys_serialized,
         }
-        params = _clear_none_values(params)
 
         res = await self._client.call(
             method_name="getStorageProof",
@@ -385,13 +389,6 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
-
-        resource_bounds = {
-            "l1_gas": {"max_amount": "0x186a0", "max_price_per_unit": "0xe8d4a51000"},
-            "l2_gas": {"max_amount": "0x0", "max_price_per_unit": "0x0"},
-            "l1_data_gas": {"max_amount": "0x0", "max_price_per_unit": "0x0"},
-        }
-        _update_recursively("resource_bounds", resource_bounds, res)
 
         return cast(Transaction, TypesOfTransactionsSchema().load(res))
 
@@ -415,10 +412,6 @@ class FullNodeClient(Client):
             params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
 
-        # TODO(#1498): Remove temporary adjustment of transaction receipt
-        # ATM starknet-devnet-rs hasn't fully updated their API to RPC 0.8.0
-        res["execution_resources"] = {"l1_gas": 1, "l2_gas": 1}
-
         return cast(TransactionReceipt, TransactionReceiptSchema().load(res))
 
     async def estimate_fee(
@@ -428,32 +421,30 @@ class FullNodeClient(Client):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[EstimatedFee, List[EstimatedFee]]:
-        # block_identifier = get_block_identifier(
-        #     block_hash=block_hash, block_number=block_number
-        # )
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number
+        )
 
         if single_transaction := isinstance(tx, AccountTransaction):
             tx = [tx]
 
-        # res = await self._client.call(
-        #     method_name="estimateFee",
-        #     params={
-        #         "request": [_create_broadcasted_txn(transaction=t) for t in tx],
-        #         "simulation_flags": (
-        #             [SimulationFlag.SKIP_VALIDATE] if skip_validate else []
-        #         ),
-        #         **block_identifier,
-        #     },
-        # )
+        res = await self._client.call(
+            method_name="estimateFee",
+            params={
+                "request": [_create_broadcasted_txn(transaction=t) for t in tx],
+                "simulation_flags": (
+                    [SimulationFlag.SKIP_VALIDATE] if skip_validate else []
+                ),
+                **block_identifier,
+            },
+        )
 
-        # TODO(#1498): Remove the following line and uncomment above ones
-        # ATM starknet-devnet-rs hasn't fully updated their API to RPC 0.8.0
-        # so we create mocked response
-        mocked_res = _generate_mocked_fee_estimates(tx, single_transaction)
+        if single_transaction:
+            res = res[0]
 
         return cast(
             EstimatedFee,
-            EstimatedFeeSchema().load(mocked_res, many=not single_transaction),
+            EstimatedFeeSchema().load(res, many=not single_transaction),
         )
 
     async def estimate_message_fee(
@@ -559,7 +550,7 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res]
 
-    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: InvokeV3) -> SentTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -570,7 +561,7 @@ class FullNodeClient(Client):
         return cast(SentTransactionResponse, SentTransactionSchema().load(res))
 
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: DeployAccountV3
     ) -> DeployAccountTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
@@ -584,7 +575,7 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res),
         )
 
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(self, transaction: DeclareV3) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -746,7 +737,7 @@ class FullNodeClient(Client):
     async def get_compiled_casm(self, class_hash: int) -> CasmClass:
         res = await self._client.call(
             method_name="getCompiledCasm",
-            params={"class_hash": class_hash},
+            params={"class_hash": _to_rpc_felt(class_hash)},
         )
         return cast(CasmClass, CasmClassSchema().load(res))
 
@@ -840,23 +831,6 @@ class FullNodeClient(Client):
             },
         )
 
-        # TODO(#1498): Remove below temporary adjustment after starknet-devnet-rs is updated to RPC 0.8.0
-        _update_recursively("execution_resources", {"l1_gas": 1, "l2_gas": 1}, res)
-        _update_recursively(
-            "fee_estimation",
-            {
-                "l1_gas_consumed": 0x186A0,
-                "l1_data_gas_consumed": 0x1,
-                "l1_gas_price": 0x174876E800,
-                "l1_data_gas_price": 0x174876E800,
-                "l2_gas_consumed": 0x0,
-                "l2_gas_price": 0x0,
-                "overall_fee": 10000100000000000,
-                "unit": "FRI",
-            },
-            res,
-        )
-
         return cast(
             List[SimulatedTransaction],
             SimulatedTransactionSchema().load(res, many=True),
@@ -916,53 +890,3 @@ def _get_raw_block_identifier(
         return {"block_number": block_number}
 
     return "pending"
-
-
-# TODO(#1498): Remove the following functions after starknet-devnet-rs is updated to RPC 0.8.0
-def _update_recursively(searched_key: str, new_value: Any, data: Union[dict, list]):
-    """
-    Recursively traverse through the data structure and update the value of 'execution_resources' key.
-    """
-    if isinstance(data, dict):
-        if searched_key in data:
-            data[searched_key] = new_value
-        for value in data.values():
-            _update_recursively(searched_key, new_value, value)
-    elif isinstance(data, list):
-        for item in data:
-            _update_recursively(searched_key, new_value, item)
-
-
-def _unit_from_tx(tx: AccountTransaction) -> str:
-    return (
-        "WEI"
-        if isinstance(tx, (DeprecatedTransaction, _DeprecatedAccountTransaction))
-        else "FRI"
-    )
-
-
-def _generate_mocked_fee_estimates(
-    tx: List[AccountTransaction],
-    single_transaction: bool = False,
-) -> Union[dict, List[dict]]:
-    base_mocked_res = {
-        "l1_gas_consumed": "0x186A0",
-        "l1_data_gas_consumed": "0x1",
-        "l1_gas_price": "0x174876E800",
-        "l1_data_gas_price": "0x174876E800",
-        "l2_gas_consumed": "0x0",
-        "l2_gas_price": "0x0",
-        "overall_fee": "0x238709b837e800",
-    }
-
-    if len(tx) == 1:
-        base_mocked_res["unit"] = _unit_from_tx(tx[0])
-        if single_transaction:
-            return base_mocked_res
-        return [base_mocked_res]
-
-    mocked_res = [base_mocked_res] * len(tx)
-    for mocked_tx, single_tx in zip(mocked_res, tx):
-        mocked_tx["unit"] = _unit_from_tx(single_tx)
-
-    return mocked_res

@@ -19,8 +19,12 @@ async def test_executing_transactions(account, map_contract):
 
     resp = await account.execute_v3(
         calls=call,
-        resource_bounds=ResourceBoundsMapping.init_with_l1_gas_only(
-            ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13))
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
 
