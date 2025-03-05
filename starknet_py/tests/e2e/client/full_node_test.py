@@ -19,6 +19,8 @@ from starknet_py.net.client_models import (
     DeclareTransactionV3,
     DeployAccountTransactionTrace,
     InvokeTransactionTrace,
+    ResourceBounds,
+    ResourceBoundsMapping,
     SierraContractClass,
     SimulatedTransaction,
     SyncStatus,
@@ -147,8 +149,7 @@ async def test_get_storage_at_incorrect_address_full_node_client(client):
 )
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME: Fix this test
+@pytest.mark.skip("TODO(#1558)")
 async def test_get_events_without_following_continuation_token(
     client,
     simple_storage_with_event_contract: Contract,
@@ -213,8 +214,7 @@ async def test_get_events_follow_continuation_token(
 )
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-# FIXME: Fix this test
-@pytest.mark.skip
+@pytest.mark.skip("TODO(#1558)")
 async def test_get_events_nonexistent_event_name(
     client,
     simple_storage_with_event_contract: Contract,
@@ -502,8 +502,7 @@ async def test_simulate_transactions_skip_fee_charge(
 
 
 @pytest.mark.asyncio
-# FIXME: Remove this test
-@pytest.mark.skip
+@pytest.mark.skip("TODO(#1558)")
 async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
@@ -540,8 +539,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME: Fix this test
+@pytest.mark.skip("TODO(#1558)")
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
@@ -549,6 +547,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
+    # TODO(#1558): Use auto estimation
     invoke_tx = await account.sign_invoke_v3(
         calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
@@ -585,8 +584,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME: Fix this test
+@pytest.mark.skip("TODO(#1560)")
 async def test_simulate_transactions_deploy_account(
     client, deploy_account_details_factory
 ):
