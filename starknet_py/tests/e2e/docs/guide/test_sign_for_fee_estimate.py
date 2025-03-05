@@ -4,8 +4,7 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
-# FIXME
+@pytest.mark.skip("TODO(#1560)")
 async def test_signing_fee_estimate(account, map_contract):
     # docs: start
     # Create a transaction

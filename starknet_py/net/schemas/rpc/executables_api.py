@@ -1013,7 +1013,6 @@ HINT_TYPE_SCHEMAS_MAPPING = {
 
 class HintSchema(Schema):
     def load(self, data, *args, **kwargs) -> Hint:
-        print(data)
         if not isinstance(data, dict) or len(data) != 1:
             raise ValidationError("Hint must be a dict with a single key.")
 
