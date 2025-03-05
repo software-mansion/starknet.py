@@ -46,6 +46,7 @@ from starknet_py.net.client_utils import (
     _to_storage_key,
     encode_l1_message,
 )
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
@@ -66,6 +67,7 @@ from starknet_py.net.schemas.rpc.block import (
     StarknetBlockWithTxHashesSchema,
 )
 from starknet_py.net.schemas.rpc.contract import (
+    CasmClassSchema,
     DeprecatedContractClassSchema,
     SierraContractClassSchema,
     SyncStatusSchema,
@@ -731,6 +733,13 @@ class FullNodeClient(Client):
         )
         res = cast(str, res)
         return int(res, 16)
+
+    async def get_compiled_casm(self, class_hash: int) -> CasmClass:
+        res = await self._client.call(
+            method_name="getCompiledCasm",
+            params={"class_hash": _to_rpc_felt(class_hash)},
+        )
+        return cast(CasmClass, CasmClassSchema().load(res))
 
     async def spec_version(self) -> str:
         """

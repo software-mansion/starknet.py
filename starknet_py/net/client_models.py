@@ -12,7 +12,7 @@ import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Literal, Optional, Union, cast
+from typing import Dict, Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -936,21 +936,6 @@ class CasmClassEntryPointsByType:
     constructor: List[CasmClassEntryPoint]
     external: List[CasmClassEntryPoint]
     l1_handler: List[CasmClassEntryPoint]
-
-
-@dataclass
-class CasmClass:
-    """
-    Dataclass representing class compiled to Cairo assembly.
-    """
-
-    prime: int
-    bytecode: List[int]
-    hints: List[Any]
-    pythonic_hints: List[Any]
-    compiler_version: str
-    entry_points_by_type: CasmClassEntryPointsByType
-    bytecode_segment_lengths: Optional[List[int]]
 
 
 @dataclass

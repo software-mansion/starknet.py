@@ -1,10 +1,11 @@
 import json
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_load
+from marshmallow import EXCLUDE
+from marshmallow import Schema as MarshmallowSchema
+from marshmallow import SchemaOpts, ValidationError, fields, post_load
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
-    CasmClass,
     CasmClassEntryPoint,
     CasmClassEntryPointsByType,
     DeployedContract,
@@ -18,8 +19,10 @@ from starknet_py.net.client_models import (
     SierraEntryPointsByType,
     SyncStatus,
 )
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.schemas.common import Felt, NumberAsHex
-from starknet_py.utils.schema import Schema
+from starknet_py.net.schemas.rpc.executables_api import HintSchema
+from starknet_py.utils.schema import ExcludeOpts, Schema
 
 
 class SyncStatusSchema(Schema):
@@ -150,7 +153,7 @@ class DeprecatedCompiledContractSchema(ContractClassSchema):
 
 class CasmClassEntryPointSchema(Schema):
     selector = Felt(data_key="selector", required=True)
-    offset = fields.Integer(data_key="offset", required=True)
+    offset = NumberAsHex(data_key="offset", required=True)
     builtins = fields.List(fields.String(), data_key="builtins")
 
     @post_load
@@ -180,14 +183,22 @@ class CasmClassEntryPointsByTypeSchema(Schema):
         return CasmClassEntryPointsByType(**data)
 
 
-class CasmClassSchema(Schema):
-    prime = Felt(data_key="prime", required=True)
+# TODO(#1564): `CasmClassSchema` should inherit from `Schema` and shouldn't overwrite `OPTION_CLASS`
+#  once issue is resolved.
+class CasmClassSchema(MarshmallowSchema):
+    OPTIONS_CLASS = ExcludeOpts
+    prime = NumberAsHex(data_key="prime", required=True)
     bytecode = fields.List(Felt(), data_key="bytecode", required=True)
     bytecode_segment_lengths = fields.List(
-        Felt(), data_key="bytecode_segment_lengths", load_default=None
+        fields.Integer(), data_key="bytecode_segment_lengths", load_default=None
     )
-    hints = fields.List(fields.Raw(), data_key="hints", required=True)
-    pythonic_hints = fields.List(fields.Raw(), data_key="pythonic_hints", required=True)
+    hints = fields.List(
+        fields.Tuple(
+            (fields.Integer(), fields.List(fields.Nested(HintSchema()))),
+        ),
+        data_key="hints",
+        required=True,
+    )
     compiler_version = fields.String(data_key="compiler_version", required=True)
     entry_points_by_type = fields.Nested(
         CasmClassEntryPointsByTypeSchema(),

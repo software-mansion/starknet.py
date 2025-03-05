@@ -29,6 +29,13 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
+from starknet_py.net.executable_models import (
+    CasmClass,
+    Deref,
+    Immediate,
+    TestLessThan,
+    TestLessThanOrEqual,
+)
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
@@ -530,4 +537,38 @@ async def test_get_storage_proof(client_sepolia_testnet):
     )
     assert storage_proof.global_roots.contracts_tree_root == int(
         "0x2ae204c3378558b33c132f4721612285d9988cc8dc99f47fce92adc6b38a189", 16
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_compiled_casm(client_sepolia_testnet):
+    compiled_casm = await client_sepolia_testnet.get_compiled_casm(
+        class_hash=int(STRK_CLASS_HASH, 16)
+    )
+
+    assert isinstance(compiled_casm, CasmClass)
+    assert len(compiled_casm.bytecode) == 20477
+    assert len(compiled_casm.hints) == 931
+
+    first_hint = compiled_casm.hints[0][1][0]
+    assert isinstance(first_hint, TestLessThanOrEqual)
+    assert first_hint.test_less_than_or_equal.dst.offset == 0
+    assert first_hint.test_less_than_or_equal.dst.register == "AP"
+    assert isinstance(first_hint.test_less_than_or_equal.lhs, Immediate)
+    assert first_hint.test_less_than_or_equal.lhs.immediate == 0
+    assert isinstance(first_hint.test_less_than_or_equal.rhs, Deref)
+    assert first_hint.test_less_than_or_equal.rhs.deref.offset == -6
+    assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
+
+    second_hint = compiled_casm.hints[1][1][0]
+    assert isinstance(second_hint, TestLessThan)
+    assert second_hint.test_less_than.dst.offset == 4
+    assert second_hint.test_less_than.dst.register == "AP"
+    assert isinstance(second_hint.test_less_than.lhs, Deref)
+    assert second_hint.test_less_than.lhs.deref.offset == -1
+    assert second_hint.test_less_than.lhs.deref.register == "AP"
+    assert isinstance(second_hint.test_less_than.rhs, Immediate)
+    assert (
+        second_hint.test_less_than.rhs.immediate
+        == 0x800000000000000000000000000000000000000000000000000000000000000
     )
