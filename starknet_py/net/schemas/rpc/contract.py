@@ -22,7 +22,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.schemas.common import Felt, NumberAsHex
 from starknet_py.net.schemas.rpc.executables_api import HintSchema
-from starknet_py.utils.schema import Schema
+from starknet_py.utils.schema import ExcludeOpts, Schema
 
 
 class SyncStatusSchema(Schema):
@@ -183,14 +183,8 @@ class CasmClassEntryPointsByTypeSchema(Schema):
         return CasmClassEntryPointsByType(**data)
 
 
-# TODO(#1564): CasmClassSchema should inherit from Schema once issue is resolved.
-class ExcludeOpts(SchemaOpts):
-
-    def __init__(self, meta, **kwargs):
-        SchemaOpts.__init__(self, meta, **kwargs)
-        self.unknown = EXCLUDE
-
-
+# TODO(#1564): `CasmClassSchema` should inherit from `Schema` and shouldn't overwrite `OPTION_CLASS`
+#  once issue is resolved.
 class CasmClassSchema(MarshmallowSchema):
     OPTIONS_CLASS = ExcludeOpts
     prime = NumberAsHex(data_key="prime", required=True)
