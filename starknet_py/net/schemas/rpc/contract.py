@@ -1,6 +1,8 @@
 import json
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
+from marshmallow import EXCLUDE
+from marshmallow import Schema as MarshmallowSchema
+from marshmallow import SchemaOpts, ValidationError, fields, post_load
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
@@ -181,7 +183,16 @@ class CasmClassEntryPointsByTypeSchema(Schema):
         return CasmClassEntryPointsByType(**data)
 
 
-class CasmClassSchema(Schema):
+# TODO(#1564): CasmClassSchema should inherit from Schema once issue is resolved.
+class ExcludeOpts(SchemaOpts):
+
+    def __init__(self, meta, **kwargs):
+        SchemaOpts.__init__(self, meta, **kwargs)
+        self.unknown = EXCLUDE
+
+
+class CasmClassSchema(MarshmallowSchema):
+    OPTIONS_CLASS = ExcludeOpts
     prime = NumberAsHex(data_key="prime", required=True)
     bytecode = fields.List(Felt(), data_key="bytecode", required=True)
     bytecode_segment_lengths = fields.List(
