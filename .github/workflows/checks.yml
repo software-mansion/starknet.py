@@ -3,7 +3,8 @@ name: Checks
 env:
   CAIRO_LANG_VERSION: "0.13.1"
   DEVNET_VERSION: "0.1.2"
-  DEVNET_SHA: 7e7dbb5
+# TODO(#1498): Change `DEVNET_SHA` once devnet is updated
+  DEVNET_SHA: d9ab44a8589ca4b8c3bab0367cc1d5be0c301550
   LEDGER_APP_SHA: db93a5e33d00bd44752fdc8c07aefcffa08d91c3
   LEDGER_APP_DEV_TOOLS_SHA: a037d42181f4bed9694246256e2c9e2a899e775c302a9c6482c81f87c28e1432
 
@@ -178,7 +179,11 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        TODO(#1498): We should use `install_devnet.sh` once devnet is updated
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
@@ -228,6 +233,14 @@ jobs:
       - name: Check circular imports
         run: |
           poetry run poe circular_imports_check
+
+      - uses: asdf-vm/actions/setup@v3
+
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
 
       - name: Run tests
         run: |
@@ -289,7 +302,11 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        TODO(#1498): We should use `install_devnet.sh` once devnet is updated
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
@@ -297,8 +314,13 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
+      - uses: asdf-vm/actions/setup@v3
+
+#     TODO(#1498): Remove contracts compilation in the step below once issue with compilation is resolved
       - name: Run tests
         run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
@@ -436,9 +458,21 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        TODO(#1498): We should use `install_devnet.sh` once devnet is updated
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
+
+      - uses: asdf-vm/actions/setup@v3
+
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
 
       - name: Run tests
         run: |

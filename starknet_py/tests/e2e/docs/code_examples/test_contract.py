@@ -4,10 +4,15 @@ import pytest
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
-from starknet_py.net.client_models import InvokeTransactionV3, ResourceBounds
+from starknet_py.net.client_models import (
+    InvokeTransactionV3,
+    ResourceBounds,
+    ResourceBoundsMapping,
+)
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.models import DeclareV2, DeclareV3, StarknetChainId
+from starknet_py.net.models import DeclareV3, StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
@@ -54,39 +59,20 @@ async def test_from_address(account, contract_address):
 
 
 @pytest.mark.asyncio
-async def test_declare_v2(account):
-    compiled_contract = load_contract(
-        contract_name="TestContract", version=ContractVersion.V1
-    )
-    # docs-start: declare_v2
-    # here `compiled_contract` is a dict containing sierra and casm artifacts
-    declare_result = await Contract.declare_v2(
-        account,
-        compiled_contract=compiled_contract["sierra"],
-        compiled_contract_casm=compiled_contract["casm"],
-        max_fee=int(1e18),
-    )
-    # docs-end: declare_v2
-    await declare_result.wait_for_acceptance()
-
-    assert isinstance(declare_result.declare_transaction, DeclareV2)
-    assert isinstance(declare_result.hash, int)
-    assert isinstance(declare_result.class_hash, int)
-    assert declare_result.compiled_contract == compiled_contract["sierra"]
-
-
-@pytest.mark.asyncio
 async def test_declare_v3(account):
     contract = load_contract(contract_name="TestContract", version=ContractVersion.V2)
     # docs-start: declare_v3
     # here `contract` is a dict containing sierra and casm artifacts
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e9), max_price_per_unit=int(1e17)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    )
     declare_result = await Contract.declare_v3(
         account,
         compiled_contract=contract["sierra"],
         compiled_contract_casm=contract["casm"],
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=resource_bounds,
     )
     # docs-end: declare_v3
     await declare_result.wait_for_acceptance()
@@ -95,40 +81,6 @@ async def test_declare_v3(account):
     assert isinstance(declare_result.hash, int)
     assert isinstance(declare_result.class_hash, int)
     assert declare_result.compiled_contract == contract["sierra"]
-
-
-@pytest.mark.asyncio
-async def test_deploy_contract_v1(account, class_hash):
-    # docs-start: deploy_contract_v1
-    deploy_result = await Contract.deploy_contract_v1(
-        account=account,
-        class_hash=class_hash,
-        abi=[
-            {
-                "inputs": [{"name": "amount", "type": "felt"}],
-                "name": "increase_balance",
-                "outputs": [],
-                "type": "function",
-            }
-        ],
-        max_fee=int(1e15),
-    )
-    # or when contract has a constructor with arguments
-    deploy_result = await Contract.deploy_contract_v1(
-        account=account,
-        class_hash=class_hash,
-        abi=[
-            {
-                "inputs": [{"name": "value", "type": "felt"}],
-                "name": "constructor",
-                "outputs": [],
-                "type": "constructor",
-            },
-        ],
-        constructor_args={"value": 1},
-        max_fee=int(1e15),
-    )
-    # docs-end: deploy_contract_v1
 
 
 @pytest.mark.asyncio
@@ -141,13 +93,16 @@ async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
     # docs-end: deploy_contract_v3
     class_hash = hello_starknet_class_hash
     # docs-start: deploy_contract_v3
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    )
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=class_hash,
         account=account,
         abi=abi,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=resource_bounds,
     )
     # docs-end: deploy_contract_v3
     await deploy_result.wait_for_acceptance()
@@ -170,9 +125,7 @@ async def test_deploy_contract_v3_without_abi(account, hello_starknet_class_hash
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=hello_starknet_class_hash,
         account=account,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 

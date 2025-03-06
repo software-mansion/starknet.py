@@ -17,6 +17,7 @@ from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
     DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
+    MAX_RESOURCE_BOUNDS,
 )
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
@@ -158,14 +159,14 @@ async def argent_account(
         class_hash=argent_account_class_hash,
         argent_calldata=True,
     )
-    deploy_result = await Account.deploy_account_v1(
+    deploy_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
     return deploy_result.account

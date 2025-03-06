@@ -100,9 +100,11 @@ Example usage:
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.client_models import ResourceBounds
-l1_resource_bounds = ResourceBounds(
-    max_amount=int(1e5), max_price_per_unit=int(1e13)
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
+resource_bounds = ResourceBoundsMapping(
+    l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
 )
 # Declare and deploy an example contract which implements a simple k-v store.
 # Contract.declare_v3 takes string containing a compiled contract (sierra) and
@@ -111,12 +113,12 @@ declare_result = await Contract.declare_v3(
     account,
     compiled_contract=compiled_contract,
     compiled_class_hash=class_hash,
-    l1_resource_bounds=l1_resource_bounds,
+    resource_bounds=resource_bounds,
 )
 
 await declare_result.wait_for_acceptance()
 deploy_result = await declare_result.deploy_v3(
-    l1_resource_bounds=l1_resource_bounds,
+    resource_bounds=resource_bounds,
 )
 # Wait until deployment transaction is accepted
 await deploy_result.wait_for_acceptance()
@@ -130,9 +132,7 @@ await (
     await map_contract.functions["put"].invoke_v3(
         k,
         v,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=resource_bounds,
     )
 ).wait_for_acceptance()
 
@@ -150,7 +150,7 @@ calls = [
 # Executes only one transaction with prepared calls
 transaction_response = await account.execute_v3(
     calls=calls,
-    l1_resource_bounds=l1_resource_bounds,
+    resource_bounds=resource_bounds,
 )
 await account.client.wait_for_tx(transaction_response.transaction_hash)
 ```
@@ -159,7 +159,7 @@ await account.client.wait_for_tx(transaction_response.transaction_hash)
 [Contract](https://starknetpy.readthedocs.io/en/latest/api/contract.html#starknet_py.contract.Contract) makes interacting with contracts deployed on Starknet much easier:
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.client_models import ResourceBounds
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 contract_address = (
     "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -179,12 +179,15 @@ contract = Contract(
 
 # All exposed functions are available at contract.functions.
 # Here we invoke a function, creating a new transaction.
+resource_bounds = ResourceBoundsMapping(
+    l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+)
 invocation = await contract.functions["put"].invoke_v3(
         key,
         7,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=resource_bounds,
 )
 # Invocation returns InvokeResult object. It exposes a helper for waiting until transaction is accepted.
 await invocation.wait_for_acceptance()
@@ -200,7 +203,7 @@ Although asynchronous API is recommended, you can also use Contract’s synchron
 
 ```python
 from starknet_py.contract import Contract
-from starknet_py.net.client_models import ResourceBounds
+from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 contract_address = (
     "0x01336fa7c870a7403aced14dda865b75f29113230ed84e3a661f7af70fe83e7b"
@@ -209,11 +212,12 @@ contract_address = (
 key = 1234
 contract = Contract.from_address_sync(address=contract_address, provider=account)
 
-l1_resource_bounds = ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
-
-invocation = contract.functions["put"].invoke_v3_sync(key, 7, l1_resource_bounds=l1_resource_bounds)
+resource_bounds = ResourceBoundsMapping(
+    l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+)
+invocation = contract.functions["put"].invoke_v3_sync(key, 7, resource_bounds=resource_bounds)
 invocation.wait_for_acceptance_sync()
 
 (saved,) = contract.functions["get"].call_sync(key)  # 7

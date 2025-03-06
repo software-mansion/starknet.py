@@ -1,5 +1,6 @@
 import dataclasses
-import sys
+import numbers
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -9,6 +10,7 @@ from starknet_py.net.client_models import (
     BlockHeader,
     BlockStatus,
     Call,
+    ContractsStorageKeys,
     DAMode,
     DeclareTransactionV3,
     DeployAccountTransactionV3,
@@ -18,6 +20,7 @@ from starknet_py.net.client_models import (
     InvokeTransactionV3,
     PendingBlockHeader,
     PendingStarknetBlockWithReceipts,
+    ResourceBounds,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
     Transaction,
@@ -26,9 +29,22 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
+from starknet_py.net.executable_models import (
+    CasmClass,
+    Deref,
+    Immediate,
+    TestLessThan,
+    TestLessThanOrEqual,
+)
+from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
-from starknet_py.tests.e2e.fixtures.constants import EMPTY_CONTRACT_ADDRESS_SEPOLIA
+from starknet_py.tests.e2e.fixtures.constants import (
+    EMPTY_CONTRACT_ADDRESS_SEPOLIA,
+    MAX_RESOURCE_BOUNDS_SEPOLIA,
+    STRK_CLASS_HASH,
+    STRK_FEE_CONTRACT_ADDRESS,
+)
 from starknet_py.transaction_errors import TransactionRevertedError
 
 
@@ -63,7 +79,9 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
+    )
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
@@ -78,13 +96,31 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
+    )
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
 
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
     assert result.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
+
+
+@pytest.mark.asyncio
+async def test_sign_invoke_v3_auto_estimate(account_sepolia_testnet):
+    account = account_sepolia_testnet
+    call = Call(
+        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        selector=get_selector_from_name("empty"),
+        calldata=[],
+    )
+    sign_invoke = await account.sign_invoke_v3(calls=call, auto_estimate=True)
+    invoke = await account.client.send_transaction(sign_invoke)
+
+    result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
+
+    assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
 
 
 @pytest.mark.asyncio
@@ -95,12 +131,19 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l2_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+    )
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=resource_bounds
+    )
 
     with pytest.raises(
         ClientError,
         match=r"Client failed with code 55. "
-        r"Message: Account validation failed. Data: Max fee \(\d+\) is too low. Minimum fee: \d+.",
+        r"Message: Account validation failed. Data: Max L1Gas price \(\d+\) is lower than the actual gas price: \d+.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -113,12 +156,19 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=sys.maxsize)
+    resource_bounds = ResourceBoundsMapping(
+        l1_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
+        l2_gas=ResourceBounds(max_amount=int(1e14), max_price_per_unit=int(1e25)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e15)),
+    )
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=resource_bounds
+    )
 
     with pytest.raises(
         ClientError,
         match=r"Client failed with code 55. "
-        r"Message: Account validation failed. Data: Max fee \(\d+\) exceeds balance \(\d+\).",
+        r"Message: Account validation failed\. Data: Resources bounds \(\{.*\}\) exceed balance \(\d+\)\.",
     ):
         await account.client.send_transaction(sign_invoke)
 
@@ -131,7 +181,9 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16), nonce=0)
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA, nonce=0
+    )
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
         await account.client.send_transaction(sign_invoke)
@@ -145,7 +197,9 @@ async def test_transaction_not_received_invalid_signature(account_sepolia_testne
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
+    )
     sign_invoke = dataclasses.replace(sign_invoke, signature=[0x21, 0x37])
     with pytest.raises(
         ClientError,
@@ -177,11 +231,11 @@ async def test_estimate_message_fee(client_sepolia_testnet):
     )
 
     assert isinstance(estimated_message, EstimatedFee)
-    assert estimated_message.overall_fee > 0
-    assert estimated_message.gas_price > 0
-    assert estimated_message.gas_consumed > 0
-    assert estimated_message.data_gas_price > 0
-    assert estimated_message.data_gas_consumed >= 0
+    assert all(
+        getattr(estimated_message, field.name) >= 0
+        for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_message, field.name), numbers.Number)
+    )
     assert estimated_message.unit is not None
 
 
@@ -314,6 +368,30 @@ async def test_get_transaction_status(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
+async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet):
+    # TODO(#1498): Potentially change tx for one that has a known failure reason
+    # Originally, tx with hash 0x048d0e94d643f54f517271bd54936aa958d787c1b5d9d0a013ece6868ba9c8b7
+    # has an unknown failure reason, therefore we need to mock it.
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_tx_status_call_rpc:
+        return_value = {
+            "execution_status": "REVERTED",
+            "finality_status": "ACCEPTED_ON_L2",
+            "failure_reason": "Some failure reason",
+        }
+        mocked_tx_status_call_rpc.return_value = return_value
+
+        tx_status = await client_sepolia_testnet.get_transaction_status(
+            tx_hash=0x048D0E94D643F54F517271BD54936AA958D787C1B5D9D0A013ECE6868BA9C8B7
+        )
+
+        assert tx_status.finality_status == TransactionStatus.ACCEPTED_ON_L2
+        assert tx_status.execution_status == TransactionExecutionStatus.REVERTED
+        assert tx_status.failure_reason == "Some failure reason"
+
+
+@pytest.mark.asyncio
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
     block = await client_sepolia_testnet.get_block_with_txs(block_number=155)
@@ -430,4 +508,67 @@ async def test_get_pending_block_with_receipts(client_sepolia_testnet):
     assert all(
         getattr(block_with_receipts, field.name) is not None
         for field in dataclasses.fields(PendingBlockHeader)
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_storage_proof(client_sepolia_testnet):
+    storage_proof = await client_sepolia_testnet.get_storage_proof(
+        block_id={"block_number": 556669},
+        contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
+        contracts_storage_keys=[
+            ContractsStorageKeys(
+                contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
+                storage_keys=[int("0x45524332305f62616c616e636573", 16)],
+            )
+        ],
+        class_hashes=[int(STRK_CLASS_HASH, 16)],
+    )
+
+    assert len(storage_proof.classes_proof) == 17
+    assert len(storage_proof.contracts_proof.nodes) == 20
+    assert len(storage_proof.contracts_storage_proofs[0]) == 16
+
+    assert storage_proof.global_roots.block_hash == int(
+        "0x404446e37fc08c0bf4979821e50bdac7919b56d19d2df9e16f0aa7a0d506e50", 16
+    )
+    assert storage_proof.global_roots.classes_tree_root == int(
+        "0x43568bf995aacf4b56615e97b7237c1b03d199344ad66d38f38fda250ef1586", 16
+    )
+    assert storage_proof.global_roots.contracts_tree_root == int(
+        "0x2ae204c3378558b33c132f4721612285d9988cc8dc99f47fce92adc6b38a189", 16
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_compiled_casm(client_sepolia_testnet):
+    compiled_casm = await client_sepolia_testnet.get_compiled_casm(
+        class_hash=int(STRK_CLASS_HASH, 16)
+    )
+
+    assert isinstance(compiled_casm, CasmClass)
+    assert len(compiled_casm.bytecode) == 20477
+    assert len(compiled_casm.hints) == 931
+
+    first_hint = compiled_casm.hints[0][1][0]
+    assert isinstance(first_hint, TestLessThanOrEqual)
+    assert first_hint.test_less_than_or_equal.dst.offset == 0
+    assert first_hint.test_less_than_or_equal.dst.register == "AP"
+    assert isinstance(first_hint.test_less_than_or_equal.lhs, Immediate)
+    assert first_hint.test_less_than_or_equal.lhs.immediate == 0
+    assert isinstance(first_hint.test_less_than_or_equal.rhs, Deref)
+    assert first_hint.test_less_than_or_equal.rhs.deref.offset == -6
+    assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
+
+    second_hint = compiled_casm.hints[1][1][0]
+    assert isinstance(second_hint, TestLessThan)
+    assert second_hint.test_less_than.dst.offset == 4
+    assert second_hint.test_less_than.dst.register == "AP"
+    assert isinstance(second_hint.test_less_than.lhs, Deref)
+    assert second_hint.test_less_than.lhs.deref.offset == -1
+    assert second_hint.test_less_than.lhs.deref.register == "AP"
+    assert isinstance(second_hint.test_less_than.rhs, Immediate)
+    assert (
+        second_hint.test_less_than.rhs.immediate
+        == 0x800000000000000000000000000000000000000000000000000000000000000
     )

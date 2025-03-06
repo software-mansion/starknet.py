@@ -8,7 +8,7 @@ from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.contract import Contract, DeclareResult
 from starknet_py.net.client_models import InvokeTransactionV3
 from starknet_py.net.models import DeclareV3
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
@@ -29,9 +29,7 @@ async def test_declare_deploy_v3(
         declare_transaction=Mock(spec=DeclareV3),
     )
 
-    deploy_result = await declare_result.deploy_v3(
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
-    )
+    deploy_result = await declare_result.deploy_v3(resource_bounds=MAX_RESOURCE_BOUNDS)
     await deploy_result.wait_for_acceptance()
 
     assert isinstance(deploy_result.hash, int)
@@ -65,7 +63,7 @@ async def test_throws_on_wrong_abi(account, minimal_contract_class_hash: int):
             "Make sure provided compiled_contract is correct."
         ),
     ):
-        await declare_result.deploy_v3(l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1)
+        await declare_result.deploy_v3(resource_bounds=MAX_RESOURCE_BOUNDS)
 
 
 @pytest.mark.asyncio
@@ -79,7 +77,7 @@ async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
         class_hash=hello_starknet_class_hash,
         account=account,
         abi=abi,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 

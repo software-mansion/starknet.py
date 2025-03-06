@@ -2,6 +2,8 @@ import sys
 
 import pytest
 
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+
 # docs-abi: start
 abi = [
     {
@@ -34,7 +36,7 @@ async def test_using_existing_contracts(account, erc20_contract):
     # pylint: disable=import-outside-toplevel,too-many-locals,unused-variable
     # docs: start
     from starknet_py.contract import Contract
-    from starknet_py.net.client_models import ResourceBounds
+    from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
     address = "0x00178130dd6286a9a0e031e4c73b2bd04ffa92804264a25c1c08c1612559f458"
 
@@ -54,9 +56,7 @@ async def test_using_existing_contracts(account, erc20_contract):
     invocation = await contract.functions["increase_allowance"].invoke_v3(
         sender,
         200,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await invocation.wait_for_acceptance()
     # docs: start
@@ -66,8 +66,12 @@ async def test_using_existing_contracts(account, erc20_contract):
         sender,
         recipient,
         50,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     # docs: end
@@ -79,8 +83,12 @@ async def test_using_existing_contracts(account, erc20_contract):
         sender=sender,
         recipient=recipient,
         amount=50,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     # docs: end
@@ -92,8 +100,12 @@ async def test_using_existing_contracts(account, erc20_contract):
         sender,
         recipient,
         amount=50,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     # docs: end
@@ -106,8 +118,12 @@ async def test_using_existing_contracts(account, erc20_contract):
         sender,
         recipient,
         amount=50,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
         ),
     )
     invocation = await transfer.invoke()

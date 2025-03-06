@@ -2,6 +2,36 @@ Migration guide
 ===============
 
 ******************************
+[Unreleased] Migration guide
+******************************
+
+Version [Unreleased] of **starknet.py** comes with support for RPC 0.8.0!
+
+[Unreleased] Targeted versions
+------------------------------
+
+- Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
+- RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
+
+1. ``l1_resource_bounds`` parameter (in transaction methods) has been renamed to ``resource_bounds``, its type has also changed from :class:`~starknet_py.net.client_models.ResourceBounds` to :class:`~starknet_py.net.client_models.ResourceBoundsMapping`.
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+2. New methods have been added: :meth:`~FullNodeClient.get_storage_proof`, :meth:`~FullNodeClient.get_messages_status` and :meth:`~FullNodeClient.get_compiled_casm`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+3. :class:`ComputationResources` and :class:`DataResources` have been removed.
+
+4. :class:`ExecutionResources`, :class:`EstimatedFee` have been modified according to new RPC specification.
+
+5. ``failure_reason`` field has been added to :class:`TransactionStatusResponse`.
+
+6. ``execution_resources`` and ``is_reverted`` fields have been added to :class:`FunctionInvocation`.
+
+7. Submitting transactions other than v3 is not possible anymore.
+
+******************************
 0.25.0 Migration guide
 ******************************
 

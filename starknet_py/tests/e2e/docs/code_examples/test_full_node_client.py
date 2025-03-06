@@ -7,6 +7,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 def test_init():
@@ -140,6 +141,7 @@ async def test_get_class_by_hash(client, class_hash):
     # docs-end: get_class_by_hash
 
 
+@pytest.mark.skip("TODO(#1560)")
 @pytest.mark.asyncio
 async def test_get_transaction_by_block_id(client):
     # docs-start: get_transaction_by_block_id
@@ -234,6 +236,9 @@ async def test_trace_transaction(client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    "TODO(#1560): There is no `l1_data_gas` in `execution_resources` from devnet"
+)
 async def test_simulate_transactions(
     account, deployed_balance_contract, deploy_account_transaction
 ):
@@ -246,7 +251,9 @@ async def test_simulate_transactions(
         selector=get_selector_from_name("method_name"),
         calldata=[0xCA11DA7A],
     )
-    first_transaction = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
+    first_transaction = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     # docs-end: simulate_transactions
 
     call = Call(
@@ -254,7 +261,7 @@ async def test_simulate_transactions(
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    first_transaction = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+    first_transaction = await account.sign_invoke_v3(calls=call, auto_estimate=True)
 
     # docs-start: simulate_transactions
     # one transaction

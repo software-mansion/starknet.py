@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from starknet_py.contract import Contract
 from starknet_py.net.account.account import Account
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_L1
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     get_deploy_account_transaction,
@@ -40,12 +40,12 @@ async def prepare_net_for_tests(
     block_with_declare_hash = declare_receipt.block_hash
 
     invoke_res = await contract.functions["increase_balance"].invoke_v3(
-        amount=1777, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        amount=1777, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await invoke_res.wait_for_acceptance()
 
     invoke_res_2 = await contract_2.functions["increase_balance"].invoke_v3(
-        amount=1777, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        amount=1777, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await invoke_res_2.wait_for_acceptance()
 

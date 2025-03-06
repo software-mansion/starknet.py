@@ -117,6 +117,7 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
+@pytest.mark.skip("TODO(#1560): Fix this test, class hash used here is not deployed")
 async def test_deploy_account_and_transfer(client):
     signer = LedgerSigner(
         derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",

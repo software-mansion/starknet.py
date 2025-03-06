@@ -1,5 +1,7 @@
 import pytest
 
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+
 
 @pytest.mark.asyncio
 async def test_multicall(account, deployed_balance_contract):
@@ -8,7 +10,7 @@ async def test_multicall(account, deployed_balance_contract):
     (initial_balance,) = await balance_contract.functions["get_balance"].call()
     # docs: start
     from starknet_py.hash.selector import get_selector_from_name
-    from starknet_py.net.client_models import Call, ResourceBounds
+    from starknet_py.net.client_models import Call
 
     increase_balance_by_20_call = Call(
         to_addr=balance_contract.address,
@@ -20,9 +22,7 @@ async def test_multicall(account, deployed_balance_contract):
     # Execute one transaction with multiple calls
     resp = await account.execute_v3(
         calls=calls,
-        l1_resource_bounds=ResourceBounds(
-            max_amount=int(1e5), max_price_per_unit=int(1e13)
-        ),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await account.client.wait_for_tx(resp.transaction_hash)
     # docs: end

@@ -18,7 +18,8 @@ from starknet_py.net.client_models import (
 )
 
 L1_GAS_ENCODED = encode_shortstring("L1_GAS")
-l2_GAS_ENCODED = encode_shortstring("L2_GAS")
+L2_GAS_ENCODED = encode_shortstring("L2_GAS")
+L1_DATA_ENCODED = encode_shortstring("L1_DATA")
 
 
 class TransactionHashPrefix(IntEnum):
@@ -68,12 +69,18 @@ class CommonTransactionV3Fields:
         )
 
         l2_gas_bounds = (
-            (l2_GAS_ENCODED << (128 + 64))
+            (L2_GAS_ENCODED << (128 + 64))
             + (self.resource_bounds.l2_gas.max_amount << 128)
             + self.resource_bounds.l2_gas.max_price_per_unit
         )
 
-        return [l1_gas_bounds, l2_gas_bounds]
+        l1_data_gas_bounds = (
+            (L1_DATA_ENCODED << (128 + 64))
+            + (self.resource_bounds.l1_data_gas.max_amount << 128)
+            + self.resource_bounds.l1_data_gas.max_price_per_unit
+        )
+
+        return [l1_gas_bounds, l2_gas_bounds, l1_data_gas_bounds]
 
     def get_data_availability_modes(self) -> int:
         return (
