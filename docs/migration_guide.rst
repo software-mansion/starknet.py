@@ -2,12 +2,12 @@ Migration guide
 ===============
 
 ******************************
-[Unreleased] Migration guide
+0.26.0-rc0 Migration guide
 ******************************
 
-Version [Unreleased] of **starknet.py** comes with support for RPC 0.8.0!
+The latest release candidate compatible with Starknet's JSON-RPC v0.8.0.
 
-[Unreleased] Targeted versions
+0.26.0-rc0 Targeted versions
 ------------------------------
 
 - Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
