@@ -1,6 +1,6 @@
 [project]
 name = "starknet-py"
-version = "0.26.0-rc0"
+version = "0.26.0-rc.0"
 description = "A python SDK for Starknet"
 authors = [
     { name = "Tomasz Rejowski", email = "tomasz.rejowski@swmansion.com" },
