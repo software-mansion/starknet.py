@@ -38,12 +38,11 @@ async def prepay_account(
     strk_fee_contract: Contract,
 ):
     """
-    Returns address, key_pair, salt and class_hash of the account with validate deploy.
+    Transfer fees from system contracts (ETH and STRK) to address specified.
 
-    :param class_hash: Class hash of account to be deployed.
+    :param address: Address of the account to send funds to.
     :param eth_fee_contract: Contract for prefunding deployments in ETH.
     :param strk_fee_contract: Contract for prefunding deployments in STRK.
-    :param argent_calldata: Flag deciding whether calldata should be in Argent-account format.
     """
     transfer_wei_res = await eth_fee_contract.functions["transfer"].invoke_v3(
         recipient=address, amount=int(1e40), resource_bounds=MAX_RESOURCE_BOUNDS
