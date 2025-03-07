@@ -142,7 +142,9 @@ async def test_account_outside_execution_by_itself_is_impossible(
         caller=ANY_CALLER,
     )
 
-    tx = await argent_account_v040.execute_v3(calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS)
+    tx = await argent_account_v040.execute_v3(
+        calls=[call], resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     with pytest.raises(TransactionRevertedError) as err:
         await argent_account_v040.client.wait_for_tx(tx.transaction_hash)
