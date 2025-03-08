@@ -19,6 +19,13 @@ Starknet devnet
 ^^^^^^^^^^^^^^^
 
 To install `starknet-devnet-rs <https://github.com/0xSpaceShard/starknet-devnet-rs>`_ run the script ``./starknet_py/tests/install_devnet.sh``.
+In case you need a non-standart devnet distribution consider yousing cargo install.
+
+.. code-block:: bash
+    
+    DEVNET_INSTALL_DIR=$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet/
+    DEVNET_BRANCH=starknet-0.13.4
+    cargo install --git https://github.com/0xSpaceShard/starknet-devnet.git --branch ${DEVNET_BRANCH} --locked --root ${DEVNET_INSTALL_DIR}
 
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^

@@ -1,6 +1,6 @@
 # pylint: disable=redefined-outer-name
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import pytest
 import pytest_asyncio
@@ -12,7 +12,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import PriceUnit
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import HttpMethod, RpcHttpClient
-from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
@@ -22,13 +22,22 @@ from starknet_py.tests.e2e.fixtures.constants import (
 from starknet_py.tests.e2e.utils import (
     AccountToBeDeployedDetails,
     _get_random_private_key_unsafe,
-    get_deploy_account_details,
+    _new_address,
     get_deploy_account_transaction,
+    prepay_account,
 )
 
 
+@dataclass
+class AccountPrerequisites:
+    address: AddressRepresentation
+    salt: int
+    calldata: list[int]
+    key_pair: KeyPair
+
+
 async def devnet_account_details(
-    account: BaseAccount,
+    client: FullNodeClient,
     class_hash: int,
     devnet,
 ) -> Tuple[str, str]:
@@ -55,12 +64,12 @@ async def devnet_account_details(
         key_pair=key_pair,
         salt=salt,
         class_hash=class_hash,
-        client=account.client,
+        client=client,
     )
 
     account = Account(
         address=address,
-        client=account.client,
+        client=client,
         key_pair=key_pair,
         chain=StarknetChainId.SEPOLIA,
     )
@@ -102,14 +111,30 @@ class AccountToBeDeployedDetailsFactory:
     strk_fee_contract: Contract
 
     async def get(
-        self, *, class_hash: Optional[int] = None, argent_calldata: bool = False
+        self,
+        *,
+        class_hash: Optional[int] = None,
+        calldata: Optional[List[int]] = None,
     ) -> AccountToBeDeployedDetails:
-        return await get_deploy_account_details(
-            class_hash=class_hash if class_hash is not None else self.class_hash,
+        key_pair = KeyPair.from_private_key(_get_random_private_key_unsafe())
+
+        calldata = calldata if calldata is not None else []
+        class_hash = class_hash if class_hash is not None else self.class_hash
+
+        if calldata == []:
+            calldata = [key_pair.public_key]
+
+        address, salt = _new_address(
+            class_hash=class_hash,
+            calldata=calldata,
+        )
+
+        await prepay_account(
+            address=address,
             eth_fee_contract=self.eth_fee_contract,
             strk_fee_contract=self.strk_fee_contract,
-            argent_calldata=argent_calldata,
         )
+        return address, key_pair, salt, class_hash
 
 
 @pytest_asyncio.fixture(scope="package")
@@ -149,24 +174,65 @@ def pre_deployed_account_with_validate_deploy(client) -> BaseAccount:
     )
 
 
+@pytest_asyncio.fixture(scope="function")
+async def argent_account_v040_data(
+    argent_account_v040_class_hash,
+    eth_fee_contract: Contract,
+    strk_fee_contract: Contract,
+) -> AccountPrerequisites:
+    key_pair = KeyPair.from_private_key(_get_random_private_key_unsafe())
+
+    # Based on ABI definition documentation
+    constructor_calldata = [
+        0,
+        key_pair.public_key,
+        1,
+    ]
+
+    address, salt = _new_address(argent_account_v040_class_hash, constructor_calldata)
+
+    await prepay_account(
+        address=address,
+        eth_fee_contract=eth_fee_contract,
+        strk_fee_contract=strk_fee_contract,
+    )
+
+    return AccountPrerequisites(address, salt, constructor_calldata, key_pair)
+
+
 @pytest_asyncio.fixture(scope="package")
-async def argent_account(
-    argent_account_class_hash,
-    deploy_account_details_factory: AccountToBeDeployedDetailsFactory,
+async def argent_account_v040(
+    argent_account_v040_class_hash,
+    eth_fee_contract: Contract,
+    strk_fee_contract: Contract,
     client,
 ) -> BaseAccount:
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_account_class_hash,
-        argent_calldata=True,
+    key_pair = KeyPair.from_private_key(_get_random_private_key_unsafe())
+
+    # Based on ABI definition documentation
+    constructor_calldata = [
+        0,
+        key_pair.public_key,
+        1,
+    ]
+
+    address, salt = _new_address(argent_account_v040_class_hash, constructor_calldata)
+
+    await prepay_account(
+        address=address,
+        eth_fee_contract=eth_fee_contract,
+        strk_fee_contract=strk_fee_contract,
     )
+
     deploy_result = await Account.deploy_account_v3(
         address=address,
-        class_hash=class_hash,
+        class_hash=argent_account_v040_class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
-        constructor_calldata=[key_pair.public_key, 0],
+        constructor_calldata=constructor_calldata,
         resource_bounds=MAX_RESOURCE_BOUNDS,
     )
+
     await deploy_result.wait_for_acceptance()
     return deploy_result.account
