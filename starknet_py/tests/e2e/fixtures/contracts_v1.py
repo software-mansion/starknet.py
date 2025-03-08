@@ -368,25 +368,6 @@ async def account_with_validate_deploy_class_hash(
     )
 
 
-@pytest_asyncio.fixture(scope="package")
-async def argent_account_class_hash(
-    account: BaseAccount,
-) -> int:
-    # Use precompiled argent account contracts
-    # we don't have the source code for this contract
-    compiled_contract = read_contract(
-        "argent_account.json", directory=PRECOMPILED_CONTRACTS_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "argent_account.casm", directory=PRECOMPILED_CONTRACTS_DIR
-    )
-    return await account_declare_class_hash(
-        account=account,
-        compiled_account_contract=compiled_contract,
-        compiled_account_contract_casm=compiled_contract_casm,
-    )
-
-
 async def deploy_v3_contract(
     account: BaseAccount,
     contract_name: str,
@@ -418,25 +399,6 @@ async def deploy_v3_contract(
     await account.client.wait_for_tx(res.transaction_hash)
 
     return Contract(address, abi, provider=account)
-
-
-@pytest_asyncio.fixture(scope="package")
-async def argent_account_class_hash_v040(
-    account: BaseAccount,
-) -> int:
-    # Use precompiled argent account contracts
-    # we don't have the source code for this contract
-    compiled_contract = read_contract(
-        "ArgentAccount.json", directory=PRECOMPILED_CONTRACTS_DIR / "argent-0.4.0"
-    )
-    compiled_contract_casm = read_contract(
-        "ArgentAccount.casm", directory=PRECOMPILED_CONTRACTS_DIR / "argent-0.4.0"
-    )
-    return await account_declare_class_hash(
-        account=account,
-        compiled_account_contract=compiled_contract,
-        compiled_account_contract_casm=compiled_contract_casm,
-    )
 
 
 @pytest_asyncio.fixture(scope="package")

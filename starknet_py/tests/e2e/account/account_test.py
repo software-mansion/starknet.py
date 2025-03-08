@@ -27,6 +27,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.tests.e2e.fixtures.accounts import AccountPrerequisites
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
@@ -534,22 +535,19 @@ async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash)
 @pytest.mark.asyncio
 async def test_argent_account_deploy(
     client,
-    argent_account_class_hash,
-    deploy_account_details_factory,
+    argent_account_v040_data: AccountPrerequisites,
+    argent_account_v040_class_hash,
 ):
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get(
-        class_hash=argent_account_class_hash, argent_calldata=True
-    )
-
     deploy_result = await Account.deploy_account_v3(
-        address=address,
-        class_hash=class_hash,
-        salt=salt,
-        key_pair=key_pair,
+        address=argent_account_v040_data.address,
+        class_hash=argent_account_v040_class_hash,
+        salt=argent_account_v040_data.salt,
+        key_pair=argent_account_v040_data.key_pair,
         client=client,
-        constructor_calldata=[key_pair.public_key, 0],
+        constructor_calldata=argent_account_v040_data.calldata,
         resource_bounds=MAX_RESOURCE_BOUNDS,
     )
+
     await deploy_result.wait_for_acceptance()
     account = deploy_result.account
 
@@ -564,10 +562,9 @@ async def test_argent_account_deploy(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1560)")
 async def test_argent_account_execute(
     deployed_balance_contract,
-    argent_account: BaseAccount,
+    argent_account_v040: BaseAccount,
 ):
     # verify that initial balance is 0
     get_balance_call = Call(
@@ -575,7 +572,7 @@ async def test_argent_account_execute(
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
-    get_balance = await argent_account.client.call_contract(
+    get_balance = await argent_account_v040.client.call_contract(
         call=get_balance_call, block_number="latest"
     )
 
@@ -587,11 +584,11 @@ async def test_argent_account_execute(
         selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
-    execute = await argent_account.execute_v3(
+    execute = await argent_account_v040.execute_v3(
         calls=increase_balance_by_20_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
-    await argent_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
-    receipt = await argent_account.client.get_transaction_receipt(
+    await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    receipt = await argent_account_v040.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )
 
@@ -603,7 +600,7 @@ async def test_argent_account_execute(
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
-    get_balance = await argent_account.client.call_contract(
+    get_balance = await argent_account_v040.client.call_contract(
         call=get_balance_call, block_number="latest"
     )
 

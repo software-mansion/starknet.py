@@ -12,19 +12,13 @@ from starknet_py.transaction_errors import TransactionRevertedError
 
 @pytest.mark.asyncio
 async def test_argent_account_outside_execution_compatibility(
-    argent_account: BaseAccount,
     argent_account_v040: BaseAccount,
 ):
-    for account, has_v1, has_v2 in [
-        (argent_account, True, False),
-        (argent_account_v040, True, True),
+    for interface, supported in [
+        (OutsideExecutionInterfaceID.V1, True),
+        (OutsideExecutionInterfaceID.V2, True),
     ]:
-        assert (
-            await account.supports_interface(OutsideExecutionInterfaceID.V1) is has_v1
-        )
-        assert (
-            await account.supports_interface(OutsideExecutionInterfaceID.V2) is has_v2
-        )
+        assert await argent_account_v040.supports_interface(interface) is supported
 
 
 @pytest.mark.asyncio
