@@ -9,16 +9,19 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
+    ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
     EstimatedFee,
     Hash,
+    MessageStatus,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     SentTransactionResponse,
     SierraContractClass,
     StarknetBlock,
+    StorageProofResponse,
     Tag,
     Transaction,
     TransactionExecutionStatus,
@@ -26,11 +29,12 @@ from starknet_py.net.client_models import (
     TransactionStatus,
     TransactionStatusResponse,
 )
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
+    DeclareV3,
+    DeployAccountV3,
+    InvokeV3,
 )
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
@@ -98,6 +102,25 @@ class Client(ABC):
         :param block_hash: Block's hash or literals `"pending"` or `"latest"`
         :param block_number: Block's number or literals `"pending"` or `"latest"`
         :return: Storage value of given contract
+        """
+
+    @abstractmethod
+    async def get_storage_proof(
+        self,
+        block_id: Union[int, Hash, Tag, dict],
+        class_hashes: Optional[List[int]] = None,
+        contract_addresses: Optional[List[int]] = None,
+        contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
+    ) -> StorageProofResponse:
+        """
+        Get merkle paths in one of the state tries: global state, classes, individual contract.
+
+        :param block_id: Hash of the requested block, or number (height) of the requested block, or a block tag.
+        :param class_hashes: List of the class hashes for which we want to prove membership in the classes trie.
+        :param contract_addresses: List of the contract addresses for which we want to prove membership in the
+                                    contracts trie.
+        :param contracts_storage_keys: List of the contract address and storage keys pairs.
+        :return: StorageProofResponse object.
         """
 
     @abstractmethod
@@ -232,7 +255,7 @@ class Client(ABC):
     @abstractmethod
     async def send_transaction(
         self,
-        transaction: Invoke,
+        transaction: InvokeV3,
     ) -> SentTransactionResponse:
         """
         Send a transaction to the network
@@ -243,7 +266,7 @@ class Client(ABC):
 
     @abstractmethod
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: DeployAccountV3
     ) -> DeployAccountTransactionResponse:
         """
         Deploy a pre-funded account contract to the network
@@ -253,7 +276,7 @@ class Client(ABC):
         """
 
     @abstractmethod
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(self, transaction: DeclareV3) -> DeclareTransactionResponse:
         """
         Send a declare transaction
 
@@ -307,3 +330,21 @@ class Client(ABC):
     @abstractmethod
     async def get_chain_id(self) -> str:
         """Return the currently configured Starknet chain id"""
+
+    @abstractmethod
+    async def get_messages_status(self, transaction_hash: str) -> List[MessageStatus]:
+        """
+        Get L1 handler transaction data for all L1 to L2 messages sent by the given L1 transaction.
+
+        :param transaction_hash: Hash of the L1 transaction
+        :return: Status of the messages
+        """
+
+    @abstractmethod
+    async def get_compiled_casm(self, class_hash: int) -> CasmClass:
+        """
+        Get the contract class definition in the given block associated with the given hash.
+
+        :param class_hash: Hash of the contract class whose CASM will be returned
+        :return: CasmClass object
+        """

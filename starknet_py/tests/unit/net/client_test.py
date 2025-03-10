@@ -12,18 +12,10 @@ from starknet_py.net.client_models import (
     TransactionType,
     TransactionV3,
 )
-from starknet_py.net.client_utils import _create_broadcasted_txn
-from starknet_py.net.full_node_client import _to_storage_key
+from starknet_py.net.full_node_client import _create_broadcasted_txn, _to_storage_key
 from starknet_py.net.http_client import RpcHttpClient, ServerError
-from starknet_py.net.models.transaction import (
-    DeclareV2,
-    DeclareV3,
-    DeployAccountV1,
-    DeployAccountV3,
-    InvokeV1,
-    InvokeV3,
-)
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
+from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -98,31 +90,13 @@ async def test_broadcasted_txn_declare_v3(
     declare_v3 = await account.sign_declare_v3(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     brodcasted_txn = _create_broadcasted_txn(declare_v3)
     assert brodcasted_txn["type"] == TransactionType.DECLARE.name
 
     expected_keys = dataclasses.fields(DeclareV3)
-    assert all(key.name in brodcasted_txn for key in expected_keys)
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_declare_v2(
-    account, abi_types_compiled_contract_and_class_hash
-):
-    declare_v2 = await account.sign_declare_v2(
-        compiled_contract=abi_types_compiled_contract_and_class_hash[0],
-        compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        max_fee=MAX_FEE,
-    )
-
-    brodcasted_txn = _create_broadcasted_txn(declare_v2)
-
-    assert brodcasted_txn["type"] == TransactionType.DECLARE.name
-
-    expected_keys = dataclasses.fields(DeclareV2)
     assert all(key.name in brodcasted_txn for key in expected_keys)
 
 
@@ -134,7 +108,7 @@ async def test_broadcasted_txn_invoke_v3(account, hello_starknet_contract):
             get_selector_from_name("increaseBalance"),
             [10],
         ),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     brodcasted_txn = _create_broadcasted_txn(invoke_tx)
@@ -146,25 +120,6 @@ async def test_broadcasted_txn_invoke_v3(account, hello_starknet_contract):
 
 
 @pytest.mark.asyncio
-async def test_broadcasted_txn_invoke_v1(account, hello_starknet_contract):
-    invoke_tx = await account.sign_invoke_v1(
-        calls=Call(
-            hello_starknet_contract.address,
-            get_selector_from_name("increaseBalance"),
-            [10],
-        ),
-        max_fee=int(1e16),
-    )
-
-    brodcasted_txn = _create_broadcasted_txn(invoke_tx)
-
-    assert brodcasted_txn["type"] == TransactionType.INVOKE.name
-
-    expected_keys = dataclasses.fields(InvokeV1)
-    assert all(key.name in brodcasted_txn for key in expected_keys)
-
-
-@pytest.mark.asyncio
 async def test_broadcasted_txn_deploy_account_v3(account):
     class_hash = 0x1234
     salt = 0x123
@@ -172,28 +127,11 @@ async def test_broadcasted_txn_deploy_account_v3(account):
     signed_tx = await account.sign_deploy_account_v3(
         class_hash,
         salt,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         constructor_calldata=calldata,
     )
     brodcasted_txn = _create_broadcasted_txn(signed_tx)
     assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
 
     expected_keys = dataclasses.fields(DeployAccountV3)
-    assert all(key.name in brodcasted_txn for key in expected_keys)
-
-
-@pytest.mark.asyncio
-async def test_broadcasted_txn_deploy_account_v1(account):
-    class_hash = 0x1234
-    salt = 0x123
-    calldata = [1, 2, 3]
-    signed_tx = await account.sign_deploy_account_v1(
-        class_hash, salt, calldata, max_fee=MAX_FEE
-    )
-
-    brodcasted_txn = _create_broadcasted_txn(signed_tx)
-
-    assert brodcasted_txn["type"] == TransactionType.DEPLOY_ACCOUNT.name
-
-    expected_keys = dataclasses.fields(DeployAccountV1)
     assert all(key.name in brodcasted_txn for key in expected_keys)

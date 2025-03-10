@@ -1,7 +1,8 @@
 import pytest
 
 from starknet_py.net.account.account import Account
-from starknet_py.net.models.transaction import DeclareV2, DeployAccountV1, InvokeV1
+from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -16,33 +17,33 @@ async def test_account_sign_without_execute(
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
-    max_fee = 100000
+    resource_bounds = MAX_RESOURCE_BOUNDS
 
     # docs: start
     from starknet_py.net.client_models import Call
 
     # Create a signed Invoke transaction
-    call = Call(
-        contract_address=address, entry_point_selector=selector, calldata=calldata
+    call = Call(contract_address=address, entry_point_selector=selector, calldata=calldata)
+    invoke_transaction = await account.sign_invoke_v3(
+        call, resource_bounds=resource_bounds
     )
-    invoke_transaction = await account.sign_invoke_v1(call, max_fee=max_fee)
 
     # Create a signed Declare transaction
-    declare_transaction = await account.sign_declare_v2(
+    declare_transaction = await account.sign_declare_v3(
         compiled_contract,
         compiled_class_hash=compiled_class_hash,
         auto_estimate=True,
     )
 
     # Create a signed DeployAccount transaction
-    deploy_account_transaction = await account.sign_deploy_account_v1(
+    deploy_account_transaction = await account.sign_deploy_account_v3(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=calldata,
-        max_fee=max_fee,
+        resource_bounds=resource_bounds,
     )
     # docs: end
 
-    assert isinstance(invoke_transaction, InvokeV1)
-    assert isinstance(declare_transaction, DeclareV2)
-    assert isinstance(deploy_account_transaction, DeployAccountV1)
+    assert isinstance(invoke_transaction, InvokeV3)
+    assert isinstance(declare_transaction, DeclareV3)
+    assert isinstance(deploy_account_transaction, DeployAccountV3)

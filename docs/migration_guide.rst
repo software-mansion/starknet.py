@@ -2,6 +2,55 @@ Migration guide
 ===============
 
 ******************************
+0.26.0-rc.0 Migration guide
+******************************
+
+The latest release candidate compatible with Starknet's JSON-RPC v0.8.0.
+
+0.26.0-rc.0 Targeted versions
+------------------------------
+
+- Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
+- RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
+
+1. ``l1_resource_bounds`` parameter (in transaction methods) has been renamed to ``resource_bounds``, its type has also changed from :class:`~starknet_py.net.client_models.ResourceBounds` to :class:`~starknet_py.net.client_models.ResourceBoundsMapping`.
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+2. New methods have been added: :meth:`~FullNodeClient.get_storage_proof`, :meth:`~FullNodeClient.get_messages_status` and :meth:`~FullNodeClient.get_compiled_casm`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+3. :class:`ComputationResources` and :class:`DataResources` have been removed.
+
+4. :class:`ExecutionResources`, :class:`EstimatedFee` have been modified according to new RPC specification.
+
+5. ``failure_reason`` field has been added to :class:`TransactionStatusResponse`.
+
+6. ``execution_resources`` and ``is_reverted`` fields have been added to :class:`FunctionInvocation`.
+
+7. Submitting transactions other than v3 is not possible anymore.
+
+******************************
+0.25.0 Migration guide
+******************************
+
+This version of starknet.py requires Python 3.9 as a minimum version.
+
+.. currentmodule:: starknet_py.cairo.data_types
+
+1. Added :class:`NonZeroType` in order to fix parsing ABI which contains Cairo`s `core::zeroable::NonZero <https://github.com/starkware-libs/cairo/blob/a2b9dddeb3212c8d529538454745b27d7a34a6cd/corelib/src/zeroable.cairo#L78>`_.
+
+2. Added `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_ support to :class:`~starknet_py.net.account.account.Account`. Now it's possible to create a :class:`~starknet_py.net.client_models.Call` for outside execution using :meth:`~starknet_py.net.account.account.Account.sign_outside_execution_call`.
+
+3. All methods and classes which use transactions other than v3 are now deprecated.
+
+0.25.0 Minor changes
+--------------------
+
+1. Added ``keys`` field to :class:`EventType` which contains the list of event fields marked with ``#[key]`` in Cairo code.
+
+******************************
 0.24.3 Migration guide
 ******************************
 

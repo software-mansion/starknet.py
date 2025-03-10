@@ -46,13 +46,22 @@ STRK_FEE_CONTRACT_ADDRESS = (
     "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
 )
 
-MAX_FEE = int(1e18)
+STRK_CLASS_HASH = "0x04ad3c1dc8413453db314497945b6903e1c766495a1e60492d44da9c2a986e4b"
 
 MAX_RESOURCE_BOUNDS_L1 = ResourceBounds(
     max_amount=int(1e5), max_price_per_unit=int(1e13)
 )
+
 MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
-    l1_gas=MAX_RESOURCE_BOUNDS_L1, l2_gas=ResourceBounds.init_with_zeros()
+    l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+    l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e20)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+)
+
+MAX_RESOURCE_BOUNDS_SEPOLIA = ResourceBoundsMapping(
+    l1_gas=ResourceBounds(max_amount=int(1e4), max_price_per_unit=int(1e15)),
+    l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e10)),
+    l1_data_gas=ResourceBounds(max_amount=int(1e4), max_price_per_unit=int(1e15)),
 )
 
 MOCK_DIR = Path(os.path.dirname(__file__)) / "../mock"

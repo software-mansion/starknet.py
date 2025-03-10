@@ -1,43 +1,42 @@
-[tool.poetry]
+[project]
 name = "starknet-py"
-version = "0.24.3"
+version = "0.26.0-rc.0"
 description = "A python SDK for Starknet"
-authors = ["Tomasz Rejowski <tomasz.rejowski@swmansion.com>", "Jakub Ptak <jakub.ptak@swmansion.com>"]
-include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
-exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
-packages = [
-    { include = "starknet_py" }
+authors = [
+    { name = "Tomasz Rejowski", email = "tomasz.rejowski@swmansion.com" },
+    { name = "Jakub Ptak", email = "jakub.ptak@swmansion.com" }
 ]
-license = "MIT"
+license = { text = "MIT" }
 readme = "README.md"
-repository = "https://github.com/software-mansion/starknet.py"
+requires-python = ">=3.9, <3.13"
+dependencies = [
+    "asgiref>=3.4.1,<4.0.0",
+    "marshmallow>=3.15.0,<4.0.0",
+    "marshmallow-oneofschema>=3.1.1,<4.0.0",
+    "typing-extensions>=4.3.0,<5.0.0",
+    "marshmallow-dataclass<8.8.0",
+    "poseidon-py==0.1.5",
+    "lark>=1.1.5,<2.0.0",
+    "aiohttp>=3.8.4,<4.0.0",
+    "pycryptodome>=3.17,<4.0",
+    "crypto-cpp-py==1.4.5",
+    "eth-keyfile>=0.8.1,<1.0.0"
+]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx>=4.3.1,<8.0.0",
+    "enum-tools[sphinx]==0.12.0",
+    "furo>=2024.5.6,<2025.0.0",
+]
+ledger = [
+    "ledgerwallet>=0.5.0,<1.0.0",
+    "bip-utils>=2.9.3,<3.0.0",
+]
+
+[project.urls]
 documentation = "https://starknetpy.rtfd.io/"
-
-[tool.poetry.dependencies]
-python = ">=3.8, <3.13"
-asgiref = "^3.4.1"
-marshmallow = "^3.15.0"
-marshmallow-oneofschema = "3.1.1"
-typing-extensions = "^4.3.0"
-marshmallow-dataclass = "<8.8.0"
-poseidon-py = "0.1.5"
-lark = "^1.1.5"
-aiohttp = "^3.8.4"
-sphinx = { version = ">=4.3.1,<8.0.0", optional = true }
-enum-tools = { extras = ["sphinx"], version = "0.12.0", optional = true }
-furo = { version = "^2024.5.6", optional = true }
-pycryptodome = "^3.17"
-crypto-cpp-py = "1.4.5"
-eth-keyfile = "^0.8.1"
-ledgerwallet = { version = "^0.5.0", optional = true }
-bip-utils = { version = "^2.9.3", optional = true }
-requests = "^2.32.3"
-filelock = ">=3.8.0"
-cachecontrol = "^0.14.2"
-
-[tool.poetry.extras]
-docs = ["sphinx", "enum-tools", "furo"]
-ledger = ["ledgerwallet", "bip-utils"]
+repository = "https://github.com/software-mansion/starknet.py"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
@@ -55,6 +54,13 @@ pytest-rerunfailures = "^14.0"
 python-dotenv = "^1.0.0"
 setuptools = "^70.3.0"
 
+[tool.poetry]
+exclude = ["starknet_py/tests/*", "starknet_py/**/*_test.py"]
+include = ["starknet_py", "starknet_py/utils/crypto/libcrypto_c_exports.*"]
+packages = [
+    { include = "starknet_py" }
+]
+
 [tool.poe.tasks]
 test = [
     "clean_coverage",
@@ -67,14 +73,14 @@ test = [
 ]
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
-test_ci_v1 = "coverage run -a -m pytest --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
-test_ci_v2 = "coverage run -a -m pytest --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
+test_ci_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks"
 
 test_ci_on_networks = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/tests_on_networks"
 
 test_ci_docs = ["test_ci_docs_v1", "test_ci_docs_v2"]
-test_ci_docs_v1 = "coverage run -a -m pytest --contract_dir=v1 starknet_py/tests/e2e/docs"
-test_ci_docs_v2 = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/docs"
+test_ci_docs_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py/tests/e2e/docs"
+test_ci_docs_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py/tests/e2e/docs"
 
 test_report = "coverage report -m"
 test_html.shell = "coverage html && open ./htmlcov/index.html"
@@ -142,4 +148,3 @@ exclude = [
     "**/__pycache__",
     "starknet_py/tests/e2e/docs",
 ]
-
