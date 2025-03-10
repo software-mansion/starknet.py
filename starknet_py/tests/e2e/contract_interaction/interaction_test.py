@@ -204,8 +204,8 @@ async def test_call_uninitialized_contract(client):
     with pytest.raises(ClientError, match="Contract not found"):
         await client.call_contract(
             Call(
-                to_addr=1,
-                selector=get_selector_from_name("get_nonce"),
+                contract_address=1,
+                entry_point_selector=get_selector_from_name("get_nonce"),
                 calldata=[],
             ),
             block_hash="latest",

@@ -22,7 +22,9 @@ async def test_account_sign_without_execute(
     from starknet_py.net.client_models import Call
 
     # Create a signed Invoke transaction
-    call = Call(to_addr=address, selector=selector, calldata=calldata)
+    call = Call(
+        contract_address=address, entry_point_selector=selector, calldata=calldata
+    )
     invoke_transaction = await account.sign_invoke_v1(call, max_fee=max_fee)
 
     # Create a signed Declare transaction

@@ -107,8 +107,8 @@ async def test_call_contract(client, contract_address):
     # docs-start: call_contract
     response = await client.call_contract(
         call=Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[123],
         ),
         block_number="latest",
@@ -242,16 +242,16 @@ async def test_simulate_transactions(
     second_transaction = deploy_account_transaction
     # docs-start: simulate_transactions
     call = Call(
-        to_addr=contract_address,
-        selector=get_selector_from_name("method_name"),
+        contract_address=contract_address,
+        entry_point_selector=get_selector_from_name("method_name"),
         calldata=[0xCA11DA7A],
     )
     first_transaction = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
     # docs-end: simulate_transactions
 
     call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
     first_transaction = await account.sign_invoke_v1(calls=call, auto_estimate=True)

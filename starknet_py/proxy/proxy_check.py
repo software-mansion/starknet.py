@@ -44,8 +44,8 @@ class ArgentProxyCheck(ProxyCheck):
     @staticmethod
     async def get_implementation(address: Address, client: Client) -> Optional[int]:
         call = Call(
-            to_addr=address,
-            selector=get_selector_from_name("get_implementation"),
+            contract_address=address,
+            entry_point_selector=get_selector_from_name("get_implementation"),
             calldata=[],
         )
         (implementation,) = await client.call_contract(call=call)

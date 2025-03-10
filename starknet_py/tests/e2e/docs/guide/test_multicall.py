@@ -11,8 +11,8 @@ async def test_multicall(account, deployed_balance_contract):
     from starknet_py.net.client_models import Call
 
     increase_balance_by_20_call = Call(
-        to_addr=balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[20],
     )
     calls = [increase_balance_by_20_call, increase_balance_by_20_call]

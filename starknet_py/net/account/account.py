@@ -308,8 +308,8 @@ class Account(BaseAccount):
 
         low, high = await self._client.call_contract(
             Call(
-                to_addr=parse_address(token_address),
-                selector=get_selector_from_name("balance_of"),
+                contract_address=parse_address(token_address),
+                entry_point_selector=get_selector_from_name("balance_of"),
                 calldata=[self.address],
             ),
             block_hash=block_hash,
@@ -828,8 +828,8 @@ def _parse_calls(cairo_version: int, calls: Calls) -> List[int]:
 
 def _parse_call_cairo_v0(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
     _data = {
-        "to": call.to_addr,
-        "selector": call.selector,
+        "to": call.contract_address,
+        "selector": call.entry_point_selector,
         "data_offset": len(entire_calldata),
         "data_len": len(call.calldata),
     }
@@ -852,8 +852,8 @@ def _parse_calls_cairo_v1(calls: Iterable[Call]) -> List[Dict]:
     calls_parsed = []
     for call in calls:
         _data = {
-            "to": call.to_addr,
-            "selector": call.selector,
+            "to": call.contract_address,
+            "selector": call.entry_point_selector,
             "calldata": call.calldata,
         }
         calls_parsed.append(_data)

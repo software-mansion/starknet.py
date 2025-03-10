@@ -29,8 +29,8 @@ async def test_execute_v1(account, contract_address):
     # docs-start: execute_v1
     resp = await account.execute_v1(
         Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[123],
         ),
         max_fee=int(1e15),
@@ -38,8 +38,8 @@ async def test_execute_v1(account, contract_address):
     # or
     # docs-end: execute_v1
     call1 = call2 = Call(
-        to_addr=contract_address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=contract_address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[123],
     )
     # docs-start: execute_v1
@@ -52,8 +52,8 @@ async def test_execute_v3(account, contract_address):
     # docs-start: execute_v3
     resp = await account.execute_v3(
         Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[123],
         ),
         l1_resource_bounds=ResourceBounds(
@@ -63,8 +63,8 @@ async def test_execute_v3(account, contract_address):
     # or
     # docs-end: execute_v3
     call1 = call2 = Call(
-        to_addr=contract_address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=contract_address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[123],
     )
     # docs-start: execute_v3

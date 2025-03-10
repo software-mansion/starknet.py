@@ -40,8 +40,8 @@ class Call:
     Dataclass representing a call to Starknet contract.
     """
 
-    to_addr: int
-    selector: int
+    contract_address: int
+    entry_point_selector: int
     calldata: List[int]
 
 

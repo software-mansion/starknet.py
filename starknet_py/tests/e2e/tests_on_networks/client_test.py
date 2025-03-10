@@ -59,8 +59,8 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
     account = account_sepolia_testnet
     # Calldata too long for the function (it has no parameters) to trigger REVERTED status
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
-        selector=get_selector_from_name("empty"),
+        contract_address=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        entry_point_selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
@@ -74,8 +74,8 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
 async def test_wait_for_tx_accepted(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
-        selector=get_selector_from_name("empty"),
+        contract_address=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        entry_point_selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))
@@ -91,8 +91,8 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
-        selector=get_selector_from_name("empty"),
+        contract_address=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        entry_point_selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e10))
@@ -109,8 +109,8 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
 async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
-        selector=get_selector_from_name("empty"),
+        contract_address=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        entry_point_selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=sys.maxsize)
@@ -127,8 +127,8 @@ async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet)
 async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
-        selector=get_selector_from_name("empty"),
+        contract_address=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        entry_point_selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16), nonce=0)
@@ -141,8 +141,8 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
 async def test_transaction_not_received_invalid_signature(account_sepolia_testnet):
     account = account_sepolia_testnet
     call = Call(
-        to_addr=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
-        selector=get_selector_from_name("empty"),
+        contract_address=int(EMPTY_CONTRACT_ADDRESS_SEPOLIA, 0),
+        entry_point_selector=get_selector_from_name("empty"),
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v1(calls=call, max_fee=int(1e16))

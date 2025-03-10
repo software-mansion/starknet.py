@@ -103,9 +103,9 @@ def test_create_account_with_ledger_signer():
 async def _get_account_balance_strk(client: FullNodeClient, address: int):
     balance = await client.call_contract(
         call=Call(
-            to_addr=int(STRK_FEE_CONTRACT_ADDRESS, 16),
+            contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
             calldata=[address],
-            selector=get_selector_from_name("balanceOf"),
+            entry_point_selector=get_selector_from_name("balanceOf"),
         )
     )
     return balance

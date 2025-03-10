@@ -21,7 +21,7 @@ async def test_account_comparison(gateway_account, map_contract):
     await account.client.get_storage_at(contract_address=address, key=key)
     # docs-1: end
 
-    call = Call(to_addr=0x1, selector=0x1234, calldata=[])
+    call = Call(contract_address=0x1, selector=0x1234, calldata=[])
     max_fee = 1000
 
     # docs-2: start

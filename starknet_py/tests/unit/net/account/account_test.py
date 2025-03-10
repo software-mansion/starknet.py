@@ -36,7 +36,7 @@ async def test_get_balance_default_token_address():
 
     (call,) = call[0]
 
-    assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
+    assert call.contract_address == parse_address(FEE_CONTRACT_ADDRESS)
 
 
 @pytest.mark.asyncio

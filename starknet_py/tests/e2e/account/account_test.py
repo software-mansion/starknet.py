@@ -218,7 +218,9 @@ async def test_get_nonce(account, map_contract):
 
     tx = await account.execute_v1(
         Call(
-            to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
+            contract_address=address,
+            entry_point_selector=get_selector_from_name("put"),
+            calldata=[10, 20],
         ),
         max_fee=MAX_FEE,
     )
@@ -500,8 +502,8 @@ async def test_deploy_account_v1(client, deploy_account_details_factory, map_con
 
     res = await account.execute_v1(
         calls=Call(
-            to_addr=map_contract.address,
-            selector=get_selector_from_name("put"),
+            contract_address=map_contract.address,
+            entry_point_selector=get_selector_from_name("put"),
             calldata=[30, 40],
         ),
         max_fee=MAX_FEE,
@@ -771,8 +773,8 @@ async def test_argent_account_execute(
 ):
     # verify that initial balance is 0
     get_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("get_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
     get_balance = await argent_account.client.call_contract(
@@ -783,8 +785,8 @@ async def test_argent_account_execute(
 
     value = 20
     increase_balance_by_20_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
     execute = await argent_account.execute_v1(
@@ -799,8 +801,8 @@ async def test_argent_account_execute(
 
     # verify that the previous call was executed
     get_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("get_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
     get_balance = await argent_account.client.call_contract(
@@ -813,13 +815,13 @@ async def test_argent_account_execute(
 @pytest.mark.asyncio
 async def test_account_execute_v3(account, deployed_balance_contract):
     get_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("get_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
     increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[100],
     )
 

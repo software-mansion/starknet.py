@@ -118,8 +118,8 @@ class Deployer:
         )
 
         call = Call(
-            to_addr=self.deployer_address,
-            selector=get_selector_from_name("deployContract"),
+            contract_address=self.deployer_address,
+            entry_point_selector=get_selector_from_name("deployContract"),
             calldata=calldata,
         )
 
