@@ -17,6 +17,7 @@ async def test_simple_deploy_cairo1(account, erc20_class_hash):
     from starknet_py.cairo.felt import encode_shortstring
     from starknet_py.common import create_sierra_compiled_contract
     from starknet_py.contract import Contract
+    from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
     # docs: end
 
@@ -39,13 +40,18 @@ async def test_simple_deploy_cairo1(account, erc20_class_hash):
         "recipient": account.address,
     }
 
-    deploy_result = await Contract.deploy_contract_v1(
+    deploy_result = await Contract.deploy_contract_v3(
         account=account,
         class_hash=class_hash,
         abi=abi,
         constructor_args=constructor_args,
-        max_fee=int(1e16),
-        cairo_version=1,  # note the `cairo_version` parameter
+        resource_bounds=ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+            l1_data_gas=ResourceBounds(
+                max_amount=int(1e5), max_price_per_unit=int(1e13)
+            ),
+        ),
     )
 
     await deploy_result.wait_for_acceptance()

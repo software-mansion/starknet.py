@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 
@@ -11,6 +11,7 @@ from starknet_py.net.client_models import (
     BlockStateUpdate,
     BlockTransactionTrace,
     Call,
+    ContractsStorageKeys,
     DeclareTransactionResponse,
     DeployAccountTransactionResponse,
     DeprecatedContractClass,
@@ -18,6 +19,7 @@ from starknet_py.net.client_models import (
     EventsChunk,
     Hash,
     L1HandlerTransaction,
+    MessageStatus,
     PendingBlockStateUpdate,
     PendingStarknetBlock,
     PendingStarknetBlockWithReceipts,
@@ -29,6 +31,7 @@ from starknet_py.net.client_models import (
     StarknetBlock,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
+    StorageProofResponse,
     SyncStatus,
     Tag,
     Transaction,
@@ -43,13 +46,15 @@ from starknet_py.net.client_utils import (
     _to_storage_key,
     encode_l1_message,
 )
+from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.http_client import RpcHttpClient
 from starknet_py.net.models.transaction import (
     AccountTransaction,
-    Declare,
-    DeployAccount,
-    Invoke,
+    DeclareV3,
+    DeployAccountV3,
+    InvokeV3,
 )
+from starknet_py.net.schemas.contracts_storage_keys import ContractsStorageKeysSchema
 from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
@@ -62,12 +67,14 @@ from starknet_py.net.schemas.rpc.block import (
     StarknetBlockWithTxHashesSchema,
 )
 from starknet_py.net.schemas.rpc.contract import (
+    CasmClassSchema,
     DeprecatedContractClassSchema,
     SierraContractClassSchema,
     SyncStatusSchema,
 )
 from starknet_py.net.schemas.rpc.event import EventsChunkSchema
 from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema
+from starknet_py.net.schemas.rpc.storage_proof import StorageProofResponseSchema
 from starknet_py.net.schemas.rpc.trace_api import (
     BlockTransactionTraceSchema,
     SimulatedTransactionSchema,
@@ -76,6 +83,7 @@ from starknet_py.net.schemas.rpc.trace_api import (
 from starknet_py.net.schemas.rpc.transactions import (
     DeclareTransactionResponseSchema,
     DeployAccountTransactionResponseSchema,
+    MessageStatusSchema,
     SentTransactionSchema,
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
@@ -116,6 +124,7 @@ class FullNodeClient(Client):
             method_name="getBlockWithTxs",
             params=block_identifier,
         )
+
         if block_identifier == {"block_id": "pending"}:
             return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
         return cast(StarknetBlock, StarknetBlockSchema().load(res))
@@ -325,6 +334,50 @@ class FullNodeClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
+    async def get_storage_proof(
+        self,
+        block_id: Union[int, Hash, Tag, dict],
+        class_hashes: Optional[List[int]] = None,
+        contract_addresses: Optional[List[int]] = None,
+        contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
+    ) -> StorageProofResponse:
+        class_hashes_serialized = (
+            [_to_rpc_felt(class_hash) for class_hash in class_hashes]
+            if class_hashes
+            else []
+        )
+        contract_addresses_serialized = (
+            [_to_rpc_felt(contract_address) for contract_address in contract_addresses]
+            if contract_addresses
+            else []
+        )
+        contracts_storage_keys_serialized = (
+            (
+                [
+                    cast(
+                        Dict,
+                        ContractsStorageKeysSchema().dump(obj=key),
+                    )
+                    for key in contracts_storage_keys
+                ]
+            )
+            if contracts_storage_keys
+            else []
+        )
+
+        params = {
+            "block_id": block_id,
+            "class_hashes": class_hashes_serialized,
+            "contract_addresses": contract_addresses_serialized,
+            "contracts_storage_keys": contracts_storage_keys_serialized,
+        }
+
+        res = await self._client.call(
+            method_name="getStorageProof",
+            params=params,
+        )
+        return cast(StorageProofResponse, StorageProofResponseSchema().load(res))
+
     async def get_transaction(
         self,
         tx_hash: Hash,
@@ -336,6 +389,7 @@ class FullNodeClient(Client):
             )
         except ClientError as ex:
             raise TransactionNotReceivedError() from ex
+
         return cast(Transaction, TypesOfTransactionsSchema().load(res))
 
     async def get_l1_message_hash(self, tx_hash: Hash) -> Hash:
@@ -357,6 +411,7 @@ class FullNodeClient(Client):
             method_name="getTransactionReceipt",
             params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
+
         return cast(TransactionReceipt, TransactionReceiptSchema().load(res))
 
     async def estimate_fee(
@@ -456,6 +511,16 @@ class FullNodeClient(Client):
     async def get_chain_id(self) -> str:
         return await self._client.call(method_name="chainId", params={})
 
+    async def get_messages_status(self, transaction_hash: str) -> List[MessageStatus]:
+        res = await self._client.call(
+            method_name="getMessagesStatus",
+            params={"transaction_hash": transaction_hash},
+        )
+        return cast(
+            List[MessageStatus],
+            MessageStatusSchema().load(res, many=True),
+        )
+
     async def get_syncing_status(self) -> Union[bool, SyncStatus]:
         """Returns an object about the sync status, or false if the node is not syncing"""
         sync_status = await self._client.call(method_name="syncing", params={})
@@ -485,7 +550,7 @@ class FullNodeClient(Client):
         )
         return [int(i, 16) for i in res]
 
-    async def send_transaction(self, transaction: Invoke) -> SentTransactionResponse:
+    async def send_transaction(self, transaction: InvokeV3) -> SentTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -496,7 +561,7 @@ class FullNodeClient(Client):
         return cast(SentTransactionResponse, SentTransactionSchema().load(res))
 
     async def deploy_account(
-        self, transaction: DeployAccount
+        self, transaction: DeployAccountV3
     ) -> DeployAccountTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
@@ -510,7 +575,7 @@ class FullNodeClient(Client):
             DeployAccountTransactionResponseSchema().load(res),
         )
 
-    async def declare(self, transaction: Declare) -> DeclareTransactionResponse:
+    async def declare(self, transaction: DeclareV3) -> DeclareTransactionResponse:
         params = _create_broadcasted_txn(transaction=transaction)
 
         res = await self._client.call(
@@ -669,6 +734,13 @@ class FullNodeClient(Client):
         res = cast(str, res)
         return int(res, 16)
 
+    async def get_compiled_casm(self, class_hash: int) -> CasmClass:
+        res = await self._client.call(
+            method_name="getCompiledCasm",
+            params={"class_hash": _to_rpc_felt(class_hash)},
+        )
+        return cast(CasmClass, CasmClassSchema().load(res))
+
     async def spec_version(self) -> str:
         """
         Returns the version of the Starknet JSON-RPC specification being used.
@@ -758,6 +830,7 @@ class FullNodeClient(Client):
                 ],
             },
         )
+
         return cast(
             List[SimulatedTransaction],
             SimulatedTransactionSchema().load(res, many=True),

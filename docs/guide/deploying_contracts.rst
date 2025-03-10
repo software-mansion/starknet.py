@@ -4,8 +4,8 @@ Deploying contracts
 Declaring contracts
 -------------------
 
-A declare transaction can be issued in version 2 or 3. Contracts written in Cairo 0 cannot be declared while those written in Cairo 1 or higher should be declared with versions 2 or 3.
-To sign a declare transaction, you should utilize the :meth:`~starknet_py.net.account.account.Account.sign_declare_v2` or :meth:`~starknet_py.net.account.account.Account.sign_declare_v3` method, respectively.
+Contracts written in Cairo 0 cannot be declared while those written in Cairo 1 or higher should be declared with transaction version 3.
+To sign a declare transaction, you should utilize :meth:`~starknet_py.net.account.account.Account.sign_declare_v3` method.
 
 Here's an example how to use it.
 
@@ -17,7 +17,7 @@ Here's an example how to use it.
 Simple deploy
 -------------
 
-If you know the class hash of an already declared contract you want to deploy just use the :meth:`~starknet_py.contract.Contract.deploy_contract_v1` or :meth:`~starknet_py.contract.Contract.deploy_contract_v3`.
+If you know the class hash of an already declared contract you want to deploy just use the :meth:`~starknet_py.contract.Contract.deploy_contract_v3`.
 It will deploy the contract using funds from your account. Deployment is handled by UDC.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/guide/test_simple_deploy.py
@@ -57,7 +57,7 @@ Cairo1 contracts
 Declaring Cairo1 contracts
 ##########################
 
-To declare a contract in Cairo version 1 or higher, Declare V2 or Declare V3 transaction has to be sent.
+To declare a contract in Cairo version 1 or higher, Declare V3 transaction has to be sent.
 You can see the structure of these transactions `here <https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction>`_.
 
 The main differences in the structure of the transaction from its previous version are:

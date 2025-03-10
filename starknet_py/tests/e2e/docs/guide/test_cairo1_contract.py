@@ -4,7 +4,7 @@ import pytest
 
 from starknet_py.net.client_models import SierraContractClass
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
@@ -38,16 +38,16 @@ async def test_cairo1_contract(
 
     # docs: start
 
-    # Create Declare v2 transaction (to create Declare v3 transaction use `sign_declare_v3` method)
-    declare_v2_transaction = await account.sign_declare_v2(
+    # Create Declare v3 transaction
+    declare_v3_transaction = await account.sign_declare_v3(
         # compiled_contract is a string containing the content of the starknet-compile (.json file)
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     # Send transaction
-    resp = await account.client.declare(transaction=declare_v2_transaction)
+    resp = await account.client.declare(transaction=declare_v3_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
 
     sierra_class_hash = resp.class_hash
@@ -74,7 +74,9 @@ async def test_cairo1_contract(
         salt=salt,
     )
 
-    res = await account.execute_v1(calls=contract_deployment.call, max_fee=MAX_FEE)
+    res = await account.execute_v3(
+        calls=contract_deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     await account.client.wait_for_tx(res.transaction_hash)
 
     # The contract has been deployed and can be found at contract_deployment.address

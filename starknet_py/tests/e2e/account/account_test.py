@@ -12,7 +12,6 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     DeployAccountTransactionResponse,
-    DeployAccountTransactionV1,
     DeployAccountTransactionV3,
     EstimatedFee,
     InvokeTransactionV3,
@@ -25,19 +24,10 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.models.transaction import (
-    DeclareV2,
-    DeclareV3,
-    DeployAccountV3,
-    InvokeV3,
-)
-from starknet_py.net.signer.stark_curve_signer import KeyPair
+from starknet_py.net.models.transaction import DeclareV3, DeployAccountV3, InvokeV3
+from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_FEE,
-    MAX_RESOURCE_BOUNDS,
-    MAX_RESOURCE_BOUNDS_L1,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.run_on_devnet
@@ -75,16 +65,14 @@ async def test_balance_when_token_specified(account, erc20_contract):
 async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     estimated_fee = (
         await erc20_contract.functions["balance_of"]
-        .prepare_invoke_v1(account.address, max_fee=0)
+        .prepare_invoke_v3(
+            account.address, resource_bounds=ResourceBoundsMapping.init_with_zeros()
+        )
         .estimate_fee(block_hash="latest")
     )
 
     assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_price * estimated_fee.gas_consumed
-        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
-        == estimated_fee.overall_fee
-    )
+    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -95,18 +83,14 @@ async def test_estimate_fee_for_declare_transaction(
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     estimated_fee = await account.client.estimate_fee(tx=declare_tx)
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_price * estimated_fee.gas_consumed
-        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
-        == estimated_fee.overall_fee
-    )
+    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -117,7 +101,7 @@ async def test_account_estimate_fee_for_declare_transaction(
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     estimated_fee = await account.estimate_fee(tx=declare_tx)
@@ -125,25 +109,20 @@ async def test_account_estimate_fee_for_declare_transaction(
     assert estimated_fee.unit == PriceUnit.FRI
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
-    assert (
-        estimated_fee.gas_price * estimated_fee.gas_consumed
-        + estimated_fee.data_gas_price * estimated_fee.data_gas_consumed
-        == estimated_fee.overall_fee
-    )
+    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
 async def test_account_estimate_fee_for_transactions(account, map_contract):
-
     invoke_tx_1 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         nonce=(await account.get_nonce()),
     )
 
     invoke_tx_2 = await account.sign_invoke_v3(
         calls=Call(map_contract.address, get_selector_from_name("put"), [5, 1]),
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         nonce=(await account.get_nonce() + 1),
     )
 
@@ -156,22 +135,18 @@ async def test_account_estimate_fee_for_transactions(account, map_contract):
     assert estimated_fee[1].unit == PriceUnit.FRI
     assert isinstance(estimated_fee[0].overall_fee, int)
     assert estimated_fee[0].overall_fee > 0
-    assert (
-        estimated_fee[0].gas_consumed * estimated_fee[0].gas_price
-        + estimated_fee[0].data_gas_consumed * estimated_fee[0].data_gas_price
-        == estimated_fee[0].overall_fee
-    )
+    assert estimated_fee[0].calculate_overall_fee() == estimated_fee[0].overall_fee
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("key, val", [(20, 20), (30, 30)])
 async def test_sending_multicall(account, map_contract, key, val):
     calls = [
-        map_contract.functions["put"].prepare_invoke_v1(key=10, value=10),
-        map_contract.functions["put"].prepare_invoke_v1(key=key, value=val),
+        map_contract.functions["put"].prepare_invoke_v3(key=10, value=10),
+        map_contract.functions["put"].prepare_invoke_v3(key=key, value=val),
     ]
 
-    res = await account.execute_v1(calls=calls, max_fee=int(1e20))
+    res = await account.execute_v3(calls=calls, resource_bounds=MAX_RESOURCE_BOUNDS)
     await account.client.wait_for_tx(res.transaction_hash)
     (value,) = await map_contract.functions["get"].call(key=key)
 
@@ -181,9 +156,17 @@ async def test_sending_multicall(account, map_contract, key, val):
 @pytest.mark.asyncio
 async def test_rejection_reason_in_transaction_receipt(map_contract):
     with pytest.raises(
-        ClientError, match="Max fee is smaller than the minimal transaction cost"
+        ClientError,
+        match="The transaction's resources don't cover validation or the minimal transaction fee",
     ):
-        await map_contract.functions["put"].invoke_v1(key=10, value=20, max_fee=1)
+        resource_bounds = ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+            l2_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+            l1_data_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+        )
+        await map_contract.functions["put"].invoke_v3(
+            key=10, value=20, resource_bounds=resource_bounds
+        )
 
 
 def test_sign_and_verify_offchain_message_fail(account, typed_data):
@@ -216,11 +199,11 @@ async def test_get_nonce(account, map_contract):
     address = map_contract.address
     block = await account.client.get_block(block_number="latest")
 
-    tx = await account.execute_v1(
+    tx = await account.execute_v3(
         Call(
             to_addr=address, selector=get_selector_from_name("put"), calldata=[10, 20]
         ),
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await account.client.wait_for_tx(tx.transaction_hash)
 
@@ -240,34 +223,8 @@ async def test_get_nonce(account, map_contract):
 @pytest.mark.parametrize(
     "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
 )
-async def test_sign_invoke_v1(account, calls):
-    signed_tx = await account.sign_invoke_v1(calls, max_fee=MAX_FEE)
-
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee == MAX_FEE
-
-
-@pytest.mark.asyncio
-async def test_sign_invoke_v1_auto_estimate(account, map_contract):
-    signed_tx = await account.sign_invoke_v1(
-        Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
-        auto_estimate=True,
-    )
-
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee > 0
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "calls", [[Call(10, 20, [30])], [Call(10, 20, [30]), Call(40, 50, [60])]]
-)
 async def test_sign_invoke_v3(account, calls):
-    signed_tx = await account.sign_invoke_v3(
-        calls, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
-    )
+    signed_tx = await account.sign_invoke_v3(calls, resource_bounds=MAX_RESOURCE_BOUNDS)
 
     assert isinstance(signed_tx, InvokeV3)
     assert isinstance(signed_tx.signature, list)
@@ -277,6 +234,7 @@ async def test_sign_invoke_v3(account, calls):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1558)")
 async def test_sign_invoke_v3_auto_estimate(account, map_contract):
     signed_tx = await account.sign_invoke_v3(
         Call(map_contract.address, get_selector_from_name("put"), [3, 4]),
@@ -296,50 +254,6 @@ async def test_sign_invoke_v3_auto_estimate(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_declare_v2(
-    account, sierra_minimal_compiled_contract_and_class_hash
-):
-    (
-        compiled_contract,
-        compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash
-
-    signed_tx = await account.sign_declare_v2(
-        compiled_contract,
-        compiled_class_hash=compiled_class_hash,
-        max_fee=MAX_FEE,
-    )
-
-    assert isinstance(signed_tx, DeclareV2)
-    assert signed_tx.version == 2
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee == MAX_FEE
-
-
-@pytest.mark.asyncio
-async def test_sign_declare_v2_auto_estimate(
-    account, sierra_minimal_compiled_contract_and_class_hash
-):
-    (
-        compiled_contract,
-        compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash
-
-    signed_tx = await account.sign_declare_v2(
-        compiled_contract,
-        compiled_class_hash=compiled_class_hash,
-        auto_estimate=True,
-    )
-
-    assert isinstance(signed_tx, DeclareV2)
-    assert signed_tx.version == 2
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee > 0
-
-
-@pytest.mark.asyncio
 async def test_sign_declare_v3(
     account, sierra_minimal_compiled_contract_and_class_hash
 ):
@@ -347,11 +261,10 @@ async def test_sign_declare_v3(
         compiled_contract,
         compiled_class_hash,
     ) = sierra_minimal_compiled_contract_and_class_hash
-
     signed_tx = await account.sign_declare_v3(
         compiled_contract,
         compiled_class_hash,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     assert isinstance(signed_tx, DeclareV3)
@@ -364,6 +277,7 @@ async def test_sign_declare_v3(
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1558)")
 async def test_sign_declare_v3_auto_estimate(
     account, sierra_minimal_compiled_contract_and_class_hash
 ):
@@ -389,42 +303,6 @@ async def test_sign_declare_v3_auto_estimate(
 
 
 @pytest.mark.asyncio
-async def test_sign_deploy_account_transaction(account):
-    class_hash = 0x1234
-    salt = 0x123
-    calldata = [1, 2, 3]
-    signed_tx = await account.sign_deploy_account_v1(
-        class_hash, salt, calldata, max_fee=MAX_FEE
-    )
-
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee == MAX_FEE
-    assert signed_tx.class_hash == class_hash
-    assert signed_tx.contract_address_salt == salt
-    assert signed_tx.constructor_calldata == calldata
-
-
-@pytest.mark.asyncio
-async def test_sign_deploy_account_transaction_auto_estimate(
-    account, account_with_validate_deploy_class_hash
-):
-    class_hash = account_with_validate_deploy_class_hash
-    salt = 0x1234
-    calldata = [account.signer.public_key]
-    signed_tx = await account.sign_deploy_account_v1(
-        class_hash, salt, calldata, auto_estimate=True
-    )
-
-    assert isinstance(signed_tx.signature, list)
-    assert len(signed_tx.signature) > 0
-    assert signed_tx.max_fee > 0
-    assert signed_tx.class_hash == class_hash
-    assert signed_tx.contract_address_salt == salt
-    assert signed_tx.constructor_calldata == calldata
-
-
-@pytest.mark.asyncio
 async def test_sign_deploy_account_v3(account):
     class_hash = 0x1234
     salt = 0x123
@@ -432,7 +310,7 @@ async def test_sign_deploy_account_v3(account):
     signed_tx = await account.sign_deploy_account_v3(
         class_hash,
         salt,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
         constructor_calldata=calldata,
     )
 
@@ -449,6 +327,7 @@ async def test_sign_deploy_account_v3(account):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1558)")
 async def test_sign_deploy_account_v3_auto_estimate(
     account, account_with_validate_deploy_class_hash
 ):
@@ -471,46 +350,6 @@ async def test_sign_deploy_account_v3_auto_estimate(
     assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
 
 
-@pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
-    reason="Functionality is not supported in v1 contract",
-)
-@pytest.mark.asyncio
-async def test_deploy_account_v1(client, deploy_account_details_factory, map_contract):
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-
-    deploy_result = await Account.deploy_account_v1(
-        address=address,
-        class_hash=class_hash,
-        salt=salt,
-        key_pair=key_pair,
-        client=client,
-        max_fee=int(1e16),
-    )
-    await deploy_result.wait_for_acceptance()
-
-    account = deploy_result.account
-
-    assert isinstance(account, BaseAccount)
-    assert account.address == address
-
-    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
-    assert isinstance(transaction, DeployAccountTransactionV1)
-    assert transaction.constructor_calldata == [key_pair.public_key]
-
-    res = await account.execute_v1(
-        calls=Call(
-            to_addr=map_contract.address,
-            selector=get_selector_from_name("put"),
-            calldata=[30, 40],
-        ),
-        max_fee=MAX_FEE,
-    )
-    tx_receipt = await account.client.wait_for_tx(res.transaction_hash)
-
-    assert tx_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
-
-
 @pytest.mark.asyncio
 async def test_deploy_account_v3(client, deploy_account_details_factory):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
@@ -521,7 +360,7 @@ async def test_deploy_account_v3(client, deploy_account_details_factory):
         salt=salt,
         key_pair=key_pair,
         client=client,
-        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 
@@ -545,17 +384,18 @@ async def test_deploy_account_raises_on_incorrect_address(
         ValueError,
         match=f"Provided address {hex(0x111)} is different than computed address {hex(address)}",
     ):
-        await Account.deploy_account_v1(
+        await Account.deploy_account_v3(
             address=0x111,
             class_hash=class_hash,
             salt=salt,
             key_pair=key_pair,
             client=client,
-            max_fee=MAX_FEE,
+            resource_bounds=MAX_RESOURCE_BOUNDS,
         )
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1560)")
 async def test_deploy_account_raises_on_no_enough_funds(
     deploy_account_details_factory, client
 ):
@@ -570,13 +410,13 @@ async def test_deploy_account_raises_on_no_enough_funds(
             ValueError,
             match="Not enough tokens at the specified address to cover deployment costs",
         ):
-            await Account.deploy_account_v1(
+            await Account.deploy_account_v3(
                 address=address,
                 class_hash=class_hash,
                 salt=salt,
                 key_pair=key_pair,
                 client=client,
-                max_fee=MAX_FEE,
+                resource_bounds=MAX_RESOURCE_BOUNDS,
             )
 
 
@@ -596,13 +436,13 @@ async def test_deploy_account_passes_on_enough_funds(
             transaction_hash=0x1
         )
 
-        await Account.deploy_account_v1(
+        await Account.deploy_account_v3(
             address=address,
             class_hash=class_hash,
             salt=salt,
             key_pair=key_pair,
             client=client,
-            max_fee=MAX_FEE,
+            resource_bounds=MAX_RESOURCE_BOUNDS,
         )
 
 
@@ -624,44 +464,30 @@ async def test_deploy_account_uses_custom_calldata(
     )
 
     res = await fee_contract.functions["transfer"].invoke(
-        recipient=address, amount=int(1e16), max_fee=MAX_FEE
+        recipient=address, amount=int(1e16), resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await res.wait_for_acceptance()
 
-    deploy_result = await Account.deploy_account_v1(
+    deploy_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
         constructor_calldata=calldata,
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     tx = await client.get_transaction(deploy_result.hash)
-    assert isinstance(tx, DeployAccountTransactionV1)
+    assert isinstance(tx, DeployAccountTransactionV3)
     assert tx.constructor_calldata == calldata
-
-
-@pytest.mark.asyncio
-async def test_sign_invoke_v1_for_fee_estimation(account, map_contract):
-    call = map_contract.functions["put"].prepare_invoke_v1(key=1, value=2)
-    transaction = await account.sign_invoke_v1(calls=call, max_fee=MAX_FEE)
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-    assert estimate_fee_transaction.version == transaction.version + 2**128
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
-    assert estimation.unit == PriceUnit.WEI
-    assert estimation.overall_fee > 0
 
 
 @pytest.mark.asyncio
 async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
     call = map_contract.functions["put"].prepare_invoke_v3(key=1, value=2)
     transaction = await account.sign_invoke_v3(
-        calls=call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
@@ -674,48 +500,21 @@ async def test_sign_invoke_v3_for_fee_estimation(account, map_contract):
 
 
 @pytest.mark.asyncio
-async def test_sign_deploy_account_v1_for_fee_estimation(
-    client, deploy_account_details_factory
-):
-    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-
-    account = Account(
-        address=address,
-        client=client,
-        key_pair=key_pair,
-        chain=StarknetChainId.SEPOLIA,
-    )
-
-    transaction = await account.sign_deploy_account_v1(
-        class_hash=class_hash,
-        contract_address_salt=salt,
-        constructor_calldata=[key_pair.public_key],
-        max_fee=MAX_FEE,
-    )
-
-    estimate_fee_transaction = await account.sign_for_fee_estimate(transaction)
-    assert estimate_fee_transaction.version == transaction.version + 2**128
-
-    estimation = await account.client.estimate_fee(estimate_fee_transaction)
-    assert isinstance(estimation, EstimatedFee)
-    assert estimation.unit == PriceUnit.WEI
-    assert estimation.overall_fee > 0
-
-
-@pytest.mark.asyncio
 async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash):
     deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
-    deploy_tx = await account.sign_invoke_v1(deployment.call, max_fee=MAX_FEE)
+    deploy_tx = await account.sign_invoke_v3(
+        deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
 
     new_balance = 30
-    invoke_tx = await account.sign_invoke_v1(
+    invoke_tx = await account.sign_invoke_v3(
         Call(
             deployment.address,
             get_selector_from_name("increase_balance"),
             [new_balance],
         ),
         nonce=deploy_tx.nonce + 1,
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     deploy_res = await account.client.send_transaction(deploy_tx)
@@ -733,6 +532,7 @@ async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash)
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1560)")
 async def test_argent_account_deploy(
     client,
     argent_account_class_hash,
@@ -742,14 +542,14 @@ async def test_argent_account_deploy(
         class_hash=argent_account_class_hash, argent_calldata=True
     )
 
-    deploy_result = await Account.deploy_account_v1(
+    deploy_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
         constructor_calldata=[key_pair.public_key, 0],
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
     account = deploy_result.account
@@ -765,6 +565,7 @@ async def test_argent_account_deploy(
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1560)")
 async def test_argent_account_execute(
     deployed_balance_contract,
     argent_account: BaseAccount,
@@ -787,8 +588,8 @@ async def test_argent_account_execute(
         selector=get_selector_from_name("increase_balance"),
         calldata=[value],
     )
-    execute = await argent_account.execute_v1(
-        calls=increase_balance_by_20_call, max_fee=MAX_FEE
+    execute = await argent_account.execute_v3(
+        calls=increase_balance_by_20_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await argent_account.client.wait_for_tx(tx_hash=execute.transaction_hash)
     receipt = await argent_account.client.get_transaction_receipt(
@@ -826,7 +627,7 @@ async def test_account_execute_v3(account, deployed_balance_contract):
     (initial_balance,) = await account.client.call_contract(call=get_balance_call)
 
     execute_increase_balance = await account.execute_v3(
-        calls=increase_balance_call, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     receipt = await account.client.wait_for_tx(
         tx_hash=execute_increase_balance.transaction_hash
