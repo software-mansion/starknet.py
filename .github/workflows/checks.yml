@@ -35,7 +35,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'poetry'
@@ -76,7 +76,7 @@ jobs:
 
       - uses: actions/checkout@v4
       - uses: asdf-vm/actions/setup@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -87,7 +87,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -154,7 +154,7 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -167,7 +167,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -252,7 +252,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # ..................RUN-TESTS-ON-NETWORKS................... #
@@ -277,7 +277,7 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -290,7 +290,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'poetry'
@@ -328,7 +328,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # ....................RUN-TESTS-WINDOWS..................... #
@@ -357,7 +357,7 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -385,7 +385,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -410,7 +410,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # .....................RUN-DOCS-TESTS....................... #
@@ -433,7 +433,7 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -446,7 +446,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -484,7 +484,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # .................RUN-DOCS-TESTS-WINDOWS................... #
@@ -511,7 +511,7 @@ jobs:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -524,7 +524,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -561,4 +561,4 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
