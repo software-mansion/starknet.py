@@ -25,7 +25,7 @@ Environment variables
 
 In order to be able to run tests on testnet network (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
-    - ``SEPOLIA_RPC_URL``
+    - ``SEPOLIA_RPC_URL``    
     - ``SEPOLIA_ACCOUNT_PRIVATE_KEY``
     - ``SEPOLIA_ACCOUNT_ADDRESS``
 

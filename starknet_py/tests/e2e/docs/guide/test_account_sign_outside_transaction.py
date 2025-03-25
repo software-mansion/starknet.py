@@ -6,12 +6,10 @@ from starknet_py.net.client_models import (
 )
 
 
-# TODO (#1546): Remove skip mark
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_account_outside_execution_any_caller(
     account,
-    argent_account,
+    argent_account_v040,
     map_contract,
 ):
     # pylint: disable=import-outside-toplevel,too-many-locals
@@ -38,7 +36,7 @@ async def test_account_outside_execution_any_caller(
     # the specified caller. In this case, anyone will be able to execute it.
 
     # Note that signing account does not need to have any funds to sign the transaction.
-    call = await argent_account.sign_outside_execution_call(
+    call = await argent_account_v040.sign_outside_execution_call(
         calls=[
             put_call,
         ],
