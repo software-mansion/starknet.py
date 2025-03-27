@@ -527,7 +527,7 @@ async def test_get_storage_proof(client_sepolia_testnet):
         class_hashes=[int(STRK_CLASS_HASH, 16)],
     )
 
-    # We can't check exact values, as they change with each block
+    # We can't check exact values, as they change over the time
     assert len(storage_proof.classes_proof) > 0
     assert len(storage_proof.contracts_proof.nodes) > 0
     assert len(storage_proof.contracts_storage_proofs[0]) > 16
