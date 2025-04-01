@@ -140,7 +140,9 @@ class WebsocketClient:
         keys_serialized = (
             [[_to_rpc_felt(key) for key in keys] for keys in keys] if keys else None
         )
-        block_id_serialized = SubscriptionBlockIdSchema().dump(block_id) if block_id else None
+        block_id_serialized = (
+            SubscriptionBlockIdSchema().dump(block_id) if block_id else None
+        )
         params = {
             "from_address": from_address_serialized,
             "keys": keys_serialized,
