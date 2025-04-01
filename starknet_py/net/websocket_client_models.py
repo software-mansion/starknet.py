@@ -10,6 +10,7 @@ from typing_extensions import Generic
 from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEvent,
+    Hash,
     TransactionStatusResponse,
 )
 from starknet_py.net.models import (
@@ -48,7 +49,7 @@ class NewHeadsNotification(Notification[BlockHeader]):
 
 
 @dataclass
-class EventsNotification(Notification[EmittedEvent]):
+class NewEventsNotification(Notification[EmittedEvent]):
     """
     Notification to the client of a new event.
     """
@@ -111,3 +112,16 @@ class ReorgNotification(Notification[ReorgData]):
     """
     Notification of a reorganization of the chain.
     """
+
+
+@dataclass
+class BlockHash:
+    block_hash: Hash
+
+
+@dataclass
+class BlockNumber:
+    block_number: int
+
+
+SubscriptionBlockId = Union[BlockHash, BlockNumber, "latest"]

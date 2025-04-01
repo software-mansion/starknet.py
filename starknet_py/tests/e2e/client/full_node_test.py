@@ -19,8 +19,6 @@ from starknet_py.net.client_models import (
     DeclareTransactionV3,
     DeployAccountTransactionTrace,
     InvokeTransactionTrace,
-    ResourceBounds,
-    ResourceBoundsMapping,
     SierraContractClass,
     SimulatedTransaction,
     SyncStatus,
