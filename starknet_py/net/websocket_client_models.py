@@ -5,7 +5,7 @@ Dataclasses representing responses from Starknet Websocket RPC API.
 from dataclasses import dataclass
 from typing import TypeVar, Union
 
-from typing_extensions import Generic
+from typing_extensions import Generic, Literal
 
 from starknet_py.net.client_models import (
     BlockHeader,
@@ -124,4 +124,7 @@ class BlockNumber:
     block_number: int
 
 
-SubscriptionBlockId = Union[BlockHash, BlockNumber, "latest"]
+BlockTagLatest = Literal["latest"]
+
+
+SubscriptionBlockId = Union[BlockHash, BlockNumber, BlockTagLatest]

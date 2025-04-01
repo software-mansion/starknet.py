@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import Any, Callable, Dict, List, Optional, Type, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 from websockets.asyncio.client import ClientConnection, connect
 

@@ -196,7 +196,7 @@ async def test_reorg_subscription(
 
     websocket_client.set_reorg_notification_handler(handler)
 
-    new_block_hash = await devnet_client.create_block()
+    await devnet_client.create_block()
 
     await asyncio.sleep(10)
 
