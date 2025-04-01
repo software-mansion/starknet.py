@@ -41,10 +41,12 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.client_utils import (
     _create_broadcasted_txn,
+    _get_raw_block_identifier,
     _is_valid_eth_address,
     _to_rpc_felt,
     _to_storage_key,
     encode_l1_message,
+    get_block_identifier,
 )
 from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.http_client import RpcHttpClient
@@ -862,31 +864,3 @@ class FullNodeClient(Client):
             List[BlockTransactionTrace],
             BlockTransactionTraceSchema().load(res, many=True),
         )
-
-
-def get_block_identifier(
-    block_hash: Optional[Union[Hash, Tag]] = None,
-    block_number: Optional[Union[int, Tag]] = None,
-) -> dict:
-    return {"block_id": _get_raw_block_identifier(block_hash, block_number)}
-
-
-def _get_raw_block_identifier(
-    block_hash: Optional[Union[Hash, Tag]] = None,
-    block_number: Optional[Union[int, Tag]] = None,
-) -> Union[dict, Hash, Tag, None]:
-    if block_hash is not None and block_number is not None:
-        raise ValueError(
-            "Arguments block_hash and block_number are mutually exclusive."
-        )
-
-    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
-        return block_hash or block_number
-
-    if block_hash is not None:
-        return {"block_hash": _to_rpc_felt(block_hash)}
-
-    if block_number is not None:
-        return {"block_number": block_number}
-
-    return "pending"

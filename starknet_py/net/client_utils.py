@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union, cast
+from typing import Dict, Optional, Union, cast
 
 from typing_extensions import get_args
 
@@ -86,3 +86,31 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
         Dict,
         BroadcastedTransactionSchema().dump(obj=transaction),
     )
+
+
+def get_block_identifier(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> dict:
+    return {"block_id": _get_raw_block_identifier(block_hash, block_number)}
+
+
+def _get_raw_block_identifier(
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
+) -> Union[dict, Hash, Tag, None]:
+    if block_hash is not None and block_number is not None:
+        raise ValueError(
+            "Arguments block_hash and block_number are mutually exclusive."
+        )
+
+    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
+        return block_hash or block_number
+
+    if block_hash is not None:
+        return {"block_hash": _to_rpc_felt(block_hash)}
+
+    if block_number is not None:
+        return {"block_number": block_number}
+
+    return "pending"

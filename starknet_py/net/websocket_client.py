@@ -4,7 +4,8 @@ from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 from websockets.asyncio.client import ClientConnection, connect
 
-from starknet_py.net.client_utils import _to_rpc_felt
+from starknet_py.net.client_models import Hash, LatestTag
+from starknet_py.net.client_utils import _to_rpc_felt, get_block_identifier
 from starknet_py.net.schemas.rpc.ws import (
     NewEventsNotificationSchema,
     NewHeadsNotificationSchema,
@@ -13,6 +14,7 @@ from starknet_py.net.schemas.rpc.ws import (
     SubscriptionBlockIdSchema,
     TransactionStatusNotificationSchema,
 )
+from starknet_py.net.websocket_client_errors import WebsocketClientError
 from starknet_py.net.websocket_client_models import (
     NewEventsNotification,
     NewHeadsNotification,
@@ -82,43 +84,46 @@ class WebsocketClient:
     async def subscribe_new_heads(
         self,
         handler: Callable[[NewHeadsNotification], Any],
-        block_id: Optional[SubscriptionBlockId] = None,
+        block_hash: Optional[Union[Hash, LatestTag]] = None,
+        block_number: Optional[Union[int, LatestTag]] = None,
     ) -> int:
         """
         Creates a WebSocket stream which will fire events for new block headers.
 
         :param handler: The function to call when a new block header is received.
-        :param block_id: The block to get notifications from, default is latest, limited to 1024 blocks back.
+        :param block_hash: Hash of the block to get notifications from or literal `"latest"`.
+            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"latest"`.
+        :param block_number: Number (height) of the block to get notifications from or literal `"latest"`.
         :return: The subscription ID.
         """
-        block_id_serialized = (
-            SubscriptionBlockIdSchema().dump(obj=block_id) if block_id else None
-        )
-        params = {"block_id": block_id_serialized}
-        params = _clear_none_values(params)
+        if block_hash is None and block_number is None:
+            block_id = {"block_id": "latest"}
+        else:
+            block_id = get_block_identifier(
+                block_hash=block_hash, block_number=block_number
+            )
 
         subscription_id = await self._subscribe(
-            handler, "starknet_subscribeNewHeads", params
+            handler, "starknet_subscribeNewHeads", block_id
         )
 
         return subscription_id
 
-    def set_reorg_notification_handler(
-        self, handler: Callable[[ReorgNotification], Any]
-    ):
+    @property
+    def reorg_notification_handler(self) -> Callable[[ReorgNotification], Any]:
+        """
+        The notifications handler for reorganization of the chain.
+
+        :return: The handler for reorg notifications.
+        """
+        return self._reorg_notification_handler
+
+    @reorg_notification_handler.setter
+    def reorg_notification_handler(self, handler: Callable[[ReorgNotification], Any]):
         """
         Sets the handler for reorg notifications.
-
-        :param handler: The function to call when a reorg notification is received.
         """
-
         self._reorg_notification_handler = handler
-
-    def remove_reorg_notification_handler(self):
-        """
-        Removes the handler for reorg notifications.
-        """
-        self._reorg_notification_handler = None
 
     async def subscribe_events(
         self,
@@ -219,7 +224,7 @@ class WebsocketClient:
             return False
 
         params = {"subscription_id": subscription_id}
-        res = await self._send_rpc_request("starknet_unsubscribe", params)
+        res = await self._send_message("starknet_unsubscribe", params)
         unsubscription_result = res["result"]
 
         if unsubscription_result:
@@ -233,7 +238,16 @@ class WebsocketClient:
         method: str,
         params: Optional[Dict[str, Any]] = None,
     ) -> int:
-        rpc_response = await self._send_rpc_request(method, params)
+        """ "
+        Creates a WebSocket stream which will fire events on a specific action.
+
+        :param handler: The function to call when a new notification is received.
+        :param method: The method to call to subscribe.
+        :param params: The parameters to pass to the method.
+
+        :return: The subscription ID.
+        """
+        rpc_response = await self._send_message(method, params)
         subscription_id = int(rpc_response["result"])
         self._subscriptions[subscription_id] = handler
 
@@ -243,16 +257,20 @@ class WebsocketClient:
         """
         Listens for incoming WebSocket messages.
         """
-
         async for message in self.connection:
-            data = cast(Dict, json.loads(message))
-            self._handle_received_message(data)
+            self._handle_received_message(message)
 
-    async def _send_rpc_request(
+    async def _send_message(
         self,
         method: str,
         params: Optional[Dict[str, Any]] = None,
     ):
+        """
+        Sends a message to the WebSocket server.
+
+        :param method: The method to call.
+        :param params: The parameters to pass to the method.
+        """
         message_id = self._message_id
         self._message_id += 1
 
@@ -267,19 +285,36 @@ class WebsocketClient:
         self._pending_responses[message_id] = future
 
         await self.connection.send(json.dumps(payload))
-        return await future
+        response = await future
 
-    def _handle_received_message(self, message: Dict):
-        # notification case
-        if "method" in message:
-            self._handle_notification(message)
+        if "error" in response:
+            self._handle_error(response)
+
+        return response
+
+    def _handle_received_message(self, message: Union[str, bytes]):
+        """
+        Handles the received message.
+
+        :param message: The message received from the WebSocket server.
+        """
+        data = cast(Dict, json.loads(message))
 
         # case when the message is a response to a request
-        elif "id" in message and message["id"] in self._pending_responses:
-            future = self._pending_responses.pop(message["id"])
-            future.set_result(message)
+        if "id" in data and data["id"] in self._pending_responses:
+            future = self._pending_responses.pop(data["id"])
+            future.set_result(data)
+
+        # notification case
+        elif "method" in message:
+            self._handle_notification(data)
 
     def _handle_notification(self, data: Dict):
+        """
+        Handles the received notification.
+
+        :param data: The notification data.
+        """
         method = data["method"]
         schema = _SCHEMA_MAPPING[method]
         notification: HandlerNotification = schema().load(data["params"])
@@ -293,6 +328,14 @@ class WebsocketClient:
         else:
             handler = self._subscriptions[notification.subscription_id]
             handler(notification)
+
+    def _handle_error(self, result: dict):
+        # pylint: disable=no-self-use
+        raise WebsocketClientError(
+            code=result["error"]["code"],
+            message=result["error"]["message"],
+            data=result["error"].get("data"),
+        )
 
 
 def _clear_none_values(data: Dict[str, Any]) -> Dict[str, Any]:

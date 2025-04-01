@@ -33,6 +33,7 @@ from starknet_py.utils.constructor_args_translator import _is_abi_v2
 
 Hash = Union[int, str]
 Tag = Literal["pending", "latest"]
+LatestTag = Literal["latest"]
 
 
 @dataclass
