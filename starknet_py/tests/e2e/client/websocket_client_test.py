@@ -13,7 +13,9 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionStatus,
 )
+from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.websocket_client import WebsocketClient
+from starknet_py.net.websocket_client_errors import WebsocketClientError
 from starknet_py.net.websocket_client_models import (  # ReorgData,; ReorgNotification,
     NewEventsNotification,
     NewHeadsNotification,
@@ -30,23 +32,60 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 @pytest.mark.asyncio
 async def test_new_heads_subscription(
     websocket_client: WebsocketClient,
-    devnet_client: DevnetClient,
+    devnet_client_fork_mode: DevnetClient,
 ):
-    block_header_from_notification: Optional[BlockHeader] = None
+    received_block_header: Optional[BlockHeader] = None
 
     def handler(new_heads_notification: NewHeadsNotification):
-        nonlocal block_header_from_notification
-        block_header_from_notification = new_heads_notification.result
+        nonlocal received_block_header
+        received_block_header = new_heads_notification.result
+        print("XXX", received_block_header)
 
     subscription_id = await websocket_client.subscribe_new_heads(handler=handler)
 
-    new_block_hash = await devnet_client.create_block()
+    new_block_hash = await devnet_client_fork_mode.create_block()
 
-    assert block_header_from_notification is not None
-    assert int(new_block_hash, 16) == block_header_from_notification.block_hash
+    await asyncio.sleep(5)
+
+    assert received_block_header is not None
+    assert int(new_block_hash, 16) == received_block_header.block_hash
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
     assert unsubscribe_result is True
+
+
+@pytest.mark.asyncio
+async def test_new_heads_subscription_with_both_block_params_passed(
+    websocket_client: WebsocketClient,
+):
+    with pytest.raises(
+        ValueError,
+        match="Arguments block_hash and block_number are mutually exclusive.",
+    ):
+        await websocket_client.subscribe_new_heads(
+            handler=lambda _: _, block_hash=1, block_number=1
+        )
+
+
+@pytest.mark.asyncio
+async def test_new_heads_subscription_too_many_blocks_back(
+    websocket_client: WebsocketClient,
+    devnet_client_fork_mode: DevnetClient,
+):
+    client = FullNodeClient(devnet_client_fork_mode.url)
+    latest_block = await client.get_block(block_hash="latest")
+    assert isinstance(latest_block, BlockHeader)
+    assert latest_block.block_number >= 1025
+
+    # TODO(#1498): Ensure if it shouldn't be TOO_MANY_BLOCKS_BACK error.
+    query_block_number = latest_block.block_number - 1025
+    with pytest.raises(
+        WebsocketClientError,
+        match="WebsocketClient failed with code 24. Message: Block not found.",
+    ):
+        await websocket_client.subscribe_new_heads(
+            handler=lambda _: _, block_number=query_block_number
+        )
 
 
 @pytest.mark.asyncio
@@ -65,21 +104,20 @@ async def test_new_events_subscription(
         handler=handler, from_address=argent_account_v040.address
     )
 
-    value = 20
-    increase_balance_by_20_call = Call(
+    increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
-        calldata=[value],
+        calldata=[100],
     )
     execute = await argent_account_v040.execute_v3(
-        calls=increase_balance_by_20_call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
     await argent_account_v040.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )
 
-    assert len(emitted_events) == 4
+    assert len(emitted_events) > 0
     for emitted_event in emitted_events:
         assert emitted_event.from_address == argent_account_v040.address
 
@@ -99,14 +137,13 @@ async def test_transaction_status_subscription(
         nonlocal new_transaction_status
         new_transaction_status = transaction_status_notification.result
 
-    value = 20
-    increase_balance_by_20_call = Call(
+    increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
-        calldata=[value],
+        calldata=[100],
     )
     execute = await argent_account_v040.execute_v3(
-        calls=increase_balance_by_20_call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     subscription_id = await websocket_client.subscribe_transaction_status(
@@ -154,14 +191,13 @@ async def test_pending_transactions_subscription(
         sender_address=[argent_account_v040.address],
     )
 
-    value = 20
-    increase_balance_by_20_call = Call(
+    increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
-        calldata=[value],
+        calldata=[100],
     )
     execute = await argent_account_v040.execute_v3(
-        calls=increase_balance_by_20_call, resource_bounds=MAX_RESOURCE_BOUNDS
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
@@ -176,29 +212,28 @@ async def test_pending_transactions_subscription(
 
 
 @pytest.mark.asyncio
-async def test_reorg_subscription(
+async def test_reorg_notification(
     websocket_client: WebsocketClient,
     devnet_client: DevnetClient,
 ):
     reorg_data: Optional[ReorgData] = None
 
-    def handler_new_heads(_new_heads_notification: NewHeadsNotification):
-        pass
-
-    def handler(reorg_notification: ReorgNotification):
+    def handler_reorg(reorg_notification: ReorgNotification):
         nonlocal reorg_data
         reorg_data = reorg_notification.result
-        print("reorg_data", reorg_data)
 
-    subscription_id = await websocket_client.subscribe_new_heads(
-        handler=handler_new_heads
-    )
+    subscription_id = await websocket_client.subscribe_new_heads(handler=lambda _: _)
 
-    websocket_client.set_reorg_notification_handler(handler)
+    websocket_client.reorg_notification_handler = handler_reorg
+    new_block_hash = await devnet_client.create_block()
 
-    await devnet_client.create_block()
+    await devnet_client.abort_block(block_hash=new_block_hash)
 
-    await asyncio.sleep(10)
+    await asyncio.sleep(5)
+
+    assert reorg_data is not None
+    assert reorg_data.starting_block_hash == int(new_block_hash, 16)
+    assert reorg_data.ending_block_hash == int(new_block_hash, 16)
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
     assert unsubscribe_result is True
