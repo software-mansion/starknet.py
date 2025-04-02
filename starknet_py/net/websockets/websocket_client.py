@@ -64,7 +64,7 @@ class WebsocketClient:
         self._subscriptions: Dict[str, NotificationHandler] = {}
         self._message_id = 0
         self._pending_responses: Dict[int, asyncio.Future] = {}
-        self._reorg_notification_handler: Optional[
+        self._on_chain_reorg: Optional[
             Callable[[ReorgNotification], Any]
         ] = None
 
@@ -214,7 +214,7 @@ class WebsocketClient:
         return subscription_id
 
     @property
-    def reorg_notification_handler(
+    def on_chain_reorg(
         self,
     ) -> Optional[Callable[[ReorgNotification], Any]]:
         """
@@ -223,16 +223,16 @@ class WebsocketClient:
 
         :return: The handler for reorg notifications.
         """
-        return self._reorg_notification_handler
+        return self._on_chain_reorg
 
-    @reorg_notification_handler.setter
-    def reorg_notification_handler(self, handler: Callable[[ReorgNotification], Any]):
+    @on_chain_reorg.setter
+    def on_chain_reorg(self, handler: Callable[[ReorgNotification], Any]):
         """
         Sets the handler for reorg notifications.
 
-        :param handler: The handler for reorg notifications.
+        :param handler: The handler for chain reorg notifications.
         """
-        self._reorg_notification_handler = handler
+        self._on_chain_reorg = handler
 
     async def unsubscribe(self, subscription_id: str) -> bool:
         """
@@ -350,8 +350,8 @@ class WebsocketClient:
             return
 
         if isinstance(notification, ReorgNotification):
-            if self._reorg_notification_handler:
-                self._reorg_notification_handler(notification)
+            if self._on_chain_reorg:
+                self._on_chain_reorg(notification)
         else:
             handler = self._subscriptions[notification.subscription_id]
             handler(notification)

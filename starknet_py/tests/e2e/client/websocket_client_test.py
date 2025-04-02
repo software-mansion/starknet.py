@@ -299,7 +299,7 @@ async def test_receive_reorg_notification(
 
     subscription_id = await websocket_client.subscribe_new_heads(handler=lambda _: _)
 
-    websocket_client.reorg_notification_handler = handler_reorg
+    websocket_client.on_chain_reorg = handler_reorg
     new_block_hash = await devnet_client.create_block()
 
     await devnet_client.abort_block(block_hash=new_block_hash)
