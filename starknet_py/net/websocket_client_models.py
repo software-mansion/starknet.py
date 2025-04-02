@@ -5,12 +5,11 @@ Dataclasses representing responses from Starknet Websocket RPC API.
 from dataclasses import dataclass
 from typing import TypeVar, Union
 
-from typing_extensions import Generic, Literal
+from typing_extensions import Generic
 
 from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEvent,
-    Hash,
     TransactionStatusResponse,
 )
 from starknet_py.net.models import (
@@ -112,19 +111,3 @@ class ReorgNotification(Notification[ReorgData]):
     """
     Notification of a reorganization of the chain.
     """
-
-
-@dataclass
-class BlockHash:
-    block_hash: Hash
-
-
-@dataclass
-class BlockNumber:
-    block_number: int
-
-
-BlockTagLatest = Literal["latest"]
-
-
-SubscriptionBlockId = Union[BlockHash, BlockNumber, BlockTagLatest]

@@ -11,7 +11,6 @@ from starknet_py.net.schemas.rpc.ws import (
     NewHeadsNotificationSchema,
     PendingTransactionsNotificationSchema,
     ReorgNotificationSchema,
-    SubscriptionBlockIdSchema,
     TransactionStatusNotificationSchema,
 )
 from starknet_py.net.websocket_client_errors import WebsocketClientError
@@ -20,7 +19,6 @@ from starknet_py.net.websocket_client_models import (
     NewHeadsNotification,
     PendingTransactionsNotification,
     ReorgNotification,
-    SubscriptionBlockId,
     TransactionStatusNotification,
 )
 
@@ -96,13 +94,7 @@ class WebsocketClient:
         :param block_number: Number (height) of the block to get notifications from or literal `"latest"`.
         :return: The subscription ID.
         """
-        if block_hash is None and block_number is None:
-            block_id = {"block_id": "latest"}
-        else:
-            block_id = get_block_identifier(
-                block_hash=block_hash, block_number=block_number
-            )
-
+        block_id = get_block_identifier(block_hash, block_number, "latest")
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeNewHeads", block_id
         )
@@ -110,7 +102,9 @@ class WebsocketClient:
         return subscription_id
 
     @property
-    def reorg_notification_handler(self) -> Callable[[ReorgNotification], Any]:
+    def reorg_notification_handler(
+        self,
+    ) -> Optional[Callable[[ReorgNotification], Any]]:
         """
         The notifications handler for reorganization of the chain.
         Will be called when subscribing to new heads, events or transaction status.
@@ -133,7 +127,8 @@ class WebsocketClient:
         handler: Callable[[NewEventsNotification], Any],
         from_address: Optional[int] = None,
         keys: Optional[List[List[int]]] = None,
-        block_id: Optional[SubscriptionBlockId] = None,
+        block_hash: Optional[Union[Hash, LatestTag]] = None,
+        block_number: Optional[Union[int, LatestTag]] = None,
     ) -> int:
         """
         Creates a WebSocket stream which will fire events for new Starknet events with applied filters.
@@ -141,20 +136,20 @@ class WebsocketClient:
         :param handler: The function to call when a new event is received.
         :param from_address: Address which emitted the event.
         :param keys: The keys to filter events by.
-        :param block_id: The block to get notifications from, default is latest, limited to 1024 blocks back.
+        :param block_hash: Hash of the block to get notifications from or literal `"latest"`.
+            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"latest"`.
+        :param block_number: Number (height) of the block to get notifications from or literal `"latest"`.
         :return: The subscription ID.
         """
         from_address_serialized = _to_rpc_felt(from_address) if from_address else None
         keys_serialized = (
             [[_to_rpc_felt(key) for key in keys] for keys in keys] if keys else None
         )
-        block_id_serialized = (
-            SubscriptionBlockIdSchema().dump(block_id) if block_id else None
-        )
+        block_id = get_block_identifier(block_hash, block_number, "latest")
         params = {
             "from_address": from_address_serialized,
             "keys": keys_serialized,
-            "block_id": block_id_serialized,
+            "block_id": block_id,
         }
         params = _clear_none_values(params)
         subscription_id = await self._subscribe(
@@ -309,7 +304,7 @@ class WebsocketClient:
             future.set_result(data)
 
         # notification case
-        elif "method" in message:
+        elif "method" in data:
             self._handle_notification(data)
 
     def _handle_notification(self, data: Dict):

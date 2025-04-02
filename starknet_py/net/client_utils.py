@@ -91,13 +91,17 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
+    default_tag: Optional[Tag] = "pending",
 ) -> dict:
-    return {"block_id": _get_raw_block_identifier(block_hash, block_number)}
+    return {
+        "block_id": _get_raw_block_identifier(block_hash, block_number, default_tag)
+    }
 
 
 def _get_raw_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
+    default_tag: Optional[Tag] = "pending",
 ) -> Union[dict, Hash, Tag, None]:
     if block_hash is not None and block_number is not None:
         raise ValueError(
@@ -113,4 +117,4 @@ def _get_raw_block_identifier(
     if block_number is not None:
         return {"block_number": block_number}
 
-    return "pending"
+    return default_tag

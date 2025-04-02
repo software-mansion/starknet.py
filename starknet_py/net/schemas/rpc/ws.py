@@ -1,12 +1,16 @@
-from marshmallow import fields, post_load
+from typing import Any, Optional
 
+from marshmallow import ValidationError, fields, post_load
+
+from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.schemas.common import Felt
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
 from starknet_py.net.schemas.rpc.event import EmittedEventSchema
-from starknet_py.net.schemas.rpc.transactions import TransactionStatusResponseSchema
+from starknet_py.net.schemas.rpc.transactions import (
+    TransactionStatusResponseSchema,
+    TypesOfTransactionsSchema,
+)
 from starknet_py.net.websocket_client_models import (
-    BlockHash,
-    BlockNumber,
     NewEventsNotification,
     NewHeadsNotification,
     NewTransactionStatus,
@@ -14,7 +18,6 @@ from starknet_py.net.websocket_client_models import (
     ReorgData,
     ReorgNotification,
     SubscribeResponse,
-    SubscriptionBlockId,
     TransactionStatusNotification,
     UnsubscribeResponse,
 )
@@ -69,6 +72,51 @@ class TransactionStatusNotificationSchema(Schema):
         return TransactionStatusNotification(**data)
 
 
+class FeltSchema(Schema):
+    value = fields.String(required=True)
+
+    @post_load
+    def unwrap(self, data, **kwargs):
+        print(data)
+        return data["value"]
+
+
+# class PendingTransactionsNotificationResultSchema(OneOfSchema):
+#     type_schemas = {
+#         "transaction_hash": FeltSchema,
+#         "transaction": TypesOfTransactionsSchema,
+#     }
+#
+#     def get_obj_type(self, obj):
+#         print(obj)
+#         if isinstance(obj, str):
+#             return "transaction_hash"
+#         elif isinstance(obj, dict):
+#             return "transaction"
+#         raise ValueError(f"Invalid value provided for result: {obj}")
+
+
+class PendingTransactionsNotificationResultField(fields.Field):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        if isinstance(value, int):
+            return _to_rpc_felt
+
+    def _deserialize(
+        self,
+        value,
+        attr,
+        data,
+        **kwargs,
+    ):
+        if isinstance(value, str):
+            return Felt().deserialize(value, attr, data, **kwargs)
+        elif isinstance(value, dict):
+            return TypesOfTransactionsSchema().load(value)
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}"
+        )
+
+
 class PendingTransactionsNotificationSchema(Schema):
     subscription_id = fields.Integer(data_key="subscription_id", required=True)
     result = fields.Dict(data_key="result", required=True)
@@ -110,22 +158,14 @@ class ReorgNotificationSchema(Schema):
         return ReorgNotification(**data)
 
 
-class SubscriptionBlockIdSchema(Schema):
-    block_hash = Felt(data_key="block_hash", required=False)
-    block_number = fields.Integer(data_key="block_number", required=False)
+if __name__ == "__main__":
+    data = {
+        "subscription_id": 1,
+        "result": "0x000000000000000000000000000000000000000000000000000000000000000A",
+    }
 
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> SubscriptionBlockId:
-        if isinstance(data, str):
-            return data
+    schema = PendingTransactionsNotificationSchema()
 
-        elif isinstance(data, dict):
-            if "block_hash" in data:
-                return BlockHash(block_hash=data["block_hash"])
-            elif "block_number" in data:
-                return BlockNumber(block_number=data["block_number"])
-            raise ValueError(
-                f"Either `block_hash` or `block_number` must be provided: {data}"
-            )
+    result = schema.load(data)
 
-        raise ValueError(f"Invalid value provided for SubscriptionBlockId: {data}")
+    print(result)
