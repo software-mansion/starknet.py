@@ -113,6 +113,7 @@ class WebsocketClient:
     def reorg_notification_handler(self) -> Callable[[ReorgNotification], Any]:
         """
         The notifications handler for reorganization of the chain.
+        Will be called when subscribing to new heads, events or transaction status.
 
         :return: The handler for reorg notifications.
         """
@@ -122,6 +123,8 @@ class WebsocketClient:
     def reorg_notification_handler(self, handler: Callable[[ReorgNotification], Any]):
         """
         Sets the handler for reorg notifications.
+
+        :param handler: The handler for reorg notifications.
         """
         self._reorg_notification_handler = handler
 
