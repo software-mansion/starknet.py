@@ -149,7 +149,7 @@ class WebsocketClient:
         params = {
             "from_address": from_address_serialized,
             "keys": keys_serialized,
-            "block_id": block_id,
+            **block_id,
         }
         params = _clear_none_values(params)
         subscription_id = await self._subscribe(
@@ -245,8 +245,8 @@ class WebsocketClient:
 
         :return: The subscription ID.
         """
-        rpc_response = await self._send_message(method, params)
-        subscription_id = int(rpc_response["result"])
+        response_message = await self._send_message(method, params)
+        subscription_id = int(response_message["result"])
         self._subscriptions[subscription_id] = handler
 
         return subscription_id

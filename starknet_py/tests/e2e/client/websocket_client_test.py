@@ -90,7 +90,6 @@ async def test_new_heads_subscription_too_many_blocks_back(
 @pytest.mark.asyncio
 async def test_new_heads_subscription_block_not_found(
     websocket_client: WebsocketClient,
-    devnet_client_fork_mode: DevnetClient,
 ):
     with pytest.raises(
         WebsocketClientError,
@@ -166,7 +165,7 @@ async def test_transaction_status_subscription(
         tx_hash=execute.transaction_hash
     )
 
-    await asyncio.sleep(10)
+    await asyncio.sleep(5)
 
     assert new_transaction_status is not None
     assert new_transaction_status.transaction_hash == execute.transaction_hash
