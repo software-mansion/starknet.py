@@ -77,7 +77,7 @@ async def test_new_heads_subscription_too_many_blocks_back(
     assert isinstance(latest_block, BlockHeader)
     assert latest_block.block_number >= 1025
 
-    # TODO(#1498): Ensure if it shouldn't be TOO_MANY_BLOCKS_BACK error.
+    # TODO(#1574): Change error to `TOO_MANY_BLOCKS_BACK` once devnet issue is resolved.
     query_block_number = latest_block.block_number - 1025
     with pytest.raises(
         WebsocketClientError,
@@ -85,6 +85,20 @@ async def test_new_heads_subscription_too_many_blocks_back(
     ):
         await websocket_client.subscribe_new_heads(
             handler=lambda _: _, block_number=query_block_number
+        )
+
+
+@pytest.mark.asyncio
+async def test_new_heads_subscription_block_not_found(
+    websocket_client: WebsocketClient,
+    devnet_client_fork_mode: DevnetClient,
+):
+    with pytest.raises(
+        WebsocketClientError,
+        match="WebsocketClient failed with code 24. Message: Block not found.",
+    ):
+        await websocket_client.subscribe_new_heads(
+            handler=lambda _: _, block_number=-1
         )
 
 
