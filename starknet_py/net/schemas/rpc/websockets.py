@@ -63,15 +63,6 @@ class TransactionStatusNotificationSchema(Schema):
         return TransactionStatusNotification(**data)
 
 
-class FeltSchema(Schema):
-    value = fields.String(required=True)
-
-    @post_load
-    def unwrap(self, data, **kwargs):
-        print(data)
-        return data["value"]
-
-
 class PendingTransactionsNotificationResultField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if isinstance(value, int):
