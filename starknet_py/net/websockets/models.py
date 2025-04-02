@@ -26,15 +26,6 @@ T = TypeVar("T")
 
 
 @dataclass
-class SubscribeResponse:
-    """
-    Subscription result.
-    """
-
-    subscription_id: int
-
-
-@dataclass
 class Notification(Generic[T]):
     subscription_id: int
     result: T

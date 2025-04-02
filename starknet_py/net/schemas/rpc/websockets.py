@@ -18,18 +18,9 @@ from starknet_py.net.websockets.models import (
     PendingTransactionsNotification,
     ReorgData,
     ReorgNotification,
-    SubscribeResponse,
     TransactionStatusNotification,
 )
 from starknet_py.utils.schema import Schema
-
-
-class SubscribeResponseSchema(Schema):
-    subscription_id = fields.Integer(data_key="subscription_id", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> SubscribeResponse:
-        return SubscribeResponse(**data)
 
 
 class NewHeadsNotificationSchema(Schema):
