@@ -3829,4 +3829,4 @@ ledger = ["bip-utils", "ledgerwallet"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9, <3.13"
-content-hash = "26a600483d9f614b8eb9df41caa9e3c0c135ed72cc11e3c3fb6470e151529e5b"
+content-hash = "aa1ae5dad28edaedfa8aa494f96d1cef039bf54a0850fdd69bb3a374b237356f"
