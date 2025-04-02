@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from marshmallow import ValidationError, fields, post_load
 
+from starknet_py.net.client_models import Transaction
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.schemas.common import Felt
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
@@ -81,25 +82,15 @@ class FeltSchema(Schema):
         return data["value"]
 
 
-# class PendingTransactionsNotificationResultSchema(OneOfSchema):
-#     type_schemas = {
-#         "transaction_hash": FeltSchema,
-#         "transaction": TypesOfTransactionsSchema,
-#     }
-#
-#     def get_obj_type(self, obj):
-#         print(obj)
-#         if isinstance(obj, str):
-#             return "transaction_hash"
-#         elif isinstance(obj, dict):
-#             return "transaction"
-#         raise ValueError(f"Invalid value provided for result: {obj}")
-
-
 class PendingTransactionsNotificationResultField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if isinstance(value, int):
             return _to_rpc_felt
+        elif isinstance(value, Transaction):
+            return TypesOfTransactionsSchema().dump(value)
+        raise ValidationError(
+            f"Invalid value provided for {self.__class__.__name__}: {value}"
+        )
 
     def _deserialize(
         self,
@@ -119,7 +110,9 @@ class PendingTransactionsNotificationResultField(fields.Field):
 
 class PendingTransactionsNotificationSchema(Schema):
     subscription_id = fields.Integer(data_key="subscription_id", required=True)
-    result = fields.Dict(data_key="result", required=True)
+    result = PendingTransactionsNotificationResultField(
+        data_key="result", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> PendingTransactionsNotification:
@@ -156,16 +149,3 @@ class ReorgNotificationSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ReorgNotification:
         return ReorgNotification(**data)
-
-
-if __name__ == "__main__":
-    data = {
-        "subscription_id": 1,
-        "result": "0x000000000000000000000000000000000000000000000000000000000000000A",
-    }
-
-    schema = PendingTransactionsNotificationSchema()
-
-    result = schema.load(data)
-
-    print(result)
