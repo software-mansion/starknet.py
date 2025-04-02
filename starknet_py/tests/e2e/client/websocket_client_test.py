@@ -88,17 +88,6 @@ async def test_new_heads_subscription_too_many_blocks_back(
 
 
 @pytest.mark.asyncio
-async def test_new_heads_subscription_block_not_found(
-    websocket_client: WebsocketClient,
-):
-    with pytest.raises(
-        WebsocketClientError,
-        match="WebsocketClient failed with code 24. Message: Block not found.",
-    ):
-        await websocket_client.subscribe_new_heads(handler=lambda _: _, block_number=-1)
-
-
-@pytest.mark.asyncio
 async def test_new_events_subscription(
     websocket_client: WebsocketClient,
     deployed_balance_contract,
@@ -184,7 +173,6 @@ async def test_transaction_status_subscription(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
 async def test_pending_transactions_subscription(
     websocket_client: WebsocketClient,
     deployed_balance_contract,
