@@ -39,7 +39,6 @@ async def test_new_heads_subscription(
     def handler(new_heads_notification: NewHeadsNotification):
         nonlocal received_block_header
         received_block_header = new_heads_notification.result
-        print("XXX", received_block_header)
 
     subscription_id = await websocket_client.subscribe_new_heads(handler=handler)
 
@@ -97,9 +96,7 @@ async def test_new_heads_subscription_block_not_found(
         WebsocketClientError,
         match="WebsocketClient failed with code 24. Message: Block not found.",
     ):
-        await websocket_client.subscribe_new_heads(
-            handler=lambda _: _, block_number=-1
-        )
+        await websocket_client.subscribe_new_heads(handler=lambda _: _, block_number=-1)
 
 
 @pytest.mark.asyncio

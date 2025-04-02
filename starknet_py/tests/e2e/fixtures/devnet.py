@@ -67,7 +67,6 @@ def devnet_ws(devnet: str) -> Generator[str, None, None]:
     """
     Returns WebSocket address of devnet.
     """
-    print("XXX",devnet.replace("http", "ws") + "/ws")
     yield devnet.replace("http", "ws") + "/ws"
 
 
