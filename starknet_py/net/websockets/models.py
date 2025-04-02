@@ -27,6 +27,9 @@ T = TypeVar("T")
 
 @dataclass
 class Notification(Generic[T]):
+    """
+    Base class for notification.
+    """
     subscription_id: int
     result: T
 
@@ -47,6 +50,9 @@ class NewEventsNotification(Notification[EmittedEvent]):
 
 @dataclass
 class NewTransactionStatus:
+    """
+    New transaction status.
+    """
     transaction_hash: int
     status: TransactionStatusResponse
 
