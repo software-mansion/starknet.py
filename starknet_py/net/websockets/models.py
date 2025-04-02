@@ -30,7 +30,7 @@ class Notification(Generic[T]):
     """
     Base class for notification.
     """
-    subscription_id: int
+    subscription_id: str
     result: T
 
 
@@ -53,6 +53,7 @@ class NewTransactionStatus:
     """
     New transaction status.
     """
+
     transaction_hash: int
     status: TransactionStatusResponse
 
