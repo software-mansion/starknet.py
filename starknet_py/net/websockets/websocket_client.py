@@ -64,9 +64,7 @@ class WebsocketClient:
         self._subscriptions: Dict[str, NotificationHandler] = {}
         self._message_id = 0
         self._pending_responses: Dict[int, asyncio.Future] = {}
-        self._on_chain_reorg: Optional[
-            Callable[[ReorgNotification], Any]
-        ] = None
+        self._on_chain_reorg: Optional[Callable[[ReorgNotification], Any]] = None
 
     async def connect(self):
         """
