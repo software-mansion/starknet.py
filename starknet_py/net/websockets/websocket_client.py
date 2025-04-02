@@ -85,7 +85,7 @@ class WebsocketClient:
         if self._listen_task:
             self._listen_task.cancel()
             await asyncio.gather(self._listen_task, return_exceptions=True)
-            self._listen_task = None  # Optionally clear the task reference
+            self._listen_task = None
         await self.connection.close()
         self.connection = None
 
@@ -327,12 +327,12 @@ class WebsocketClient:
         """
         data = cast(Dict, json.loads(message))
 
-        # case when the message is a response to a request
+        # case when the message is a response to `subscribe_{method}`
         if "id" in data and data["id"] in self._pending_responses:
             future = self._pending_responses.pop(data["id"])
             future.set_result(data)
 
-        # notification case
+        # case when the message is a notification
         elif "method" in data:
             self._handle_notification(data)
 
