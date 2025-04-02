@@ -228,7 +228,7 @@ class WebsocketClient:
         """
         Sets the handler for chain reorg notifications.
 
-        :param handler: The handler for reorg notifications.
+        :param handler: The handler for chain reorg notifications.
         """
         self._on_chain_reorg = handler
 
