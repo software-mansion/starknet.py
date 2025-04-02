@@ -86,15 +86,6 @@ class PendingTransactionsNotification(Notification[Union[int, Transaction]]):
 
 
 @dataclass
-class UnsubscribeResponse:
-    """
-    Unsubscription result.
-    """
-
-    result: bool
-
-
-@dataclass
 class ReorgData:
     """
     Data about reorganized blocks, starting and ending block number and hash.

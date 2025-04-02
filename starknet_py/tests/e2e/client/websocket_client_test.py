@@ -10,13 +10,14 @@ from starknet_py.net.client_models import (
     BlockHeader,
     Call,
     EmittedEvent,
+    StarknetBlock,
     TransactionExecutionStatus,
     TransactionStatus,
 )
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.websocket_client import WebsocketClient
-from starknet_py.net.websocket_client_errors import WebsocketClientError
-from starknet_py.net.websocket_client_models import (  # ReorgData,; ReorgNotification,
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.websockets.errors import WebsocketClientError
+from starknet_py.net.websockets.models import (
     NewEventsNotification,
     NewHeadsNotification,
     NewTransactionStatus,
@@ -26,35 +27,90 @@ from starknet_py.net.websocket_client_models import (  # ReorgData,; ReorgNotifi
     Transaction,
     TransactionStatusNotification,
 )
+from starknet_py.net.websockets.websocket_client import WebsocketClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
-async def test_new_heads_subscription(
+async def test_subscribe_new_heads(
     websocket_client: WebsocketClient,
-    devnet_client_fork_mode: DevnetClient,
+    devnet_client: DevnetClient,
 ):
-    received_block_header: Optional[BlockHeader] = None
+    received_block: Optional[BlockHeader] = None
 
     def handler(new_heads_notification: NewHeadsNotification):
-        nonlocal received_block_header
-        received_block_header = new_heads_notification.result
+        nonlocal received_block
+        received_block = new_heads_notification.result
 
     subscription_id = await websocket_client.subscribe_new_heads(handler=handler)
 
-    new_block_hash = await devnet_client_fork_mode.create_block()
+    new_block_hash = await devnet_client.create_block()
 
-    await asyncio.sleep(5)
-
-    assert received_block_header is not None
-    assert int(new_block_hash, 16) == received_block_header.block_hash
+    assert received_block is not None
+    assert int(new_block_hash, 16) == received_block.block_hash
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
     assert unsubscribe_result is True
 
 
 @pytest.mark.asyncio
-async def test_new_heads_subscription_with_both_block_params_passed(
+async def test_subscribe_new_heads_with_block_hash(
+    client: FullNodeClient,
+    websocket_client: WebsocketClient,
+    devnet_client: DevnetClient,
+):
+    received_block: Optional[BlockHeader] = None
+
+    def handler(new_heads_notification: NewHeadsNotification):
+        nonlocal received_block
+        received_block = new_heads_notification.result
+
+    latest_block = await client.get_block(block_hash="latest")
+    assert isinstance(latest_block, StarknetBlock)
+
+    subscription_id = await websocket_client.subscribe_new_heads(
+        handler=handler, block_hash=latest_block.block_hash
+    )
+
+    new_block_hash = await devnet_client.create_block()
+
+    assert received_block is not None
+    assert int(new_block_hash, 16) == received_block.block_hash
+
+    unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
+    assert unsubscribe_result is True
+
+
+@pytest.mark.asyncio
+async def test_subscribe_new_heads_with_block_number(
+    client: FullNodeClient,
+    websocket_client: WebsocketClient,
+    devnet_client: DevnetClient,
+):
+    received_block: Optional[BlockHeader] = None
+
+    def handler(new_heads_notification: NewHeadsNotification):
+        nonlocal received_block
+        received_block = new_heads_notification.result
+
+    latest_block = await client.get_block(block_hash="latest")
+    assert isinstance(latest_block, StarknetBlock)
+
+    subscription_id = await websocket_client.subscribe_new_heads(
+        handler=handler, block_number=latest_block.block_number
+    )
+
+    new_block_hash = await devnet_client.create_block()
+
+    assert received_block is not None
+    assert int(new_block_hash, 16) == received_block.block_hash
+
+    unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
+    assert unsubscribe_result is True
+
+
+@pytest.mark.asyncio
+async def test_subscribe_new_heads_with_both_block_params_passed(
     websocket_client: WebsocketClient,
 ):
     with pytest.raises(
@@ -67,13 +123,14 @@ async def test_new_heads_subscription_with_both_block_params_passed(
 
 
 @pytest.mark.asyncio
-async def test_new_heads_subscription_too_many_blocks_back(
+async def test_subscribe_new_heads_too_many_blocks_back(
     websocket_client: WebsocketClient,
     devnet_client_fork_mode: DevnetClient,
 ):
     client = FullNodeClient(devnet_client_fork_mode.url)
     latest_block = await client.get_block(block_hash="latest")
-    assert isinstance(latest_block, BlockHeader)
+
+    assert isinstance(latest_block, StarknetBlock)
     assert latest_block.block_number >= 1025
 
     # TODO(#1574): Change error to `TOO_MANY_BLOCKS_BACK` once devnet issue is resolved.
@@ -88,7 +145,7 @@ async def test_new_heads_subscription_too_many_blocks_back(
 
 
 @pytest.mark.asyncio
-async def test_new_events_subscription(
+async def test_subscribe_events(
     websocket_client: WebsocketClient,
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
@@ -125,7 +182,7 @@ async def test_new_events_subscription(
 
 
 @pytest.mark.asyncio
-async def test_transaction_status_subscription(
+async def test_subscribe_transaction_status(
     websocket_client: WebsocketClient,
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
@@ -173,7 +230,7 @@ async def test_transaction_status_subscription(
 
 
 @pytest.mark.asyncio
-async def test_pending_transactions_subscription(
+async def test_subscribe_pending_transactions(
     websocket_client: WebsocketClient,
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
@@ -204,13 +261,21 @@ async def test_pending_transactions_subscription(
     )
 
     assert len(pending_transactions) == 1
+    pending_transaction = pending_transactions[0]
+
+    transaction_hash = (
+        execute.transaction_hash
+        if isinstance(pending_transaction, int)
+        else pending_transaction.calculate_hash(StarknetChainId.SEPOLIA)
+    )
+    assert execute.transaction_hash == transaction_hash
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
     assert unsubscribe_result is True
 
 
 @pytest.mark.asyncio
-async def test_reorg_notification(
+async def test_receive_reorg_notification(
     websocket_client: WebsocketClient,
     devnet_client: DevnetClient,
 ):

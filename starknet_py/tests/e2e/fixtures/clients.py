@@ -4,7 +4,7 @@ import pytest
 import pytest_asyncio
 
 from starknet_py.net.full_node_client import FullNodeClient
-from starknet_py.net.websocket_client import WebsocketClient
+from starknet_py.net.websockets.websocket_client import WebsocketClient
 
 
 @pytest.fixture(name="client", scope="package")

@@ -1,20 +1,20 @@
 import asyncio
 import json
-from typing import Any, Callable, Dict, List, Optional, Union, cast
+from typing import Any, Callable, Dict, List, Literal, Optional, Union, cast
 
 from websockets.asyncio.client import ClientConnection, connect
 
 from starknet_py.net.client_models import Hash, LatestTag
 from starknet_py.net.client_utils import _to_rpc_felt, get_block_identifier
-from starknet_py.net.schemas.rpc.ws import (
+from starknet_py.net.schemas.rpc.websockets import (
     NewEventsNotificationSchema,
     NewHeadsNotificationSchema,
     PendingTransactionsNotificationSchema,
     ReorgNotificationSchema,
     TransactionStatusNotificationSchema,
 )
-from starknet_py.net.websocket_client_errors import WebsocketClientError
-from starknet_py.net.websocket_client_models import (
+from starknet_py.net.websockets.errors import WebsocketClientError
+from starknet_py.net.websockets.models import (
     NewEventsNotification,
     NewHeadsNotification,
     PendingTransactionsNotification,
@@ -22,16 +22,24 @@ from starknet_py.net.websocket_client_models import (
     TransactionStatusNotification,
 )
 
-HandlerNotification = Union[
+Notification = Union[
     NewHeadsNotification,
     NewEventsNotification,
     TransactionStatusNotification,
     PendingTransactionsNotification,
     ReorgNotification,
 ]
-Handler = Callable[[HandlerNotification], Any]
+NotificationHandler = Callable[[Notification], Any]
 
-_SCHEMA_MAPPING = {
+NotificationMethod = Literal[
+    "starknet_subscriptionNewHeads",
+    "starknet_subscriptionEvents",
+    "starknet_subscriptionTransactionStatus",
+    "starknet_subscriptionPendingTransactions",
+    "starknet_subscriptionReorg",
+]
+
+_NOTIFICATION_SCHEMA_MAPPING = {
     "starknet_subscriptionNewHeads": NewHeadsNotificationSchema,
     "starknet_subscriptionEvents": NewEventsNotificationSchema,
     "starknet_subscriptionTransactionStatus": TransactionStatusNotificationSchema,
@@ -53,7 +61,7 @@ class WebsocketClient:
         """
         self.node_url: str = node_url
         self._listen_task: Optional[asyncio.Task] = None
-        self._subscriptions: Dict[int, Handler] = {}
+        self._subscriptions: Dict[int, NotificationHandler] = {}
         self._message_id = 0
         self._pending_responses: Dict[int, asyncio.Future] = {}
         self._reorg_notification_handler: Optional[
@@ -101,27 +109,6 @@ class WebsocketClient:
 
         return subscription_id
 
-    @property
-    def reorg_notification_handler(
-        self,
-    ) -> Optional[Callable[[ReorgNotification], Any]]:
-        """
-        The notifications handler for reorganization of the chain.
-        Will be called when subscribing to new heads, events or transaction status.
-
-        :return: The handler for reorg notifications.
-        """
-        return self._reorg_notification_handler
-
-    @reorg_notification_handler.setter
-    def reorg_notification_handler(self, handler: Callable[[ReorgNotification], Any]):
-        """
-        Sets the handler for reorg notifications.
-
-        :param handler: The handler for reorg notifications.
-        """
-        self._reorg_notification_handler = handler
-
     async def subscribe_events(
         self,
         handler: Callable[[NewEventsNotification], Any],
@@ -143,7 +130,9 @@ class WebsocketClient:
         """
         from_address_serialized = _to_rpc_felt(from_address) if from_address else None
         keys_serialized = (
-            [[_to_rpc_felt(key) for key in keys] for keys in keys] if keys else None
+            [[_to_rpc_felt(key) for key in key_group] for key_group in keys]
+            if keys
+            else None
         )
         block_id = get_block_identifier(block_hash, block_number, "latest")
         params = {
@@ -194,15 +183,17 @@ class WebsocketClient:
         :param sender_address: The sender address to filter transactions by.
         :return: The subscription ID.
         """
+        transaction_details_serialized = (
+            _to_rpc_felt(transaction_details) if transaction_details else None
+        )
+        sender_address_serialized = (
+            [_to_rpc_felt(address) for address in sender_address]
+            if sender_address
+            else None
+        )
         params = {
-            "transaction_details": (
-                transaction_details if transaction_details is not None else None
-            ),
-            "sender_address": (
-                [_to_rpc_felt(address) for address in sender_address]
-                if sender_address
-                else None
-            ),
+            "transaction_details": transaction_details_serialized,
+            "sender_address": sender_address_serialized,
         }
         params = _clear_none_values(params)
 
@@ -210,6 +201,27 @@ class WebsocketClient:
             handler, "starknet_subscribePendingTransactions", params
         )
         return subscription_id
+
+    @property
+    def reorg_notification_handler(
+        self,
+    ) -> Optional[Callable[[ReorgNotification], Any]]:
+        """
+        The notifications handler for reorganization of the chain.
+        Will be called when subscribing to new heads, events or transaction status.
+
+        :return: The handler for reorg notifications.
+        """
+        return self._reorg_notification_handler
+
+    @reorg_notification_handler.setter
+    def reorg_notification_handler(self, handler: Callable[[ReorgNotification], Any]):
+        """
+        Sets the handler for reorg notifications.
+
+        :param handler: The handler for reorg notifications.
+        """
+        self._reorg_notification_handler = handler
 
     async def unsubscribe(self, subscription_id: int) -> bool:
         """
@@ -223,7 +235,7 @@ class WebsocketClient:
 
         params = {"subscription_id": subscription_id}
         res = await self._send_message("starknet_unsubscribe", params)
-        unsubscription_result = res["result"]
+        unsubscription_result: bool = res["result"]
 
         if unsubscription_result:
             del self._subscriptions[subscription_id]
@@ -279,7 +291,7 @@ class WebsocketClient:
             "params": params if params else [],
         }
 
-        future = asyncio.get_event_loop().create_future()
+        future = asyncio.Future()
         self._pending_responses[message_id] = future
 
         await self.connection.send(json.dumps(payload))
@@ -313,9 +325,9 @@ class WebsocketClient:
 
         :param data: The notification data.
         """
-        method = data["method"]
-        schema = _SCHEMA_MAPPING[method]
-        notification: HandlerNotification = schema().load(data["params"])
+        method: NotificationMethod = data["method"]
+        schema = _NOTIFICATION_SCHEMA_MAPPING[method]
+        notification: Notification = schema().load(data["params"])
 
         if notification.subscription_id not in self._subscriptions:
             return

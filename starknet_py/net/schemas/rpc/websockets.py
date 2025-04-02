@@ -11,7 +11,7 @@ from starknet_py.net.schemas.rpc.transactions import (
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
 )
-from starknet_py.net.websocket_client_models import (
+from starknet_py.net.websockets.models import (
     NewEventsNotification,
     NewHeadsNotification,
     NewTransactionStatus,
@@ -20,7 +20,6 @@ from starknet_py.net.websocket_client_models import (
     ReorgNotification,
     SubscribeResponse,
     TransactionStatusNotification,
-    UnsubscribeResponse,
 )
 from starknet_py.utils.schema import Schema
 
@@ -117,14 +116,6 @@ class PendingTransactionsNotificationSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> PendingTransactionsNotification:
         return PendingTransactionsNotification(**data)
-
-
-class UnsubscribeResponseSchema(Schema):
-    result = fields.Boolean(data_key="result", required=True)
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> UnsubscribeResponse:
-        return UnsubscribeResponse(**data)
 
 
 class ReorgDataSchema(Schema):
