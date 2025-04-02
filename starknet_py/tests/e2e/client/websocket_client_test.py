@@ -32,6 +32,18 @@ from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
+async def test_connect_and_disconnect(devnet_ws: str):
+    websocket_client = WebsocketClient(devnet_ws)
+    assert not await websocket_client.is_connected
+
+    await websocket_client.connect()
+    assert await websocket_client.is_connected
+
+    await websocket_client.disconnect()
+    assert not await websocket_client.is_connected
+
+
+@pytest.mark.asyncio
 async def test_subscribe_new_heads(
     websocket_client: WebsocketClient,
     devnet_client: DevnetClient,

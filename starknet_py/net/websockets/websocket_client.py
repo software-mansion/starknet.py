@@ -2,6 +2,7 @@ import asyncio
 import json
 from typing import Any, Callable, Dict, List, Literal, Optional, Union, cast
 
+from websockets import InvalidState, State
 from websockets.asyncio.client import ClientConnection, connect
 
 from starknet_py.net.client_models import Hash, LatestTag
@@ -53,13 +54,12 @@ class WebsocketClient:
     Starknet client for WebSocket API.
     """
 
-    connection: ClientConnection
-
     def __init__(self, node_url: str):
         """
         :param node_url: URL of the node providing the WebSocket API.
         """
         self.node_url: str = node_url
+        self.connection: Optional[ClientConnection] = None
         self._listen_task: Optional[asyncio.Task] = None
         self._subscriptions: Dict[str, NotificationHandler] = {}
         self._message_id = 0
@@ -79,13 +79,24 @@ class WebsocketClient:
         """
         Closes the WebSocket connection.
         """
+        if self.connection is None:
+            raise InvalidState("Connection is not established.")
+
         if self._listen_task:
             self._listen_task.cancel()
-            try:
-                await self._listen_task
-            except asyncio.CancelledError:
-                pass
+            await asyncio.gather(self._listen_task, return_exceptions=True)
+            self._listen_task = None  # Optionally clear the task reference
         await self.connection.close()
+        self.connection = None
+
+    @property
+    async def is_connected(self) -> bool:
+        """
+        Checks if the WebSocket connection is established.
+
+        :return: True if the connection is established, False otherwise.
+        """
+        return self.connection is not None and self.connection.state == State.OPEN
 
     async def subscribe_new_heads(
         self,
@@ -267,6 +278,9 @@ class WebsocketClient:
         """
         Listens for incoming WebSocket messages.
         """
+        if self.connection is None:
+            raise InvalidState("Connection is not established.")
+
         async for message in self.connection:
             self._handle_received_message(message)
 
@@ -281,6 +295,9 @@ class WebsocketClient:
         :param method: The method to call.
         :param params: The parameters to pass to the method.
         """
+        if self.connection is None:
+            raise InvalidState("Connection is not established.")
+
         message_id = self._message_id
         self._message_id += 1
 
