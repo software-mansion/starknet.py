@@ -63,14 +63,6 @@ def devnet() -> Generator[str, None, None]:
 
 
 @pytest.fixture(scope="package")
-def devnet_ws(devnet: str) -> Generator[str, None, None]:
-    """
-    Returns WebSocket address of devnet.
-    """
-    yield devnet.replace("http", "ws") + "/ws"
-
-
-@pytest.fixture(scope="package")
 def devnet_forking_mode() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns its address.
