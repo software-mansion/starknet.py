@@ -190,6 +190,7 @@ class WebsocketClient:
         :param transaction_details: Whether to include transaction details in the notification.
         If false, only hash is returned.
         :param sender_address: The sender address to filter transactions by.
+
         :return: The subscription ID.
         """
         transaction_details_serialized = (
