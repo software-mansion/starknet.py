@@ -187,7 +187,7 @@ class WebsocketClient:
         While there is no mempool, this notifies of transactions in the pending block.
 
         :param handler: The function to call when a new pending transaction is received.
-        :param transaction_details: Whether to include transaction details in the notification. If false, only hash is returned.
+        :param transaction_details: If false, only hash is returned, otherwise full transaction details.
         :param sender_address: The sender address to filter transactions by.
 
         :return: The subscription ID.
