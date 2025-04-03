@@ -1,8 +1,8 @@
 Websockets
 ==========
 
-Abstract
---------
+Introduction
+------------
 Apart from interacting with Starknet by request-response model, you can also rely on real-time notifications.
 Here comes :class:`~starknet_py.net.websockets.websocket_client.WebsocketClient` which allows to establish a connection with Starknet node and listen for events.
 
