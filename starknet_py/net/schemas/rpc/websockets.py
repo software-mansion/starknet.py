@@ -66,7 +66,7 @@ class TransactionStatusNotificationSchema(Schema):
 class PendingTransactionsNotificationResultField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if isinstance(value, int):
-            return _to_rpc_felt
+            return _to_rpc_felt(value)
         elif isinstance(value, Transaction):
             return TypesOfTransactionsSchema().dump(value)
         raise ValidationError(
