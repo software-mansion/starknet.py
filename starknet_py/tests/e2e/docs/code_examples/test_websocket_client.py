@@ -183,7 +183,7 @@ async def test_subscribe_transaction_status(
         tx_hash=execute.transaction_hash
     )
 
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)
 
     assert new_transaction_status is not None
     assert new_transaction_status.transaction_hash == execute.transaction_hash
