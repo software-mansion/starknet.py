@@ -98,7 +98,7 @@ class ContractAbiResolver:
         if contract_class.abi is None:
             raise AbiNotFoundError()
 
-        return self._get_abi_from_contract_class(
+        return self.get_abi_from_contract_class(
             contract_class
         ), self._get_cairo_version(contract_class)
 
@@ -126,7 +126,7 @@ class ContractAbiResolver:
                     # Some contract_class has been found, but it does not have abi
                     raise AbiNotFoundError()
 
-                return self._get_abi_from_contract_class(
+                return self.get_abi_from_contract_class(
                     contract_class
                 ), self._get_cairo_version(contract_class)
             except ClientError as err:
@@ -146,7 +146,7 @@ class ContractAbiResolver:
         return 1 if isinstance(contract_class, SierraContractClass) else 0
 
     @staticmethod
-    def _get_abi_from_contract_class(
+    def get_abi_from_contract_class(
         contract_class: Union[DeprecatedContractClass, SierraContractClass]
     ) -> AbiDictList:
         return (
