@@ -2,6 +2,19 @@ Migration guide
 ===============
 
 ******************************
+0.26.0-rc.1 Migration guide
+******************************
+
+The latest release candidate compatible with Starknet's JSON-RPC v0.8.0.
+
+0.26.0-rc.1 Bugfixes
+--------------------
+
+.. py:currentmodule:: starknet_py.net.executable_models
+
+1. Fixed typo in :class:`TestLessThanOrEqualAddress` class name and schema data key.
+
+******************************
 0.26.0-rc.0 Migration guide
 ******************************
 
