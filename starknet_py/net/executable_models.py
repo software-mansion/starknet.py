@@ -131,13 +131,13 @@ class TestLessThanOrEqual:
 
 
 @dataclass
-class TestLessThenOrEqualAddressInner(TestLessThanInner):
+class TestLessThanOrEqualAddressInner(TestLessThanInner):
     pass
 
 
 @dataclass
-class TestLessThenOrEqualAddress:
-    test_less_than_or_equal_address: TestLessThenOrEqualAddressInner
+class TestLessThanOrEqualAddress:
+    test_less_than_or_equal_address: TestLessThanOrEqualAddressInner
 
 
 @dataclass
@@ -498,7 +498,7 @@ Hint = Union[
     AllocSegment,
     TestLessThan,
     TestLessThanOrEqual,
-    TestLessThenOrEqualAddress,
+    TestLessThanOrEqualAddress,
     WideMul128,
     DivMod,
     Uint256DivMod,
