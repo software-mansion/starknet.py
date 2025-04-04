@@ -765,14 +765,13 @@ class Contract:
             auto_estimate=auto_estimate,
         )
 
-        if abi is not None:
-            deployed_contract = Contract(
-                provider=account, address=address, abi=abi, cairo_version=cairo_version
-            )
-        else:
-            deployed_contract = await Contract.from_address(
-                address=address, provider=account
-            )
+        if abi is None:
+            contract_class = await account.client.get_class_by_hash(class_hash)
+            abi = ContractAbiResolver.get_abi_from_contract_class(contract_class)
+
+        deployed_contract = Contract(
+            provider=account, address=address, abi=abi, cairo_version=cairo_version
+        )
 
         deploy_result = DeployResult(
             hash=res.transaction_hash,
