@@ -769,6 +769,7 @@ class Contract:
             contract_class = await account.client.get_class_by_hash(class_hash)
             # pylint: disable=protected-access
             abi = ContractAbiResolver._get_abi_from_contract_class(contract_class)
+
         deployed_contract = Contract(
             provider=account, address=address, abi=abi, cairo_version=cairo_version
         )
