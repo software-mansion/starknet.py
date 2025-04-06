@@ -2,6 +2,7 @@ from marshmallow import fields, post_load
 
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
+    BlockHeader,
     BlockStateUpdate,
     ContractsNonce,
     DeclaredContractHash,
@@ -76,6 +77,10 @@ class BlockHeaderSchema(Schema):
     )
     l1_da_mode = L1DAModeField(data_key="l1_da_mode", required=True)
     starknet_version = fields.String(data_key="starknet_version", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockHeader:
+        return BlockHeader(**data)
 
 
 class BlockHashAndNumberSchema(Schema):

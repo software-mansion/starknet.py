@@ -22,3 +22,4 @@ API
    api/serializers
    api/proxy_resolvers
    api/typed_data
+   api/websocket_client

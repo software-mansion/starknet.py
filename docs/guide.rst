@@ -10,3 +10,4 @@ Guide
     guide/serialization
     guide/signing
     guide/generating_key_pair
+    guide/websockets
