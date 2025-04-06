@@ -71,9 +71,9 @@ from starknet_py.net.executable_models import (
     TestLessThan,
     TestLessThanInner,
     TestLessThanOrEqual,
+    TestLessThanOrEqualAddress,
+    TestLessThanOrEqualAddressInner,
     TestLessThanOrEqualInner,
-    TestLessThenOrEqualAddress,
-    TestLessThenOrEqualAddressInner,
     U256InvModN,
     U256InvModNInner,
     Uint256DivMod,
@@ -339,24 +339,24 @@ class TestLessThanOrEqualSchema(Schema):
         return TestLessThanOrEqual(**data)
 
 
-class TestLessThenOrEqualAddressInnerSchema(TestLessThanInnerSchema):
+class TestLessThanOrEqualAddressInnerSchema(TestLessThanInnerSchema):
     pass
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> TestLessThenOrEqualAddressInner:
-        return TestLessThenOrEqualAddressInner(**data)
+    def make_dataclass(self, data, **kwargs) -> TestLessThanOrEqualAddressInner:
+        return TestLessThanOrEqualAddressInner(**data)
 
 
-class TestLessThenOrEqualAddressSchema(Schema):
+class TestLessThanOrEqualAddressSchema(Schema):
     test_less_than_or_equal_address = fields.Nested(
-        TestLessThenOrEqualAddressInnerSchema(),
-        data_key="TestLessThenOrEqualAddress",
+        TestLessThanOrEqualAddressInnerSchema(),
+        data_key="TestLessThanOrEqualAddress",
         required=True,
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> TestLessThenOrEqualAddress:
-        return TestLessThenOrEqualAddress(**data)
+    def make_dataclass(self, data, **kwargs) -> TestLessThanOrEqualAddress:
+        return TestLessThanOrEqualAddress(**data)
 
 
 class WideMul128InnerSchema(Schema):
@@ -1002,7 +1002,7 @@ HINT_TYPE_SCHEMAS_MAPPING = {
     "SystemCall": SystemCallSchema,
     "TestLessThan": TestLessThanSchema,
     "TestLessThanOrEqual": TestLessThanOrEqualSchema,
-    "TestLessThenOrEqualAddress": TestLessThenOrEqualAddressSchema,
+    "TestLessThanOrEqualAddress": TestLessThanOrEqualAddressSchema,
     "U256InvModN": U256InvModNSchema,
     "Uint256DivMod": Uint256DivModSchema,
     "Uint256SquareRoot": Uint256SquareRootSchema,
