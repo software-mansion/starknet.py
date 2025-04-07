@@ -137,19 +137,19 @@ class WebsocketClient:
         :param block_number: Number (height) of the block to get notifications from or literal `"latest"`.
         :return: The subscription ID.
         """
-        from_address_serialized = _to_rpc_felt(from_address) if from_address else None
-        keys_serialized = (
-            [[_to_rpc_felt(key) for key in key_group] for key_group in keys]
-            if keys
-            else None
-        )
+        params = {}
+        if from_address is not None:
+            params["from_address"] = _to_rpc_felt(from_address)
+        if keys is not None:
+            params["keys"] = [
+                [_to_rpc_felt(key) for key in key_group] for key_group in keys
+            ]
         block_id = get_block_identifier(block_hash, block_number, "latest")
         params = {
-            "from_address": from_address_serialized,
-            "keys": keys_serialized,
+            **params,
             **block_id,
         }
-        params = _clear_none_values(params)
+
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeEvents", params
         )
@@ -192,19 +192,13 @@ class WebsocketClient:
         :param sender_address: The sender address to filter transactions by.
         :return: The subscription ID.
         """
-        transaction_details_serialized = (
-            _to_rpc_felt(transaction_details) if transaction_details else None
-        )
-        sender_address_serialized = (
-            [_to_rpc_felt(address) for address in sender_address]
-            if sender_address
-            else None
-        )
-        params = {
-            "transaction_details": transaction_details_serialized,
-            "sender_address": sender_address_serialized,
-        }
-        params = _clear_none_values(params)
+        params = {}
+        if transaction_details is not None:
+            params["transaction_details"] = transaction_details
+        if sender_address is not None:
+            params["sender_address"] = [
+                _to_rpc_felt(address) for address in sender_address
+            ]
 
         subscription_id = await self._subscribe(
             handler, "starknet_subscribePendingTransactions", params
@@ -244,12 +238,12 @@ class WebsocketClient:
 
         params = {"subscription_id": subscription_id}
         res = await self._send_message("starknet_unsubscribe", params)
-        unsubscription_result: bool = res["result"]
+        unsubscribe_result: bool = res["result"]
 
-        if unsubscription_result:
+        if unsubscribe_result:
             del self._subscriptions[subscription_id]
 
-        return unsubscription_result
+        return unsubscribe_result
 
     async def _subscribe(
         self,
@@ -361,7 +355,3 @@ class WebsocketClient:
             message=result["error"]["message"],
             data=result["error"].get("data"),
         )
-
-
-def _clear_none_values(data: Dict[str, Any]) -> Dict[str, Any]:
-    return {k: v for k, v in data.items() if v is not None}
