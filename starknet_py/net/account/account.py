@@ -101,6 +101,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         self._client = client
         self._cairo_version = None
         self._chain_id = None if chain is None else parse_chain(chain)
+        # TODO(#1582): Remove field below once braavos integration is restored
         self._class_hash: Optional[int] = None
 
         if signer is not None and key_pair is not None:
@@ -380,12 +381,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> InvokeV3:
         # TODO(#1582): Remove this check once braavos integration is restored
-        class_hash = (
-            await self._client.get_class_hash_at(self._address)
-            if self._class_hash is None
-            else self._class_hash
-        )
-        _assert_non_braavos_account(class_hash)
+        if self._class_hash is None:
+            self._class_hash = await self._client.get_class_hash_at(self._address)
+        _assert_non_braavos_account(self._class_hash)
 
         invoke_tx = await self._prepare_invoke_v3(
             calls,
