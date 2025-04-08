@@ -20,7 +20,7 @@ Version 0.26.1 of **starknet.py** comes with support for RPC 0.8.1!
 
 1. Subscription id, used in :meth:`WebsocketClient.unsubscribe()` and all subscribe methods, is now a string instead of int.
 
-2. Fields in :class:`EstimatedFeeSchema` are now of type :class:`Uint64` for max amounts and :class:`Uint128` for max prices.
+2. Fields in :class:`EstimatedFeeSchema` accept now :class:`Uint64` for max amounts and :class:`Uint128` for max prices.
 
 **********************
 0.26.0 Migration guide
