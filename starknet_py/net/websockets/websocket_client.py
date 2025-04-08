@@ -61,7 +61,7 @@ class WebsocketClient:
         self.node_url: str = node_url
         self.connection: Optional[ClientConnection] = None
         self._listen_task: Optional[asyncio.Task] = None
-        self._subscriptions: Dict[str, NotificationHandler] = {}
+        self._subscriptions: Dict[int, NotificationHandler] = {}
         self._message_id = 0
         self._pending_responses: Dict[int, asyncio.Future] = {}
         self._on_chain_reorg: Optional[Callable[[ReorgNotification], Any]] = None
@@ -101,7 +101,7 @@ class WebsocketClient:
         handler: Callable[[NewHeadsNotification], Any],
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which will fire events for new block headers.
 
@@ -125,7 +125,7 @@ class WebsocketClient:
         keys: Optional[List[List[int]]] = None,
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which will fire events for new Starknet events with applied filters.
 
@@ -137,19 +137,19 @@ class WebsocketClient:
         :param block_number: Number (height) of the block to get notifications from or literal `"latest"`.
         :return: The subscription ID.
         """
-        from_address_serialized = _to_rpc_felt(from_address) if from_address else None
-        keys_serialized = (
-            [[_to_rpc_felt(key) for key in key_group] for key_group in keys]
-            if keys
-            else None
-        )
+        params = {}
+        if from_address is not None:
+            params["from_address"] = _to_rpc_felt(from_address)
+        if keys is not None:
+            params["keys"] = [
+                [_to_rpc_felt(key) for key in key_group] for key_group in keys
+            ]
         block_id = get_block_identifier(block_hash, block_number, "latest")
         params = {
-            "from_address": from_address_serialized,
-            "keys": keys_serialized,
+            **params,
             **block_id,
         }
-        params = _clear_none_values(params)
+
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeEvents", params
         )
@@ -160,7 +160,7 @@ class WebsocketClient:
         self,
         handler: Callable[[TransactionStatusNotification], Any],
         transaction_hash: int,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which at first fires an event with the current known transaction status, followed
         by events for every transaction status update.
@@ -181,7 +181,7 @@ class WebsocketClient:
         handler: Callable[[PendingTransactionsNotification], Any],
         transaction_details: Optional[bool] = None,
         sender_address: Optional[List[int]] = None,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which will fire events when a new pending transaction is added.
         While there is no mempool, this notifies of transactions in the pending block.
@@ -192,19 +192,13 @@ class WebsocketClient:
 
         :return: The subscription ID.
         """
-        transaction_details_serialized = (
-            _to_rpc_felt(transaction_details) if transaction_details else None
-        )
-        sender_address_serialized = (
-            [_to_rpc_felt(address) for address in sender_address]
-            if sender_address
-            else None
-        )
-        params = {
-            "transaction_details": transaction_details_serialized,
-            "sender_address": sender_address_serialized,
-        }
-        params = _clear_none_values(params)
+        params = {}
+        if transaction_details is not None:
+            params["transaction_details"] = transaction_details
+        if sender_address is not None:
+            params["sender_address"] = [
+                _to_rpc_felt(address) for address in sender_address
+            ]
 
         subscription_id = await self._subscribe(
             handler, "starknet_subscribePendingTransactions", params
@@ -232,7 +226,7 @@ class WebsocketClient:
         """
         self._on_chain_reorg = handler
 
-    async def unsubscribe(self, subscription_id: str) -> bool:
+    async def unsubscribe(self, subscription_id: int) -> bool:
         """
         Close a previously opened WebSocket stream, with the corresponding subscription id.
 
@@ -244,19 +238,19 @@ class WebsocketClient:
 
         params = {"subscription_id": subscription_id}
         res = await self._send_message("starknet_unsubscribe", params)
-        unsubscription_result: bool = res["result"]
+        unsubscribe_result: bool = res["result"]
 
-        if unsubscription_result:
+        if unsubscribe_result:
             del self._subscriptions[subscription_id]
 
-        return unsubscription_result
+        return unsubscribe_result
 
     async def _subscribe(
         self,
         handler: Callable[[Any], Any],
         method: str,
         params: Optional[Dict[str, Any]] = None,
-    ) -> str:
+    ) -> int:
         """ "
         Creates a WebSocket stream which will fire events on a specific action.
 
@@ -361,7 +355,3 @@ class WebsocketClient:
             message=result["error"]["message"],
             data=result["error"].get("data"),
         )
-
-
-def _clear_none_values(data: Dict[str, Any]) -> Dict[str, Any]:
-    return {k: v for k, v in data.items() if v is not None}
