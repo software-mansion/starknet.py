@@ -1,6 +1,57 @@
 Migration guide
 ===============
 
+**********************
+0.26.0 Migration guide
+**********************
+
+Version 0.26.0 of **starknet.py** comes with support for RPC 0.8.0!
+
+0.26.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
+- RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+1. New methods have been added: :meth:`~FullNodeClient.get_storage_proof`, :meth:`~FullNodeClient.get_messages_status` and :meth:`~FullNodeClient.get_compiled_casm`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+2. ``failure_reason`` field has been added to :class:`TransactionStatusResponse`.
+
+3. ``execution_resources`` and ``is_reverted`` fields have been added to :class:`FunctionInvocation`.
+
+.. py:currentmodule:: starknet_py.net.websockets.websocket_client
+
+4. Added :class:`WebsocketClient` which allows to interact with websockets API.
+
+0.26.0 Breaking changes
+-----------------------
+
+1. ``l1_resource_bounds`` parameter (in transaction methods) has been renamed to ``resource_bounds``, its type has also changed from :class:`~starknet_py.net.client_models.ResourceBounds` to :class:`~starknet_py.net.client_models.ResourceBoundsMapping`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+2. :class:`ComputationResources` and :class:`DataResources` have been removed.
+
+3. :class:`ExecutionResources`, :class:`EstimatedFee` have been modified according to new RPC specification.
+
+4. Submitting transactions other than v3 is not possible anymore.
+
+0.26.0 Bugfixes
+---------------
+
+.. py:currentmodule:: starknet_py.net.executable_models
+
+1. Fixed typo in :class:`TestLessThanOrEqualAddress` class name and schema data key.
+
+.. py:currentmodule:: starknet_py.contract
+
+2. Fixed an issue in :meth:`Contract.deploy_contract_v3` where omitting the ``abi`` param caused the node to return an error indicating that the contract was not found.
+
+
 ******************************
 0.26.0-rc.1 Migration guide
 ******************************
