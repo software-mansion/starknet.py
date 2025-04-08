@@ -2,6 +2,27 @@ Migration guide
 ===============
 
 **********************
+0.26.1 Migration guide
+**********************
+
+Version 0.26.1 of **starknet.py** comes with support for RPC 0.8.1!
+
+0.26.1 Targeted versions
+------------------------
+
+- Starknet - `0.13.5 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.5>`_
+- RPC - `0.8.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.1>`_
+
+0.26.0 Breaking changes
+-----------------------
+
+.. py:currentmodule:: starknet_py.net.websockets.websocket_client
+
+1. Subscription id, used in :meth:`WebsocketClient.unsubscribe()` and all subscribe methods, is now a string instead of int.
+
+2. Fields in :class:`EstimatedFeeSchema` are now of type :class:`Uint64` for max amounts and :class:`Uint128` for max prices.
+
+**********************
 0.26.0 Migration guide
 **********************
 
