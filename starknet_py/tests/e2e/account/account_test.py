@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
@@ -30,7 +29,6 @@ from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.accounts import AccountPrerequisites
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.utils.account import _BRAAVOS_CLASS_HASHES, BraavosAccountDisabledError
 
 
 @pytest.mark.run_on_devnet
@@ -642,68 +640,3 @@ async def test_account_execute_v3(account, deployed_balance_contract):
         call=get_balance_call
     )
     assert initial_balance + 100 == balance_after_increase
-
-
-# TODO(#1582): Remove this test once braavos integration is restored
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "address",
-    [
-        0x06DED1030F8566AE32C8E8277EE160E3E1A5FDB4AEEC0A2FBE41E51BEACD6843,
-        0x026D0AD13926C27BBBD894A8EB6FBB67A78D5C39355D6F864A9FE36640CE9C37,
-        0x05DB5E79B5C03F666AB100768128D40D2C1129BFECBA553D31B94AAA18FB154D,
-    ],
-)
-async def test_account_execute_v3_braavos(
-    address: int, devnet_client_fork_mode: DevnetClient
-):
-    braavos_account = Account(
-        address=address,
-        client=devnet_client_fork_mode,
-        chain=StarknetChainId.SEPOLIA,
-        key_pair=KeyPair.from_private_key(0x1),
-    )
-    with pytest.raises(BraavosAccountDisabledError):
-        await braavos_account.sign_invoke_v3(
-            calls=[],
-        )
-
-
-# TODO(#1582): Remove this test once braavos integration is restored
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "class_hash",
-    _BRAAVOS_CLASS_HASHES,
-)
-async def test_account_sign_deploy_account_v3_braavos(
-    class_hash: int, devnet_client_fork_mode: DevnetClient
-):
-    braavos_account = Account(
-        address=0x1,
-        client=devnet_client_fork_mode,
-        chain=StarknetChainId.SEPOLIA,
-        key_pair=KeyPair.from_private_key(0x1),
-    )
-    with pytest.raises(BraavosAccountDisabledError):
-        await braavos_account.sign_deploy_account_v3(
-            class_hash=class_hash, contract_address_salt=0x1
-        )
-
-
-# TODO(#1582): Remove this test once braavos integration is restored
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "class_hash",
-    _BRAAVOS_CLASS_HASHES,
-)
-async def test_account_deploy_account_v3_braavos(
-    class_hash: int, devnet_client_fork_mode: DevnetClient
-):
-    with pytest.raises(BraavosAccountDisabledError):
-        await Account.deploy_account_v3(
-            address=0x1,
-            class_hash=class_hash,
-            salt=0x1,
-            key_pair=KeyPair.from_private_key(0x1),
-            client=devnet_client_fork_mode,
-        )

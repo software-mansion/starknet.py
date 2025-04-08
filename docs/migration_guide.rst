@@ -27,8 +27,6 @@ Version 0.26.0 of **starknet.py** comes with support for RPC 0.8.0!
 
 4. Added :class:`WebsocketClient` which allows to interact with websockets API.
 
-5. Interaction with Braavos accounts is temporarily disabled. For more details, see `this post <https://community.starknet.io/t/starknet-devtools-for-0-13-5/115495#p-2359168-braavos-compatibility-issues-3>`_ on Starknet community forum.
-
 0.26.0 Breaking changes
 -----------------------
 
