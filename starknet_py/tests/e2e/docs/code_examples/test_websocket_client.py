@@ -95,6 +95,7 @@ async def test_subscribe_events(
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
 ):
+    account = argent_account_v040
     emitted_events: List[EmittedEvent] = []
 
     # docs-start: subscribe_events
@@ -111,7 +112,7 @@ async def test_subscribe_events(
     # docs-start: subscribe_events
     # Subscribe to new events notifications
     subscription_id = await websocket_client.subscribe_events(
-        handler=handler, from_address=argent_account_v040.address
+        handler=handler, from_address=account.address
     )
 
     # Here you can put code which will keep the application running (e.g. using loop and `asyncio.sleep`)
@@ -132,7 +133,7 @@ async def test_subscribe_events(
 
     assert len(emitted_events) > 0
     for emitted_event in emitted_events:
-        assert emitted_event.from_address == argent_account_v040.address
+        assert emitted_event.from_address == account.address
     # docs-start: subscribe_events
 
     # Unsubscribe from the notifications
@@ -211,6 +212,7 @@ async def test_subscribe_pending_transactions(
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
 ):
+    account = argent_account_v040
     pending_transactions: List[Union[int, Transaction]] = []
 
     # docs-start: subscribe_pending_transactions
@@ -228,7 +230,7 @@ async def test_subscribe_pending_transactions(
     # Subscribe to pending transactions notifications
     subscription_id = await websocket_client.subscribe_pending_transactions(
         handler=handler,
-        sender_address=[argent_account_v040.address],
+        sender_address=[account.address],
     )
 
     # Here you can put code which will keep the application running (e.g. using loop and `asyncio.sleep`)
