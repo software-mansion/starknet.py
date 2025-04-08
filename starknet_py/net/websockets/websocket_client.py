@@ -61,7 +61,7 @@ class WebsocketClient:
         self.node_url: str = node_url
         self.connection: Optional[ClientConnection] = None
         self._listen_task: Optional[asyncio.Task] = None
-        self._subscriptions: Dict[str, NotificationHandler] = {}
+        self._subscriptions: Dict[int, NotificationHandler] = {}
         self._message_id = 0
         self._pending_responses: Dict[int, asyncio.Future] = {}
         self._on_chain_reorg: Optional[Callable[[ReorgNotification], Any]] = None
@@ -101,7 +101,7 @@ class WebsocketClient:
         handler: Callable[[NewHeadsNotification], Any],
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which will fire events for new block headers.
 
@@ -125,7 +125,7 @@ class WebsocketClient:
         keys: Optional[List[List[int]]] = None,
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which will fire events for new Starknet events with applied filters.
 
@@ -160,7 +160,7 @@ class WebsocketClient:
         self,
         handler: Callable[[TransactionStatusNotification], Any],
         transaction_hash: int,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which at first fires an event with the current known transaction status, followed
         by events for every transaction status update.
@@ -181,7 +181,7 @@ class WebsocketClient:
         handler: Callable[[PendingTransactionsNotification], Any],
         transaction_details: Optional[bool] = None,
         sender_address: Optional[List[int]] = None,
-    ) -> str:
+    ) -> int:
         """
         Creates a WebSocket stream which will fire events when a new pending transaction is added.
         While there is no mempool, this notifies of transactions in the pending block.
@@ -226,7 +226,7 @@ class WebsocketClient:
         """
         self._on_chain_reorg = handler
 
-    async def unsubscribe(self, subscription_id: str) -> bool:
+    async def unsubscribe(self, subscription_id: int) -> bool:
         """
         Close a previously opened WebSocket stream, with the corresponding subscription id.
 
@@ -250,7 +250,7 @@ class WebsocketClient:
         handler: Callable[[Any], Any],
         method: str,
         params: Optional[Dict[str, Any]] = None,
-    ) -> str:
+    ) -> int:
         """ "
         Creates a WebSocket stream which will fire events on a specific action.
 
