@@ -77,7 +77,7 @@ It's possible to filter pending transactions by sender address.
 Handling chain reorganization notifications
 ###########################################
 
-When subscribing to new block headers, events or transactions status, you automatically receive notifications about chain reorganization.
+When subscribing to new block headers, events, or transaction statuses, you also receive notifications of chain reorganizations. For example, if two blocks are produced nearly simultaneously and one replaces the other as the canonical block, you'll get an update indicating that the chain has restructured.
 To handle them, you need to set the ``on_chain_reorg`` to your custom function.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/test_websocket_client.py
