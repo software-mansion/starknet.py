@@ -13,7 +13,7 @@ Version 0.26.1 of **starknet.py** comes with support for RPC 0.8.1!
 - Starknet - `0.13.5 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.5>`_
 - RPC - `0.8.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.1>`_
 
-0.26.0 Breaking changes
+0.26.1 Breaking changes
 -----------------------
 
 .. py:currentmodule:: starknet_py.net.websockets.websocket_client
