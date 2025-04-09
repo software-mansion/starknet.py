@@ -19,6 +19,7 @@ from starknet_py.net.account.base_account import (
     OutsideExecutionSupportBaseMixin,
 )
 from starknet_py.net.client import Client
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     Calls,
@@ -52,7 +53,7 @@ from starknet_py.serialization.data_serializers import (
     StructSerializer,
     UintSerializer,
 )
-from starknet_py.utils.account import _assert_non_braavos_account
+from starknet_py.utils.account import _raise_error_for_braavos_account
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
@@ -101,8 +102,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         self._client = client
         self._cairo_version = None
         self._chain_id = None if chain is None else parse_chain(chain)
-        # TODO(#1582): Remove field below once braavos integration is restored
-        self._class_hash: Optional[int] = None
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -380,19 +379,21 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
-        # TODO(#1582): Remove this check once braavos integration is restored
-        if self._class_hash is None:
-            self._class_hash = await self._client.get_class_hash_at(self._address)
-        _assert_non_braavos_account(self._class_hash)
-
-        invoke_tx = await self._prepare_invoke_v3(
-            calls,
-            resource_bounds=resource_bounds,
-            nonce=nonce,
-            auto_estimate=auto_estimate,
-        )
-        signature = self.signer.sign_transaction(invoke_tx)
-        return _add_signature_to_transaction(invoke_tx, signature)
+        # TODO(#1582): Remove this adjustment once braavos integration is restored
+        try:
+            invoke_tx = await self._prepare_invoke_v3(
+                calls,
+                resource_bounds=resource_bounds,
+                nonce=nonce,
+                auto_estimate=auto_estimate,
+            )
+            signature = self.signer.sign_transaction(invoke_tx)
+            return _add_signature_to_transaction(invoke_tx, signature)
+        except Exception as exception:
+            await _raise_error_for_braavos_account(
+                exception, self.address, self.client
+            )
+            raise exception
 
     async def sign_declare_v3(
         self,
@@ -454,26 +455,30 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         # pylint: disable=too-many-arguments
 
         # TODO(#1582): Remove this check when braavos integration is restored
-        _assert_non_braavos_account(class_hash)
+        try:
+            deploy_account_tx = DeployAccountV3(
+                class_hash=class_hash,
+                contract_address_salt=contract_address_salt,
+                constructor_calldata=(constructor_calldata or []),
+                version=3,
+                resource_bounds=ResourceBoundsMapping.init_with_zeros(),
+                signature=[],
+                nonce=nonce,
+            )
+            resource_bounds = await self._get_resource_bounds(
+                deploy_account_tx, resource_bounds, auto_estimate
+            )
+            deploy_account_tx = _add_resource_bounds_to_transaction(
+                deploy_account_tx, resource_bounds
+            )
 
-        deploy_account_tx = DeployAccountV3(
-            class_hash=class_hash,
-            contract_address_salt=contract_address_salt,
-            constructor_calldata=(constructor_calldata or []),
-            version=3,
-            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
-            signature=[],
-            nonce=nonce,
-        )
-        resource_bounds = await self._get_resource_bounds(
-            deploy_account_tx, resource_bounds, auto_estimate
-        )
-        deploy_account_tx = _add_resource_bounds_to_transaction(
-            deploy_account_tx, resource_bounds
-        )
-
-        signature = self.signer.sign_transaction(deploy_account_tx)
-        return _add_signature_to_transaction(deploy_account_tx, signature)
+            signature = self.signer.sign_transaction(deploy_account_tx)
+            return _add_signature_to_transaction(deploy_account_tx, signature)
+        except Exception as exception:
+            await _raise_error_for_braavos_account(
+                exception, self.address, self.client
+            )
+            raise exception
 
     async def execute_v3(
         self,
@@ -483,13 +488,21 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        execute_transaction = await self.sign_invoke_v3(
-            calls,
-            resource_bounds=resource_bounds,
-            nonce=nonce,
-            auto_estimate=auto_estimate,
-        )
-        return await self._client.send_transaction(execute_transaction)
+        # TODO(#1582): Remove below adjustment when braavos integration is restored
+        try:
+            execute_transaction = await self.sign_invoke_v3(
+                calls,
+                resource_bounds=resource_bounds,
+                nonce=nonce,
+                auto_estimate=auto_estimate,
+            )
+            return await self._client.send_transaction(execute_transaction)
+
+        except Exception as exception:
+            await _raise_error_for_braavos_account(
+                exception, self.address, self.client
+            )
+            raise exception
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
         if isinstance(typed_data, TypedData):
@@ -537,41 +550,44 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
-        # TODO(#1582): Remove this check when braavos integration is restored
-        _assert_non_braavos_account(class_hash)
+        # TODO(#1582): Remove below adjustment when braavos integration is restored
+        try:
+            calldata = (
+                constructor_calldata
+                if constructor_calldata is not None
+                else [key_pair.public_key]
+            )
 
-        calldata = (
-            constructor_calldata
-            if constructor_calldata is not None
-            else [key_pair.public_key]
-        )
+            chain = await client.get_chain_id()
 
-        chain = await client.get_chain_id()
+            account = _prepare_account_to_deploy(
+                address=address,
+                class_hash=class_hash,
+                salt=salt,
+                key_pair=key_pair,
+                client=client,
+                chain=chain,
+                calldata=calldata,
+            )
 
-        account = _prepare_account_to_deploy(
-            address=address,
-            class_hash=class_hash,
-            salt=salt,
-            key_pair=key_pair,
-            client=client,
-            chain=chain,
-            calldata=calldata,
-        )
+            deploy_account_tx = await account.sign_deploy_account_v3(
+                class_hash=class_hash,
+                contract_address_salt=salt,
+                constructor_calldata=calldata,
+                nonce=nonce,
+                resource_bounds=resource_bounds,
+                auto_estimate=auto_estimate,
+            )
 
-        deploy_account_tx = await account.sign_deploy_account_v3(
-            class_hash=class_hash,
-            contract_address_salt=salt,
-            constructor_calldata=calldata,
-            nonce=nonce,
-            resource_bounds=resource_bounds,
-            auto_estimate=auto_estimate,
-        )
+            result = await client.deploy_account(deploy_account_tx)
 
-        result = await client.deploy_account(deploy_account_tx)
-
-        return AccountDeploymentResult(
-            hash=result.transaction_hash, account=account, _client=account.client
-        )
+            return AccountDeploymentResult(
+                hash=result.transaction_hash, account=account, _client=account.client
+            )
+        except Exception as exception:
+            address = parse_address(address)
+            await _raise_error_for_braavos_account(exception, address, client)
+            raise exception
 
     async def _get_chain_id(self) -> int:
         if self._chain_id is None:
