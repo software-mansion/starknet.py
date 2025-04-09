@@ -29,7 +29,7 @@ class Notification(Generic[T]):
     Base class for notification.
     """
 
-    subscription_id: int
+    subscription_id: str
     result: T
 
 
