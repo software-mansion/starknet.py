@@ -9,6 +9,8 @@ Migration guide
 
 1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds`
 
+2. Using Braavos accounts is temporarily disabled because they don't work with starknet 0.13.5. Please read the `official post <https://community.starknet.io/t/starknet-devtools-for-0-13-5/115495#p-2359168-braavos-compatibility-issues-3>`_ for more details.
+
 **********************
 0.26.0 Migration guide
 **********************
@@ -34,8 +36,6 @@ Version 0.26.0 of **starknet.py** comes with support for RPC 0.8.1!
 .. py:currentmodule:: starknet_py.net.websockets.websocket_client
 
 4. Added :class:`WebsocketClient` which allows to interact with websockets API.
-
-5. Using Braavos accounts is temporarily disabled because they don't yet work with starknet 0.13.5. Please read the `official post <https://community.starknet.io/t/starknet-devtools-for-0-13-5/115495#p-2359168-braavos-compatibility-issues-3>`_ for more details.
 
 0.26.0 Breaking changes
 -----------------------
