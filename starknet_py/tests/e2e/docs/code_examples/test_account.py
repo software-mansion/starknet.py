@@ -25,7 +25,6 @@ def test_init():
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("#1558")
 async def test_execute_v3(account, contract_address):
     # docs-start: execute_v3
     resource_bounds = ResourceBoundsMapping(

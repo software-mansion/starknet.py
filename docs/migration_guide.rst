@@ -7,7 +7,12 @@ Migration guide
 
 .. py:currentmodule:: starknet_py.net.client_models
 
-1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds`
+1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds()`
+
+0.26.1 Bugfixes
+---------------
+
+1. In :class:`FunctionInvocation`, ``execution_resources`` field is now of type :class:`InnerCallExecutionResources`.
 
 2. Using Braavos accounts is temporarily disabled because they don't work with starknet 0.13.5. Please read the `official post <https://community.starknet.io/t/starknet-devtools-for-0-13-5/115495#p-2359168-braavos-compatibility-issues-3>`_ for more details.
 
