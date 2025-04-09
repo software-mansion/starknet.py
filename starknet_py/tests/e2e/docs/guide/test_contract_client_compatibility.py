@@ -1,7 +1,5 @@
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-
 
 @pytest.mark.asyncio
 async def test_create_call_from_contract(map_contract, account):
@@ -10,10 +8,7 @@ async def test_create_call_from_contract(map_contract, account):
 
     client = account.client
     res = await map_contract.functions["put"].invoke_v3(
-        # TODO(#1558): Use auto estimation
-        key=1234,
-        value=9999,
-        resource_bounds=MAX_RESOURCE_BOUNDS,
+        key=1234, value=9999, auto_estimate=True
     )
     await res.wait_for_acceptance()
 

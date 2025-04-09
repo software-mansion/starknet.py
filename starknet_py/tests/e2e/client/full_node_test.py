@@ -147,17 +147,13 @@ async def test_get_storage_at_incorrect_address_full_node_client(client):
 )
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1558)")
 async def test_get_events_without_following_continuation_token(
     client,
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(4):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
-            # TODO(#1558): Use auto estimation
-            i,
-            i,
-            resource_bounds=MAX_RESOURCE_BOUNDS,
+            i, i, auto_estimate=True
         )
 
     chunk_size = 3
@@ -187,10 +183,7 @@ async def test_get_events_follow_continuation_token(
     total_invokes = 2
     for i in range(total_invokes):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
-            # TODO(#1558): Use auto estimation
-            i,
-            i + 1,
-            resource_bounds=MAX_RESOURCE_BOUNDS,
+            i, i + 1, auto_estimate=True
         )
 
     events_response = await client.get_events(
@@ -212,7 +205,6 @@ async def test_get_events_follow_continuation_token(
 )
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1558)")
 async def test_get_events_nonexistent_event_name(
     client,
     simple_storage_with_event_contract: Contract,
@@ -248,17 +240,11 @@ async def test_get_events_with_two_events(
     invokes_of_two = 2
     invokes_of_all = invokes_of_one + invokes_of_two
     await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
-        # TODO(#1558): Use auto estimation
-        1,
-        2,
-        resource_bounds=MAX_RESOURCE_BOUNDS,
+        1, 2, auto_estimate=True
     )
     for i in range(invokes_of_two):
         await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v3(
-            # TODO(#1558): Use auto estimation
-            i,
-            i + 1,
-            resource_bounds=MAX_RESOURCE_BOUNDS,
+            i, i + 1, auto_estimate=True
         )
 
     event_one_events_response = await client.get_events(
@@ -305,10 +291,7 @@ async def test_get_events_start_from_continuation_token(
 ):
     for i in range(5):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
-            # TODO(#1558): Use auto estimation
-            i,
-            i + 1,
-            resource_bounds=MAX_RESOURCE_BOUNDS,
+            i, i + 1, auto_estimate=True
         )
 
     chunk_size = 2
@@ -340,16 +323,10 @@ async def test_get_events_no_params(
     default_chunk_size = 1
     for i in range(3):
         await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
-            # TODO(#1558): Use auto estimation
-            i,
-            i + 1,
-            resource_bounds=MAX_RESOURCE_BOUNDS,
+            i, i + 1, auto_estimate=True
         )
         await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v3(
-            # TODO(#1558): Use auto estimation
-            i,
-            i + 1,
-            resource_bounds=MAX_RESOURCE_BOUNDS,
+            i, i + 1, auto_estimate=True
         )
     events_response = await client.get_events()
 
@@ -457,10 +434,7 @@ async def test_simulate_transactions_skip_validate(account, deployed_balance_con
         calldata=[0x10],
     )
 
-    # TODO(#1558): Use auto estimation
-    invoke_tx = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
-    )
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     invoke_tx = dataclasses.replace(invoke_tx, signature=[])
 
     simulated_txs = await account.client.simulate_transactions(
@@ -488,10 +462,7 @@ async def test_simulate_transactions_skip_fee_charge(
         calldata=[0x10],
     )
 
-    # TODO(#1558): Use auto estimation
-    invoke_tx = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
-    )
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
 
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
@@ -500,7 +471,6 @@ async def test_simulate_transactions_skip_fee_charge(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1558)")
 async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
@@ -509,10 +479,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
         calldata=[0x10],
     )
 
-    # TODO(#1558): Use auto estimation
-    invoke_tx = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
-    )
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -522,10 +489,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
-    # TODO(#1558): Use auto estimation
-    invoke_tx = await account.sign_invoke_v3(
-        calls=[call, call], resource_bounds=MAX_RESOURCE_BOUNDS
-    )
+    invoke_tx = await account.sign_invoke_v3(calls=[call, call], auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -537,7 +501,6 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1558)")
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
@@ -545,10 +508,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    # TODO(#1558): Use auto estimation
-    invoke_tx = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS
-    )
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
 
     contract = load_contract(
         contract_name="TestContractDeclare", version=ContractVersion.V1
