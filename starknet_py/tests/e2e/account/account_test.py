@@ -655,11 +655,11 @@ async def test_account_execute_v3(account, deployed_balance_contract):
     ],
 )
 async def test_account_execute_v3_braavos(
-    address: int, devnet_client_fork_mode: DevnetClient
+    address: int, client_sepolia_testnet: FullNodeClient
 ):
     braavos_account = Account(
         address=address,
-        client=devnet_client_fork_mode,
+        client=client_sepolia_testnet,
         chain=StarknetChainId.SEPOLIA,
         key_pair=KeyPair.from_private_key(0x1),
     )
