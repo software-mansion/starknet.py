@@ -19,7 +19,6 @@ from starknet_py.net.account.base_account import (
     OutsideExecutionSupportBaseMixin,
 )
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
     Calls,
