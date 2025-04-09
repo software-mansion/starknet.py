@@ -105,5 +105,5 @@ async def test_subscribe_new_heads_too_many_blocks_back(
 async def test_unsubscribe_with_non_existing_id(
     websocket_client: WebsocketClient,
 ):
-    unsubscribe_result = await websocket_client.unsubscribe(123)
+    unsubscribe_result = await websocket_client.unsubscribe("123")
     assert unsubscribe_result is False

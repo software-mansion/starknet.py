@@ -2,16 +2,24 @@ Migration guide
 ===============
 
 **********************
+0.26.1 Migration guide
+**********************
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds`
+
+**********************
 0.26.0 Migration guide
 **********************
 
-Version 0.26.0 of **starknet.py** comes with support for RPC 0.8.0!
+Version 0.26.0 of **starknet.py** comes with support for RPC 0.8.1!
 
 0.26.0 Targeted versions
 ------------------------
 
-- Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
-- RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
+- Starknet - `0.13.5 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.5>`_
+- RPC - `0.8.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.1>`_
 
 .. py:currentmodule:: starknet_py.net.full_node_client
 
