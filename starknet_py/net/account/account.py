@@ -390,9 +390,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             signature = self.signer.sign_transaction(invoke_tx)
             return _add_signature_to_transaction(invoke_tx, signature)
         except Exception as exception:
-            await _raise_error_for_braavos_account(
-                exception, self.address, self.client
-            )
+            await _raise_error_for_braavos_account(exception, self.address, self.client)
             raise exception
 
     async def sign_declare_v3(
@@ -475,9 +473,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             signature = self.signer.sign_transaction(deploy_account_tx)
             return _add_signature_to_transaction(deploy_account_tx, signature)
         except Exception as exception:
-            await _raise_error_for_braavos_account(
-                exception, self.address, self.client
-            )
+            await _raise_error_for_braavos_account(exception, self.address, self.client)
             raise exception
 
     async def execute_v3(
@@ -499,9 +495,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             return await self._client.send_transaction(execute_transaction)
 
         except Exception as exception:
-            await _raise_error_for_braavos_account(
-                exception, self.address, self.client
-            )
+            await _raise_error_for_braavos_account(exception, self.address, self.client)
             raise exception
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
