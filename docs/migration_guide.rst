@@ -5,12 +5,12 @@ Migration guide
 0.26.1 Migration guide
 **********************
 
-1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds`
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds()`
 
 0.26.1 Bugfixes
 ---------------
-
-.. py:currentmodule:: starknet_py.net.client_models
 
 1. Changed type of ``execution_resources`` in :class:`FunctionInvocation` to :class:`InnerCallExecutionResources`.
 
