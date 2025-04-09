@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
@@ -675,12 +674,11 @@ async def test_account_execute_v3_braavos(
     "class_hash",
     _BRAAVOS_CLASS_HASHES,
 )
-async def test_account_sign_deploy_account_v3_braavos(
-    class_hash: int, devnet_client_fork_mode: DevnetClient
-):
+async def test_account_sign_deploy_account_v3_braavos(class_hash: int):
+    dummy_client = FullNodeClient("http://example.node")
     braavos_account = Account(
         address=0x1,
-        client=devnet_client_fork_mode,
+        client=dummy_client,
         chain=StarknetChainId.SEPOLIA,
         key_pair=KeyPair.from_private_key(0x1),
     )
@@ -696,14 +694,13 @@ async def test_account_sign_deploy_account_v3_braavos(
     "class_hash",
     _BRAAVOS_CLASS_HASHES,
 )
-async def test_account_deploy_account_v3_braavos(
-    class_hash: int, devnet_client_fork_mode: DevnetClient
-):
+async def test_account_deploy_account_v3_braavos(class_hash: int):
+    dummy_client = FullNodeClient("http://example.node")
     with pytest.raises(BraavosAccountDisabledError):
         await Account.deploy_account_v3(
             address=0x1,
             class_hash=class_hash,
             salt=0x1,
             key_pair=KeyPair.from_private_key(0x1),
-            client=devnet_client_fork_mode,
+            client=dummy_client,
         )
