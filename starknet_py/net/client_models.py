@@ -420,6 +420,16 @@ class TransactionFinalityStatus(Enum):
 
 
 @dataclass
+class InnerCallExecutionResources:
+    """
+    Dataclass representing the resource consumed by an inner call (does not account for state diffs).
+    """
+
+    l1_gas: int
+    l2_gas: int
+
+
+@dataclass
 class ExecutionResources:
     """
     Dataclass representing the resources consumed by the transaction, includes both computation and data.
@@ -1023,7 +1033,7 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    execution_resources: ExecutionResources
+    execution_resources: InnerCallExecutionResources
     is_reverted: bool
 
 

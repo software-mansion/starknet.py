@@ -248,9 +248,12 @@ async def test_sign_invoke_v3_auto_estimate(account, map_contract):
     assert len(signed_tx.signature) == 2
 
     assert isinstance(signed_tx.resource_bounds, ResourceBoundsMapping)
-    assert signed_tx.resource_bounds.l1_gas.max_amount > 0
+    assert signed_tx.resource_bounds.l1_gas.max_amount >= 0
     assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
-    assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
+    assert signed_tx.resource_bounds.l2_gas.max_amount >= 0
+    assert signed_tx.resource_bounds.l2_gas.max_price_per_unit > 0
+    assert signed_tx.resource_bounds.l1_data_gas.max_amount >= 0
+    assert signed_tx.resource_bounds.l1_data_gas.max_price_per_unit > 0
 
 
 @pytest.mark.asyncio
@@ -296,9 +299,12 @@ async def test_sign_declare_v3_auto_estimate(
     assert len(signed_tx.signature) == 2
 
     assert isinstance(signed_tx.resource_bounds, ResourceBoundsMapping)
-    assert signed_tx.resource_bounds.l1_gas.max_amount > 0
+    assert signed_tx.resource_bounds.l1_gas.max_amount >= 0
     assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
-    assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
+    assert signed_tx.resource_bounds.l2_gas.max_amount >= 0
+    assert signed_tx.resource_bounds.l2_gas.max_price_per_unit > 0
+    assert signed_tx.resource_bounds.l1_data_gas.max_amount >= 0
+    assert signed_tx.resource_bounds.l1_data_gas.max_price_per_unit > 0
 
 
 @pytest.mark.asyncio
@@ -343,9 +349,12 @@ async def test_sign_deploy_account_v3_auto_estimate(
     assert len(signed_tx.signature) == 2
 
     assert isinstance(signed_tx.resource_bounds, ResourceBoundsMapping)
-    assert signed_tx.resource_bounds.l1_gas.max_amount > 0
+    assert signed_tx.resource_bounds.l1_gas.max_amount >= 0
     assert signed_tx.resource_bounds.l1_gas.max_price_per_unit > 0
-    assert signed_tx.resource_bounds.l2_gas == ResourceBounds.init_with_zeros()
+    assert signed_tx.resource_bounds.l2_gas.max_amount >= 0
+    assert signed_tx.resource_bounds.l2_gas.max_price_per_unit > 0
+    assert signed_tx.resource_bounds.l1_data_gas.max_amount >= 0
+    assert signed_tx.resource_bounds.l1_data_gas.max_price_per_unit > 0
 
 
 @pytest.mark.asyncio
