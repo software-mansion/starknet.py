@@ -52,6 +52,7 @@ from starknet_py.serialization.data_serializers import (
     StructSerializer,
     UintSerializer,
 )
+from starknet_py.utils.account import _assert_non_braavos_account
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
@@ -100,6 +101,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         self._client = client
         self._cairo_version = None
         self._chain_id = None if chain is None else parse_chain(chain)
+        # TODO(#1582): Remove field below once braavos integration is restored
+        self._class_hash: Optional[int] = None
 
         if signer is not None and key_pair is not None:
             raise ValueError("Arguments signer and key_pair are mutually exclusive.")
@@ -377,6 +380,11 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
+        # TODO(#1582): Remove this check once braavos integration is restored
+        if self._class_hash is None:
+            self._class_hash = await self._client.get_class_hash_at(self._address)
+        _assert_non_braavos_account(self._class_hash)
+
         invoke_tx = await self._prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
@@ -444,6 +452,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
+
+        # TODO(#1582): Remove this check when braavos integration is restored
+        _assert_non_braavos_account(class_hash)
+
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -525,6 +537,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
+        # TODO(#1582): Remove this check when braavos integration is restored
+        _assert_non_braavos_account(class_hash)
+
         calldata = (
             constructor_calldata
             if constructor_calldata is not None
