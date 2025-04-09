@@ -1,7 +1,5 @@
 import pytest
 
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-
 
 @pytest.mark.asyncio
 async def test_create_call_from_contract(map_contract, account):
