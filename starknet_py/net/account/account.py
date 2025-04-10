@@ -378,19 +378,14 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
-        # TODO(#1582): Remove this adjustment once braavos integration is restored
-        try:
-            invoke_tx = await self._prepare_invoke_v3(
-                calls,
-                resource_bounds=resource_bounds,
-                nonce=nonce,
-                auto_estimate=auto_estimate,
-            )
-            signature = self.signer.sign_transaction(invoke_tx)
-            return _add_signature_to_transaction(invoke_tx, signature)
-        except Exception as exception:
-            await _raise_error_for_braavos_account(exception, self.address, self.client)
-            raise exception
+        invoke_tx = await self._prepare_invoke_v3(
+            calls,
+            resource_bounds=resource_bounds,
+            nonce=nonce,
+            auto_estimate=auto_estimate,
+        )
+        signature = self.signer.sign_transaction(invoke_tx)
+        return _add_signature_to_transaction(invoke_tx, signature)
 
     async def sign_declare_v3(
         self,
@@ -451,29 +446,24 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
 
-        # TODO(#1582): Remove this check when braavos integration is restored
-        try:
-            deploy_account_tx = DeployAccountV3(
-                class_hash=class_hash,
-                contract_address_salt=contract_address_salt,
-                constructor_calldata=(constructor_calldata or []),
-                version=3,
-                resource_bounds=ResourceBoundsMapping.init_with_zeros(),
-                signature=[],
-                nonce=nonce,
-            )
-            resource_bounds = await self._get_resource_bounds(
-                deploy_account_tx, resource_bounds, auto_estimate
-            )
-            deploy_account_tx = _add_resource_bounds_to_transaction(
-                deploy_account_tx, resource_bounds
-            )
+        deploy_account_tx = DeployAccountV3(
+            class_hash=class_hash,
+            contract_address_salt=contract_address_salt,
+            constructor_calldata=(constructor_calldata or []),
+            version=3,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
+            signature=[],
+            nonce=nonce,
+        )
+        resource_bounds = await self._get_resource_bounds(
+            deploy_account_tx, resource_bounds, auto_estimate
+        )
+        deploy_account_tx = _add_resource_bounds_to_transaction(
+            deploy_account_tx, resource_bounds
+        )
 
-            signature = self.signer.sign_transaction(deploy_account_tx)
-            return _add_signature_to_transaction(deploy_account_tx, signature)
-        except Exception as exception:
-            await _raise_error_for_braavos_account(exception, self.address, self.client)
-            raise exception
+        signature = self.signer.sign_transaction(deploy_account_tx)
+        return _add_signature_to_transaction(deploy_account_tx, signature)
 
     async def execute_v3(
         self,
