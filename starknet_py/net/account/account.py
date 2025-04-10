@@ -445,7 +445,6 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
-
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
