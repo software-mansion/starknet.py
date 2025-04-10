@@ -23,7 +23,7 @@ async def test_account_execute_v3_braavos(client_sepolia_testnet: FullNodeClient
         key_pair=KeyPair.from_private_key(SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY()),
     )
     with pytest.raises(BraavosAccountDisabledError):
-        await braavos_account.sign_invoke_v3(
+        await braavos_account.execute_v3(
             calls=[
                 Call(
                     to_addr=0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF,
