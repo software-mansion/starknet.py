@@ -262,6 +262,9 @@ jobs:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
       SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
+      # TODO(#1582): Remove braavos envs once integration is restored
+      SEPOLIA_BRAAVOS_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_ADDRESS }}
+      SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
