@@ -21,15 +21,11 @@ async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
         account=account,
         compiled_contract=contract["sierra"],
         compiled_contract_casm=contract["casm"],
-        # TODO(#1558): Use auto estimation
-        resource_bounds=MAX_RESOURCE_BOUNDS,
+        auto_estimate=True,
     )
     await declare_result.wait_for_acceptance()
 
-    deploy_result = await declare_result.deploy_v3(
-        # TODO(#1558): Use auto estimation
-        resource_bounds=MAX_RESOURCE_BOUNDS,
-    )
+    deploy_result = await declare_result.deploy_v3(auto_estimate=True)
     await deploy_result.wait_for_acceptance()
 
     return declare_result, deploy_result
@@ -49,13 +45,11 @@ async def test_deploy_cairo2(contract):
 
 @pytest.mark.asyncio
 async def test_cairo2_interaction(contract):
-    # TODO(#1558): Use auto estimation
     invoke_res = await contract.functions["increase_balance"].invoke_v3(
-        amount=100, resource_bounds=MAX_RESOURCE_BOUNDS
+        amount=100, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
-    # TODO (#1558): Use auto estimation
     invoke_res = await contract.functions["increase_balance"].invoke_v3(
         amount=100, resource_bounds=MAX_RESOURCE_BOUNDS
     )
@@ -67,9 +61,8 @@ async def test_cairo2_interaction(contract):
 
 @pytest.mark.asyncio
 async def test_cairo2_interaction2(contract):
-    # TODO (#1558): Use auto estimation
     invoke_res = await contract.functions["increase_balance_u8"].invoke_v3(
-        255, resource_bounds=MAX_RESOURCE_BOUNDS
+        255, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
@@ -97,9 +90,8 @@ async def test_cairo2_u256(contract):
 
 @pytest.mark.asyncio
 async def test_cairo2_contract_address(contract):
-    # TODO (#1558): Use auto estimation
     invoke_res = await contract.functions["set_ca"].invoke_v3(
-        address=contract.account.address, resource_bounds=MAX_RESOURCE_BOUNDS
+        address=contract.account.address, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
 
@@ -109,9 +101,8 @@ async def test_cairo2_contract_address(contract):
 
 @pytest.mark.asyncio
 async def test_cairo2_interaction3(contract):
-    # TODO (#1558): Use auto estimation
     invoke_res = await contract.functions["increase_balance"].invoke_v3(
-        100, resource_bounds=MAX_RESOURCE_BOUNDS
+        100, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
     (balance,) = await contract.functions["get_balance"].call()
@@ -119,9 +110,8 @@ async def test_cairo2_interaction3(contract):
     storage = await contract.client.get_storage_at(contract.address, key)
     assert storage == balance
 
-    # TODO (#1558): Use auto estimation
     invoke_res = await contract.functions["set_ca"].invoke_v3(
-        contract.account.address, resource_bounds=MAX_RESOURCE_BOUNDS
+        contract.account.address, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
     (ca,) = await contract.functions["get_ca"].call()  # pylint: disable=invalid-name
@@ -129,9 +119,8 @@ async def test_cairo2_interaction3(contract):
     storage = await contract.client.get_storage_at(contract.address, key)
     assert storage == ca
 
-    # TODO (#1558): Use auto estimation
     invoke_res = await contract.functions["set_status"].invoke_v3(
-        True, resource_bounds=MAX_RESOURCE_BOUNDS
+        True, auto_estimate=True
     )
     await invoke_res.wait_for_acceptance()
     (status,) = await contract.functions["get_status"].call()
@@ -144,8 +133,7 @@ async def test_cairo2_interaction3(contract):
             "address": contract.account.address,
             "is_claimed": True,
         },
-        # TODO (#1558): Use auto estimation
-        resource_bounds=MAX_RESOURCE_BOUNDS,
+        auto_estimate=True,
     )
     await invoke_res.wait_for_acceptance()
     (user1,) = await contract.functions["get_user1"].call()
@@ -178,10 +166,7 @@ async def test_cairo2_echo_struct(contract):
 
 @pytest.mark.asyncio
 async def test_cairo2_echo_complex_struct(contract):
-    # TODO (#1558): Use auto estimation
-    invoke_result = await contract.functions["set_bet"].invoke_v3(
-        resource_bounds=MAX_RESOURCE_BOUNDS
-    )
+    invoke_result = await contract.functions["set_bet"].invoke_v3(auto_estimate=True)
     await invoke_result.wait_for_acceptance()
 
     (bet,) = await contract.functions["get_bet"].call(1)

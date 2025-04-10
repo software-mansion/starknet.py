@@ -30,7 +30,6 @@ async def test_invoke_v3(map_contract):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1558)")
 async def test_auto_fee_estimation_v3(map_contract):
     prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=1, value=2)
     assert isinstance(prepared_invoke, PreparedFunctionInvokeV3)
