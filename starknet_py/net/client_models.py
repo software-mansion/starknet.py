@@ -656,26 +656,30 @@ class EstimatedFee:
     overall_fee: int
     unit: PriceUnit
 
-    def to_resource_bounds(self) -> ResourceBoundsMapping:
+    def to_resource_bounds(
+        self, amount_multiplier=1.5, unit_price_multiplier=1.5
+    ) -> ResourceBoundsMapping:
         """
         Converts estimated fee to resource bounds with applied multipliers.
 
+        :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
+        :param unit_price_multiplier: Multiplier for max price per unit, defaults to 1.5.
         :return: Resource bounds with applied multipliers.
         """
 
         l1_resource_bounds = ResourceBounds(
-            max_amount=self.l1_gas_consumed,
-            max_price_per_unit=self.l1_gas_price,
+            max_amount=int(self.l1_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l1_gas_price * unit_price_multiplier),
         )
 
         l2_resource_bounds = ResourceBounds(
-            max_amount=self.l2_gas_consumed,
-            max_price_per_unit=self.l2_gas_price,
+            max_amount=int(self.l2_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l2_gas_price * unit_price_multiplier),
         )
 
         l1_data_resource_bounds = ResourceBounds(
-            max_amount=self.l1_data_gas_consumed,
-            max_price_per_unit=self.l1_data_gas_price,
+            max_amount=int(self.l1_data_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l1_data_gas_price * unit_price_multiplier),
         )
 
         return ResourceBoundsMapping(

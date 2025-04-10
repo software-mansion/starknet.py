@@ -5,10 +5,12 @@ Migration guide
 0.26.1 Migration guide
 **********************
 
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds()`
+
 0.26.1 Bugfixes
 ---------------
-
-.. py:currentmodule:: starknet_py.net.client_models
 
 1. In :class:`FunctionInvocation`, ``execution_resources`` field is now of type :class:`InnerCallExecutionResources`.
 
