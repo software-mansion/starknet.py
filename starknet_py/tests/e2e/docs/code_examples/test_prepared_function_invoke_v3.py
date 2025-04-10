@@ -6,7 +6,6 @@ from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("TODO(#1558): Use auto estimation")
 async def test_invoke(map_contract: Contract):
     prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
         key=10, value=20

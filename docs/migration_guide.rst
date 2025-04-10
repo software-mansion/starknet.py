@@ -2,6 +2,17 @@ Migration guide
 ===============
 
 **********************
+0.26.1 Migration guide
+**********************
+
+0.26.1 Bugfixes
+---------------
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. In :class:`FunctionInvocation`, ``execution_resources`` field is now of type :class:`InnerCallExecutionResources`.
+
+**********************
 0.26.0 Migration guide
 **********************
 
