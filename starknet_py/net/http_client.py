@@ -118,7 +118,8 @@ class RpcHttpClient(HttpClient):
             if spec_version != EXPECTED_RPC_VERSION:
                 warnings.warn(
                     f"RPC node with the url {self.url} uses incompatible version {spec_version}. "
-                    f"Expected version: {EXPECTED_RPC_VERSION}"
+                    f"Expected version: {EXPECTED_RPC_VERSION}",
+                    IncompatibleRPCVersionWarning,
                 )
             self._is_spec_version_verified = True
 
@@ -133,3 +134,7 @@ class ServerError(Exception):
         self.message = "RPC request failed."
         self.body = body
         super().__init__(self.message)
+
+
+class IncompatibleRPCVersionWarning(Warning):
+    pass

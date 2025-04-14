@@ -1,7 +1,6 @@
 import copy
 import dataclasses
 import numbers
-import warnings
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -39,7 +38,7 @@ from starknet_py.net.executable_models import (
     TestLessThan,
     TestLessThanOrEqual,
 )
-from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.http_client import IncompatibleRPCVersionWarning, RpcHttpClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.networks import SEPOLIA, default_token_address_for_network
 from starknet_py.tests.e2e.fixtures.constants import (
@@ -575,15 +574,12 @@ async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet)
     client_sepolia_testnet_copy = copy.deepcopy(client_sepolia_testnet)
     old_rpc_url = client_sepolia_testnet_copy.url.replace("v0_8", "v0_7")
     client_sepolia_testnet_copy.url = old_rpc_url
-    client_sepolia_testnet_copy._client.url = (
-        old_rpc_url  # pylint: disable=protected-access
+    # pylint: disable=protected-access
+    client_sepolia_testnet_copy._client.url = old_rpc_url
+
+    pattern = (
+        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.7\.1\. "
+        rf"Expected version: {EXPECTED_RPC_VERSION}"
     )
-
-    with warnings.catch_warnings(record=True) as warns:
+    with pytest.warns(IncompatibleRPCVersionWarning, match=pattern):
         await client_sepolia_testnet_copy.get_chain_id()
-
-        assert len(warns) == 1
-        assert (
-            f"RPC node with the url {client_sepolia_testnet_copy.url} uses incompatible version 0.7.1. "
-            f"Expected version: {EXPECTED_RPC_VERSION}" in str(warns[0].message)
-        )
