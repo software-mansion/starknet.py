@@ -120,6 +120,7 @@ class RpcHttpClient(HttpClient):
                     f"RPC node with the url {self.url} uses incompatible version {spec_version}. "
                     f"Expected version: {EXPECTED_RPC_VERSION}",
                     IncompatibleRPCVersionWarning,
+                    stacklevel=4
                 )
             self._is_spec_version_verified = True
 
