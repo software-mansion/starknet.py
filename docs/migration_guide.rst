@@ -2,6 +2,14 @@ Migration guide
 ===============
 
 **********************
+0.26.2 Migration guide
+**********************
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+1. If an incompatible RPC version is detected between the node and :class:FullNodeClient, a warning will be emitted.
+
+**********************
 0.26.1 Migration guide
 **********************
 
