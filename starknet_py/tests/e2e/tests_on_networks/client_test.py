@@ -1,9 +1,12 @@
+import copy
 import dataclasses
 import numbers
+import warnings
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from starknet_py.constants import EXPECTED_RPC_VERSION
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -565,3 +568,20 @@ async def test_get_compiled_casm(client_sepolia_testnet):
         second_hint.test_less_than.rhs.immediate
         == 0x800000000000000000000000000000000000000000000000000000000000000
     )
+
+
+@pytest.mark.asyncio
+async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet):
+    client_sepolia_testnet_copy = copy.deepcopy(client_sepolia_testnet)
+    old_rpc_url = client_sepolia_testnet_copy.url.replace("v0_8", "v0_7")
+    client_sepolia_testnet_copy.url = old_rpc_url
+    client_sepolia_testnet_copy._client.url = old_rpc_url # pylint: disable=protected-access
+
+    with warnings.catch_warnings(record=True) as warns:
+        await client_sepolia_testnet_copy.get_chain_id()
+
+        assert len(warns) == 1
+        assert (
+            f"RPC node with the url {client_sepolia_testnet_copy.url} uses incompatible version 0.7.1. "
+            f"Expected version: {EXPECTED_RPC_VERSION}" in str(warns[0].message)
+        )
