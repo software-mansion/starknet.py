@@ -106,7 +106,7 @@ class RpcHttpClient(HttpClient):
         if not self._is_spec_version_verified:
             payload = {
                 "jsonrpc": "2.0",
-                "method": f"starknet_specVersion",
+                "method": "starknet_specVersion",
                 "id": 0,
             }
 
