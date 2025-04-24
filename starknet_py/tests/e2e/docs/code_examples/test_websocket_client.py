@@ -119,8 +119,8 @@ async def test_subscribe_events(
     # ...
     # docs-end: subscribe_events
     increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[100],
     )
     execute = await argent_account_v040.execute_v3(
@@ -162,8 +162,8 @@ async def test_subscribe_transaction_status(
         new_transaction_status = transaction_status_notification.result
 
     increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[100],
     )
     execute = await argent_account_v040.execute_v3(
@@ -237,8 +237,8 @@ async def test_subscribe_pending_transactions(
     # ...
     # docs-end: subscribe_pending_transactions
     increase_balance_call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[100],
     )
     execute = await argent_account_v040.execute_v3(

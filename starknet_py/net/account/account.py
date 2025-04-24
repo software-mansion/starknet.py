@@ -243,8 +243,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     ) -> bool:
         (is_valid,) = await self._client.call_contract(
             call=Call(
-                to_addr=self.address,
-                selector=get_selector_from_name("is_valid_outside_execution_nonce"),
+                contract_address=self.address,
+                entry_point_selector=get_selector_from_name(
+                    "is_valid_outside_execution_nonce"
+                ),
                 calldata=[nonce],
             ),
             block_hash=block_hash,
@@ -276,8 +278,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     ) -> bool:
         (does_support,) = await self._client.call_contract(
             Call(
-                to_addr=self.address,
-                selector=get_selector_from_name("supports_interface"),
+                contract_address=self.address,
+                entry_point_selector=get_selector_from_name("supports_interface"),
                 calldata=[interface_id],
             )
         )
@@ -301,8 +303,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
         low, high = await self._client.call_contract(
             Call(
-                to_addr=parse_address(token_address),
-                selector=get_selector_from_name("balance_of"),
+                contract_address=parse_address(token_address),
+                entry_point_selector=get_selector_from_name("balance_of"),
                 calldata=[self.address],
             ),
             block_hash=block_hash,
@@ -360,8 +362,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         }
 
         return Call(
-            to_addr=self.address,
-            selector=get_selector_from_name(selector_for_version[interface_version]),
+            contract_address=self.address,
+            entry_point_selector=get_selector_from_name(
+                selector_for_version[interface_version]
+            ),
             calldata=_outside_transaction_serialiser.serialize(
                 {
                     "outside_execution": outside_execution.to_abi_dict(),
@@ -650,8 +654,8 @@ def _parse_calls(cairo_version: int, calls: Calls) -> List[int]:
 
 def _parse_call_cairo_v0(call: Call, entire_calldata: List) -> Tuple[Dict, List]:
     _data = {
-        "to": call.to_addr,
-        "selector": call.selector,
+        "to": call.contract_address,
+        "entry_point_selector": call.entry_point_selector,
         "data_offset": len(entire_calldata),
         "data_len": len(call.calldata),
     }
@@ -674,8 +678,8 @@ def _parse_calls_cairo_v1(calls: Iterable[Call]) -> List[Dict]:
     calls_parsed = []
     for call in calls:
         _data = {
-            "to": call.to_addr,
-            "selector": call.selector,
+            "to": call.contract_address,
+            "entry_point_selector": call.entry_point_selector,
             "calldata": call.calldata,
         }
         calls_parsed.append(_data)
@@ -687,7 +691,7 @@ _felt_serializer = FeltSerializer()
 _call_description_cairo_v0 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
-        selector=_felt_serializer,
+        entry_point_selector=_felt_serializer,
         data_offset=_felt_serializer,
         data_len=_felt_serializer,
     )
@@ -695,7 +699,7 @@ _call_description_cairo_v0 = StructSerializer(
 _call_description_cairo_v1 = StructSerializer(
     OrderedDict(
         to=_felt_serializer,
-        selector=_felt_serializer,
+        entry_point_selector=_felt_serializer,
         calldata=ArraySerializer(_felt_serializer),
     )
 )

@@ -34,8 +34,8 @@ async def test_execute_v3(account, contract_address):
     )
     resp = await account.execute_v3(
         Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[123],
         ),
         resource_bounds=resource_bounds,
@@ -43,8 +43,8 @@ async def test_execute_v3(account, contract_address):
     # or
     # docs-end: execute_v3
     call1 = call2 = Call(
-        to_addr=contract_address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=contract_address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[123],
     )
     # docs-start: execute_v3

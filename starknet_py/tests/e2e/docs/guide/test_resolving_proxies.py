@@ -55,8 +55,8 @@ async def test_resolving_proxies(
             self, address: Address, client: Client
         ) -> Optional[int]:
             call = Call(
-                to_addr=address,
-                selector=get_selector_from_name("impl"),
+                contract_address=address,
+                entry_point_selector=get_selector_from_name("impl"),
                 calldata=[],
             )
             (implementation,) = await client.call_contract(call=call)

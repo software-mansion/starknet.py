@@ -42,8 +42,8 @@ class Call:
     Dataclass representing a call to Starknet contract.
     """
 
-    to_addr: int
-    selector: int
+    contract_address: int
+    entry_point_selector: int
     calldata: List[int]
 
 
@@ -1235,8 +1235,8 @@ class OutsideExecution:
             "execute_before": self.execute_before,
             "calls": [
                 {
-                    "to": call.to_addr,
-                    "selector": call.selector,
+                    "to": call.contract_address,
+                    "entry_point_selector": call.entry_point_selector,
                     "calldata": call.calldata,
                 }
                 for call in self.calls

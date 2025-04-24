@@ -429,8 +429,8 @@ async def test_get_syncing_status(client):
 async def test_simulate_transactions_skip_validate(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
 
@@ -457,8 +457,8 @@ async def test_simulate_transactions_skip_fee_charge(
 ):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
 
@@ -474,8 +474,8 @@ async def test_simulate_transactions_skip_fee_charge(
 async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
 
@@ -504,8 +504,8 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
-        to_addr=deployed_balance_contract.address,
-        selector=get_selector_from_name("increase_balance"),
+        contract_address=deployed_balance_contract.address,
+        entry_point_selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
     invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)

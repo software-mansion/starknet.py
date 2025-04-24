@@ -154,8 +154,8 @@ async def test_raw_call(account):
 
     # Create a call to function "balanceOf" at address `eth_token_address`
     call = Call(
-        to_addr=eth_token_address,
-        selector=get_selector_from_name("balanceOf"),
+        contract_address=eth_token_address,
+        entry_point_selector=get_selector_from_name("balanceOf"),
         calldata=[account.address],
     )
     # Pass the created call to Client.call_contract

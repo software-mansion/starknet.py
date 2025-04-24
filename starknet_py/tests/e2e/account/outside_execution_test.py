@@ -28,8 +28,8 @@ async def test_account_outside_execution_any_caller(
     map_contract,
 ):
     put_call = Call(
-        to_addr=map_contract.address,
-        selector=get_selector_from_name("put"),
+        contract_address=map_contract.address,
+        entry_point_selector=get_selector_from_name("put"),
         calldata=[20, 20],
     )
 
@@ -60,8 +60,8 @@ async def test_account_outside_execution_for_invalid_caller(
     random_address = 0x1234567890123456789012345678901234567890
 
     put_call = Call(
-        to_addr=map_contract.address,
-        selector=get_selector_from_name("put"),
+        contract_address=map_contract.address,
+        entry_point_selector=get_selector_from_name("put"),
         calldata=[20, 20],
     )
 
@@ -94,8 +94,8 @@ async def test_account_outside_execution_for_impossible_time_bounds(
     map_contract,
 ):
     put_call = Call(
-        to_addr=map_contract.address,
-        selector=get_selector_from_name("put"),
+        contract_address=map_contract.address,
+        entry_point_selector=get_selector_from_name("put"),
         calldata=[20, 20],
     )
 
@@ -122,8 +122,8 @@ async def test_account_outside_execution_by_itself_is_impossible(
     map_contract,
 ):
     put_call = Call(
-        to_addr=map_contract.address,
-        selector=get_selector_from_name("put"),
+        contract_address=map_contract.address,
+        entry_point_selector=get_selector_from_name("put"),
         calldata=[20, 20],
     )
 

@@ -62,8 +62,8 @@ def outside_execution_to_typed_data(
                     "calls_len": len(outside_execution.calls),
                     "calls": [
                         {
-                            "to": call.to_addr,
-                            "selector": call.selector,
+                            "to": call.contract_address,
+                            "selector": call.entry_point_selector,
                             "calldata_len": len(call.calldata),
                             "calldata": call.calldata,
                         }
@@ -110,8 +110,8 @@ def outside_execution_to_typed_data(
                 "Execute Before": outside_execution.execute_before,
                 "Calls": [
                     {
-                        "To": call.to_addr,
-                        "Selector": call.selector,
+                        "To": call.contract_address,
+                        "Selector": call.entry_point_selector,
                         "Calldata": call.calldata,
                     }
                     for call in outside_execution.calls

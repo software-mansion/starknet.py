@@ -27,8 +27,8 @@ async def test_account_outside_execution_any_caller(
 
     # Create a call to put value 100 at key 1.
     put_call = Call(
-        to_addr=map_contract.address,
-        selector=get_selector_from_name("put"),
+        contract_address=map_contract.address,
+        entry_point_selector=get_selector_from_name("put"),
         calldata=[1, 100],
     )
 

@@ -483,9 +483,9 @@ class ContractFunction:
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionCall(
-            to_addr=self.contract_data.address,
+            contract_address=self.contract_data.address,
             calldata=calldata,
-            selector=self.get_selector(self.name),
+            entry_point_selector=self.get_selector(self.name),
             _client=self.client,
             _payload_transformer=self._payload_transformer,
         )
@@ -527,9 +527,9 @@ class ContractFunction:
 
         calldata = self._payload_transformer.serialize(*args, **kwargs)
         return PreparedFunctionInvokeV3(
-            to_addr=self.contract_data.address,
+            contract_address=self.contract_data.address,
             calldata=calldata,
-            selector=self.get_selector(self.name),
+            entry_point_selector=self.get_selector(self.name),
             resource_bounds=resource_bounds,
             _contract_data=self.contract_data,
             _client=self.client,

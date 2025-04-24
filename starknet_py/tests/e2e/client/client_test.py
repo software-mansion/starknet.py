@@ -286,8 +286,8 @@ async def test_get_transaction_receipt(
 async def test_estimate_fee_invoke_v3(account, contract_address):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[1000],
         ),
         resource_bounds=ResourceBoundsMapping.init_with_zeros(),
@@ -348,8 +348,8 @@ async def test_estimate_fee_for_multiple_transactions(
 ):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
+            contract_address=contract_address,
+            entry_point_selector=get_selector_from_name("increase_balance"),
             calldata=[1000],
         ),
         resource_bounds=MAX_RESOURCE_BOUNDS,
@@ -376,8 +376,8 @@ async def test_estimate_fee_for_multiple_transactions(
 @pytest.mark.asyncio
 async def test_call_contract(client, contract_address_2):
     call = Call(
-        to_addr=contract_address_2,
-        selector=get_selector_from_name("get_balance"),
+        contract_address=contract_address_2,
+        entry_point_selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
 

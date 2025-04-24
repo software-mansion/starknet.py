@@ -26,8 +26,8 @@ async def test_account_execute_v3_braavos(client_sepolia_testnet: FullNodeClient
         await braavos_account.execute_v3(
             calls=[
                 Call(
-                    to_addr=0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF,
-                    selector=get_selector_from_name("get_balance"),
+                    contract_address=0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF,
+                    entry_point_selector=get_selector_from_name("get_balance"),
                     calldata=[],
                 )
             ],

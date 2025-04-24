@@ -543,8 +543,8 @@ class FullNodeClient(Client):
             method_name="call",
             params={
                 "request": {
-                    "contract_address": _to_rpc_felt(call.to_addr),
-                    "entry_point_selector": _to_rpc_felt(call.selector),
+                    "contract_address": _to_rpc_felt(call.contract_address),
+                    "entry_point_selector": _to_rpc_felt(call.entry_point_selector),
                     "calldata": [_to_rpc_felt(i1) for i1 in call.calldata],
                 },
                 **block_identifier,
