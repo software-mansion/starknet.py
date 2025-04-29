@@ -162,7 +162,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
         return resource_bounds
 
-    async def _prepare_invoke_v3(
+    async def prepare_invoke_v3(
         self,
         calls: Calls,
         *,
@@ -378,7 +378,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
     ) -> InvokeV3:
-        invoke_tx = await self._prepare_invoke_v3(
+        invoke_tx = await self.prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
             nonce=nonce,

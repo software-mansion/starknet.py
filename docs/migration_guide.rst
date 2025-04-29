@@ -2,6 +2,14 @@ Migration guide
 ===============
 
 **********************
+x.y.z Migration guide
+**********************
+
+.. py:currentmodule:: starknet_py.net.account.account
+
+1. :meth:`Account.prepare_invoke_v3` is now public.
+
+**********************
 0.26.2 Migration guide
 **********************
 
