@@ -20,7 +20,21 @@
       ]
     },
     {
+      "text": "Deploy account (1/2)",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
       "text": " Deploy account (2/2)483766fd6403c7a",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": " Deploy account (2/2)bfb7a3b1a0e90de",
       "actions": [
         ["button", 2, true],
         ["button", 2, false]
