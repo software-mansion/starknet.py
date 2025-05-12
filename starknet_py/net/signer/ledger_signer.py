@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, List
 
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.transaction import TransactionHashPrefix
-from starknet_py.net.client_models import Call
 from starknet_py.net.models import AccountTransaction, DeclareV3, DeployAccountV3
 from starknet_py.net.models.chains import ChainId
 from starknet_py.net.models.transaction import InvokeV3, _AccountTransactionV3
@@ -40,10 +39,10 @@ except ImportError as e:
 
 class LedgerStarknetApp:
     def __init__(self, account_id: int = 0, application_name: str = "LedgerW"):
+        # pylint: disable=line-too-long
         """
         :param account_id: ID of Ledger account.
-        :param application_name: Name of the application, which is part of
-        `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
+        :param application_name: Name of the application, which is part of `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
         """
         self.client: LedgerClient = LedgerClient(cla=STARKNET_CLA)
         self.derivation_path = _get_derivation_path(
@@ -137,12 +136,15 @@ class LedgerSigningMode(Enum):
 
     CLEAR = "clear"
     """
-    Device displays the full transaction payload (amounts, addresses, data) so you can review and explicitly approve exactly what you’re signing.
+    Device displays the full transaction payload (amounts, addresses, data) so you
+    can review and explicitly approve exactly what you’re signing.
     """
 
     BLIND = "blind"
     """
-    Device omits transaction details and simply asks for your signature, preventing you from verifying the contents and leaving you vulnerable to unknowingly authorizing malicious or unintended actions. ⚠️ Use at your own risk.
+    Device omits transaction details and simply asks for your signature, preventing
+    you from verifying the contents and leaving you vulnerable to unknowingly authorizing
+    malicious or unintended actions. ⚠️ Use at your own risk.
     """
 
 
@@ -154,11 +156,11 @@ class LedgerSigner(BaseSigner):
         application_name: str = "LedgerW",
         signing_mode: LedgerSigningMode = LedgerSigningMode.CLEAR,
     ):
+        # pylint: disable=line-too-long
         """
         :param chain_id: Chain ID.
         :param account_id: ID of Ledger account.
-        :param application_name: Name of the application, which is part of
-        `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
+        :param application_name: Name of the application, which is part of `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
         :param signing_mode: Signing mode (clear or blind).
         """
         self.app: LedgerStarknetApp = LedgerStarknetApp()
