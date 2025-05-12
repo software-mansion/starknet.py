@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, List
 
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.transaction import TransactionHashPrefix
-from starknet_py.net.client_models import Call, Calls
-from starknet_py.net.models import DeclareV3, DeployAccountV3
+from starknet_py.net.client_models import Call
+from starknet_py.net.models import DeclareV3, DeployAccountV3, AccountTransaction
 from starknet_py.net.models.chains import ChainId
 from starknet_py.net.models.transaction import InvokeV3, _AccountTransactionV3
 from starknet_py.net.signer import BaseSigner
@@ -162,7 +162,7 @@ class LedgerSigner(BaseSigner):
     def public_key(self) -> int:
         return self.app.get_public_key()
 
-    def sign_transaction(self, transaction: _AccountTransactionV3) -> List[int]:
+    def sign_transaction(self, transaction: AccountTransaction) -> List[int]:
         if self.signing_mode == LedgerSigningMode.CLEAR:
             if isinstance(transaction, DeclareV3):
                 raise ValueError("DeclareV3 signing is not supported bye LedgerSigner")
@@ -180,7 +180,7 @@ class LedgerSigner(BaseSigner):
         return self.app.sign_hash(hash_val=msg_hash)
 
     # pylint: disable=no-self-use
-    def _decode_signature(self, response: List[int]) -> List[int]:
+    def _decode_signature(self, response: bytes) -> List[int]:
         r = int.from_bytes(response[33:65], byteorder="big")
         s = int.from_bytes(response[65:97], byteorder="big")
         return [r, s]
@@ -279,6 +279,10 @@ class LedgerSigner(BaseSigner):
                 p1=5,
                 p2=0,
             )
+
+        if response is None:
+            raise ValueError("No response received from Ledger device.")
+
         return self._decode_signature(response)
 
     def _sign_invoke_transaction_v3(self, tx: InvokeV3) -> List[int]:
@@ -373,6 +377,9 @@ class LedgerSigner(BaseSigner):
             for part in calldatas[1:]:
                 response = self.app.client.apdu_exchange(ins=3, p1=6, p2=1, data=part)
 
+        if response is None:
+            raise ValueError("No response received from Ledger device.")
+
         return self._decode_signature(response)
 
     def _encode_fee(
@@ -396,7 +403,7 @@ class LedgerSigner(BaseSigner):
         return tip_bytes + l1_gas_bytes + l2_gas_bytes + l1_data_gas_bytes
 
 
-def _deserialize_invoke_tx_calldata_to_calls(tx_calldata: List[int]) -> Calls:
+def _deserialize_invoke_tx_calldata_to_calls(tx_calldata: List[int]) -> List[Call]:
     num_calls = tx_calldata[0]
     offset = 1
     calls = []
