@@ -136,7 +136,14 @@ class LedgerSigningMode(Enum):
     """
 
     CLEAR = "clear"
+    """
+    Device displays the full transaction payload (amounts, addresses, data) so you can review and explicitly approve exactly what you’re signing.
+    """
+
     BLIND = "blind"
+    """
+    Device omits transaction details and simply asks for your signature, preventing you from verifying the contents and leaving you vulnerable to unknowingly authorizing malicious or unintended actions. ⚠️ Use at your own risk.
+    """
 
 
 class LedgerSigner(BaseSigner):
