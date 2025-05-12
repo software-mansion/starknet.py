@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.transaction import TransactionHashPrefix
 from starknet_py.net.client_models import Call
-from starknet_py.net.models import DeclareV3, DeployAccountV3, AccountTransaction
+from starknet_py.net.models import AccountTransaction, DeclareV3, DeployAccountV3
 from starknet_py.net.models.chains import ChainId
 from starknet_py.net.models.transaction import InvokeV3, _AccountTransactionV3
 from starknet_py.net.signer import BaseSigner
