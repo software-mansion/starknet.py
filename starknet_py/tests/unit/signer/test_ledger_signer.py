@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from starknet_py.constants import EIP_2645_PATH_LENGTH
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
@@ -11,35 +10,12 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV3, DeployAccountV3, InvokeV3, StarknetChainId
-from starknet_py.net.signer.ledger_signer import LedgerSigner
+from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
-from starknet_py.tests.e2e.fixtures.constants import STRK_FEE_CONTRACT_ADDRESS
-
-
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+from starknet_py.tests.e2e.fixtures.constants import (
+    MAX_RESOURCE_BOUNDS_SEPOLIA,
+    STRK_FEE_CONTRACT_ADDRESS,
 )
-def test_init_with_invalid_derivation_path():
-    with pytest.raises(ValueError, match="Empty derivation path"):
-        LedgerSigner(derivation_path_str="", chain_id=StarknetChainId.SEPOLIA)
-
-    with pytest.raises(
-        ValueError, match=rf"Derivation path is not {EIP_2645_PATH_LENGTH}-level long"
-    ):
-        LedgerSigner(
-            derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0/0",
-            chain_id=StarknetChainId.SEPOLIA,
-        )
-
-    with pytest.raises(
-        ValueError, match=r"Derivation path is not prefixed with m/2645."
-    ):
-        LedgerSigner(
-            derivation_path_str="m/1234'/1195502025'/1470455285'/0'/0'/0",
-            chain_id=StarknetChainId.SEPOLIA,
-        )
 
 
 @pytest.mark.parametrize(
@@ -55,12 +31,65 @@ def test_init_with_invalid_derivation_path():
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-def test_sign_transaction(transaction):
+def test_blind_sign_transaction(transaction):
     # docs: start
 
     # Create a `LedgerSigner` instance with the derivation path and chain id
     signer = LedgerSigner(
-        derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
+        chain_id=StarknetChainId.SEPOLIA,
+        signing_mode=LedgerSigningMode.BLIND,
+    )
+
+    # Sign the transaction
+    signature = signer.sign_transaction(transaction)
+    # docs: end
+
+    assert isinstance(signature, list)
+    assert len(signature) == 2
+    assert all(isinstance(i, int) for i in signature)
+    assert all(i != 0 for i in signature)
+
+
+@pytest.mark.parametrize(
+    "transaction",
+    [
+        InvokeV3(
+            version=3,
+            signature=[],
+            nonce=1,
+            resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA,
+            calldata=[
+                1,
+                2009894490435840142178314390393166646092438090257831307886760648929397478285,
+                232670485425082704932579856502088130646006032362877466777181098476241604910,
+                3,
+                0x123,
+                100,
+                0,
+            ],
+            sender_address=0x123,
+        ),
+        DeployAccountV3(
+            class_hash=0x123,
+            contract_address_salt=0x123,
+            constructor_calldata=[1, 2, 3],
+            version=3,
+            signature=[],
+            nonce=0,
+            resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA,
+        ),
+    ],
+)
+# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
+def test_clear_sign_transaction(transaction):
+    # docs: start
+
+    # Create a `LedgerSigner` instance with the derivation path and chain id
+    signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
 
@@ -82,7 +111,6 @@ def test_sign_transaction(transaction):
 def test_create_account_with_ledger_signer():
     # pylint: disable=unused-variable
     signer = LedgerSigner(
-        derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
         chain_id=StarknetChainId.SEPOLIA,
     )
 
@@ -113,20 +141,21 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
 
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
-@pytest.mark.skip("TODO(#1560): Fix this test, class hash used here is not deployed")
-async def test_deploy_account_and_transfer(client):
+# @pytest.mark.skipif(
+#     platform == "win32",
+#     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+# )
+@pytest.mark.skip
+async def test_deploy_account_and_transfer(client_with_predeclared_argent):
+    client = client_with_predeclared_argent
     signer = LedgerSigner(
-        derivation_path_str="m/2645'/1195502025'/1470455285'/0'/0'/0",
         chain_id=StarknetChainId.SEPOLIA,
     )
     # docs-deploy-account-and-transfer: start
-    class_hash = 0x61DAC032F228ABEF9C6626F995015233097AE253A7F72D68552DB02F2971B8F
+    # argent v0.4.0 class hash
+    class_hash = 0x36078334509B514626504EDC9FB252328D1A240E4E948BEF8D0C08DFF45927F
     salt = 1
-    calldata = [signer.public_key]
+    calldata = [0, signer.public_key, 1]
     address = compute_address(
         salt=salt,
         class_hash=class_hash,

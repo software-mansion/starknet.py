@@ -1,9 +1,47 @@
 {
   "version": 1,
   "rules": [
+     {
+      "text": "Blind igning",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false],
+        ["button", 1, true],
+        ["button", 2, true],
+        ["button", 1, false],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "Confirm Tx to sign",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": " Deploy account (2/2)483766fd6403c7a",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "^[a-z0-9]{11,}\\$",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "Max Fees",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
     {
       "text": "Confirm Hash to sign",
-      "conditions": [],
       "actions": [
         ["button", 2, true],
         ["button", 2, false]
@@ -11,7 +49,48 @@
     },
     {
       "regexp": ".*Hash \\(.*\\)",
-      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*From \\(.*\\)",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Token.*",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Amount.*",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*To \\(.*\\)",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Max Fees.*",
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": "95ff3af225b804c93",
       "actions": [
         ["button", 2, true],
         ["button", 2, false]
@@ -19,7 +98,6 @@
     },
     {
       "text": "Reject",
-      "conditions": [],
       "actions": [
         ["button", 2, true],
         ["button", 2, false]
@@ -27,7 +105,6 @@
     },
     {
       "text": "Approve",
-      "conditions": [],
       "actions": [
         ["button", 1, true],
         ["button", 2, true],
