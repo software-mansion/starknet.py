@@ -217,7 +217,7 @@ jobs:
         run: sleep 5
 
       - name: Allow blind signing
-        run: ./starknet_py/tests/unit/signer/allow_ledger_bling_signing.sh
+        run: ./starknet_py/tests/unit/signer/allow_ledger_blind_signing.sh
 
       - name: Update automation rules
         working-directory: starknet_py/tests/unit/signer
