@@ -3,51 +3,15 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from starknet_py.contract import Contract
-from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV3, DeployAccountV3, InvokeV3, StarknetChainId
-from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_RESOURCE_BOUNDS_SEPOLIA,
     STRK_FEE_CONTRACT_ADDRESS,
 )
-
-
-@pytest.mark.parametrize(
-    "transaction",
-    [
-        Mock(spec=InvokeV3, calculate_hash=MagicMock(return_value=111)),
-        Mock(spec=DeployAccountV3, calculate_hash=MagicMock(return_value=222)),
-        Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=333)),
-    ],
-)
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
-def test_blind_sign_transaction(transaction):
-    # docs: start
-
-    # Create a `LedgerSigner` instance with the derivation path and chain id
-    signer = LedgerSigner(
-        chain_id=StarknetChainId.SEPOLIA,
-        signing_mode=LedgerSigningMode.BLIND,
-    )
-
-    # Sign the transaction
-    signature = signer.sign_transaction(transaction)
-    # docs: end
-
-    assert isinstance(signature, list)
-    assert len(signature) == 2
-    assert all(isinstance(i, int) for i in signature)
-    assert all(i != 0 for i in signature)
 
 
 @pytest.mark.parametrize(
@@ -86,14 +50,52 @@ def test_blind_sign_transaction(transaction):
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
 def test_clear_sign_transaction(transaction):
+    # pylint: disable=redefined-outer-name, unused-import, import-outside-toplevel
     # docs: start
+    from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
 
-    # Create a `LedgerSigner` instance with the derivation path and chain id
+    # Create a `LedgerSigner` instance and pass chain id
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
 
     # Sign the transaction
+    signature = signer.sign_transaction(transaction)
+    # docs: end
+
+    assert isinstance(signature, list)
+    assert len(signature) == 2
+    assert all(isinstance(i, int) for i in signature)
+    assert all(i != 0 for i in signature)
+
+
+@pytest.mark.parametrize(
+    "transaction",
+    [
+        Mock(spec=InvokeV3, calculate_hash=MagicMock(return_value=111)),
+        Mock(spec=DeployAccountV3, calculate_hash=MagicMock(return_value=222)),
+        Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=333)),
+    ],
+)
+# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
+def test_blind_sign_transaction(transaction):
+    # pylint: disable=import-outside-toplevel
+    from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
+
+    signer = LedgerSigner(
+        chain_id=StarknetChainId.SEPOLIA,
+    )
+    # docs: start
+
+    # Ledger also allows to blind sign transactions, but keep in mind that blind signing
+    # is not recommended. It's unsafe because it lets you approve transactions or
+    # messages without seeing their full contents.
+    # ⚠️ Use blind signing at your own risk
+    signer.signing_mode = LedgerSigningMode.BLIND
     signature = signer.sign_transaction(transaction)
     # docs: end
 
@@ -109,7 +111,11 @@ def test_clear_sign_transaction(transaction):
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
 def test_create_account_with_ledger_signer():
-    # pylint: disable=unused-variable
+    # pylint: disable=unused-variable, import-outside-toplevel, redefined-outer-name, reimported
+    from starknet_py.net.account.account import Account
+    from starknet_py.net.full_node_client import FullNodeClient
+    from starknet_py.net.signer.ledger_signer import LedgerSigner
+
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
@@ -117,6 +123,7 @@ def test_create_account_with_ledger_signer():
     # docs: start
 
     client = FullNodeClient(node_url="https://your.node.url")
+
     # Create an `Account` instance with the ledger signer
     account = Account(
         client=client,
@@ -146,11 +153,21 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
 async def test_deploy_account_and_transfer(client_with_predeclared_argent):
+    # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
+    # docs-deploy-account-and-transfer: start
+    from starknet_py.contract import Contract
+    from starknet_py.hash.address import compute_address
+    from starknet_py.net.account.account import Account
+    from starknet_py.net.full_node_client import FullNodeClient
+    from starknet_py.net.signer.ledger_signer import LedgerSigner
+
+    client = FullNodeClient(node_url="https://your.node.url")
+    # docs-deploy-account-and-transfer: end
     client = client_with_predeclared_argent
+    # docs-deploy-account-and-transfer: start
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
-    # docs-deploy-account-and-transfer: start
     # argent v0.4.0 class hash
     class_hash = 0x36078334509B514626504EDC9FB252328D1A240E4E948BEF8D0C08DFF45927F
     salt = 1
@@ -186,9 +203,7 @@ async def test_deploy_account_and_transfer(client_with_predeclared_argent):
 
     await client.deploy_account(signed_tx)
 
-    recipient_address = (
-        0x1323CACBC02B4AAED9BB6B24D121FB712D8946376040990F2F2FA0DCF17BB5B
-    )
+    recipient_address = 0x123
     # docs-deploy-account-and-transfer: end
     recipient_balance_before = (
         await _get_account_balance_strk(client, recipient_address)

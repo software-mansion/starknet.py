@@ -42,7 +42,8 @@ class LedgerStarknetApp:
     def __init__(self, account_id: int = 0, application_name: str = "LedgerW"):
         """
         :param account_id: ID of Ledger account.
-        :param application_name: Name of the application, which is part of ERC2645 derivation path.
+        :param application_name: Name of the application, which is part of
+        `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
         """
         self.client: LedgerClient = LedgerClient(cla=STARKNET_CLA)
         self.derivation_path = _get_derivation_path(
@@ -149,7 +150,8 @@ class LedgerSigner(BaseSigner):
         """
         :param chain_id: Chain ID.
         :param account_id: ID of Ledger account.
-        :param application_name: Name of the application, which is part of ERC2645 derivation path.
+        :param application_name: Name of the application, which is part of
+        `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
         :param signing_mode: Signing mode (clear or blind).
         """
         self.app: LedgerStarknetApp = LedgerStarknetApp()

@@ -15,7 +15,7 @@ signing algorithm, it is possible to create ``Account`` with custom
 Signing with Ledger
 -------------------
 :ref:`LedgerSigner` allows you to sign transactions using a Ledger device. The device must be unlocked and Starknet app needs to be open.
-Currently used version of Starknet app is ``1.1.1`` and only blind-signing is possible. Clear-signing will be available in the near future.
+Currently used version of `Starknet app <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ is ``2.3.1``.
 
 .. codesnippet:: ../../starknet_py/tests/unit/signer/test_ledger_signer.py
     :language: python
