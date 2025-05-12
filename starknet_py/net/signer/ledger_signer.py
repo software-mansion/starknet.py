@@ -361,11 +361,15 @@ class LedgerSigner(BaseSigner):
 
         # Command 6: Send calls
         response = None
-        calls = _deserialize_invoke_tx_calldata_to_calls(tx.calldata)
 
-        for call in calls:
-            calldatas = _encode_call(call)
+        offset = 1
+        while offset < len(tx.calldata):
+            serialized_call_size = (
+                1 + 1 + 1 + tx.calldata[offset + 2]
+            )  # to_addr + selector + calldata_size + calldata
+            serialized_call = tx.calldata[offset : offset + serialized_call_size]
 
+            calldatas = _call_to_bytes(serialized_call)
             response = self.app.client.apdu_exchange(
                 ins=3,
                 data=bytes(calldatas[0]),
@@ -373,11 +377,13 @@ class LedgerSigner(BaseSigner):
                 p2=0,
             )
 
-            if len(calldatas) == 1:
-                continue
+            if len(calldatas) > 1:
+                for part in calldatas[1:]:
+                    response = self.app.client.apdu_exchange(
+                        ins=3, p1=6, p2=1, data=part
+                    )
 
-            for part in calldatas[1:]:
-                response = self.app.client.apdu_exchange(ins=3, p1=6, p2=1, data=part)
+            offset += serialized_call_size
 
         if response is None:
             raise ValueError("No response received from Ledger device.")
@@ -405,52 +411,29 @@ class LedgerSigner(BaseSigner):
         return tip_bytes + l1_gas_bytes + l2_gas_bytes + l1_data_gas_bytes
 
 
-def _deserialize_invoke_tx_calldata_to_calls(tx_calldata: List[int]) -> List[Call]:
-    num_calls = tx_calldata[0]
-    offset = 1
-    calls = []
-
-    for _ in range(num_calls):
-        address = tx_calldata[offset]
-        offset += 1
-        selector = tx_calldata[offset]
-        offset += 1
-        call_calldata_length = tx_calldata[offset]
-        offset += 1
-        call_calldata = []
-
-        if call_calldata_length > 0:
-            for _ in range(call_calldata_length):
-                call_calldata.append(tx_calldata[offset])
-                offset += 1
-
-        call = Call(
-            to_addr=address,
-            selector=selector,
-            calldata=call_calldata,
-        )
-        calls.append(call)
-
-    return calls
-
-
-def _string_to_4byte_hash(s: str):
+def _string_to_4byte_hash(s: str) -> bytes:
     num = int.from_bytes(hashlib.sha256(s.encode()).digest(), "big")
     masked = num & 0x7FFFFFFF
     return masked.to_bytes(4, "big")
 
 
-def _encode_call(call: Call) -> List[bytes]:
-    to_addr_bytes = call.to_addr.to_bytes(32, byteorder="big")
-    selector_bytes = call.selector.to_bytes(32, byteorder="big")
+def _call_to_bytes(serialized_call: List[int]) -> List[bytes]:
+    to_addr = serialized_call[0]
+    selector = serialized_call[1]
+    calldata_size = serialized_call[2]
+    calldata = serialized_call[3:]
 
-    if call.calldata:
-        calldata_size_bytes = len(call.calldata).to_bytes(32, byteorder="big")
+    to_addr_bytes = to_addr.to_bytes(32, byteorder="big")
+    selector_bytes = selector.to_bytes(32, byteorder="big")
+
+    if calldata_size > 0:
+        calldata_size_bytes = calldata_size.to_bytes(32, byteorder="big")
         calldata_bytes = calldata_size_bytes + b"".join(
-            val.to_bytes(32, byteorder="big") for val in call.calldata
+            val.to_bytes(32, byteorder="big") for val in calldata
         )
     else:
         calldata_bytes = int(0).to_bytes(32, byteorder="big")
+
     call_bytes = to_addr_bytes + selector_bytes + calldata_bytes
     calldatas = []
 
@@ -465,7 +448,7 @@ def _get_derivation_path(
     account_id: int,
     application_name: str,
 ) -> bytes:
-    purpose_bytes = EIP_2645_PURPOSE.to_bytes(4, byteorder="big")  # EIP2645
+    purpose_bytes = EIP_2645_PURPOSE.to_bytes(4, byteorder="big")
     coin_type_bytes = b"GA\xe9\xc9"  # "starknet"
 
     if application_name == "LedgerW":
