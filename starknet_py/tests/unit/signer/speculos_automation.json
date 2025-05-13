@@ -85,6 +85,14 @@
       ]
     },
     {
+      "text": "Confirm Hash to sign",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
       "text": "Approve",
       "conditions": [],
       "actions": [
