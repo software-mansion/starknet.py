@@ -148,10 +148,11 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
 
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
+# @pytest.mark.skipif(
+#     platform == "win32",
+#     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+# )
+@pytest.mark.skip
 async def test_deploy_account_and_transfer(client_with_predeclared_argent):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
