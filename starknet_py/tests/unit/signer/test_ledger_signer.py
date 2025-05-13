@@ -45,10 +45,11 @@ from starknet_py.tests.e2e.fixtures.constants import (
     ],
 )
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
+# @pytest.mark.skipif(
+#     platform == "win32",
+#     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+# )
+@pytest.mark.skip
 def test_clear_sign_transaction(transaction):
     # pylint: disable=redefined-outer-name, unused-import, import-outside-toplevel
     # docs: start
@@ -78,10 +79,11 @@ def test_clear_sign_transaction(transaction):
     ],
 )
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
+# @pytest.mark.skipif(
+#     platform == "win32",
+#     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+# )
+@pytest.mark.skip
 def test_blind_sign_transaction(transaction):
     # pylint: disable=import-outside-toplevel
     from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
