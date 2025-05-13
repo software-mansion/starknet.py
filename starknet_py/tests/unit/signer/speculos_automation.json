@@ -20,7 +20,7 @@
         ["button", 2, false]
       ]
     },
-     {
+    {
       "text": "Confirm Tx to sign",
       "conditions": [],
       "actions": [
