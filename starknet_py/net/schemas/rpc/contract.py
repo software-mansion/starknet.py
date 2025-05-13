@@ -2,7 +2,7 @@ import json
 
 from marshmallow import EXCLUDE
 from marshmallow import Schema as MarshmallowSchema
-from marshmallow import SchemaOpts, ValidationError, fields, post_load
+from marshmallow import ValidationError, fields, post_load
 
 from starknet_py.abi.v0.schemas import ContractAbiEntrySchema
 from starknet_py.net.client_models import (
@@ -22,7 +22,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.executable_models import CasmClass
 from starknet_py.net.schemas.common import Felt, NumberAsHex
 from starknet_py.net.schemas.rpc.executables_api import HintSchema
-from starknet_py.utils.schema import ExcludeOpts, Schema
+from starknet_py.utils.schema import Schema
 
 
 class SyncStatusSchema(Schema):
@@ -183,10 +183,7 @@ class CasmClassEntryPointsByTypeSchema(Schema):
         return CasmClassEntryPointsByType(**data)
 
 
-# TODO(#1564): `CasmClassSchema` should inherit from `Schema` and shouldn't overwrite `OPTION_CLASS`
-#  once issue is resolved.
 class CasmClassSchema(MarshmallowSchema):
-    OPTIONS_CLASS = ExcludeOpts
     prime = NumberAsHex(data_key="prime", required=True)
     bytecode = fields.List(Felt(), data_key="bytecode", required=True)
     bytecode_segment_lengths = fields.List(
