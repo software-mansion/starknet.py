@@ -124,8 +124,8 @@ class ParserTransformer(Transformer):
         """
         Fixed-size array contains values of type under `value[0]`.
         """
-        cairo_type, length_token = value
-        length = int(length_token)
+        cairo_type, size_token = value
+        size = int(size_token)
         return FixedSizeArrayType(cairo_type, length)
 
     def type_span(self, value: List[CairoType]) -> ArrayType:
