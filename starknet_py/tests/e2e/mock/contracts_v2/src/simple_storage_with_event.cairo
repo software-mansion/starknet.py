@@ -49,8 +49,8 @@ pub mod SimpleStorageWithEvent {
             self
                 .emit(
                     AnotherPutCalled {
-                        key: key, prev_value: prev_value, value: value, additional_value: value
-                    }
+                        key: key, prev_value: prev_value, value: value, additional_value: value,
+                    },
                 );
         }
     }

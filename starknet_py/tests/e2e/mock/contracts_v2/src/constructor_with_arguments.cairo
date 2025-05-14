@@ -27,7 +27,7 @@ mod ConstructorWithArguments {
         single_value: felt252,
         tuple: (felt252, (felt252, felt252)),
         arr: Array<felt252>,
-        dict: TopStruct
+        dict: TopStruct,
     ) {
         let mut sum = 0;
 
