@@ -19,13 +19,14 @@ struct ExampleStruct {
     field_d: (),
     field_e: NonZero<felt252>,
     field_f: NonZero<u8>,
+    field_g: [u64; 5],
 }
 
 #[starknet::interface]
 trait IAbiTest<TContractState> {
     fn example_view_function(self: @TContractState) -> ExampleEnum;
     fn example_external_function(
-        ref self: TContractState, recipient: ContractAddress, amount: u256
+        ref self: TContractState, recipient: ContractAddress, amount: u256,
     ) -> ExampleStruct;
 }
 
@@ -62,7 +63,7 @@ mod AbiTypes {
             ExampleEnum::variant_a(100)
         }
         fn example_external_function(
-            ref self: ContractState, recipient: ContractAddress, amount: u256
+            ref self: ContractState, recipient: ContractAddress, amount: u256,
         ) -> ExampleStruct {
             ExampleStruct {
                 field_a: 200,
@@ -71,6 +72,7 @@ mod AbiTypes {
                 field_d: (),
                 field_e: felt_to_nonzero(100),
                 field_f: u8_to_nonzero(100),
+                field_g: [1, 2, 3, 4, 5],
             }
         }
     }
