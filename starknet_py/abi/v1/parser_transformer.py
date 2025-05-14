@@ -126,7 +126,7 @@ class ParserTransformer(Transformer):
         """
         cairo_type, size_token = value
         size = int(size_token)
-        return FixedSizeArrayType(cairo_type, length)
+        return FixedSizeArrayType(cairo_type, size)
 
     def type_span(self, value: List[CairoType]) -> ArrayType:
         """
