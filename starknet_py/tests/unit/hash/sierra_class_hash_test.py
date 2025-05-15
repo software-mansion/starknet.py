@@ -9,12 +9,12 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
     "contract_name, expected_class_hash",
     # fmt: off
     [
-        ("Account", 0x183078afce57a1d33b948ea6cd9ab0769dd08ca93a6afe4c23637b08aa893c1),
-        ("ERC20", 0x746248ba570006607113ae3f4dbb4130e81233fb818d15329c6a4aaccf94812),
-        ("HelloStarknet", 0x224518978adb773cfd4862a894e9d333192fbd24bc83841dc7d4167c09b89c5),
-        ("MinimalContract", 0x6fb1efd745d57b60023c6dc3209227e5e54d44fa16e0ae75cc03e1a7f3da08a),
-        ("TestContract", 0x3adac8a417b176d27e11b420aa1063b07a6b54bbb21091ad77b2a9156af7a3b),
-        ("TokenBridge", 0x3d138e923f01b7ed1bb82b9b4e7f6df64e0c429faf8b27539addc71c1407237),
+        ("Account", 0x55e75d605058b805446f530b8fbfb06dea6cbffc9bb0f480ea3da5fc1c7dc6e),
+        ("ERC20", 0x5171d1adbaef84e5b0aa50112700b6fa9b4e67f2178ded86fa111b098d3d939),
+        ("HelloStarknet", 0x54f5df27a89fa5a6ff30e4cef95a0f59339c64d510182c1605b065daa42bb24),
+        ("MinimalContract", 0x7e66d69bdfee64e13c9b1e3bc6f5377aae2c081b722518ccdd8ea0e5eb4e4ee),
+        ("TestContract", 0x471280dc8638e5a66bea76cb7765a9a797d444600c0a74e4d3e65f0a6f111c7),
+        ("TokenBridge", 0x5604704d135c1859fe0613ae71f006d2d9ff5dd68fab03995d0a04f37e6f5eb),
     ],
     # fmt: on
 )
