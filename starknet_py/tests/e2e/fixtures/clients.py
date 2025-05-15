@@ -12,13 +12,6 @@ def create_full_node_client(devnet: str) -> FullNodeClient:
     return FullNodeClient(node_url=devnet + "/rpc")
 
 
-@pytest.fixture(name="client_with_predeclared_argent", scope="package")
-def create_full_node_client_with_predeclare_argent(
-    devnet_with_predeclared_argent: str,
-) -> FullNodeClient:
-    return FullNodeClient(node_url=devnet_with_predeclared_argent + "/rpc")
-
-
 @pytest_asyncio.fixture(scope="package")
 async def websocket_client(devnet_ws: str) -> AsyncGenerator[WebsocketClient, None]:
     """
