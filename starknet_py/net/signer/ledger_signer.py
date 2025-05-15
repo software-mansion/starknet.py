@@ -1,4 +1,5 @@
 import hashlib
+import warnings
 from enum import Enum
 from typing import TYPE_CHECKING, List
 
@@ -148,6 +149,8 @@ class LedgerSigningMode(Enum):
     """
 
 
+# Note for developers: when reviewing passed APDUs, please
+# refer to https://github.com/LedgerHQ/app-starknet/blob/develop/docs/apdu.md
 class LedgerSigner(BaseSigner):
     def __init__(
         self,
@@ -176,13 +179,14 @@ class LedgerSigner(BaseSigner):
     def sign_transaction(self, transaction: AccountTransaction) -> List[int]:
         if self.signing_mode == LedgerSigningMode.CLEAR:
             if isinstance(transaction, DeclareV3):
-                raise ValueError("DeclareV3 signing is not supported bye LedgerSigner")
+                raise ValueError("DeclareV3 signing is not supported by LedgerSigner")
             if isinstance(transaction, DeployAccountV3):
                 return self._sign_deploy_account_v3(transaction)
             if isinstance(transaction, InvokeV3):
                 return self._sign_invoke_transaction_v3(transaction)
             raise ValueError(f"Unsupported transaction type: {type(transaction)}")
 
+        _print_blind_signing_mode_warning()
         tx_hash = transaction.calculate_hash(self.chain_id)
         return self.app.sign_hash(hash_val=tx_hash)
 
@@ -481,4 +485,18 @@ def _get_derivation_path(
         + hardened_zero_bytes
         + account_bytes
         + address_index_bytes
+    )
+
+
+class BlindSigningModeWarning(Warning):
+    pass
+
+
+def _print_blind_signing_mode_warning():
+    warnings.warn(
+        "Signing in blind mode is not recommended. It prevents you from verifying "
+        "the contents and leaving you vulnerable tounknowingly authorizing malicious transactions. "
+        "⚠️ Use at your own risk",
+        BlindSigningModeWarning,
+        stacklevel=4,
     )

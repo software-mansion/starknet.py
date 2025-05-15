@@ -7,6 +7,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV3, DeployAccountV3, InvokeV3, StarknetChainId
+from starknet_py.net.signer.ledger_signer import BlindSigningModeWarning
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_RESOURCE_BOUNDS_SEPOLIA,
@@ -103,6 +104,41 @@ def test_blind_sign_transaction(transaction):
     assert len(signature) == 2
     assert all(isinstance(i, int) for i in signature)
     assert all(i != 0 for i in signature)
+
+
+def test_blind_sign_warning():
+    # pylint: disable=import-outside-toplevel, redefined-outer-name
+    from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
+
+    signer = LedgerSigner(
+        chain_id=StarknetChainId.SEPOLIA,
+    )
+    signer.signing_mode = LedgerSigningMode.BLIND
+
+    pattern = (
+        "Signing in blind mode is not recommended. It prevents you from verifying "
+        "the contents and leaving you vulnerable to unknowingly authorizing malicious transactions. "
+        "⚠️ Use at your own risk"
+    )
+
+    tx = InvokeV3(
+        version=3,
+        signature=[],
+        nonce=1,
+        resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA,
+        calldata=[
+            1,
+            2009894490435840142178314390393166646092438090257831307886760648929397478285,
+            232670485425082704932579856502088130646006032362877466777181098476241604910,
+            3,
+            0x123,
+            100,
+            0,
+        ],
+        sender_address=0x123,
+    )
+    with pytest.warns(BlindSigningModeWarning, match=pattern):
+        signer.sign_transaction(tx)
 
 
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
