@@ -13,7 +13,7 @@ def create_full_node_client(devnet: str) -> FullNodeClient:
 
 
 @pytest.fixture(name="client_with_predeclared_argent", scope="package")
-def create_full_node_clien_with_predeclare_argent(
+def create_full_node_client_with_predeclare_argent(
     devnet_with_predeclared_argent: str,
 ) -> FullNodeClient:
     return FullNodeClient(node_url=devnet_with_predeclared_argent + "/rpc")
