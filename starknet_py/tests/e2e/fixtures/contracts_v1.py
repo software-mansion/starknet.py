@@ -11,15 +11,8 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_RESOURCE_BOUNDS,
-    PRECOMPILED_CONTRACTS_DIR,
-)
-from starknet_py.tests.e2e.fixtures.misc import (
-    ContractVersion,
-    load_contract,
-    read_contract,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 async def declare_contract(
