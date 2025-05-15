@@ -188,7 +188,7 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-async def test_deploy_account_and_transfer(client):
+async def test_deploy_account_and_transfer(client_with_predeclared_argent):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
     from starknet_py.contract import Contract
@@ -197,9 +197,9 @@ async def test_deploy_account_and_transfer(client):
     from starknet_py.net.full_node_client import FullNodeClient
     from starknet_py.net.signer.ledger_signer import LedgerSigner
 
-    rpc_client = FullNodeClient(node_url="https://your.node.url")
+    client = FullNodeClient(node_url="https://your.node.url")
     # docs-deploy-account-and-transfer: end
-    rpc_client = client
+    client = client_with_predeclared_argent
     # docs-deploy-account-and-transfer: start
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
@@ -215,7 +215,7 @@ async def test_deploy_account_and_transfer(client):
     )
     account = Account(
         address=address,
-        client=rpc_client,
+        client=client,
         signer=signer,
         chain=StarknetChainId.SEPOLIA,
     )
@@ -224,7 +224,7 @@ async def test_deploy_account_and_transfer(client):
     # docs-deploy-account-and-transfer: end
     # Here we prefund the devnet account for test purposes
     await mint_token_on_devnet(
-        url=rpc_client.url.replace("/rpc", ""),
+        url=client.url.replace("/rpc", ""),
         address=address,
         amount=5000000000000000000000,
         unit="FRI",
@@ -237,12 +237,12 @@ async def test_deploy_account_and_transfer(client):
         auto_estimate=True,
     )
 
-    await rpc_client.deploy_account(signed_tx)
+    await client.deploy_account(signed_tx)
 
     recipient_address = 0x123
     # docs-deploy-account-and-transfer: end
     recipient_balance_before = (
-        await _get_account_balance_strk(rpc_client, recipient_address)
+        await _get_account_balance_strk(client, recipient_address)
     )[0]
     # docs-deploy-account-and-transfer: start
     contract = await Contract.from_address(
@@ -254,7 +254,7 @@ async def test_deploy_account_and_transfer(client):
     await invocation.wait_for_acceptance()
     # docs-deploy-account-and-transfer: end
     recipient_balance_after = (
-        await _get_account_balance_strk(rpc_client, recipient_address)
+        await _get_account_balance_strk(client, recipient_address)
     )[0]
 
     assert recipient_balance_before + 100 == recipient_balance_after

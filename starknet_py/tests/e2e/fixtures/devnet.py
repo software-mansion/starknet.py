@@ -17,9 +17,11 @@ def get_available_port() -> int:
         return sock.getsockname()[1]
 
 
-def start_devnet(fork_mode: bool = False):
+def start_devnet(fork_mode: bool = False, predeclare_argent: bool = False):
     devnet_port = get_available_port()
-    start_devnet_command = get_start_devnet_command(devnet_port, fork_mode=fork_mode)
+    start_devnet_command = get_start_devnet_command(
+        devnet_port, fork_mode=fork_mode, predeclare_argent=predeclare_argent
+    )
 
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(start_devnet_command)
@@ -27,7 +29,9 @@ def start_devnet(fork_mode: bool = False):
     return devnet_port, proc
 
 
-def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[str]:
+def get_start_devnet_command(
+    devnet_port: int, fork_mode: bool = False, predeclare_argent: bool = False
+) -> List[str]:
     devnet_path = Path(__file__).parent.parent / "devnet" / "bin" / "starknet-devnet"
 
     start_command = [
@@ -52,11 +56,12 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
             ]
         )
 
-    start_command.extend(
-        [
-            "--predeclare-argent",
-        ]
-    )
+    if predeclare_argent:
+        start_command.extend(
+            [
+                "--predeclare-argent",
+            ]
+        )
 
     return start_command
 
@@ -77,5 +82,15 @@ def devnet_forking_mode() -> Generator[str, None, None]:
     Runs devnet instance once per module and returns its address.
     """
     devnet_port, proc = start_devnet(fork_mode=True)
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
+
+
+@pytest.fixture(scope="package")
+def devnet_with_predeclared_argent() -> Generator[str, None, None]:
+    """
+    Runs devnet instance once per module and returns its address.
+    """
+    devnet_port, proc = start_devnet(predeclare_argent=True)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
