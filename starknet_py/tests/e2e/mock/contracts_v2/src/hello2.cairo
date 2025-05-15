@@ -23,7 +23,7 @@ use box::BoxTrait;
 
 #[derive(Copy, Drop, Serde)]
 struct Foo {
-    val: felt252
+    val: felt252,
 }
 
 // Complex Structs
@@ -108,12 +108,12 @@ trait IHelloStarknet<TContractState> {
     fn array2d_felt(self: @TContractState, test: Array<Array<felt252>>) -> felt252;
     // req tuple(array) ret tuple(array)
     fn tuple_echo(
-        self: @TContractState, a: (core::array::Array::<felt252>, core::array::Array::<felt252>)
+        self: @TContractState, a: (core::array::Array::<felt252>, core::array::Array::<felt252>),
     ) -> (core::array::Array::<felt252>, core::array::Array::<felt252>);
 
     // mix req (array,bool) ret tuple(array,bool)
     fn array_bool_tuple(
-        self: @TContractState, a: core::array::Array::<felt252>, b: bool
+        self: @TContractState, a: core::array::Array::<felt252>, b: bool,
     ) -> (core::array::Array::<felt252>, bool);
 
     // used for changes to redeclare contract
@@ -279,8 +279,8 @@ mod Hello2 {
                         counter_bettor: user,
                         winner: false,
                         pool: u256 { low: 10_u128, high: 0_u128 },
-                        amount: u256 { low: 1000_u128, high: 0_u128 }
-                    }
+                        amount: u256 { low: 1000_u128, high: 0_u128 },
+                    },
                 );
         }
 
@@ -307,7 +307,7 @@ mod Hello2 {
         }
 
         fn array2d_array(
-            self: @ContractState, test: Array<Array<felt252>>
+            self: @ContractState, test: Array<Array<felt252>>,
         ) -> Array<Array<felt252>> {
             return test;
         }
@@ -318,14 +318,14 @@ mod Hello2 {
 
         // req tuple(array) ret tuple(array)
         fn tuple_echo(
-            self: @ContractState, a: (core::array::Array::<felt252>, core::array::Array::<felt252>)
+            self: @ContractState, a: (core::array::Array::<felt252>, core::array::Array::<felt252>),
         ) -> (core::array::Array::<felt252>, core::array::Array::<felt252>) {
             a
         }
 
         // mix req (array,bool) ret tuple(array,bool)
         fn array_bool_tuple(
-            self: @ContractState, a: core::array::Array::<felt252>, b: bool
+            self: @ContractState, a: core::array::Array::<felt252>, b: bool,
         ) -> (core::array::Array::<felt252>, bool) {
             let mut a = a.clone();
             a.append(1);
@@ -366,7 +366,7 @@ mod Hello2 {
         fn option_order_input(self: @ContractState, inp: Option<Order>) -> u16 {
             match inp {
                 Option::Some(x) => { return x.p2; },
-                Option::None(()) => { return 17; }
+                Option::None(()) => { return 17; },
             }
         }
     }

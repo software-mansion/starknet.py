@@ -8,13 +8,13 @@ trait IAnotherContract<T> {
 mod TestContract {
     use super::{
         IAnotherContractDispatcher, IAnotherContractLibraryDispatcher,
-        IAnotherContractDispatcherTrait, MyType
+        IAnotherContractDispatcherTrait, MyType,
     };
     use dict::Felt252DictTrait;
 
     #[storage]
     struct Storage {
-        my_storage_var: felt252
+        my_storage_var: felt252,
     }
 
     fn internal_func() -> felt252 {
@@ -34,7 +34,7 @@ mod TestContract {
 
     #[external(v0)]
     fn call_foo(
-        ref self: ContractState, another_contract_address: starknet::ContractAddress, a: u128
+        ref self: ContractState, another_contract_address: starknet::ContractAddress, a: u128,
     ) -> u128 {
         IAnotherContractDispatcher { contract_address: another_contract_address }.foo(a)
     }
@@ -46,7 +46,7 @@ mod TestContract {
 
     /// An external method that requires the `segment_arena` builtin.
     #[external(v0)]
-    fn segment_arena_builtin(ref self: ContractState,) {
+    fn segment_arena_builtin(ref self: ContractState) {
         let x = felt252_dict_new::<felt252>();
         x.squash();
     }

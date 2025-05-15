@@ -17,7 +17,7 @@ mod Account {
         #[substorage(v0)]
         account: AccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -26,7 +26,7 @@ mod Account {
         #[flat]
         AccountEvent: AccountComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]

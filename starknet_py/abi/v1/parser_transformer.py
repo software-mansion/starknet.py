@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 import lark
 from lark import Token, Transformer
@@ -8,6 +8,7 @@ from starknet_py.cairo.data_types import (
     BoolType,
     CairoType,
     FeltType,
+    FixedSizeArrayType,
     OptionType,
     TupleType,
     TypeIdentifier,
@@ -27,6 +28,7 @@ ABI_EBNF = """
         | type_storage_address
         | type_option
         | type_array
+        | type_fixed_size_array
         | type_span
         | tuple
         | type_identifier
@@ -41,6 +43,7 @@ ABI_EBNF = """
     type_storage_address: "core::starknet::storage_access::StorageAddress"
     type_option: "core::option::Option::<" (type | type_identifier) ">"
     type_array: "core::array::Array::<" (type | type_identifier) ">"
+    type_fixed_size_array: "[" (type | type_identifier) ";" INT "]"
     type_span: "core::array::Span::<" (type | type_identifier) ">"
     
     tuple: "(" type? ("," type?)* ")"
@@ -114,6 +117,16 @@ class ParserTransformer(Transformer):
         Array contains values of type under `value[0]`.
         """
         return ArrayType(value[0])
+
+    def type_fixed_size_array(
+        self, value: Tuple[CairoType, Token]
+    ) -> FixedSizeArrayType:
+        """
+        Fixed-size array contains values of type under `value[0]`.
+        """
+        cairo_type, size_token = value
+        size = int(size_token)
+        return FixedSizeArrayType(cairo_type, size)
 
     def type_span(self, value: List[CairoType]) -> ArrayType:
         """

@@ -2,6 +2,15 @@ Migration guide
 ===============
 
 **********************
+0.26.3 Migration guide
+**********************
+
+0.26.3 Bugfixes
+---------------
+
+1. ABI parser supports now fixed size arrays.
+
+**********************
 0.26.2 Migration guide
 **********************
 

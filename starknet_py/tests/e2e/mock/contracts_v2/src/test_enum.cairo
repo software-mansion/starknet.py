@@ -4,7 +4,7 @@ use serde::Serde;
 enum MyEnum {
     a: u256,
     b: u128,
-    c: ()
+    c: (),
 }
 
 #[starknet::contract]

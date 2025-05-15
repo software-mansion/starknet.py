@@ -18,10 +18,10 @@ mod TokenBridge {
     use starknet::contract_address::ContractAddressZeroable;
     use starknet::{
         ContractAddress, get_caller_address, EthAddress, EthAddressIntoFelt252, EthAddressSerde,
-        EthAddressZeroable, syscalls::send_message_to_l1_syscall
+        EthAddressZeroable, syscalls::send_message_to_l1_syscall,
     };
     use super::{
-        IMintableTokenDispatcher, IMintableTokenLibraryDispatcher, IMintableTokenDispatcherTrait
+        IMintableTokenDispatcher, IMintableTokenLibraryDispatcher, IMintableTokenDispatcherTrait,
     };
     use traits::Into;
     use zeroable::Zeroable;
@@ -136,10 +136,10 @@ mod TokenBridge {
 
             // Send the message.
             let mut message_payload: Array<felt252> = array![
-                WITHDRAW_MESSAGE, l1_recipient.into(), amount.low.into(), amount.high.into()
+                WITHDRAW_MESSAGE, l1_recipient.into(), amount.low.into(), amount.high.into(),
             ];
             send_message_to_l1_syscall(
-                to_address: self.read_initialized_l1_bridge(), payload: message_payload.span()
+                to_address: self.read_initialized_l1_bridge(), payload: message_payload.span(),
             )
                 .unwrap();
             self.emit(WithdrawInitiated { l1_recipient, amount, caller_address });
@@ -148,7 +148,7 @@ mod TokenBridge {
 
     #[l1_handler]
     fn handle_deposit(
-        ref self: ContractState, from_address: felt252, account: ContractAddress, amount: u256
+        ref self: ContractState, from_address: felt252, account: ContractAddress, amount: u256,
     ) {
         assert(from_address == self.l1_bridge.read(), 'EXPECTED_FROM_BRIDGE_ONLY');
 

@@ -60,7 +60,7 @@ mod l1_l2 {
 
         self.balances.write(user, new_balance);
 
-        let payload = array![MESSAGE_WITHDRAW, user, amount,];
+        let payload = array![MESSAGE_WITHDRAW, user, amount];
 
         starknet::send_message_to_l1_syscall(l1_address, payload.span()).unwrap();
     }
@@ -94,7 +94,7 @@ mod l1_l2 {
         starknet::SyscallResultTrait::unwrap_syscall(
             starknet::library_call_syscall(
                 message_sender_class_hash, selector!("send_withdraw_message"), calldata.span(),
-            )
+            ),
         );
     }
 
