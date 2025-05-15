@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from starknet_py.constants import ARGENT_V040_CLASS_HASH
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
@@ -542,11 +543,10 @@ async def test_sign_transaction_custom_nonce(account, hello_starknet_class_hash)
 async def test_argent_account_deploy(
     client,
     argent_account_v040_data: AccountPrerequisites,
-    argent_account_v040_class_hash,
 ):
     deploy_result = await Account.deploy_account_v3(
         address=argent_account_v040_data.address,
-        class_hash=argent_account_v040_class_hash,
+        class_hash=ARGENT_V040_CLASS_HASH,
         salt=argent_account_v040_data.salt,
         key_pair=argent_account_v040_data.key_pair,
         client=client,

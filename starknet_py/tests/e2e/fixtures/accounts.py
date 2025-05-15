@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 import pytest
 import pytest_asyncio
 
+from starknet_py.constants import ARGENT_V040_CLASS_HASH
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
@@ -176,7 +177,6 @@ def pre_deployed_account_with_validate_deploy(client) -> BaseAccount:
 
 @pytest_asyncio.fixture(scope="function")
 async def argent_account_v040_data(
-    argent_account_v040_class_hash,
     eth_fee_contract: Contract,
     strk_fee_contract: Contract,
 ) -> AccountPrerequisites:
@@ -189,7 +189,7 @@ async def argent_account_v040_data(
         1,
     ]
 
-    address, salt = _new_address(argent_account_v040_class_hash, constructor_calldata)
+    address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
 
     await prepay_account(
         address=address,
@@ -202,7 +202,6 @@ async def argent_account_v040_data(
 
 @pytest_asyncio.fixture(scope="package")
 async def argent_account_v040(
-    argent_account_v040_class_hash,
     eth_fee_contract: Contract,
     strk_fee_contract: Contract,
     client,
@@ -216,7 +215,7 @@ async def argent_account_v040(
         1,
     ]
 
-    address, salt = _new_address(argent_account_v040_class_hash, constructor_calldata)
+    address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
 
     await prepay_account(
         address=address,
@@ -226,7 +225,7 @@ async def argent_account_v040(
 
     deploy_result = await Account.deploy_account_v3(
         address=address,
-        class_hash=argent_account_v040_class_hash,
+        class_hash=ARGENT_V040_CLASS_HASH,
         salt=salt,
         key_pair=key_pair,
         client=client,

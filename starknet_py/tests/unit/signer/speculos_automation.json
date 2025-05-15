@@ -2,10 +2,13 @@
   "version": 1,
   "rules": [
     {
-      "text": "Confirm Hash to sign",
-      "conditions": [],
+      "text": "Blind igning",
       "actions": [
         ["button", 2, true],
+        ["button", 2, false],
+        ["button", 1, true],
+        ["button", 2, true],
+        ["button", 1, false],
         ["button", 2, false]
       ]
     },
@@ -18,7 +21,71 @@
       ]
     },
     {
-      "text": "Reject",
+      "text": "Confirm Tx to sign",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*From \\(.*\\)",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*To \\(.*\\)",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Deploy account \\(.*\\)",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Amount.*",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Max Fees.*",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "regexp": ".*Token.*",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "Confirm Tx to sign",
+      "conditions": [],
+      "actions": [
+        ["button", 2, true],
+        ["button", 2, false]
+      ]
+    },
+    {
+      "text": "Confirm Hash to sign",
       "conditions": [],
       "actions": [
         ["button", 2, true],
