@@ -14,11 +14,11 @@ from starknet_py.tests.e2e.fixtures.misc import (
 @pytest.mark.parametrize(
     "contract, expected_casm_class_hash",
     [
-        ("Account", 0x108977ab61715437fc7097b6499b3cf9491361eb6a8ce6df6c8536b7feec508),
-        ("ERC20", 0x5adc857416202a5902c01168542e188c3aa6380f57c911ae98cf20bc52be367),
-        ("HelloStarknet", 0x6ff9f7df06da94198ee535f41b214dce0b8bafbdb45e6c6b09d4b3b693b1f17),
-        ("TestContract", 0x2193add92c182c9236f0c156f11dc4f18d5a78fd9b763a3c0f4a1d3bd8b87d4),
-        ("TokenBridge", 0x41d26534c7ca29e212ae48acfb9f86f69a9624977c979697c15f587fa95204),
+        ("Account", 0x778bce178afd1b39abd9729b80931e8c71661103b16de928c3187057254f601),
+        ("ERC20", 0x3748ca8b6c53d65b5862e6f17850033baa117075e887708474aba110cc0e77a),
+        ("HelloStarknet", 0x467aa3aa331f2d1f9ca24168ad6e9836685af53c35c53a4a828f3564efe79cd),
+        ("TestContract", 0x5ab6a30579a54901b6e8be599d7cbdf00a1e05445e95e1d429ca0d70b408af7),
+        ("TokenBridge", 0xf364f0d735b07f5a9a50a886e1f5bf6f0d82175d1955dc737f998d33990f8e),
     ],
 )
 def test_compute_casm_class_hash(contract, expected_casm_class_hash):

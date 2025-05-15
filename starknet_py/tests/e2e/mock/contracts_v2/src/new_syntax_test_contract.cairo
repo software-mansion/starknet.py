@@ -14,35 +14,35 @@ trait ICounterContract<TContractState> {
 mod NewSyntaxTestContract {
     use starknet::ContractAddress;
     use super::{
-        IOtherContractDispatcher, IOtherContractDispatcherTrait, IOtherContractLibraryDispatcher
+        IOtherContractDispatcher, IOtherContractDispatcherTrait, IOtherContractLibraryDispatcher,
     };
 
     #[storage]
     struct Storage {
         counter: u128,
-        other_contract: IOtherContractDispatcher
+        other_contract: IOtherContractDispatcher,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         CounterIncreased: CounterIncreased,
-        CounterDecreased: CounterDecreased
+        CounterDecreased: CounterDecreased,
     }
 
     #[derive(Drop, starknet::Event)]
     struct CounterIncreased {
-        amount: u128
+        amount: u128,
     }
 
     #[derive(Drop, starknet::Event)]
     struct CounterDecreased {
-        amount: u128
+        amount: u128,
     }
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, initial_counter: u128, other_contract_addr: ContractAddress
+        ref self: ContractState, initial_counter: u128, other_contract_addr: ContractAddress,
     ) {
         self.counter.write(initial_counter);
         self

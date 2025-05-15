@@ -54,6 +54,16 @@ class ArrayType(CairoType):
 
 
 @dataclass
+class FixedSizeArrayType(CairoType):
+    """
+    Type representation of Cairo fixed-size arrays.
+    """
+
+    inner_type: CairoType  #: Type of element inside array.
+    length: int  #: Length of the array.
+
+
+@dataclass
 class StructType(CairoType):
     """
     Type representation of Cairo structures.
