@@ -495,7 +495,7 @@ class BlindSigningModeWarning(Warning):
 def _print_blind_signing_mode_warning():
     warnings.warn(
         "Signing in blind mode is not recommended. It prevents you from verifying "
-        "the contents and leaving you vulnerable tounknowingly authorizing malicious transactions. "
+        "the contents and leaving you vulnerable to unknowingly authorizing malicious transactions. "
         "⚠️ Use at your own risk",
         BlindSigningModeWarning,
         stacklevel=4,
