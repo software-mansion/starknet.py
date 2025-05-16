@@ -47,7 +47,7 @@ from starknet_py.utils.schema import Schema
 
 class L2toL1MessageSchema(Schema):
     l2_address = Felt(data_key="from_address", required=True)
-    l1_address = EthAddress(data_key="to_address", required=True)
+    l1_address = Felt(data_key="to_address", required=True)
     payload = fields.List(Felt(), data_key="payload", required=True)
 
     @post_load
