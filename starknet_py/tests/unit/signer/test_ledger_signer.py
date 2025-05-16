@@ -258,3 +258,44 @@ async def test_deploy_account_and_transfer(client):
     )[0]
 
     assert recipient_balance_before + 100 == recipient_balance_after
+
+
+@pytest.mark.asyncio
+# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
+async def test_invoke_v3_long_calldata(client_sepolia_testnet):
+    # pylint: disable=import-outside-toplevel, redefined-outer-name, reimported
+    from starknet_py.contract import Contract
+    from starknet_py.net.account.account import Account
+    from starknet_py.net.signer.ledger_signer import LedgerSigner
+
+    # Contract deployed on Sepolia
+    contract_address = (
+        0x042C25F2DD9C4AA010E7A4ADA1BFB1C99E5DBEA2850C59D8FD9F59F554CC268E
+    )
+
+    # Ledger speculos account deployed on testnet
+    account_address = 0x07D2B5E579BB434976E352811D4C3A9DAD7F5966AC2BED4FBBFB7A3B1A0E90DE
+
+    signer = LedgerSigner(
+        chain_id=StarknetChainId.SEPOLIA,
+    )
+
+    account = Account(
+        address=account_address,
+        client=client_sepolia_testnet,
+        signer=signer,
+        chain=StarknetChainId.SEPOLIA,
+    )
+
+    contract = await Contract.from_address(provider=account, address=contract_address)
+
+    # `fn_with_many_args` accepts 17 arguments
+    args = list(range(1, 18))
+    invocation = await contract.functions["fn_with_many_args"].invoke_v3(
+        *args, auto_estimate=True
+    )
+    await invocation.wait_for_acceptance()
