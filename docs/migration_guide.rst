@@ -2,10 +2,15 @@ Migration guide
 ===============
 
 **********************
-0.26.3 Migration guide
+0.27.0 Migration guide
 **********************
 
-0.26.3 Bugfixes
+.. py:currentmodule:: starknet_py.net.signer.ledger_signer
+
+1. Support for clear signing with :class:`LedgerSigner` has been added. It's now the default signing mode (see :class:`LedgerSigningMode`).
+2. ``derivation_path_str`` param has been removed from :class:`LedgerSigner` constructor, while ``account_id``, ``application_name`` and ``signing_mode`` params have been added.
+
+0.27.0 Bugfixes
 ---------------
 
 1. ABI parser supports now fixed size arrays.

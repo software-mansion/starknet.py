@@ -42,6 +42,7 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
         "full",
         "--initial-balance",
         "1000000000000000000000000000000000000000000000000000000000000000000",
+        "--predeclare-argent",
     ]
 
     if fork_mode:
@@ -58,7 +59,7 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
 @pytest.fixture(scope="package")
 def devnet() -> Generator[str, None, None]:
     """
-    Runs devnet instance once per module and returns it's address.
+    Runs devnet instance once per module and returns its address.
     """
     devnet_port, proc = start_devnet()
     yield f"http://localhost:{devnet_port}"

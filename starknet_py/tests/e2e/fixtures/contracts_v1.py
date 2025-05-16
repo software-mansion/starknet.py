@@ -11,15 +11,8 @@ from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_RESOURCE_BOUNDS,
-    PRECOMPILED_CONTRACTS_DIR,
-)
-from starknet_py.tests.e2e.fixtures.misc import (
-    ContractVersion,
-    load_contract,
-    read_contract,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 async def declare_contract(
@@ -399,22 +392,3 @@ async def deploy_v3_contract(
     await account.client.wait_for_tx(res.transaction_hash)
 
     return Contract(address, abi, provider=account)
-
-
-@pytest_asyncio.fixture(scope="package")
-async def argent_account_v040_class_hash(
-    account: BaseAccount,
-) -> int:
-    # Use precompiled argent account contracts
-    # we don't have the source code for this contract
-    compiled_contract = read_contract(
-        "ArgentAccount.json", directory=PRECOMPILED_CONTRACTS_DIR / "argent-0.4.0"
-    )
-    compiled_contract_casm = read_contract(
-        "ArgentAccount.casm", directory=PRECOMPILED_CONTRACTS_DIR / "argent-0.4.0"
-    )
-    return await account_declare_class_hash(
-        account=account,
-        compiled_account_contract=compiled_contract,
-        compiled_account_contract_casm=compiled_contract_casm,
-    )

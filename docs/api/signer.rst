@@ -47,3 +47,11 @@ To use LedgerSigner, you need to install starknetpy with `ledger` extra like thi
 .. autoclass:: LedgerSigner
     :members:
     :member-order: groupwise
+
+-----------------
+LedgerSigningMode
+-----------------
+
+.. autoclass:: LedgerSigningMode
+    :members:
+    :member-order: groupwise
