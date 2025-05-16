@@ -382,18 +382,20 @@ class LedgerSigner(BaseSigner):
             )  # to_addr + selector + calldata_size + calldata
             serialized_call = tx.calldata[offset : offset + serialized_call_size]
 
-            calldatas = _call_to_bytes(serialized_call)
+            calldata_chunks = _call_to_bytes(serialized_call)
             response = self.app.client.apdu_exchange(
                 ins=3,
-                data=bytes(calldatas[0]),
+                data=bytes(calldata_chunks[0]),
                 p1=6,
                 p2=0,
             )
 
-            if len(calldatas) > 1:
-                for part in calldatas[1:]:
+            if len(calldata_chunks) > 1:
+                for i, part in enumerate(calldata_chunks[1:]):
+                    p2 = 2 if i == len(calldata_chunks[1:]) - 1 else 1
+
                     response = self.app.client.apdu_exchange(
-                        ins=3, p1=6, p2=1, data=part
+                        ins=3, p1=6, p2=p2, data=part
                     )
 
             offset += serialized_call_size
@@ -448,13 +450,13 @@ def _call_to_bytes(serialized_call: List[int]) -> List[bytes]:
         calldata_bytes = int(0).to_bytes(32, byteorder="big")
 
     call_bytes = to_addr_bytes + selector_bytes + calldata_bytes
-    calldatas = []
+    calldata_chunks = []
 
     chunk_size = 6 * 32  # 192 bytes
     for i in range(0, len(call_bytes), chunk_size):
-        calldatas.append(call_bytes[i : i + chunk_size])
+        calldata_chunks.append(call_bytes[i : i + chunk_size])
 
-    return calldatas
+    return calldata_chunks
 
 
 def _get_derivation_path(
