@@ -42,6 +42,7 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
         "full",
         "--initial-balance",
         "1000000000000000000000000000000000000000000000000000000000000000000",
+        "--predeclare-argent",
     ]
 
     if fork_mode:
@@ -51,12 +52,6 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
                 str(SEPOLIA_RPC_URL()),
             ]
         )
-
-    start_command.extend(
-        [
-            "--predeclare-argent",
-        ]
-    )
 
     return start_command
 
