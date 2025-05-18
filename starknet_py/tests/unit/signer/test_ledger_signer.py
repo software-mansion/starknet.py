@@ -266,7 +266,7 @@ async def test_deploy_account_and_transfer(client):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-async def test_invoke_v3_long_calldata(client_sepolia_testnet):
+async def test_invoke_v3_long_calldata(client_fork_mode):
     # pylint: disable=import-outside-toplevel, redefined-outer-name, reimported
     from starknet_py.contract import Contract
     from starknet_py.net.account.account import Account
@@ -286,7 +286,7 @@ async def test_invoke_v3_long_calldata(client_sepolia_testnet):
 
     account = Account(
         address=account_address,
-        client=client_sepolia_testnet,
+        client=client_fork_mode,
         signer=signer,
         chain=StarknetChainId.SEPOLIA,
     )
@@ -295,7 +295,9 @@ async def test_invoke_v3_long_calldata(client_sepolia_testnet):
 
     # `fn_with_many_args` accepts 17 arguments
     args = list(range(1, 18))
+
     invocation = await contract.functions["fn_with_many_args"].invoke_v3(
-        *args, auto_estimate=True
+        *args,
+        auto_estimate=True,
     )
     await invocation.wait_for_acceptance()

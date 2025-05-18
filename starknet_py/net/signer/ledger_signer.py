@@ -391,11 +391,9 @@ class LedgerSigner(BaseSigner):
             )
 
             if len(calldata_chunks) > 1:
-                for i, part in enumerate(calldata_chunks[1:]):
-                    p2 = 2 if i == len(calldata_chunks[1:]) - 1 else 1
-
+                for part in calldata_chunks[1:]:
                     response = self.app.client.apdu_exchange(
-                        ins=3, p1=6, p2=p2, data=part
+                        ins=3, p1=6, p2=1, data=part
                     )
 
             offset += serialized_call_size

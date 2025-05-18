@@ -12,6 +12,11 @@ def create_full_node_client(devnet: str) -> FullNodeClient:
     return FullNodeClient(node_url=devnet + "/rpc")
 
 
+@pytest.fixture(name="client_fork_mode", scope="package")
+def create_full_node_client_fork_mode(devnet_forking_mode: str) -> FullNodeClient:
+    return FullNodeClient(node_url=devnet_forking_mode + "/rpc")
+
+
 @pytest_asyncio.fixture(scope="package")
 async def websocket_client(devnet_ws: str) -> AsyncGenerator[WebsocketClient, None]:
     """
