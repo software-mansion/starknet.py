@@ -28,7 +28,6 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.schemas.common import (
     DAModeField,
-    EthAddress,
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
