@@ -13,7 +13,7 @@
       ]
     },
     {
-      "regexp": ".*Hash \\(.*\\)",
+      "regexp": ".*Hash.*",
       "conditions": [],
       "actions": [
         ["button", 2, true],

@@ -42,7 +42,7 @@ class LedgerStarknetApp:
     def __init__(self, account_id: int = 0, application_name: str = "LedgerW"):
         # pylint: disable=line-too-long
         """
-        :param account_id: ID of Ledger account.
+        :param account_id: ID of Ledger account. First account is 0, and incrementing on more accounts.
         :param application_name: Name of the application, which is part of `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
         """
         self.client: LedgerClient = LedgerClient(cla=STARKNET_CLA)
@@ -162,7 +162,7 @@ class LedgerSigner(BaseSigner):
         # pylint: disable=line-too-long
         """
         :param chain_id: Chain ID.
-        :param account_id: ID of Ledger account.
+        :param account_id: ID of Ledger account. First account is 0, and incrementing on more accounts.
         :param application_name: Name of the application, which is part of `ERC2645 <https://github.com/ethereum/ercs/blob/master/ERCS/erc-2645.md>`_ derivation path.
         :param signing_mode: Signing mode (clear or blind).
         """
@@ -281,7 +281,7 @@ class LedgerSigner(BaseSigner):
             val.to_bytes(32, byteorder="big") for val in tx.constructor_calldata
         )
         constructor_chunks = []
-        chunk_size = 7 * 32  # 224 bytes
+        chunk_size = 6 * 32  # 192 bytes
         for i in range(0, len(constructor_bytes), chunk_size):
             constructor_chunks.append(constructor_bytes[i : i + chunk_size])
 
@@ -382,16 +382,16 @@ class LedgerSigner(BaseSigner):
             )  # to_addr + selector + calldata_size + calldata
             serialized_call = tx.calldata[offset : offset + serialized_call_size]
 
-            calldatas = _call_to_bytes(serialized_call)
+            calldata_chunks = _call_to_bytes(serialized_call)
             response = self.app.client.apdu_exchange(
                 ins=3,
-                data=bytes(calldatas[0]),
+                data=bytes(calldata_chunks[0]),
                 p1=6,
                 p2=0,
             )
 
-            if len(calldatas) > 1:
-                for part in calldatas[1:]:
+            if len(calldata_chunks) > 1:
+                for part in calldata_chunks[1:]:
                     response = self.app.client.apdu_exchange(
                         ins=3, p1=6, p2=1, data=part
                     )
@@ -448,13 +448,13 @@ def _call_to_bytes(serialized_call: List[int]) -> List[bytes]:
         calldata_bytes = int(0).to_bytes(32, byteorder="big")
 
     call_bytes = to_addr_bytes + selector_bytes + calldata_bytes
-    calldatas = []
+    calldata_chunks = []
 
-    chunk_size = 7 * 32  # 224 bytes
+    chunk_size = 6 * 32  # 192 bytes
     for i in range(0, len(call_bytes), chunk_size):
-        calldatas.append(call_bytes[i : i + chunk_size])
+        calldata_chunks.append(call_bytes[i : i + chunk_size])
 
-    return calldatas
+    return calldata_chunks
 
 
 def _get_derivation_path(
