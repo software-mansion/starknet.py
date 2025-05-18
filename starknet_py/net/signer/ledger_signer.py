@@ -376,7 +376,9 @@ class LedgerSigner(BaseSigner):
         response = None
 
         offset = 1
+        call_counter = 0
         while offset < len(tx.calldata):
+            call_counter += 1
             serialized_call_size = (
                 1 + 1 + 1 + tx.calldata[offset + 2]
             )  # to_addr + selector + calldata_size + calldata
@@ -387,7 +389,7 @@ class LedgerSigner(BaseSigner):
                 ins=3,
                 data=bytes(calldata_chunks[0]),
                 p1=6,
-                p2=0,
+                p2=1 if call_counter > 1 else 0,
             )
 
             if len(calldata_chunks) > 1:
@@ -450,7 +452,7 @@ def _call_to_bytes(serialized_call: List[int]) -> List[bytes]:
     call_bytes = to_addr_bytes + selector_bytes + calldata_bytes
     calldata_chunks = []
 
-    chunk_size = 6 * 32  # 192 bytes
+    chunk_size = 7 * 32  # 224 bytes
     for i in range(0, len(call_bytes), chunk_size):
         calldata_chunks.append(call_bytes[i : i + chunk_size])
 
