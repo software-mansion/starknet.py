@@ -14,6 +14,10 @@ from starknet_py.tests.e2e.fixtures.constants import (
     STRK_FEE_CONTRACT_ADDRESS,
 )
 
+LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
+    0x07D2B5E579BB434976E352811D4C3A9DAD7F5966AC2BED4FBBFB7A3B1A0E90DE
+)
+
 
 @pytest.mark.parametrize(
     "transaction",
@@ -277,15 +281,12 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
         0x042C25F2DD9C4AA010E7A4ADA1BFB1C99E5DBEA2850C59D8FD9F59F554CC268E
     )
 
-    # Ledger speculos account deployed on testnet
-    account_address = 0x07D2B5E579BB434976E352811D4C3A9DAD7F5966AC2BED4FBBFB7A3B1A0E90DE
-
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
 
     account = Account(
-        address=account_address,
+        address=LEDGER_ACCOUNT_ADDRESS_SEPOLIA,
         client=client_fork_mode,
         signer=signer,
         chain=StarknetChainId.SEPOLIA,
@@ -301,3 +302,41 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
         auto_estimate=True,
     )
     await invocation.wait_for_acceptance()
+
+
+@pytest.mark.asyncio
+# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
+async def test_deploy_account_v3_long_calldata(client_fork_mode):
+    # pylint: disable=import-outside-toplevel, redefined-outer-name, reimported
+    from starknet_py.contract import Contract
+    from starknet_py.net.account.account import Account
+    from starknet_py.net.signer.ledger_signer import LedgerSigner
+
+    # Contract declared on Sepolia
+    class_hash = 0x040ACE4954F5F7D8BF202A87EAD2AD4BA77F245740A35DD11AFD6912DEB08ABF
+
+    signer = LedgerSigner(
+        chain_id=StarknetChainId.SEPOLIA,
+    )
+
+    account = Account(
+        address=LEDGER_ACCOUNT_ADDRESS_SEPOLIA,
+        client=client_fork_mode,
+        signer=signer,
+        chain=StarknetChainId.SEPOLIA,
+    )
+
+    # constructor accepts 17 arguments
+    constructor_args = list(range(1, 18))
+
+    deploy_result = await Contract.deploy_contract_v3(
+        account=account,
+        class_hash=class_hash,
+        constructor_args=constructor_args,
+        auto_estimate=True,
+    )
+    await deploy_result.wait_for_acceptance()

@@ -255,12 +255,8 @@ class LedgerSigner(BaseSigner):
         )
 
         # Command 3: Send paymaster data
-        paymaster_bytes = b"".join(
-            val.to_bytes(32, byteorder="big") for val in tx.paymaster_data
-        )
         self.app.client.apdu_exchange(
             ins=5,
-            data=paymaster_bytes,
             p1=3,
             p2=0,
         )
@@ -285,20 +281,20 @@ class LedgerSigner(BaseSigner):
         for i in range(0, len(constructor_bytes), chunk_size):
             constructor_chunks.append(constructor_bytes[i : i + chunk_size])
 
-        response = None
+        if not constructor_chunks:
+            raise ValueError("constructor_chunks is empty")
 
-        for chunk in constructor_chunks:
-            response = self.app.client.apdu_exchange(
+        responses = [
+            self.app.client.apdu_exchange(
                 ins=5,
                 data=chunk,
                 p1=5,
                 p2=0,
             )
+            for chunk in constructor_chunks
+        ]
 
-        if response is None:
-            raise ValueError("No response received from Ledger device.")
-
-        return self._decode_signature(response)
+        return self._decode_signature(responses[-1])
 
     def _sign_invoke_transaction_v3(self, tx: InvokeV3) -> List[int]:
         # pylint: disable=too-many-locals
@@ -350,12 +346,8 @@ class LedgerSigner(BaseSigner):
         )
 
         # Command 4: Send account deployment data
-        account_deployment_bytes = b"".join(
-            val.to_bytes(32, byteorder="big") for val in tx.account_deployment_data
-        )
         self.app.client.apdu_exchange(
             ins=3,
-            data=account_deployment_bytes,
             p1=4,
             p2=0,
         )
@@ -399,7 +391,7 @@ class LedgerSigner(BaseSigner):
             offset += serialized_call_size
 
         if response is None:
-            raise ValueError("No response received from Ledger device.")
+            raise ValueError("No calls were sent to the Ledger device")
 
         return self._decode_signature(response)
 
@@ -450,7 +442,7 @@ def _call_to_bytes(serialized_call: List[int]) -> List[bytes]:
     call_bytes = to_addr_bytes + selector_bytes + calldata_bytes
     calldata_chunks = []
 
-    chunk_size = 6 * 32  # 192 bytes
+    chunk_size = 7 * 32  # 224 bytes
     for i in range(0, len(call_bytes), chunk_size):
         calldata_chunks.append(call_bytes[i : i + chunk_size])
 
