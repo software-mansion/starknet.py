@@ -255,12 +255,8 @@ class LedgerSigner(BaseSigner):
         )
 
         # Command 3: Send paymaster data
-        paymaster_bytes = b"".join(
-            val.to_bytes(32, byteorder="big") for val in tx.paymaster_data
-        )
         self.app.client.apdu_exchange(
             ins=5,
-            data=paymaster_bytes,
             p1=3,
             p2=0,
         )
@@ -350,12 +346,8 @@ class LedgerSigner(BaseSigner):
         )
 
         # Command 4: Send account deployment data
-        account_deployment_bytes = b"".join(
-            val.to_bytes(32, byteorder="big") for val in tx.account_deployment_data
-        )
         self.app.client.apdu_exchange(
             ins=3,
-            data=account_deployment_bytes,
             p1=4,
             p2=0,
         )
