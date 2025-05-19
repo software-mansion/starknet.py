@@ -15,6 +15,10 @@ Migration guide
 
 1. ABI parser supports now fixed size arrays.
 
+.. py:currentmodule:: starknet_py.net.client_models
+
+2. ``l1_address`` in :class:`L2ToL1Message` now accepts felts when deserializing.
+
 **********************
 0.26.2 Migration guide
 **********************
