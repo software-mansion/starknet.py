@@ -285,20 +285,20 @@ class LedgerSigner(BaseSigner):
         for i in range(0, len(constructor_bytes), chunk_size):
             constructor_chunks.append(constructor_bytes[i : i + chunk_size])
 
-        response = None
+        if not constructor_chunks:
+            raise ValueError("constructor_chunks is empty")
 
-        for chunk in constructor_chunks:
-            response = self.app.client.apdu_exchange(
+        responses = [
+            self.app.client.apdu_exchange(
                 ins=5,
                 data=chunk,
                 p1=5,
                 p2=0,
             )
+            for chunk in constructor_chunks
+        ]
 
-        if response is None:
-            raise ValueError("No response received from Ledger device.")
-
-        return self._decode_signature(response)
+        return self._decode_signature(responses[-1])
 
     def _sign_invoke_transaction_v3(self, tx: InvokeV3) -> List[int]:
         # pylint: disable=too-many-locals
@@ -401,7 +401,7 @@ class LedgerSigner(BaseSigner):
             offset += serialized_call_size
 
         if response is None:
-            raise ValueError("No response received from Ledger device.")
+            raise ValueError("No calls were sent to the Ledger device")
 
         return self._decode_signature(response)
 
