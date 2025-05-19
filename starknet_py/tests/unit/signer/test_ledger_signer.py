@@ -14,7 +14,10 @@ from starknet_py.tests.e2e.fixtures.constants import (
     STRK_FEE_CONTRACT_ADDRESS,
 )
 
-LEDGER_ACCOUNT_ADDRESS_SEPOLIA = 0x07D2B5E579BB434976E352811D4C3A9DAD7F5966AC2BED4FBBFB7A3B1A0E90DE
+LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
+    0x07D2B5E579BB434976E352811D4C3A9DAD7F5966AC2BED4FBBFB7A3B1A0E90DE
+)
+
 
 @pytest.mark.parametrize(
     "transaction",
@@ -314,9 +317,7 @@ async def test_deploy_account_v3_long_calldata(client_fork_mode):
     from starknet_py.net.signer.ledger_signer import LedgerSigner
 
     # Contract declared on Sepolia
-    class_hash = (
-        0x040ace4954f5f7d8bf202a87ead2ad4ba77f245740a35dd11afd6912deb08abf
-    )
+    class_hash = 0x040ACE4954F5F7D8BF202A87EAD2AD4BA77F245740A35DD11AFD6912DEB08ABF
 
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
