@@ -109,6 +109,7 @@ def test_blind_sign_transaction(transaction):
     assert all(isinstance(i, int) for i in signature)
     assert all(i != 0 for i in signature)
 
+
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
     platform == "win32",
