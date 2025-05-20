@@ -110,6 +110,11 @@ def test_blind_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
+# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
+@pytest.mark.skipif(
+    platform == "win32",
+    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
+)
 def test_blind_sign_warning():
     # pylint: disable=import-outside-toplevel, redefined-outer-name
     from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
