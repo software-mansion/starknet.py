@@ -215,7 +215,7 @@ async def test_deploy_account_and_transfer(client_fork_mode):
     )
     # argent v0.4.0 class hash
     class_hash = 0x36078334509B514626504EDC9FB252328D1A240E4E948BEF8D0C08DFF45927F
-    salt = 1
+    salt = 2
     calldata = [0, signer.public_key, 1]
     address = compute_address(
         salt=salt,
