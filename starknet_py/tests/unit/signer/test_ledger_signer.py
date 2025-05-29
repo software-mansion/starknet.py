@@ -235,7 +235,7 @@ async def test_deploy_account_and_transfer(client_fork_mode):
     await mint_token_on_devnet(
         url=rpc_client.url.replace("/rpc", ""),
         address=address,
-        amount=5000000000000000000000,
+        amount=50000000000000000000000000,
         unit="FRI",
     )
     # docs-deploy-account-and-transfer: start
