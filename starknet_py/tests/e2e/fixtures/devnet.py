@@ -73,7 +73,6 @@ def devnet_fork_mode() -> Generator[str, None, None]:
     proc.kill()
 
 
-
 @pytest.fixture(scope="package")
 def devnet_forking_mode() -> Generator[str, None, None]:
     """
