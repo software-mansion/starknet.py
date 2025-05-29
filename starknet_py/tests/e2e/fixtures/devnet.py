@@ -40,7 +40,6 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
         str(1),
         "--state-archive-capacity",
         "full",
-        "--predeclare-argent",
     ]
 
     if fork_mode:
