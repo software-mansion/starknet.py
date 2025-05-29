@@ -197,7 +197,7 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-async def test_deploy_account_and_transfer(client):
+async def test_deploy_account_and_transfer(client_fork_mode):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
     from starknet_py.contract import Contract
@@ -208,7 +208,7 @@ async def test_deploy_account_and_transfer(client):
 
     rpc_client = FullNodeClient(node_url="https://your.node.url")
     # docs-deploy-account-and-transfer: end
-    rpc_client = client
+    rpc_client = client_fork_mode
     # docs-deploy-account-and-transfer: start
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,

@@ -64,6 +64,17 @@ def devnet() -> Generator[str, None, None]:
 
 
 @pytest.fixture(scope="package")
+def devnet_fork_mode() -> Generator[str, None, None]:
+    """
+    Runs devnet instance in fork mode once per module and returns its address.
+    """
+    devnet_port, proc = start_devnet(fork_mode=True)
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
+
+
+
+@pytest.fixture(scope="package")
 def devnet_forking_mode() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns its address.
