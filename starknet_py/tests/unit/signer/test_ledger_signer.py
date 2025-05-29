@@ -11,6 +11,7 @@ from starknet_py.net.signer.ledger_signer import BlindSigningModeWarning
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.fixtures.constants import (
     MAX_RESOURCE_BOUNDS,
+    MAX_RESOURCE_BOUNDS_L1,
     STRK_FEE_CONTRACT_ADDRESS,
 )
 
@@ -197,7 +198,7 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-async def test_deploy_account_and_transfer(client_fork_mode):
+async def test_deploy_account_and_transfer(client):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
     from starknet_py.contract import Contract
@@ -208,15 +209,15 @@ async def test_deploy_account_and_transfer(client_fork_mode):
 
     rpc_client = FullNodeClient(node_url="https://your.node.url")
     # docs-deploy-account-and-transfer: end
-    rpc_client = client_fork_mode
+    rpc_client = client
     # docs-deploy-account-and-transfer: start
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
     # argent v0.4.0 class hash
-    class_hash = 0x36078334509B514626504EDC9FB252328D1A240E4E948BEF8D0C08DFF45927F
-    salt = 2
-    calldata = [0, signer.public_key, 1]
+    class_hash = 0x061DAC032F228ABEF9C6626F995015233097AE253A7F72D68552DB02F2971B8F
+    salt = 1
+    calldata = [signer.public_key]
     address = compute_address(
         salt=salt,
         class_hash=class_hash,
@@ -243,7 +244,7 @@ async def test_deploy_account_and_transfer(client_fork_mode):
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=calldata,
-        auto_estimate=True,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
 
     await rpc_client.deploy_account(signed_tx)
@@ -258,7 +259,9 @@ async def test_deploy_account_and_transfer(client_fork_mode):
         provider=account, address=STRK_FEE_CONTRACT_ADDRESS
     )
     invocation = await contract.functions["transfer"].invoke_v3(
-        recipient_address, 100, auto_estimate=True
+        recipient_address,
+        100,
+        l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
     )
     await invocation.wait_for_acceptance()
     # docs-deploy-account-and-transfer: end
