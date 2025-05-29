@@ -9,5 +9,5 @@ def create_full_node_client(devnet) -> FullNodeClient:
 
 
 @pytest.fixture(name="client_fork_mode", scope="package")
-def create_full_node_client_fork_mode(devnet) -> FullNodeClient:
-    return FullNodeClient(node_url=devnet + "/rpc")
+def create_full_node_client_fork_mode(devnet_fork_mode) -> FullNodeClient:
+    return FullNodeClient(node_url=devnet_fork_mode + "/rpc")
