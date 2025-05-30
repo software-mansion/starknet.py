@@ -214,7 +214,6 @@ async def test_deploy_account_and_transfer(client):
     signer = LedgerSigner(
         chain_id=StarknetChainId.SEPOLIA,
     )
-    # argent v0.4.0 class hash
     class_hash = 0x061DAC032F228ABEF9C6626F995015233097AE253A7F72D68552DB02F2971B8F
     salt = 1
     calldata = [signer.public_key]
