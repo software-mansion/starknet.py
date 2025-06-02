@@ -56,9 +56,19 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
 @pytest.fixture(scope="package")
 def devnet() -> Generator[str, None, None]:
     """
-    Runs devnet instance once per module and returns it's address.
+    Runs devnet instance once per module and returns its address.
     """
     devnet_port, proc = start_devnet()
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
+
+
+@pytest.fixture(scope="package")
+def devnet_fork_mode() -> Generator[str, None, None]:
+    """
+    Runs devnet instance in fork mode once per module and returns its address.
+    """
+    devnet_port, proc = start_devnet(fork_mode=True)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
 

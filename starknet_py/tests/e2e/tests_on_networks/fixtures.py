@@ -13,7 +13,10 @@ from starknet_py.tests.e2e.fixtures.constants import (
 
 @pytest.fixture(scope="package")
 def client_sepolia_testnet() -> FullNodeClient:
-    return FullNodeClient(node_url=SEPOLIA_RPC_URL())
+    node_url_splitted = SEPOLIA_RPC_URL().split("/")
+    node_url_splitted[-1] = "v0_7"
+    node_url = "/".join(node_url_splitted)
+    return FullNodeClient(node_url=node_url)
 
 
 # pylint: disable=redefined-outer-name

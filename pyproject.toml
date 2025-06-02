@@ -31,7 +31,6 @@ docs = [
 ]
 ledger = [
     "ledgerwallet>=0.5.0,<1.0.0",
-    "bip-utils>=2.9.3,<3.0.0",
 ]
 
 [project.urls]

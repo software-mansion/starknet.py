@@ -2,6 +2,14 @@ Migration guide
 ===============
 
 ******************************
+0.25.1 Migration guide
+******************************
+
+.. py:currentmodule:: starknet_py.net.signer.ledger_signer
+
+1. Support for clear signing with :class:`LedgerSigner` has been added. It's now the default signing mode (see :class:`LedgerSigningMode`).
+
+******************************
 0.25.0 Migration guide
 ******************************
 
