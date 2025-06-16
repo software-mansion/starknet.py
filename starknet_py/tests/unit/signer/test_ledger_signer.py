@@ -49,11 +49,6 @@ LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
         ),
     ],
 )
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 def test_clear_sign_transaction(transaction):
     # pylint: disable=redefined-outer-name, unused-import, import-outside-toplevel
     # docs: start
@@ -82,11 +77,6 @@ def test_clear_sign_transaction(transaction):
         Mock(spec=DeclareV3, calculate_hash=MagicMock(return_value=333)),
     ],
 )
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 def test_blind_sign_transaction(transaction):
     # pylint: disable=import-outside-toplevel
     from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
@@ -110,11 +100,6 @@ def test_blind_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 def test_blind_sign_warning():
     # pylint: disable=import-outside-toplevel, redefined-outer-name
     from starknet_py.net.signer.ledger_signer import LedgerSigner, LedgerSigningMode
@@ -150,11 +135,6 @@ def test_blind_sign_warning():
         signer.sign_transaction(tx)
 
 
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 def test_create_account_with_ledger_signer():
     # pylint: disable=unused-variable, import-outside-toplevel, redefined-outer-name, reimported
     from starknet_py.net.account.account import Account
@@ -192,11 +172,6 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
 
 
 @pytest.mark.asyncio
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 async def test_deploy_account_and_transfer(client):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
@@ -270,11 +245,6 @@ async def test_deploy_account_and_transfer(client):
 
 
 @pytest.mark.asyncio
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 async def test_invoke_v3_long_calldata(client_fork_mode):
     # pylint: disable=import-outside-toplevel, redefined-outer-name, reimported
     from starknet_py.contract import Contract
@@ -310,11 +280,6 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
 
 
 @pytest.mark.asyncio
-# TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
-@pytest.mark.skipif(
-    platform == "win32",
-    reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
-)
 async def test_deploy_account_v3_long_calldata(client_fork_mode):
     # pylint: disable=import-outside-toplevel, redefined-outer-name, reimported
     from starknet_py.contract import Contract

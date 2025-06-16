@@ -46,6 +46,9 @@ Apple silicon
 Windows
 -------
 
+.. warning::
+    Official support for Windows is removed since 0.28.0.
+
 You can install starknet.py on Windows in two ways:
 
 1. Install it just like you would on Linux.

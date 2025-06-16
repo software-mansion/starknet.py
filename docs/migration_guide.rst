@@ -2,6 +2,15 @@ Migration guide
 ===============
 
 **********************
+0.28.0 Migration guide
+**********************
+
+0.28.0 Breaking changes
+-----------------------
+
+1. Official support for Windows has been removed.
+
+**********************
 0.27.0 Migration guide
 **********************
 
