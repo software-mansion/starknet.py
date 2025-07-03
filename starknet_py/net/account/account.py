@@ -226,8 +226,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         """
         Get the current nonce of the account.
 
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: nonce.
         """
         return await self._client.get_contract_nonce(

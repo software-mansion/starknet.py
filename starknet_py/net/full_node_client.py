@@ -20,10 +20,10 @@ from starknet_py.net.client_models import (
     Hash,
     L1HandlerTransaction,
     MessageStatus,
-    PendingBlockStateUpdate,
-    PendingStarknetBlock,
-    PendingStarknetBlockWithReceipts,
-    PendingStarknetBlockWithTxHashes,
+    PreConfirmedBlockStateUpdate,
+    PreConfirmedStarknetBlock,
+    PreConfirmedStarknetBlockWithReceipts,
+    PreConfirmedStarknetBlockWithTxHashes,
     SentTransactionResponse,
     SierraContractClass,
     SimulatedTransaction,
@@ -43,6 +43,7 @@ from starknet_py.net.client_utils import (
     _create_broadcasted_txn,
     _get_raw_block_identifier,
     _is_valid_eth_address,
+    _to_hex_number,
     _to_rpc_felt,
     _to_storage_key,
     encode_l1_message,
@@ -60,10 +61,10 @@ from starknet_py.net.schemas.contracts_storage_keys import ContractsStorageKeysS
 from starknet_py.net.schemas.rpc.block import (
     BlockHashAndNumberSchema,
     BlockStateUpdateSchema,
-    PendingBlockStateUpdateSchema,
-    PendingStarknetBlockSchema,
-    PendingStarknetBlockWithReceiptsSchema,
-    PendingStarknetBlockWithTxHashesSchema,
+    PreConfirmedBlockStateUpdateSchema,
+    PreConfirmedStarknetBlockSchema,
+    PreConfirmedStarknetBlockWithReceiptsSchema,
+    PreConfirmedStarknetBlockWithTxHashesSchema,
     StarknetBlockSchema,
     StarknetBlockWithReceiptsSchema,
     StarknetBlockWithTxHashesSchema,
@@ -117,7 +118,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlock, PendingStarknetBlock]:
+    ) -> Union[StarknetBlock, PreConfirmedStarknetBlock]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -127,22 +128,24 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if block_identifier == {"block_id": "pending"}:
-            return cast(PendingStarknetBlock, PendingStarknetBlockSchema().load(res))
+        if block_identifier == {"block_id": "pre_confirmed"}:
+            return cast(
+                PreConfirmedStarknetBlock, PreConfirmedStarknetBlockSchema().load(res)
+            )
         return cast(StarknetBlock, StarknetBlockSchema().load(res))
 
     async def get_block_with_txs(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlock, PendingStarknetBlock]:
+    ) -> Union[StarknetBlock, PreConfirmedStarknetBlock]:
         return await self.get_block(block_hash=block_hash, block_number=block_number)
 
     async def get_block_with_tx_hashes(
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[StarknetBlockWithTxHashes, PendingStarknetBlockWithTxHashes]:
+    ) -> Union[StarknetBlockWithTxHashes, PreConfirmedStarknetBlockWithTxHashes]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -152,10 +155,10 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if block_identifier == {"block_id": "pending"}:
+        if block_identifier == {"block_id": "pre_confirmed"}:
             return cast(
-                PendingStarknetBlockWithTxHashes,
-                PendingStarknetBlockWithTxHashesSchema().load(res),
+                PreConfirmedStarknetBlockWithTxHashes,
+                PreConfirmedStarknetBlockWithTxHashesSchema().load(res),
             )
         return cast(
             StarknetBlockWithTxHashes,
@@ -166,7 +169,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ):
+    ) -> Union[StarknetBlockWithReceipts, PreConfirmedStarknetBlockWithReceipts]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -176,10 +179,10 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if block_identifier == {"block_id": "pending"}:
+        if block_identifier == {"block_id": "pre_confirmed"}:
             return cast(
-                PendingStarknetBlockWithReceipts,
-                PendingStarknetBlockWithReceiptsSchema().load(res),
+                PreConfirmedStarknetBlockWithReceipts,
+                PreConfirmedStarknetBlockWithReceiptsSchema().load(res),
             )
         return cast(
             StarknetBlockWithReceipts,
@@ -207,17 +210,17 @@ class FullNodeClient(Client):
             e.g. given an event with 3 keys, [[1,2],[],[3]] which should return events that have either 1 or 2 in
             the first key, any value for their second key and 3 for their third key.
         :param from_block_number: Number of the block from which events searched for **starts**
-            or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
+            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
             If not provided, query starts from block 0.
         :param from_block_hash: Hash of the block from which events searched for **starts**
-            or literals `"pending"` or `"latest"`. Mutually exclusive with ``from_block_number`` parameter.
+            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``from_block_number`` parameter.
             If not provided, query starts from block 0.
         :param to_block_number: Number of the block to which events searched for **end**
-            or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_hash`` parameter.
-            If not provided, query ends at block `"pending"`.
+            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``to_block_hash`` parameter.
+            If not provided, query ends at block `"pre_confirmed"`.
         :param to_block_hash: Hash of the block to which events searched for **end**
-            or literals `"pending"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
-            If not provided, query ends at block `"pending"`.
+            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
+            If not provided, query ends at block `"pre_confirmed"`.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
             defaults to False.
         :param continuation_token: Continuation token from which the returned events start.
@@ -297,7 +300,7 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> Union[BlockStateUpdate, PendingBlockStateUpdate]:
+    ) -> Union[BlockStateUpdate, PreConfirmedBlockStateUpdate]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
@@ -307,10 +310,10 @@ class FullNodeClient(Client):
             params=block_identifier,
         )
 
-        if block_identifier == {"block_id": "pending"}:
+        if block_identifier == {"block_id": "pre_confirmed"}:
             return cast(
-                PendingBlockStateUpdate,
-                PendingBlockStateUpdateSchema().load(res),
+                PreConfirmedBlockStateUpdate,
+                PreConfirmedBlockStateUpdateSchema().load(res),
             )
         return cast(BlockStateUpdate, BlockStateUpdateSchema().load(res))
 
@@ -338,7 +341,8 @@ class FullNodeClient(Client):
 
     async def get_storage_proof(
         self,
-        block_id: Union[int, Hash, Tag, dict],
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
         contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
@@ -367,11 +371,15 @@ class FullNodeClient(Client):
             else []
         )
 
+        block_identifier = get_block_identifier(
+            block_hash=block_hash, block_number=block_number, allow_pre_confirmed=False
+        )
+
         params = {
-            "block_id": block_id,
             "class_hashes": class_hashes_serialized,
             "contract_addresses": contract_addresses_serialized,
             "contracts_storage_keys": contracts_storage_keys_serialized,
+            **block_identifier,
         }
 
         res = await self._client.call(
@@ -464,10 +472,10 @@ class FullNodeClient(Client):
         :param to_address: The target L2 (Starknet) address the message is sent to.
         :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
         :param payload: Payload of the message.
-        :param block_hash: Hash of the requested block or literals `"pending"` or `"latest"`.
-            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pending"`.
-        :param block_number: Number (height) of the requested block or literals `"pending"` or `"latest"`.
-            Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pending"`.
+        :param block_hash: Hash of the requested block or literals `"pre_confirmed"` or `"latest"`.
+            Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pre_confirmed"`.
+        :param block_number: Number (height) of the requested block or literals `"pre_confirmed"` or `"latest"`.
+            Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pre_confirmed"`.
         """
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
@@ -645,7 +653,7 @@ class FullNodeClient(Client):
 
         :param index: Index of the transaction
         :param block_hash: Hash of the block
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: Transaction object
         """
         block_identifier = get_block_identifier(
@@ -669,8 +677,8 @@ class FullNodeClient(Client):
         """
         Get the number of transactions in a block given a block id
 
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: Number of transactions in the designated block
         """
         block_identifier = get_block_identifier(
@@ -694,8 +702,8 @@ class FullNodeClient(Client):
         Get the contract class definition in the given block at the given address
 
         :param contract_address: The address of the contract whose class definition will be returned
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: Contract declared to Starknet
         """
         block_identifier = get_block_identifier(
@@ -808,8 +816,8 @@ class FullNodeClient(Client):
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
             of the next transaction.
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: The execution trace and consumed resources for each transaction.
         """
         block_identifier = get_block_identifier(
@@ -846,12 +854,12 @@ class FullNodeClient(Client):
         """
         Retrieve traces for all transactions in the given block.
 
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: List of execution traces of all transactions included in the given block with transaction hashes.
         """
         block_identifier = get_block_identifier(
-            block_hash=block_hash, block_number=block_number
+            block_hash=block_hash, block_number=block_number, allow_pre_confirmed=False
         )
 
         res = await self._client.call(

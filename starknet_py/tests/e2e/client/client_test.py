@@ -48,7 +48,6 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
-    TransactionRejectedError,
     TransactionRevertedError,
 )
 
@@ -472,17 +471,6 @@ async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_p
             await client.wait_for_tx(tx_hash=0x1)
 
         assert exc_message in err.value.message
-
-
-@pytest.mark.asyncio
-async def test_wait_for_tx_rejected(client, get_tx_status_path):
-    with patch(get_tx_status_path, AsyncMock()) as mocked_status:
-        mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.REJECTED
-        )
-
-        with pytest.raises(TransactionRejectedError):
-            await client.wait_for_tx(tx_hash=0x1)
 
 
 @pytest.mark.asyncio

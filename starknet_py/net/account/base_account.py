@@ -106,8 +106,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
 
         :param tx: Transaction or list of transactions to estimate
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed
-        :param block_hash: Block hash or literals `"pending"` or `"latest"`
-        :param block_number: Block number or literals `"pending"` or `"latest"`
+        :param block_hash: Block hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block number or literals `"pre_confirmed"` or `"latest"`
         :return: Estimated fee or list of estimated fees for each transaction
         """
 
@@ -121,8 +121,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
         Get the current nonce of the account.
 
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: nonce of the account.
         """
 
@@ -139,8 +139,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         By default, it uses the L2 ETH address for mainnet and sepolia networks.
 
         :param token_address: Address of the ERC20 contract.
-        :param block_hash: Block's hash or literals `"pending"` or `"latest"`
-        :param block_number: Block's number or literals `"pending"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: Token balance.
         """
 

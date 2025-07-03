@@ -91,24 +91,31 @@ def _create_broadcasted_txn(transaction: AccountTransaction) -> dict:
 def get_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
-    default_tag: Optional[Tag] = "pending",
+    default_tag: Optional[Tag] = "pre_confirmed",
+    allow_pre_confirmed: bool = True,
 ) -> dict:
-    return {
+    block_id = {
         "block_id": _get_raw_block_identifier(block_hash, block_number, default_tag)
     }
+    if not allow_pre_confirmed and block_id == {"block_id": "pre_confirmed"}:
+        raise ValueError("Value pre_confirmed is not valid for this method.")
+    return block_id
 
 
 def _get_raw_block_identifier(
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
-    default_tag: Optional[Tag] = "pending",
+    default_tag: Optional[Tag] = "pre_confirmed",
 ) -> Union[dict, Hash, Tag, None]:
     if block_hash is not None and block_number is not None:
         raise ValueError(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
-    if block_hash in ("latest", "pending") or block_number in ("latest", "pending"):
+    if block_hash in ("latest", "pre_confirmed") or block_number in (
+        "latest",
+        "pre_confirmed",
+    ):
         return block_hash or block_number
 
     if block_hash is not None:

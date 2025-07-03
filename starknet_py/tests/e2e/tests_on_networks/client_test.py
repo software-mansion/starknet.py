@@ -19,8 +19,8 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     InvokeTransactionV3,
-    PendingBlockHeader,
-    PendingStarknetBlockWithReceipts,
+    PreConfirmedBlockHeader,
+    PreConfirmedStarknetBlockWithReceipts,
     ResourceBounds,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
@@ -402,13 +402,13 @@ async def test_get_block_new_header_fields(client_sepolia_testnet):
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await client_sepolia_testnet.get_block_with_txs(
-        block_number="pending"
+    pre_confirmed_block = await client_sepolia_testnet.get_block_with_txs(
+        block_number="pre_confirmed"
     )
 
-    assert pending_block.starknet_version is not None
-    assert pending_block.l1_gas_price is not None
-    assert pending_block.l1_gas_price.price_in_wei > 0
+    assert pre_confirmed_block.starknet_version is not None
+    assert pre_confirmed_block.l1_gas_price is not None
+    assert pre_confirmed_block.l1_gas_price.price_in_wei > 0
 
 
 @pytest.mark.asyncio
@@ -420,13 +420,13 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await client_sepolia_testnet.get_block_with_tx_hashes(
-        block_number="pending"
+    pre_confirmed_block = await client_sepolia_testnet.get_block_with_tx_hashes(
+        block_number="pre_confirmed"
     )
 
-    assert pending_block.starknet_version is not None
-    assert pending_block.l1_gas_price is not None
-    assert pending_block.l1_gas_price.price_in_wei > 0
+    assert pre_confirmed_block.starknet_version is not None
+    assert pre_confirmed_block.l1_gas_price is not None
+    assert pre_confirmed_block.l1_gas_price.price_in_wei > 0
 
 
 @pytest.mark.parametrize(
@@ -500,16 +500,16 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_get_pending_block_with_receipts(client_sepolia_testnet):
+async def test_get_pre_confirmed_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
-        block_number="pending"
+        block_number="pre_confirmed"
     )
 
-    assert isinstance(block_with_receipts, PendingStarknetBlockWithReceipts)
+    assert isinstance(block_with_receipts, PreConfirmedStarknetBlockWithReceipts)
     assert len(block_with_receipts.transactions) >= 0
     assert all(
         getattr(block_with_receipts, field.name) is not None
-        for field in dataclasses.fields(PendingBlockHeader)
+        for field in dataclasses.fields(PreConfirmedBlockHeader)
     )
 
 

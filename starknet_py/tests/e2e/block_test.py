@@ -3,8 +3,8 @@ import pytest
 from starknet_py.net.client_models import (
     BlockStatus,
     L1DAMode,
-    PendingStarknetBlock,
-    PendingStarknetBlockWithTxHashes,
+    PreConfirmedStarknetBlock,
+    PreConfirmedStarknetBlockWithTxHashes,
     StarknetBlock,
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
@@ -12,10 +12,10 @@ from starknet_py.net.client_models import (
 
 
 @pytest.mark.asyncio
-async def test_pending_block(account):
-    blk = await account.client.get_block(block_number="pending")
+async def test_pre_confirmed_block(account):
+    blk = await account.client.get_block(block_number="pre_confirmed")
     assert blk.transactions is not None
-    assert isinstance(blk, PendingStarknetBlock)
+    assert isinstance(blk, PreConfirmedStarknetBlock)
 
 
 @pytest.mark.asyncio
@@ -27,10 +27,10 @@ async def test_latest_block(account):
 
 
 @pytest.mark.asyncio
-async def test_block_with_tx_hashes_pending(account):
-    blk = await account.client.get_block_with_tx_hashes(block_number="pending")
+async def test_block_with_tx_hashes_pre_confirmed(account):
+    blk = await account.client.get_block_with_tx_hashes(block_number="pre_confirmed")
 
-    assert isinstance(blk, PendingStarknetBlockWithTxHashes)
+    assert isinstance(blk, PreConfirmedStarknetBlockWithTxHashes)
     assert isinstance(blk.transactions, list)
 
 
@@ -55,10 +55,10 @@ async def test_block_with_tx_hashes_latest(account):
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_txs_pending(account):
-    blk = await account.client.get_block_with_txs(block_number="pending")
+async def test_get_block_with_txs_pre_confirmed(account):
+    blk = await account.client.get_block_with_txs(block_number="pre_confirmed")
 
-    assert isinstance(blk, PendingStarknetBlock)
+    assert isinstance(blk, PreConfirmedStarknetBlock)
     assert isinstance(blk.transactions, list)
 
 

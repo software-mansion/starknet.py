@@ -345,7 +345,7 @@ class PreparedFunctionInvoke(ABC, PreparedCallBase):
 
         :param block_hash: Estimate fee at specific block hash.
         :param block_number: Estimate fee at given block number
-            (or "latest" / "pending" for the latest / pending block), default is "pending".
+            (or "latest" / "pre_confirmed" for the latest / pre_confirmed block), default is "pre_confirmed".
         :param nonce: Nonce of the transaction.
         :return: Estimated amount of the transaction cost, either in Wei or Fri associated with executing the
             specified transaction.

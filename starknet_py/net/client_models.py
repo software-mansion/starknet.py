@@ -32,7 +32,7 @@ from starknet_py.utils.constructor_args_translator import _is_abi_v2
 # pylint: disable=too-many-lines
 
 Hash = Union[int, str]
-Tag = Literal["pending", "latest"]
+Tag = Literal["pre_confirmed", "latest"]
 LatestTag = Literal["latest"]
 
 
@@ -396,7 +396,8 @@ class TransactionStatus(Enum):
     """
 
     RECEIVED = "RECEIVED"
-    REJECTED = "REJECTED"
+    CANDIDATE = "CANDIDATE"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
@@ -415,6 +416,7 @@ class TransactionFinalityStatus(Enum):
     Enum representing transaction finality statuses.
     """
 
+    PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
@@ -507,16 +509,16 @@ class BlockStatus(Enum):
     Enum representing block status.
     """
 
-    PENDING = "PENDING"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
     REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass
-class PendingBlockHeader:
+class PreConfirmedBlockHeader:
     # pylint: disable=too-many-instance-attributes
-    parent_hash: int
+    block_number: int
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
@@ -527,27 +529,27 @@ class PendingBlockHeader:
 
 
 @dataclass
-class PendingStarknetBlock(PendingBlockHeader):
+class PreConfirmedStarknetBlock(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pending block on Starknet.
+    Dataclass representing a pre_confirmed block on Starknet.
     """
 
     transactions: List[Transaction]
 
 
 @dataclass
-class PendingStarknetBlockWithTxHashes(PendingBlockHeader):
+class PreConfirmedStarknetBlockWithTxHashes(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pending block on Starknet containing transaction hashes.
+    Dataclass representing a pre_confirmed block on Starknet containing transaction hashes.
     """
 
     transactions: List[int]
 
 
 @dataclass
-class PendingStarknetBlockWithReceipts(PendingBlockHeader):
+class PreConfirmedStarknetBlockWithReceipts(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pending block on Starknet with txs and receipts result
+    Dataclass representing a pre_confirmed block on Starknet with txs and receipts result
     """
 
     transactions: List[TransactionWithReceipt]
@@ -763,9 +765,9 @@ class BlockStateUpdate:
 
 
 @dataclass
-class PendingBlockStateUpdate:
+class PreConfirmedBlockStateUpdate:
     """
-    Dataclass representing a pending change in state of a block.
+    Dataclass representing a pre_confirmed change in state of a block.
     """
 
     old_root: int
@@ -1206,6 +1208,7 @@ class StorageProofResponse:
 class MessageStatus:
     transaction_hash: int
     finality_status: TransactionStatus
+    execution_status: Optional[TransactionExecutionStatus] = None
     failure_reason: Optional[str] = None
 
 
