@@ -2,6 +2,34 @@ Migration guide
 ===============
 
 **********************
+0.28.0 Migration guide
+**********************
+
+``starknet_py.net.client_models``
+---------------------------------
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. Renamed :class:`PendingBlockHeader` to :class:`PreConfirmedBlockHeader`, changed field ``parent_hash`` to ``block_number``.
+2. Renamed :class:`PendingStarknetBlock` to :class:`PreConfirmedStarknetBlock`
+3. Renamed :class:`PendingStarknetBlockWithTxHashes` to :class:`PreConfirmedStarknetBlockWithTxHashes`
+4. Renamed :class:`PendingStarknetBlockWithReceipts` to :class:`PreConfirmedStarknetBlockWithReceipts`
+5. Renamed :class:`PendingBlockStateUpdate` to :class:`PreConfirmedBlockStateUpdate`
+6. Enum :class:`BlockStatus` variant ``PENDING`` removed, added ``PRE_CONFIRMED``
+7. Enum :class:`TransactionFinalityStatus`, added variant ``PRE_CONFIRMED``
+8. Enum :class:`TransactionStatus` variant ``REJECTED`` removed, added ``CANDIDATE``, ``PRE_CONFIRMED``
+
+``starknet_py.net.client``
+--------------------------
+
+.. py:currentmodule:: starknet_py.net.client
+
+
+1. :meth:`Client.get_storage_proof` replaced argument ``get_storage_proof`` with arguments ``block_hash`` and ``block_hash``.
+2. :meth:`Client.wait_for_tx` will now wait until transaction ``finality_status`` is either ``ACCEPTED_ON_L2`` or ``ACCEPTED_ON_L1``.
+3. :meth:`Client.get_messages_status` changed ``transaction_hash`` type from ``str`` to ``Hash``.
+
+**********************
 0.27.0 Migration guide
 **********************
 
