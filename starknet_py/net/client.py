@@ -23,6 +23,8 @@ from starknet_py.net.client_models import (
     SentTransactionResponse,
     SierraContractClass,
     StarknetBlock,
+    StarknetBlockWithReceipts,
+    StarknetBlockWithTxHashes,
     StorageProofResponse,
     Tag,
     Transaction,
@@ -47,6 +49,7 @@ from starknet_py.utils.sync import add_sync_methods
 
 @add_sync_methods
 class Client(ABC):
+    # pylint: disable=too-many-public-methods
     @abstractmethod
     async def get_block(
         self,
@@ -59,6 +62,36 @@ class Client(ABC):
         :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: StarknetBlock object representing retrieved block
+        """
+
+    @abstractmethod
+    async def get_block_with_txs(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Union[StarknetBlock, PreConfirmedStarknetBlock]:
+        """ "
+        TODO docstring
+        """
+
+    @abstractmethod
+    async def get_block_with_tx_hashes(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Union[StarknetBlockWithTxHashes, PreConfirmedStarknetBlockWithTxHashes]:
+        """
+        TODO docstring
+        """
+
+    @abstractmethod
+    async def get_block_with_receipts(
+        self,
+        block_hash: Optional[Union[Hash, Tag]] = None,
+        block_number: Optional[Union[int, Tag]] = None,
+    ) -> Union[StarknetBlockWithReceipts, PreConfirmedStarknetBlockWithReceipts]:
+        """
+        TODO docstring
         """
 
     @abstractmethod
