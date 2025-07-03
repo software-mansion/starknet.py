@@ -521,10 +521,10 @@ class FullNodeClient(Client):
     async def get_chain_id(self) -> str:
         return await self._client.call(method_name="chainId", params={})
 
-    async def get_messages_status(self, transaction_hash: str) -> List[MessageStatus]:
+    async def get_messages_status(self, transaction_hash: Hash) -> List[MessageStatus]:
         res = await self._client.call(
             method_name="getMessagesStatus",
-            params={"transaction_hash": transaction_hash},
+            params={"transaction_hash": _to_hex_number(transaction_hash)},
         )
         return cast(
             List[MessageStatus],
