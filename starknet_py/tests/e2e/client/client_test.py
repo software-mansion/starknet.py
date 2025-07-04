@@ -447,9 +447,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
 
 
 @pytest.mark.asyncio
-async def test_wait_for_tx_not_received(
-    client, get_tx_receipt_path, get_tx_status_path
-):
+async def test_wait_for_tx_not_received(client, get_tx_status_path):
     exc_message = "Transaction not received."
 
     with patch(get_tx_status_path, AsyncMock()) as mocked_status:

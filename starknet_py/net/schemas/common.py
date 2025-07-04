@@ -11,13 +11,13 @@ from starknet_py.net.client_models import (
     DAMode,
     EntryPointType,
     L1DAMode,
+    MessageFinalityStatus,
     PriceUnit,
     StorageEntry,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionStatus,
     TransactionType,
-    MessageFinalityStatus,
 )
 
 # pylint: disable=unused-argument

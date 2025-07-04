@@ -31,13 +31,13 @@ from starknet_py.net.schemas.common import (
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
+    MessageFinalityStatusField,
     NumberAsHex,
     PriceUnitField,
     StatusField,
     TransactionTypeField,
     Uint64,
     Uint128,
-    MessageFinalityStatusField,
 )
 from starknet_py.net.schemas.rpc.event import EventSchema
 from starknet_py.net.schemas.rpc.general import ExecutionResourcesSchema
