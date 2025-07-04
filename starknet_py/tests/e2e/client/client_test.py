@@ -140,10 +140,12 @@ async def test_get_messages_status(client):
             {
                 "transaction_hash": "0x1",
                 "finality_status": "ACCEPTED_ON_L2",
+                "execution_status": "SUCCEEDED",
             },
             {
                 "transaction_hash": "0x2",
-                "finality_status": "REJECTED",
+                "finality_status": "ACCEPTED_ON_L2",
+                "execution_status": "REVERTED",
                 "failure_reason": "Some failure reason",
             },
         ]
@@ -217,7 +219,7 @@ async def test_get_storage_proof(client):
         mocked_message_status_call_rpc.return_value = return_value["result"]
 
         storage_proof = await client.get_storage_proof(
-            block_id="latest",
+            block_hash="latest",
             contract_addresses=[123],
             contracts_storage_keys=[
                 ContractsStorageKeys(
@@ -240,20 +242,20 @@ async def test_get_storage_proof(client):
 @pytest.mark.asyncio
 async def test_get_compiled_casm(client):
     strk_devnet_class_hash = (
-        0x11374319A6E07B4F2738FA3BFA8CF2181BFB0DBB4D800215BAA87B83A57877E
+        0x76791EF97C042F81FBF352AD95F39A22554EE8D7927B2CE3C681F3418B5206A
     )
     compiled_casm = await client.get_compiled_casm(class_hash=strk_devnet_class_hash)
 
     assert isinstance(compiled_casm, CasmClass)
-    assert len(compiled_casm.bytecode) == 9732
-    assert len(compiled_casm.hints) == 113
+    assert len(compiled_casm.bytecode) == 23286
+    assert len(compiled_casm.hints) == 954
 
     first_hint = compiled_casm.hints[0][1][0]
     assert isinstance(first_hint, TestLessThanOrEqual)
     assert first_hint.test_less_than_or_equal.dst.offset == 0
     assert first_hint.test_less_than_or_equal.dst.register == "AP"
     assert isinstance(first_hint.test_less_than_or_equal.lhs, Immediate)
-    assert first_hint.test_less_than_or_equal.lhs.immediate == 0x37BE
+    assert first_hint.test_less_than_or_equal.lhs.immediate == 0
     assert isinstance(first_hint.test_less_than_or_equal.rhs, Deref)
     assert first_hint.test_less_than_or_equal.rhs.deref.offset == -6
     assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
@@ -437,11 +439,30 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
         )
 
         mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.RECEIVED
+            finality_status=TransactionStatus.ACCEPTED_ON_L2,
         )
 
         tx_receipt = await client.wait_for_tx(tx_hash=0x1)
         assert tx_receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_not_received(
+    client, get_tx_receipt_path, get_tx_status_path
+):
+    exc_message = "Transaction not received."
+
+    with patch(get_tx_status_path, AsyncMock()) as mocked_status:
+        mocked_status.return_value = TransactionStatusResponse(
+            finality_status=TransactionStatus.RECEIVED
+        )
+
+        with pytest.raises(TransactionNotReceivedError) as err:
+            # We set `retires` to 1, otherwise `wait_for_tx` will try to fetch tx status until
+            # it is either `ACCEPTED_ON_L2` or `ACCEPTED_ON_L1`
+            await client.wait_for_tx(tx_hash=0x1, retries=1)
+
+        assert exc_message in err.value.message
 
 
 @pytest.mark.asyncio
@@ -457,14 +478,14 @@ async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_p
             block_number=1,
             type=TransactionType.INVOKE,
             execution_status=TransactionExecutionStatus.REVERTED,
-            finality_status=Mock(spec=TransactionFinalityStatus),
+            finality_status=TransactionFinalityStatus.ACCEPTED_ON_L2,
             execution_resources=Mock(spec=ExecutionResources),
             revert_reason=exc_message,
             actual_fee=FeePayment(amount=1, unit=PriceUnit.WEI),
         )
 
         mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.RECEIVED
+            finality_status=TransactionStatus.ACCEPTED_ON_L2,
         )
 
         with pytest.raises(TransactionRevertedError) as err:
@@ -483,7 +504,7 @@ async def test_wait_for_tx_unknown_error(
     ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
         mocked_receipt.side_effect = ClientError(message="Unknown error")
         mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.RECEIVED
+            finality_status=TransactionStatus.ACCEPTED_ON_L2
         )
 
         with pytest.raises(ClientError, match="Unknown error"):

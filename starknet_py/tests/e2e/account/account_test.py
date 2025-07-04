@@ -74,7 +74,9 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
     )
 
     assert estimated_fee.overall_fee > 0
-    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
+    # `overall_fee` returned from the node includes the tip which is not part of the response itself and cannot
+    # be calculated using the ` calculate_overall_fee ` method.
+    assert estimated_fee.calculate_overall_fee() <= estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -92,7 +94,9 @@ async def test_estimate_fee_for_declare_transaction(
 
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
-    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
+    # `overall_fee` returned from the node includes the tip which is not part of the response itself and cannot
+    # be calculated using the ` calculate_overall_fee ` method.
+    assert estimated_fee.calculate_overall_fee() <= estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -111,7 +115,9 @@ async def test_account_estimate_fee_for_declare_transaction(
     assert estimated_fee.unit == PriceUnit.FRI
     assert isinstance(estimated_fee.overall_fee, int)
     assert estimated_fee.overall_fee > 0
-    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
+    # `overall_fee` returned from the node includes the tip which is not part of the response itself and cannot
+    # be calculated using the ` calculate_overall_fee ` method.
+    assert estimated_fee.calculate_overall_fee() <= estimated_fee.overall_fee
 
 
 @pytest.mark.asyncio
@@ -137,7 +143,9 @@ async def test_account_estimate_fee_for_transactions(account, map_contract):
     assert estimated_fee[1].unit == PriceUnit.FRI
     assert isinstance(estimated_fee[0].overall_fee, int)
     assert estimated_fee[0].overall_fee > 0
-    assert estimated_fee[0].calculate_overall_fee() == estimated_fee[0].overall_fee
+    # `overall_fee` returned from the node includes the tip which is not part of the response itself and cannot
+    # be calculated using the ` calculate_overall_fee ` method.
+    assert estimated_fee[0].calculate_overall_fee() <= estimated_fee[0].overall_fee
 
 
 @pytest.mark.asyncio
