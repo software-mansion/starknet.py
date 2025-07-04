@@ -17,6 +17,7 @@ from starknet_py.net.client_models import (
     TransactionFinalityStatus,
     TransactionStatus,
     TransactionType,
+    MessageFinalityStatus,
 )
 
 # pylint: disable=unused-argument
@@ -182,6 +183,27 @@ class FinalityStatusField(fields.Field):
             )
 
         return TransactionFinalityStatus(value)
+
+
+class MessageFinalityStatusField(fields.Field):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> MessageFinalityStatus:
+        values = [v.value for v in MessageFinalityStatus]
+
+        if value not in values:
+            raise ValidationError(
+                f"Invalid value provided for MessageFinalityStatus: {value}."
+            )
+
+        return MessageFinalityStatus(value)
 
 
 class BlockStatusField(fields.Field):

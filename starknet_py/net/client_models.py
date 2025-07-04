@@ -1204,11 +1204,20 @@ class StorageProofResponse:
     global_roots: GlobalRoots
 
 
+class MessageFinalityStatus(Enum):
+    """
+    Enum representing transaction statuses.
+    """
+
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+
+
 @dataclass
 class MessageStatus:
     transaction_hash: int
-    finality_status: TransactionStatus
-    execution_status: Optional[TransactionExecutionStatus] = None
+    finality_status: MessageFinalityStatus
+    execution_status: TransactionExecutionStatus
     failure_reason: Optional[str] = None
 
 
