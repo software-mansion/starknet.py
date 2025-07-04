@@ -202,11 +202,15 @@ class Client(ABC):
     ) -> TransactionReceipt:
         # pylint: disable=too-many-branches
         """
-        Awaits for transaction to get accepted or at least pending by polling its status.
+        Awaits the transaction until its status is either ``ACCEPTED_ON_L2`` or ``ACCEPTED_ON_L1``
+        and its receipt can be fetched.
 
         :param tx_hash: Transaction's hash.
-        :param check_interval: Defines interval between checks.
+        :param check_interval: Defines the interval between checks.
         :param retries: Defines how many times the transaction is checked until an error is thrown.
+        :raises TransactionRevertedError: If the transaction execution status is ``REVERTED``.
+        :raises TransactionNotReceivedError: If the transaction is not received within the given number of checks,
+            i.e., its status never reaches ``ACCEPTED_ON_L2`` or ``ACCEPTED_ON_L1``.
         :return: Transaction receipt.
         """
         if check_interval <= 0:
@@ -256,7 +260,7 @@ class Client(ABC):
             except asyncio.CancelledError as exc:
                 raise TransactionNotReceivedError from exc
             except ClientError as exc:
-                if "Transaction hash not found" not in exc.message:
+                if exc.code != 29:
                     raise exc
 
                 if retries == 0:
