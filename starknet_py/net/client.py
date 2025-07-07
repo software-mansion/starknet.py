@@ -70,7 +70,7 @@ class Client(ABC):
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[StarknetBlock, PreConfirmedStarknetBlock]:
-        """ "
+        """
         TODO docstring
         """
 
