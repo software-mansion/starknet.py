@@ -59,6 +59,8 @@ class Client(ABC):
         """
         Retrieve the block's data by its number or hash
 
+        Alias of :meth:`get_block_with_txs`.
+
         :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
         :return: StarknetBlock object representing retrieved block
@@ -71,7 +73,11 @@ class Client(ABC):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[StarknetBlock, PreConfirmedStarknetBlock]:
         """
-        TODO docstring
+        Retrieve the block's data by its number or hash.
+
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :return: StarknetBlock object representing retrieved block with transactions.
         """
 
     @abstractmethod
@@ -81,7 +87,11 @@ class Client(ABC):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[StarknetBlockWithTxHashes, PreConfirmedStarknetBlockWithTxHashes]:
         """
-        TODO docstring
+        Retrieve the block's data with a list of contained transaction hashes.
+
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :return: StarknetBlockWithTxHashes object representing retrieved block with transactions.
         """
 
     @abstractmethod
@@ -91,7 +101,11 @@ class Client(ABC):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[StarknetBlockWithReceipts, PreConfirmedStarknetBlockWithReceipts]:
         """
-        TODO docstring
+        Retrieve the block's data with a list of receipts for contained transactions.
+
+        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :return: StarknetBlockWithReceipts object representing retrieved block with transactions.
         """
 
     @abstractmethod
