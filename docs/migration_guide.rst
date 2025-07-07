@@ -25,7 +25,7 @@ Migration guide
 .. py:currentmodule:: starknet_py.net.client
 
 
-1. :meth:`Client.get_storage_proof` replaced argument ``get_storage_proof`` with arguments ``block_hash`` and ``block_hash``.
+1. :meth:`Client.get_storage_proof`: replaced param ``block_id`` with ``block_hash`` and ``block_number``.
 2. :meth:`Client.wait_for_tx` will now wait until transaction ``finality_status`` is either ``ACCEPTED_ON_L2`` or ``ACCEPTED_ON_L1``.
 3. :meth:`Client.wait_for_tx` will no longer raise ``TransactionRejectedError``, see the method docs for details.
 4. :meth:`Client.get_messages_status`: changed ``transaction_hash`` type from ``str`` to ``Hash``.
