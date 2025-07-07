@@ -459,7 +459,7 @@ async def test_wait_for_tx_not_received(client, get_tx_status_path):
         )
 
         with pytest.raises(TransactionNotReceivedError) as err:
-            # We set `retires` to 1, otherwise `wait_for_tx` will try to fetch tx status until
+            # We set `retries` to 1, otherwise `wait_for_tx` will try to fetch tx status until
             # it is either `ACCEPTED_ON_L2` or `ACCEPTED_ON_L1`
             await client.wait_for_tx(tx_hash=0x1, retries=1)
 
