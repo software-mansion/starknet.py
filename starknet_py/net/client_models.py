@@ -531,7 +531,7 @@ class PreConfirmedBlockHeader:
 @dataclass
 class PreConfirmedStarknetBlock(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pre_confirmed block on Starknet.
+    Dataclass representing a pre-confirmed block on Starknet.
     """
 
     transactions: List[Transaction]
