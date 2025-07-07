@@ -5,6 +5,8 @@ Migration guide
 0.28.0 Migration guide
 **********************
 
+Version 0.28.0 of **starknet.py** comes with support for RPC 0.9.0-rc.1!
+
 ``starknet_py.net.client_models``
 ---------------------------------
 
