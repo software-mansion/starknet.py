@@ -43,7 +43,6 @@ from starknet_py.net.client_utils import (
     _create_broadcasted_txn,
     _get_raw_block_identifier,
     _is_valid_eth_address,
-    _to_hex_number,
     _to_rpc_felt,
     _to_storage_key,
     encode_l1_message,
@@ -524,7 +523,7 @@ class FullNodeClient(Client):
     async def get_messages_status(self, transaction_hash: Hash) -> List[MessageStatus]:
         res = await self._client.call(
             method_name="getMessagesStatus",
-            params={"transaction_hash": _to_hex_number(transaction_hash)},
+            params={"transaction_hash": _to_rpc_felt(transaction_hash)},
         )
         return cast(
             List[MessageStatus],

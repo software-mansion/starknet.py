@@ -74,15 +74,6 @@ def _to_rpc_felt(value: Hash) -> str:
     return rpc_felt
 
 
-def _to_hex_number(value: Hash) -> str:
-    """
-    Convert the value to hex encoded number
-    """
-    if isinstance(value, str):
-        return value
-    return hex(value)
-
-
 def _is_valid_eth_address(address: str) -> bool:
     """
     A function checking if an address matches Ethereum address regex. Note that it doesn't validate any checksums etc.
