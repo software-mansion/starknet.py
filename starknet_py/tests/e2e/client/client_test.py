@@ -39,6 +39,7 @@ from starknet_py.net.executable_models import (
     CasmClass,
     Deref,
     Immediate,
+    TestLessThan,
     TestLessThanOrEqual,
 )
 from starknet_py.net.full_node_client import FullNodeClient
@@ -261,15 +262,17 @@ async def test_get_compiled_casm(client):
     assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
 
     second_hint = compiled_casm.hints[1][1][0]
-    assert isinstance(second_hint, TestLessThanOrEqual)
-    assert isinstance(second_hint.test_less_than_or_equal.lhs, Deref)
-    assert second_hint.test_less_than_or_equal.lhs.deref.register == "AP"
-    assert second_hint.test_less_than_or_equal.lhs.deref.offset == -1
-    assert isinstance(second_hint.test_less_than_or_equal.rhs, Deref)
-    assert second_hint.test_less_than_or_equal.rhs.deref.register == "AP"
-    assert second_hint.test_less_than_or_equal.rhs.deref.offset == -169
-    assert second_hint.test_less_than_or_equal.dst.register == "AP"
-    assert second_hint.test_less_than_or_equal.dst.offset == 0
+    assert isinstance(second_hint, TestLessThan)
+    assert isinstance(second_hint.test_less_than.lhs, Deref)
+    assert second_hint.test_less_than.lhs.deref.register == "AP"
+    assert second_hint.test_less_than.lhs.deref.offset == -2
+    assert isinstance(second_hint.test_less_than.rhs, Immediate)
+    assert (
+        second_hint.test_less_than.rhs.immediate
+        == 3618502788666131106986593281521497120414687020801267626233049500247285301248
+    )
+    assert second_hint.test_less_than.dst.register == "AP"
+    assert second_hint.test_less_than.dst.offset == 4
 
 
 @pytest.mark.asyncio
