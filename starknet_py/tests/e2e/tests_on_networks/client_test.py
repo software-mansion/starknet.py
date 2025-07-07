@@ -518,7 +518,7 @@ async def test_get_storage_proof(client_sepolia_testnet):
     # Nodes don't support storage proofs for blocks that are too far in the past, hence we need to get last block number
     block_number = await client_sepolia_testnet.get_block_number()
     storage_proof = await client_sepolia_testnet.get_storage_proof(
-        block_id={"block_number": block_number},
+        block_number=block_number,
         contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
         contracts_storage_keys=[
             ContractsStorageKeys(
