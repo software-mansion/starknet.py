@@ -32,6 +32,36 @@ Version 0.28.0-rc.0 of **starknet.py** comes with support for RPC 0.9.0-rc.1!
 3. :meth:`Client.wait_for_tx` will no longer raise ``TransactionRejectedError``, see the method docs for details.
 4. :meth:`Client.get_messages_status`: changed ``transaction_hash`` type from ``str`` to ``Hash``.
 
+Tip Support
+-----------
+
+Ability to pass tip for the transaction has been added to following methods.
+These methods will use the default value o ``0`` for tip if not provided.
+
+.. py:currentmodule:: starknet_py.contract
+
+- :meth:`DeclareResult.deploy_v3`
+- :meth:`PreparedFunctionInvokeV3.invoke`
+- :meth:`Contract.declare_v3`
+- :meth:`Contract.deploy_contract_v3`
+
+.. py:currentmodule:: starknet_py.net.account.account
+
+- :meth:`Account.sign_invoke_v3`
+- :meth:`Account.sign_declare_v3`
+- :meth:`Account.sign_deploy_account_v3`
+- :meth:`Account.execute_v3`
+- :meth:`Account.deploy_account_v3`
+
+Additionally, dataclasses representing transactions now require passing a tip.
+No default value is used for tip and it is a required parameter.
+
+.. py:currentmodule:: starknet_py.net.models.transaction
+
+- :class:`InvokeV3`, tip is now required
+- :class:`DeclareV3`, tip is now required
+- :class:`DeployAccountV3`, tip is now required
+
 **********************
 0.27.0 Migration guide
 **********************
