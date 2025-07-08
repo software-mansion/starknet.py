@@ -169,6 +169,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
+        tip: int,
     ) -> InvokeV3:
         """
         Takes calls and creates InvokeV3 from them.
@@ -190,6 +191,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce=nonce,
             sender_address=self.address,
             version=3,
+            tip=tip,
         )
 
         resource_bounds = await self._get_resource_bounds(
@@ -377,12 +379,14 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> InvokeV3:
         invoke_tx = await self._prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
+            tip=tip,
         )
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
@@ -395,11 +399,14 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> DeclareV3:
+        # pylint: disable=too-many-arguments
         declare_tx = await self._make_declare_v3_transaction(
             compiled_contract,
             compiled_class_hash,
             nonce=nonce,
+            tip=tip,
         )
         resource_bounds = await self._get_resource_bounds(
             declare_tx, resource_bounds, auto_estimate
@@ -415,6 +422,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
+        tip: int,
     ) -> DeclareV3:
         contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
@@ -431,6 +439,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce=nonce,
             version=3,
             resource_bounds=ResourceBoundsMapping.init_with_zeros(),
+            tip=tip,
         )
         return declare_tx
 
@@ -443,6 +452,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
         deploy_account_tx = DeployAccountV3(
@@ -453,6 +463,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             resource_bounds=ResourceBoundsMapping.init_with_zeros(),
             signature=[],
             nonce=nonce,
+            tip=tip,
         )
         resource_bounds = await self._get_resource_bounds(
             deploy_account_tx, resource_bounds, auto_estimate
@@ -471,14 +482,16 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> SentTransactionResponse:
         # TODO(#1582): Remove below adjustment when braavos integration is restored
         try:
             execute_transaction = await self.sign_invoke_v3(
                 calls,
-                resource_bounds=resource_bounds,
                 nonce=nonce,
+                resource_bounds=resource_bounds,
                 auto_estimate=auto_estimate,
+                tip=tip,
             )
             return await self._client.send_transaction(execute_transaction)
 
@@ -512,8 +525,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> AccountDeploymentResult:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-locals
 
         """
         Deploys an account contract with provided class_hash on Starknet and returns
@@ -531,6 +545,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param tip: The tip amount to be added to the transaction fee.
         """
         # TODO(#1582): Remove below adjustment when braavos integration is restored
         try:
@@ -559,6 +574,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
                 nonce=nonce,
                 resource_bounds=resource_bounds,
                 auto_estimate=auto_estimate,
+                tip=tip,
             )
 
             result = await client.deploy_account(deploy_account_tx)

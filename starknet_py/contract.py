@@ -197,6 +197,7 @@ class DeclareResult(SentTransaction):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> "DeployResult":
         """
         Deploys a contract.
@@ -210,6 +211,7 @@ class DeclareResult(SentTransaction):
         :param nonce: Nonce of the transaction with call to deployer.
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param tip: The tip amount to be added to the transaction fee.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -227,6 +229,7 @@ class DeclareResult(SentTransaction):
             auto_estimate=auto_estimate,
             salt=salt,
             unique=unique,
+            tip=tip,
         )
 
     def _get_abi(self) -> List:
@@ -379,6 +382,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         auto_estimate: bool = False,
         *,
         nonce: Optional[int] = None,
+        tip: int = 0,
     ) -> InvokeResult:
         """
         Send an Invoke transaction version 3 for the prepared data.
@@ -386,6 +390,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: InvokeResult.
         """
 
@@ -394,6 +399,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
             nonce=nonce,
             resource_bounds=resource_bounds or self.resource_bounds,
             auto_estimate=auto_estimate,
+            tip=tip,
         )
 
         return await self._invoke(transaction)
@@ -679,6 +685,7 @@ class Contract:
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
 
@@ -692,6 +699,7 @@ class Contract:
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param tip: The tip amount to be added to the transaction fee.
         :return: DeclareResult instance.
         """
 
@@ -705,6 +713,7 @@ class Contract:
             nonce=nonce,
             resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
+            tip=tip,
         )
 
         return await _declare_contract(
@@ -725,6 +734,7 @@ class Contract:
         auto_estimate: bool = False,
         salt: Optional[int] = None,
         unique: bool = True,
+        tip: int = 0,
     ) -> "DeployResult":
         """
         Deploys a contract through Universal Deployer Contract.
@@ -743,6 +753,7 @@ class Contract:
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -763,6 +774,7 @@ class Contract:
             nonce=nonce,
             resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
+            tip=tip,
         )
 
         if abi is None:

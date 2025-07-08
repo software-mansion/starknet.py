@@ -94,10 +94,10 @@ class _DeprecatedAccountTransaction(AccountTransaction, ABC):
 @dataclass(frozen=True)
 class _AccountTransactionV3(AccountTransaction, ABC):
     resource_bounds: ResourceBoundsMapping
-    tip: int = field(init=False, default=0)
     nonce_data_availability_mode: DAMode = field(init=False, default=DAMode.L1)
     fee_data_availability_mode: DAMode = field(init=False, default=DAMode.L1)
     paymaster_data: List[int] = field(init=False, default_factory=list)
+    tip: int
 
     def get_common_fields(
         self,
