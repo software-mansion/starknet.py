@@ -650,7 +650,7 @@ async def test_account_execute_v3(account, deployed_balance_contract):
 
 
 @pytest.mark.asyncio
-async def test_invoke_with_tip(account, hello_starknet_class_hash):
+async def test_invoke_v3_with_tip(account, hello_starknet_class_hash):
     deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
 
     invoke_tx = await account.execute_v3(

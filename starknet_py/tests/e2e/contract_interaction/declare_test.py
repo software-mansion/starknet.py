@@ -31,7 +31,7 @@ async def test_throws_when_cairo1_without_compiled_contract_casm_and_class_hash(
 
 
 @pytest.mark.asyncio
-async def test_declare(
+async def test_declare_v3(
     account,
 ):
     contract = load_contract(contract_name="TestContract", version=ContractVersion.V2)

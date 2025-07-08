@@ -408,7 +408,7 @@ async def test_add_transaction(map_contract, client, account):
 
 
 @pytest.mark.asyncio
-async def test_add_transaction_with_tip(map_contract, client, account):
+async def test_add_invoke_v3_transaction_with_tip(map_contract, client, account):
     prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
         key=100, value=200
     )
@@ -430,7 +430,7 @@ async def test_add_transaction_with_tip(map_contract, client, account):
 
 
 @pytest.mark.asyncio
-async def test_add_declare_transaction_with_tip(
+async def test_add_declare_v3_transaction_with_tip(
     client, account, abi_types_compiled_contract_and_class_hash
 ):
     tip = 12345
