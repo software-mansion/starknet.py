@@ -37,6 +37,7 @@ LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
                 0,
             ],
             sender_address=0x123,
+            tip=0,
         ),
         DeployAccountV3(
             class_hash=0x123,
@@ -46,6 +47,7 @@ LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
             signature=[],
             nonce=0,
             resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA,
+            tip=0,
         ),
     ],
 )
@@ -129,7 +131,6 @@ def test_blind_sign_warning():
         "the contents and leaving you vulnerable to unknowingly authorizing malicious transactions. "
         "⚠️ Use at your own risk"
     )
-
     tx = InvokeV3(
         version=3,
         signature=[],
@@ -145,6 +146,7 @@ def test_blind_sign_warning():
             0,
         ],
         sender_address=0x123,
+        tip=0,
     )
     with pytest.warns(BlindSigningModeWarning, match=pattern):
         signer.sign_transaction(tx)
