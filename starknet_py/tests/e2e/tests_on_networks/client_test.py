@@ -186,7 +186,7 @@ async def test_transaction_not_received_invalid_nonce(account_sepolia_testnet):
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA, nonce=0
+        calls=call, nonce=0, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
     )
 
     with pytest.raises(ClientError, match=r".*nonce.*"):
