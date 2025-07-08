@@ -36,7 +36,7 @@ Tip Support
 -----------
 
 Ability to pass tip for the transaction has been added to following methods.
-These methods will use the default value o ``0`` for tip if not provided.
+If ``tip`` is not provided, a default value of ``0`` will be used
 
 .. py:currentmodule:: starknet_py.contract
 
