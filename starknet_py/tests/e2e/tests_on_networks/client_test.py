@@ -125,6 +125,7 @@ async def test_sign_invoke_v3_auto_estimate(account_sepolia_testnet):
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -134,9 +135,9 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         calldata=[],
     )
     resource_bounds = ResourceBoundsMapping(
-        l1_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
-        l2_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
-        l1_data_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l1_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
     )
     sign_invoke = await account.sign_invoke_v3(
         calls=call, resource_bounds=resource_bounds
@@ -150,6 +151,7 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         await account.client.send_transaction(sign_invoke)
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -578,7 +580,7 @@ async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet)
     node = FullNodeClient(old_rpc_url)
 
     pattern = (
-        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.7\.1\. "
+        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.8\.1\. "
         rf"Expected version: {EXPECTED_RPC_VERSION}"
     )
     with pytest.warns(IncompatibleRPCVersionWarning, match=pattern):

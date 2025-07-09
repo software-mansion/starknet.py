@@ -52,7 +52,6 @@ from starknet_py.serialization.data_serializers import (
     StructSerializer,
     UintSerializer,
 )
-from starknet_py.utils.account import _raise_error_for_braavos_account
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
@@ -472,19 +471,13 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
     ) -> SentTransactionResponse:
-        # TODO(#1582): Remove below adjustment when braavos integration is restored
-        try:
-            execute_transaction = await self.sign_invoke_v3(
-                calls,
-                resource_bounds=resource_bounds,
-                nonce=nonce,
-                auto_estimate=auto_estimate,
-            )
-            return await self._client.send_transaction(execute_transaction)
-
-        except Exception as exception:
-            await _raise_error_for_braavos_account(exception, self.address, self.client)
-            raise exception
+        execute_transaction = await self.sign_invoke_v3(
+            calls,
+            resource_bounds=resource_bounds,
+            nonce=nonce,
+            auto_estimate=auto_estimate,
+        )
+        return await self._client.send_transaction(execute_transaction)
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
         if isinstance(typed_data, TypedData):
@@ -532,44 +525,38 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         """
-        # TODO(#1582): Remove below adjustment when braavos integration is restored
-        try:
-            calldata = (
-                constructor_calldata
-                if constructor_calldata is not None
-                else [key_pair.public_key]
-            )
+        calldata = (
+            constructor_calldata
+            if constructor_calldata is not None
+            else [key_pair.public_key]
+        )
 
-            chain = await client.get_chain_id()
+        chain = await client.get_chain_id()
 
-            account = _prepare_account_to_deploy(
-                address=address,
-                class_hash=class_hash,
-                salt=salt,
-                key_pair=key_pair,
-                client=client,
-                chain=chain,
-                calldata=calldata,
-            )
+        account = _prepare_account_to_deploy(
+            address=address,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=client,
+            chain=chain,
+            calldata=calldata,
+        )
 
-            deploy_account_tx = await account.sign_deploy_account_v3(
-                class_hash=class_hash,
-                contract_address_salt=salt,
-                constructor_calldata=calldata,
-                nonce=nonce,
-                resource_bounds=resource_bounds,
-                auto_estimate=auto_estimate,
-            )
+        deploy_account_tx = await account.sign_deploy_account_v3(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=calldata,
+            nonce=nonce,
+            resource_bounds=resource_bounds,
+            auto_estimate=auto_estimate,
+        )
 
-            result = await client.deploy_account(deploy_account_tx)
+        result = await client.deploy_account(deploy_account_tx)
 
-            return AccountDeploymentResult(
-                hash=result.transaction_hash, account=account, _client=account.client
-            )
-        except Exception as exception:
-            address = parse_address(address)
-            await _raise_error_for_braavos_account(exception, address, client)
-            raise exception
+        return AccountDeploymentResult(
+            hash=result.transaction_hash, account=account, _client=account.client
+        )
 
     async def _get_chain_id(self) -> int:
         if self._chain_id is None:
