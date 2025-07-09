@@ -31,6 +31,7 @@ from starknet_py.net.schemas.common import (
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
+    MessageFinalityStatusField,
     NumberAsHex,
     PriceUnitField,
     StatusField,
@@ -358,7 +359,10 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
 
 class MessageStatusSchema(Schema):
     transaction_hash = NumberAsHex(data_key="transaction_hash", required=True)
-    finality_status = StatusField(data_key="finality_status", required=True)
+    finality_status = MessageFinalityStatusField(
+        data_key="finality_status", required=True
+    )
+    execution_status = ExecutionStatusField(data_key="execution_status", required=True)
     failure_reason = fields.String(data_key="failure_reason", load_default=None)
 
     @post_load

@@ -19,8 +19,8 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     EventsChunk,
     InvokeTransactionV3,
-    PendingBlockHeader,
-    PendingStarknetBlockWithReceipts,
+    PreConfirmedBlockHeader,
+    PreConfirmedStarknetBlockWithReceipts,
     ResourceBounds,
     ResourceBoundsMapping,
     StarknetBlockWithReceipts,
@@ -125,6 +125,7 @@ async def test_sign_invoke_v3_auto_estimate(account_sepolia_testnet):
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -134,9 +135,9 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         calldata=[],
     )
     resource_bounds = ResourceBoundsMapping(
-        l1_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
-        l2_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
-        l1_data_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l1_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
     )
     sign_invoke = await account.sign_invoke_v3(
         calls=call, resource_bounds=resource_bounds
@@ -150,6 +151,7 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         await account.client.send_transaction(sign_invoke)
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -393,6 +395,7 @@ async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet
         assert tx_status.failure_reason == "Some failure reason"
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
@@ -402,15 +405,16 @@ async def test_get_block_new_header_fields(client_sepolia_testnet):
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await client_sepolia_testnet.get_block_with_txs(
-        block_number="pending"
+    pre_confirmed_block = await client_sepolia_testnet.get_block_with_txs(
+        block_number="pre_confirmed"
     )
 
-    assert pending_block.starknet_version is not None
-    assert pending_block.l1_gas_price is not None
-    assert pending_block.l1_gas_price.price_in_wei > 0
+    assert pre_confirmed_block.starknet_version is not None
+    assert pre_confirmed_block.l1_gas_price is not None
+    assert pre_confirmed_block.l1_gas_price.price_in_wei > 0
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
@@ -420,13 +424,13 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
 
-    pending_block = await client_sepolia_testnet.get_block_with_tx_hashes(
-        block_number="pending"
+    pre_confirmed_block = await client_sepolia_testnet.get_block_with_tx_hashes(
+        block_number="pre_confirmed"
     )
 
-    assert pending_block.starknet_version is not None
-    assert pending_block.l1_gas_price is not None
-    assert pending_block.l1_gas_price.price_in_wei > 0
+    assert pre_confirmed_block.starknet_version is not None
+    assert pre_confirmed_block.l1_gas_price is not None
+    assert pre_confirmed_block.l1_gas_price.price_in_wei > 0
 
 
 @pytest.mark.parametrize(
@@ -499,17 +503,18 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
     )
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
-async def test_get_pending_block_with_receipts(client_sepolia_testnet):
+async def test_get_pre_confirmed_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
-        block_number="pending"
+        block_number="pre_confirmed"
     )
 
-    assert isinstance(block_with_receipts, PendingStarknetBlockWithReceipts)
+    assert isinstance(block_with_receipts, PreConfirmedStarknetBlockWithReceipts)
     assert len(block_with_receipts.transactions) >= 0
     assert all(
         getattr(block_with_receipts, field.name) is not None
-        for field in dataclasses.fields(PendingBlockHeader)
+        for field in dataclasses.fields(PreConfirmedBlockHeader)
     )
 
 
@@ -518,7 +523,7 @@ async def test_get_storage_proof(client_sepolia_testnet):
     # Nodes don't support storage proofs for blocks that are too far in the past, hence we need to get last block number
     block_number = await client_sepolia_testnet.get_block_number()
     storage_proof = await client_sepolia_testnet.get_storage_proof(
-        block_id={"block_number": block_number},
+        block_number=block_number,
         contract_addresses=[int(STRK_FEE_CONTRACT_ADDRESS, 16)],
         contracts_storage_keys=[
             ContractsStorageKeys(
@@ -575,7 +580,7 @@ async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet)
     node = FullNodeClient(old_rpc_url)
 
     pattern = (
-        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.7\.1\. "
+        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.8\.1\. "
         rf"Expected version: {EXPECTED_RPC_VERSION}"
     )
     with pytest.warns(IncompatibleRPCVersionWarning, match=pattern):

@@ -24,7 +24,7 @@ from starknet_py.utils.schema import Schema
 
 
 class NewHeadsNotificationSchema(Schema):
-    subscription_id = fields.Integer(data_key="subscription_id", required=True)
+    subscription_id = fields.Str(data_key="subscription_id", required=True)
     result = fields.Nested(BlockHeaderSchema(), data_key="result", required=True)
 
     @post_load
@@ -33,7 +33,7 @@ class NewHeadsNotificationSchema(Schema):
 
 
 class NewEventsNotificationSchema(Schema):
-    subscription_id = fields.Integer(data_key="subscription_id", required=True)
+    subscription_id = fields.Str(data_key="subscription_id", required=True)
     result = fields.Nested(EmittedEventSchema(), data_key="result", required=True)
 
     @post_load
@@ -53,7 +53,7 @@ class NewTransactionStatusSchema(Schema):
 
 
 class TransactionStatusNotificationSchema(Schema):
-    subscription_id = fields.Integer(data_key="subscription_id", required=True)
+    subscription_id = fields.Str(data_key="subscription_id", required=True)
     result = fields.Nested(
         NewTransactionStatusSchema(), data_key="result", required=True
     )
@@ -90,7 +90,7 @@ class PendingTransactionsNotificationResultField(fields.Field):
 
 
 class PendingTransactionsNotificationSchema(Schema):
-    subscription_id = fields.Integer(data_key="subscription_id", required=True)
+    subscription_id = fields.Str(data_key="subscription_id", required=True)
     result = PendingTransactionsNotificationResultField(
         data_key="result", required=True
     )
@@ -116,7 +116,7 @@ class ReorgDataSchema(Schema):
 
 
 class ReorgNotificationSchema(Schema):
-    subscription_id = fields.Integer(data_key="subscription_id", required=True)
+    subscription_id = fields.Str(data_key="subscription_id", required=True)
     result = fields.Nested(ReorgDataSchema(), data_key="result", required=True)
 
     @post_load

@@ -123,7 +123,7 @@ class DevnetClient(FullNodeClient):
 
         :param address: Address of the account contract.
         :param unit: Literals `"FRI"` or `"WEI"` defaults to `"WEI"`.
-        :param block_tag: Literals `"pending"` or `"latest"`, defaults to `"latest"`.
+        :param block_tag: Literals `"pre_confirmed"` or `"latest"`, defaults to `"latest"`.
         """
 
         res = await self._devnet_client.call(
@@ -156,9 +156,9 @@ class DevnetClient(FullNodeClient):
         It is supported in the `--state-archive-capacity full` mode.
 
         :param block_number: Number of the block which the state of Devnet will be reverted to
-            or literals `"pending"` or `"latest"`.
+            or literals `"pre_confirmed"` or `"latest"`.
         :param block_hash: Hash of the block which the state of Devnet will be reverted to
-            or literals `"pending"` or `"latest"`
+            or literals `"pre_confirmed"` or `"latest"`
         """
 
         res = await self._devnet_client.call(
@@ -341,7 +341,6 @@ class DevnetClient(FullNodeClient):
 
     async def increase_time(self, time: int) -> IncreaseTimeResponse:
         """
-        (Only possible if there are no pending transactions)
         Increases the block timestamp by the provided amount and generates a new block.
         All subsequent blocks will keep this increment.
 
@@ -358,7 +357,7 @@ class DevnetClient(FullNodeClient):
         self, time: int, generate_block: bool = False
     ) -> SetTimeResponse:
         """
-        Set the time of the devnet. Only available when there is no pending transaction.
+        Set the time of the devnet.
         Warning: block time can be set in the past and lead to unexpected behaviour!
 
         :param time: Time to set in seconds. (Unix time)
