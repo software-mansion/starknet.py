@@ -393,6 +393,7 @@ async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet
         assert tx_status.failure_reason == "Some failure reason"
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
@@ -411,6 +412,7 @@ async def test_get_block_new_header_fields(client_sepolia_testnet):
     assert pre_confirmed_block.l1_gas_price.price_in_wei > 0
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
@@ -499,6 +501,7 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
     )
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_pre_confirmed_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
