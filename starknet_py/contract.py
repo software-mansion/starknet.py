@@ -375,6 +375,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
     """
 
     resource_bounds: Optional[ResourceBoundsMapping]
+    tip: int = 0
 
     async def invoke(
         self,
@@ -399,7 +400,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
             nonce=nonce,
             resource_bounds=resource_bounds or self.resource_bounds,
             auto_estimate=auto_estimate,
-            tip=tip,
+            tip=tip or self.tip,
         )
 
         return await self._invoke(transaction)
@@ -520,6 +521,7 @@ class ContractFunction:
         self,
         *args,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
+        tip: int = 0,
         **kwargs,
     ) -> PreparedFunctionInvokeV3:
         """
@@ -537,6 +539,7 @@ class ContractFunction:
             calldata=calldata,
             selector=self.get_selector(self.name),
             resource_bounds=resource_bounds,
+            tip=tip,
             _contract_data=self.contract_data,
             _client=self.client,
             _account=self.account,
