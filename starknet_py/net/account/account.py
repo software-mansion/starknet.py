@@ -486,9 +486,9 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         execute_transaction = await self.sign_invoke_v3(
             calls,
             nonce=nonce,
-                resource_bounds=resource_bounds,
-                auto_estimate=auto_estimate,
-                tip=tip,
+            resource_bounds=resource_bounds,
+            auto_estimate=auto_estimate,
+            tip=tip,
         )
         return await self._client.send_transaction(execute_transaction)
 
