@@ -12,6 +12,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     Call,
+    DeclareTransactionV3,
     DeployAccountTransactionResponse,
     DeployAccountTransactionV3,
     EstimatedFee,
@@ -646,3 +647,68 @@ async def test_account_execute_v3(account, deployed_balance_contract):
         call=get_balance_call
     )
     assert initial_balance + 100 == balance_after_increase
+
+
+@pytest.mark.asyncio
+async def test_invoke_v3_with_tip(account, hello_starknet_class_hash):
+    deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
+
+    invoke_tx = await account.execute_v3(
+        Call(
+            deployment.address,
+            get_selector_from_name("increase_balance"),
+            [20000],
+        ),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=123456,
+    )
+
+    transaction = await account.client.get_transaction(
+        tx_hash=invoke_tx.transaction_hash
+    )
+
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == 123456
+
+
+@pytest.mark.asyncio
+async def test_deploy_account_v3_with_tip(client, deploy_account_details_factory):
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    tip = 12345
+    deploy_result = await Account.deploy_account_v3(
+        address=address,
+        class_hash=class_hash,
+        salt=salt,
+        key_pair=key_pair,
+        client=client,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=tip,
+    )
+    await deploy_result.wait_for_acceptance()
+
+    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, DeployAccountTransactionV3)
+    assert transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_declare_v3_with_tip(
+    account, sierra_minimal_compiled_contract_and_class_hash
+):
+    (
+        compiled_contract,
+        compiled_class_hash,
+    ) = sierra_minimal_compiled_contract_and_class_hash
+    tip = 12345
+    signed_tx = await account.sign_declare_v3(
+        compiled_contract,
+        compiled_class_hash,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=tip,
+    )
+
+    result = await account.client.declare(signed_tx)
+    transaction = await account.client.get_transaction(tx_hash=result.transaction_hash)
+    assert isinstance(transaction, DeclareTransactionV3)
+    assert transaction.tip == tip

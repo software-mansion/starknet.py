@@ -165,6 +165,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> InvokeV3:
         """
         Takes calls and creates signed Invoke.
@@ -173,6 +174,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: Invoke created from the calls.
         """
 
@@ -185,7 +187,9 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> DeclareV3:
+        # pylint: disable=too-many-arguments
         """
         Create and sign declare transaction version 3 using sierra contract.
 
@@ -196,6 +200,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: Signed DeclareV3 transaction.
         """
 
@@ -209,6 +214,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
         """
@@ -222,6 +228,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
             Enough tokens must be prefunded before sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: Signed DeployAccountV3 transaction.
         """
 
@@ -233,6 +240,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
+        tip: int = 0,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction.
@@ -241,6 +249,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param nonce: Nonce of the transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: SentTransactionResponse.
         """
 

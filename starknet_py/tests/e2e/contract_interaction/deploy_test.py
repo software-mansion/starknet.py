@@ -29,12 +29,18 @@ async def test_declare_deploy_v3(
         declare_transaction=Mock(spec=DeclareV3),
     )
 
-    deploy_result = await declare_result.deploy_v3(resource_bounds=MAX_RESOURCE_BOUNDS)
+    tip = 12345
+    deploy_result = await declare_result.deploy_v3(
+        resource_bounds=MAX_RESOURCE_BOUNDS, tip=tip
+    )
     await deploy_result.wait_for_acceptance()
 
     assert isinstance(deploy_result.hash, int)
     assert deploy_result.hash != 0
     assert deploy_result.deployed_contract.address != 0
+    transaction = await account.client.get_transaction(deploy_result.hash)
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == tip
 
 
 @pytest.mark.asyncio
@@ -73,11 +79,13 @@ async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
         compiled_contract=compiled_contract
     ).parsed_abi
 
+    tip = 12345
     deploy_result = await Contract.deploy_contract_v3(
         class_hash=hello_starknet_class_hash,
         account=account,
         abi=abi,
         resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=tip,
     )
     await deploy_result.wait_for_acceptance()
 
@@ -88,6 +96,7 @@ async def test_deploy_contract_v3(account, hello_starknet_class_hash: int):
 
     transaction = await account.client.get_transaction(tx_hash=deploy_result.hash)
     assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == tip
 
     class_hash = await account.client.get_class_hash_at(
         contract_address=contract.address

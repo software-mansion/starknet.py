@@ -134,7 +134,7 @@ class DeprecatedTransactionSchema(TransactionSchema):
 
 
 class TransactionV3Schema(TransactionSchema):
-    tip = Uint64(data_key="tip", load_default=0)
+    tip = Uint64(data_key="tip", required=True)
     nonce_data_availability_mode = DAModeField(
         data_key="nonce_data_availability_mode", load_default=DAMode.L1
     )

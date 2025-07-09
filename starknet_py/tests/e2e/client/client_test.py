@@ -408,6 +408,46 @@ async def test_add_transaction(map_contract, client, account):
 
 
 @pytest.mark.asyncio
+async def test_add_invoke_v3_transaction_with_tip(map_contract, client, account):
+    prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
+        key=100, value=200
+    )
+    tip = 20000
+    signed_invoke = await account.sign_invoke_v3(
+        calls=prepared_function_call, resource_bounds=MAX_RESOURCE_BOUNDS, tip=tip
+    )
+
+    result = await client.send_transaction(signed_invoke)
+    await client.wait_for_tx(result.transaction_hash)
+    transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
+
+    assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
+    assert transaction_receipt.type == TransactionType.INVOKE
+
+    transaction = await client.get_transaction(result.transaction_hash)
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_add_declare_v3_transaction_with_tip(
+    client, account, abi_types_compiled_contract_and_class_hash
+):
+    tip = 12345
+    declare = await account.sign_declare_v3(
+        compiled_contract=abi_types_compiled_contract_and_class_hash[0],
+        compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=tip,
+    )
+    result = await client.declare(declare)
+
+    transaction = await client.get_transaction(result.transaction_hash)
+    assert isinstance(transaction, DeclareTransactionV3)
+    assert transaction.tip == tip
+
+
+@pytest.mark.asyncio
 async def test_get_class_hash_at(client, contract_address, class_hash):
     received_class_hash = await client.get_class_hash_at(
         contract_address=contract_address, block_hash="latest"
