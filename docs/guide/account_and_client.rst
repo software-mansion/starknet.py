@@ -33,8 +33,8 @@ The returned estimated fee (``max_amount`` and ``max_price_per_unit``) is multip
 
 The fee for a specific transaction or list of transactions can be also estimated using the :meth:`~starknet_py.net.account.account.Account.estimate_fee` of the :ref:`Account` class.
 
-Transaction Tips
-----------------
+Transaction Tip
+---------------
 
 Until Starknet 0.14.0, transactions were processed in FIFO order.
 Starting from this version, it is possible to include a *tip* with the transaction fee to incentivize it being placed in an earlier block.
