@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 
 from starknet_py.abi.v0 import Abi
-from starknet_py.cairo.data_types import ArrayType, FeltType, StructType
+from starknet_py.cairo.data_types import ArrayType, FeltType, StructType, FixedSizeArrayType
 
 uint256_dict = {
     "type": "struct",
@@ -36,6 +36,7 @@ user_dict = {
         {"name": "name_len", "offset": 1, "type": "felt"},
         {"name": "name", "offset": 2, "type": "felt*"},
         {"name": "pool_id", "offset": 3, "type": "PoolId"},
+        {"name": "favorite_numbers_triplet", "offset": 4, "type": "felt*"},
     ],
 }
 user_missing_offset_dict = {
@@ -56,6 +57,7 @@ user_struct = StructType(
         name_len=FeltType(),
         name=ArrayType(FeltType()),
         pool_id=pool_id_struct,
+        favorite_numbers_triplet=FixedSizeArrayType(FeltType(), 3)
     ),
 )
 

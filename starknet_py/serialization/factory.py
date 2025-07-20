@@ -19,7 +19,7 @@ from starknet_py.cairo.data_types import (
     StructType,
     TupleType,
     UintType,
-    UnitType,
+    UnitType, FixedSizeArrayType,
 )
 from starknet_py.serialization.data_serializers import (
     BoolSerializer,
@@ -101,7 +101,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
             )
         )
 
-    if isinstance(cairo_type, ArrayType):
+    if isinstance(cairo_type, (ArrayType, FixedSizeArrayType)):
         return ArraySerializer(serializer_for_type(cairo_type.inner_type))
 
     if isinstance(cairo_type, TupleType):
