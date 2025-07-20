@@ -13,13 +13,14 @@ from starknet_py.cairo.data_types import (
     EnumType,
     EventType,
     FeltType,
+    FixedSizeArrayType,
     NamedTupleType,
     NonZeroType,
     OptionType,
     StructType,
     TupleType,
     UintType,
-    UnitType, FixedSizeArrayType,
+    UnitType,
 )
 from starknet_py.serialization.data_serializers import (
     BoolSerializer,
