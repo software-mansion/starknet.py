@@ -10,7 +10,7 @@ Migration guide
 
 .. py:currentmodule:: starknet_py.contract
 
-1. Fixed sized arrays are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
+1. Contracts which include fixed sized array type are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
 
 ***************************
 0.28.0-rc.0 Migration guide
