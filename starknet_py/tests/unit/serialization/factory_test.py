@@ -118,14 +118,6 @@ def test_getting_payload_serializer_v2():
 
 
 def test_getting_function_serializer():
-    print("")
-    print("left", serializer_for_function(
-        abi.functions["get_user_fn"]
-    ))
-    print("righ", FunctionSerializationAdapterV0(
-        inputs_serializer=PayloadSerializer(OrderedDict(id=Uint256Serializer())),
-        outputs_deserializer=PayloadSerializer(OrderedDict(user=user_serializer)),
-    ))
     assert serializer_for_function(
         abi.functions["get_user_fn"]
     ) == FunctionSerializationAdapterV0(
