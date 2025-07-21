@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
 from starknet_py.contract import Contract
@@ -47,3 +49,25 @@ async def test_declare_v3(
 
     await declare_result.wait_for_acceptance()
     assert declare_result.declare_transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_declare_v3_without_tip_uses_tip_median(
+    account,
+    get_block_with_txs_path,
+    block_with_tips_mock,
+):
+    contract = load_contract(contract_name="TestContract2", version=ContractVersion.V2)
+
+    with patch(get_block_with_txs_path, AsyncMock()) as get_block_with_txs_mock:
+        get_block_with_txs_mock.return_value = block_with_tips_mock
+
+        declare_result = await Contract.declare_v3(
+            account,
+            compiled_contract=contract["sierra"],
+            compiled_contract_casm=contract["casm"],
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+        )
+
+    await declare_result.wait_for_acceptance()
+    assert declare_result.declare_transaction.tip == 2

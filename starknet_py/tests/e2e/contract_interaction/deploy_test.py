@@ -1,6 +1,6 @@
 import dataclasses
 import re
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -41,6 +41,42 @@ async def test_declare_deploy_v3(
     transaction = await account.client.get_transaction(deploy_result.hash)
     assert isinstance(transaction, InvokeTransactionV3)
     assert transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_declare_deploy_v3_without_tip_uses_tip_median(
+    account,
+    minimal_contract_class_hash: int,
+    get_block_with_txs_path,
+    block_with_tips_mock,
+):
+    compiled_contract = load_contract("MinimalContract")["sierra"]
+
+    declare_result = DeclareResult(
+        _account=account,
+        _client=account.client,
+        _cairo_version=1,
+        class_hash=minimal_contract_class_hash,
+        compiled_contract=compiled_contract,
+        hash=0,
+        declare_transaction=Mock(spec=DeclareV3),
+    )
+
+    with patch(get_block_with_txs_path, AsyncMock()) as get_block_with_txs_mock:
+        get_block_with_txs_mock.return_value = block_with_tips_mock
+
+        deploy_result = await declare_result.deploy_v3(
+            resource_bounds=MAX_RESOURCE_BOUNDS
+        )
+
+    await deploy_result.wait_for_acceptance()
+
+    assert isinstance(deploy_result.hash, int)
+    assert deploy_result.hash != 0
+    assert deploy_result.deployed_contract.address != 0
+    transaction = await account.client.get_transaction(deploy_result.hash)
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == 2
 
 
 @pytest.mark.asyncio
