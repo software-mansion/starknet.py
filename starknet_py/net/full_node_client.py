@@ -19,6 +19,7 @@ from starknet_py.net.client_models import (
     EventsChunk,
     Hash,
     L1HandlerTransaction,
+    LatestTag,
     MessageStatus,
     PreConfirmedBlockStateUpdate,
     PreConfirmedStarknetBlock,
@@ -340,8 +341,8 @@ class FullNodeClient(Client):
 
     async def get_storage_proof(
         self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
+        block_hash: Optional[Union[Hash, LatestTag]] = None,
+        block_number: Optional[Union[int, LatestTag]] = None,
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
         contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
@@ -847,14 +848,14 @@ class FullNodeClient(Client):
 
     async def trace_block_transactions(
         self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
+        block_hash: Optional[Union[Hash, LatestTag]] = None,
+        block_number: Optional[Union[int, LatestTag]] = None,
     ) -> List[BlockTransactionTrace]:
         """
         Retrieve traces for all transactions in the given block.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"pre_confirmed"`.
+        :param block_number: Block's number or literals `"pre_confirmed"`.
         :return: List of execution traces of all transactions included in the given block with transaction hashes.
         """
         block_identifier = get_block_identifier(
