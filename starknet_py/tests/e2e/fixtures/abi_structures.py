@@ -6,7 +6,6 @@ from starknet_py.abi.v0 import Abi
 from starknet_py.cairo.data_types import (
     ArrayType,
     FeltType,
-    FixedSizeArrayType,
     StructType,
 )
 
@@ -47,12 +46,13 @@ user_dict = {
 user_missing_offset_dict = {
     "type": "struct",
     "name": "User",
-    "size": 4,
+    "size": 5,
     "members": [
         {"name": "id", "type": "Uint256"},
         {"name": "name_len", "type": "felt"},
         {"name": "name", "type": "felt*"},
         {"name": "pool_id", "type": "PoolId"},
+        {"name": "favorite_numbers_triplet", "type": "felt*"},
     ],
 }
 user_struct = StructType(
@@ -62,7 +62,7 @@ user_struct = StructType(
         name_len=FeltType(),
         name=ArrayType(FeltType()),
         pool_id=pool_id_struct,
-        favorite_numbers_triplet=FixedSizeArrayType(FeltType(), 3),
+        favorite_numbers_triplet=ArrayType(FeltType()),
     ),
 )
 
