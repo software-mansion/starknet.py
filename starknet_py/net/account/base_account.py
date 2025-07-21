@@ -165,7 +165,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> InvokeV3:
         """
         Takes calls and creates signed Invoke.
@@ -187,7 +187,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> DeclareV3:
         # pylint: disable=too-many-arguments
         """
@@ -214,7 +214,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
         """
@@ -240,7 +240,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> SentTransactionResponse:
         """
         Takes calls and executes transaction.

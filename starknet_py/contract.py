@@ -197,7 +197,7 @@ class DeclareResult(SentTransaction):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> "DeployResult":
         """
         Deploys a contract.
@@ -375,7 +375,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
     """
 
     resource_bounds: Optional[ResourceBoundsMapping]
-    tip: int = 0
+    tip: Optional[int] = None
 
     async def invoke(
         self,
@@ -383,7 +383,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         auto_estimate: bool = False,
         *,
         nonce: Optional[int] = None,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> InvokeResult:
         """
         Send an Invoke transaction version 3 for the prepared data.
@@ -521,7 +521,7 @@ class ContractFunction:
         self,
         *args,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
-        tip: int = 0,
+        tip: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionInvokeV3:
         """
@@ -530,6 +530,7 @@ class ContractFunction:
         and adds more arguments when calling methods.
 
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: PreparedFunctionInvokeV3.
         """
 
@@ -688,7 +689,7 @@ class Contract:
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
 
@@ -737,7 +738,7 @@ class Contract:
         auto_estimate: bool = False,
         salt: Optional[int] = None,
         unique: bool = True,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> "DeployResult":
         """
         Deploys a contract through Universal Deployer Contract.

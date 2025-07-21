@@ -45,6 +45,7 @@ from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.tip import get_tips_median
 from starknet_py.serialization.data_serializers import (
     ArraySerializer,
     FeltSerializer,
@@ -378,8 +379,11 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> InvokeV3:
+        if tip is None:
+            tip = await get_tips_median(self.client, block_number="latest")
+
         invoke_tx = await self._prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
@@ -398,9 +402,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> DeclareV3:
         # pylint: disable=too-many-arguments
+        if tip is None:
+            tip = await get_tips_median(self.client, block_number="latest")
+
         declare_tx = await self._make_declare_v3_transaction(
             compiled_contract,
             compiled_class_hash,
@@ -451,9 +458,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
+        if tip is None:
+            tip = await get_tips_median(self.client, block_number="latest")
+
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -481,7 +491,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> SentTransactionResponse:
         execute_transaction = await self.sign_invoke_v3(
             calls,
@@ -518,7 +528,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
     ) -> AccountDeploymentResult:
         # pylint: disable=too-many-arguments, too-many-locals
 
