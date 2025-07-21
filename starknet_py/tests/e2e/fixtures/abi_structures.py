@@ -3,11 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 
 from starknet_py.abi.v0 import Abi
-from starknet_py.cairo.data_types import (
-    ArrayType,
-    FeltType,
-    StructType,
-)
+from starknet_py.cairo.data_types import ArrayType, FeltType, StructType
 
 uint256_dict = {
     "type": "struct",
