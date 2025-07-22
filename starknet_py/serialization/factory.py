@@ -13,6 +13,7 @@ from starknet_py.cairo.data_types import (
     EnumType,
     EventType,
     FeltType,
+    FixedSizeArrayType,
     NamedTupleType,
     NonZeroType,
     OptionType,
@@ -101,7 +102,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
             )
         )
 
-    if isinstance(cairo_type, ArrayType):
+    if isinstance(cairo_type, (ArrayType, FixedSizeArrayType)):
         return ArraySerializer(serializer_for_type(cairo_type.inner_type))
 
     if isinstance(cairo_type, TupleType):
