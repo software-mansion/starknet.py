@@ -1,6 +1,17 @@
 Migration guide
 ===============
 
+****************************
+[unreleased] Migration guide
+****************************
+
+[unreleased] Bugfixes
+---------------------
+
+.. py:currentmodule:: starknet_py.contract
+
+1. Contracts which include fixed sized array type are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
+
 ***************************
 0.28.0-rc.0 Migration guide
 ***************************
