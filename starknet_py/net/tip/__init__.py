@@ -3,21 +3,21 @@ import statistics
 from typing import Optional, Union
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, LatestTag, TransactionV3
+from starknet_py.net.client_models import Hash, TransactionV3, Tag
 
 
 async def get_tips_median(
     client: Client,
-    block_hash: Optional[Union[Hash, LatestTag]] = None,
-    block_number: Optional[Union[int, LatestTag]] = None,
+    block_hash: Optional[Union[Hash, Tag]] = None,
+    block_number: Optional[Union[int, Tag]] = None,
 ) -> int:
     """
     Get a median of tips for the provided block.
     If no block is provided, the `pre-confirmed` block is used.
 
     :param client: Client instance.
-    :param block_hash: Block's hash or literal `"latest"`
-    :param block_number: Block's number or literal `"latest"`
+    :param block_hash: Block's hash or literals `"latest" or "pre_confirmed"`
+    :param block_number: Block's number or literals `"latest" or "pre_confirmed"``
     """
     if block_hash is None and block_number is None:
         block_hash = "pre_confirmed"
