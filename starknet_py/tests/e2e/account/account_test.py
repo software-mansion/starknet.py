@@ -675,7 +675,7 @@ async def test_invoke_v3_with_tip(account, hello_starknet_class_hash):
 
 
 @pytest.mark.asyncio
-async def test_invoke_v3_without_tip_uses_tip_median(
+async def test_invoke_v3_auto_estimate_tip(
     account, hello_starknet_class_hash, get_block_with_txs_path, block_with_tips_mock
 ):
     with patch(get_block_with_txs_path, AsyncMock()) as mocked_block_with_txs:
@@ -690,6 +690,7 @@ async def test_invoke_v3_without_tip_uses_tip_median(
                 [20000],
             ),
             resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
         )
 
     transaction = await account.client.get_transaction(
@@ -722,7 +723,7 @@ async def test_deploy_account_v3_with_tip(client, deploy_account_details_factory
 
 
 @pytest.mark.asyncio
-async def test_deploy_account_v3_without_tip_uses_tip_median(
+async def test_deploy_account_v3_auto_estimate_tip(
     client,
     deploy_account_details_factory,
     get_block_with_txs_path,
@@ -740,6 +741,7 @@ async def test_deploy_account_v3_without_tip_uses_tip_median(
             key_pair=key_pair,
             client=client,
             resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
         )
         await deploy_result.wait_for_acceptance()
 
@@ -767,7 +769,7 @@ async def test_declare_v3_with_tip(account):
 
 
 @pytest.mark.asyncio
-async def test_declare_v3_without_tip_uses_tip_median(
+async def test_declare_v3_auto_estimate_tip(
     account,
     get_block_with_txs_path,
     block_with_tips_mock,
@@ -780,6 +782,7 @@ async def test_declare_v3_without_tip_uses_tip_median(
             compiled_contract["sierra"],
             compute_casm_class_hash(create_casm_class(compiled_contract["casm"])),
             resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
         )
 
     result = await account.client.declare(signed_tx)

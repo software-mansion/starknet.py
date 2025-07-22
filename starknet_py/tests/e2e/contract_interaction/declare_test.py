@@ -52,7 +52,7 @@ async def test_declare_v3(
 
 
 @pytest.mark.asyncio
-async def test_declare_v3_without_tip_uses_tip_median(
+async def test_declare_v3_auto_estimate_tip(
     account,
     get_block_with_txs_path,
     block_with_tips_mock,
@@ -67,6 +67,7 @@ async def test_declare_v3_without_tip_uses_tip_median(
             compiled_contract=contract["sierra"],
             compiled_contract_casm=contract["casm"],
             resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
         )
 
     await declare_result.wait_for_acceptance()

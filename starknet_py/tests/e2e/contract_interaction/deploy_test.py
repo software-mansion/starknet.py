@@ -44,7 +44,7 @@ async def test_declare_deploy_v3(
 
 
 @pytest.mark.asyncio
-async def test_declare_deploy_v3_without_tip_uses_tip_median(
+async def test_declare_deploy_v3_auto_estimate_tip(
     account,
     minimal_contract_class_hash: int,
     get_block_with_txs_path,
@@ -66,7 +66,7 @@ async def test_declare_deploy_v3_without_tip_uses_tip_median(
         get_block_with_txs_mock.return_value = block_with_tips_mock
 
         deploy_result = await declare_result.deploy_v3(
-            resource_bounds=MAX_RESOURCE_BOUNDS
+            resource_bounds=MAX_RESOURCE_BOUNDS, auto_estimate_tip=True
         )
 
     await deploy_result.wait_for_acceptance()
