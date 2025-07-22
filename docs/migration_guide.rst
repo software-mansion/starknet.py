@@ -5,6 +5,10 @@ Migration guide
 [unreleased] Migration guide
 ****************************
 
+.. py:currentmodule:: starknet_py.net.udc_deployer.deployer
+
+1. Default deployer address in :class:`Deployer` is now the new UDC.
+
 [unreleased] Bugfixes
 ---------------------
 
