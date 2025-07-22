@@ -20,7 +20,7 @@ async def test_tip(get_block_with_txs_path, client):
         ]
         get_block_with_txs_mock.return_value = block
 
-        assert await get_tips_median(client, block_hash="latest") == 20
+        assert await get_tips_median(client) == 20
 
 
 @pytest.mark.asyncio
@@ -30,7 +30,7 @@ async def test_tip_no_txs(get_block_with_txs_path, client):
         block.transactions = []
         get_block_with_txs_mock.return_value = block
 
-        assert await get_tips_median(client, block_hash="latest") == 0
+        assert await get_tips_median(client) == 0
 
 
 @pytest.mark.asyncio
@@ -44,7 +44,7 @@ async def test_tip_all_equal(get_block_with_txs_path, client):
         ]
         get_block_with_txs_mock.return_value = block
 
-        assert await get_tips_median(client, block_hash="latest") == 10
+        assert await get_tips_median(client) == 10
 
 
 @pytest.mark.asyncio
@@ -59,7 +59,7 @@ async def test_tip_even(get_block_with_txs_path, client):
         ]
         get_block_with_txs_mock.return_value = block
 
-        assert await get_tips_median(client, block_hash="latest") == 25
+        assert await get_tips_median(client) == 25
 
 
 @pytest.mark.asyncio
@@ -74,7 +74,7 @@ async def test_tip_zeroes(get_block_with_txs_path, client):
         ]
         get_block_with_txs_mock.return_value = block
 
-        assert await get_tips_median(client, block_hash="latest") == 15
+        assert await get_tips_median(client) == 15
 
 
 @pytest.mark.asyncio
@@ -87,4 +87,4 @@ async def test_tip_all_zeroes(get_block_with_txs_path, client):
         ]
         get_block_with_txs_mock.return_value = block
 
-        assert await get_tips_median(client, block_hash="latest") == 0
+        assert await get_tips_median(client) == 0

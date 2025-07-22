@@ -382,7 +382,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         tip: Optional[int] = None,
     ) -> InvokeV3:
         if tip is None:
-            tip = await get_tips_median(self.client, block_number="latest")
+            tip = await get_tips_median(self.client)
 
         invoke_tx = await self._prepare_invoke_v3(
             calls,
