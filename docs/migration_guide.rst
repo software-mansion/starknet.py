@@ -2,6 +2,25 @@ Migration guide
 ===============
 
 ***************************
+0.28.0-rc.1 Migration guide
+***************************
+
+Version 0.28.0-rc.1 of **starknet.py** adds support for estimating tips and adds related utilites,
+
+``starknet_py.net.tip``
+-----------------------
+
+.. py:currentmodule:: starknet_py.net.tip
+
+1. Added :func:`get_tips_median` for estimating the median of tips from the selected block.
+
+``starknet_py.net.account.account`` and ``starknet_py.contract``
+----------------------------------------------------------------
+
+1. Added ``auto_estimate_tip`` argument to :class:`starknet_py.net.account.account.Account` and :class:`starknet_py.contract.Contract` methods that accept a ``tip`` argument.
+If set to ``True``, median of tips from the ``pre_confirmed`` block will be used to estimate select at tip.
+
+***************************
 0.28.0-rc.0 Migration guide
 ***************************
 
