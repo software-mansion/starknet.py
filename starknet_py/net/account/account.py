@@ -572,7 +572,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
-        :param auto_estimate_tip: Use automatic fee estimation. Using this option may lead to higher costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :param tip: The tip amount to be added to the transaction fee.
         """
         calldata = (

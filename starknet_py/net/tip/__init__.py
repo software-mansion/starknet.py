@@ -24,10 +24,9 @@ async def get_tips_median(
 
     block_with_txs = await client.get_block_with_txs(block_hash, block_number)
 
-    tips = []
-    for tx in block_with_txs.transactions:
-        if isinstance(tx, TransactionV3):
-            tips.append(tx.tip)
+    tips = [
+        tx.tip for tx in block_with_txs.transactions if isinstance(tx, TransactionV3)
+    ]
 
     if len(tips) == 0:
         return 0

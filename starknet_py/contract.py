@@ -213,7 +213,7 @@ class DeclareResult(SentTransaction):
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param tip: The tip amount to be added to the transaction fee.
-        :param auto_estimate_tip: Use automatic fee estimation. Using this option may lead to higher costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -396,7 +396,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :param tip: The tip amount to be added to the transaction fee.
-        :param auto_estimate_tip: Use automatic fee estimation. Using this option may lead to higher costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: InvokeResult.
         """
 
@@ -711,7 +711,7 @@ class Contract:
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param tip: The tip amount to be added to the transaction fee.
-        :param auto_estimate_tip: Use automatic fee estimation. Using this option may lead to higher costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeclareResult instance.
         """
 
@@ -768,7 +768,7 @@ class Contract:
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
         :param tip: The tip amount to be added to the transaction fee.
-        :param auto_estimate_tip: Use automatic fee estimation. Using this option may lead to higher costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
