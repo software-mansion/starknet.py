@@ -6,13 +6,13 @@ from starknet_py.net.client import Client
 from starknet_py.net.client_models import Hash, Tag, TransactionV3
 
 
-async def get_tips_median(
+async def estimate_tip(
     client: Client,
     block_hash: Optional[Union[Hash, Tag]] = None,
     block_number: Optional[Union[int, Tag]] = None,
 ) -> int:
     """
-    Get a median of tips for the provided block.
+    Estimates the transaction tip by taking the median of all V3 transaction tips in the specified block.
     If no block is provided, the `pre-confirmed` block is used.
 
     :param client: Client instance.

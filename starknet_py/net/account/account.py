@@ -45,7 +45,7 @@ from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
-from starknet_py.net.tip import get_tips_median
+from starknet_py.net.tip import estimate_tip
 from starknet_py.serialization.data_serializers import (
     ArraySerializer,
     FeltSerializer,
@@ -145,7 +145,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             )
 
         if auto_estimate_tip:
-            return await get_tips_median(self.client)
+            return await estimate_tip(self.client)
 
         if tip is None:
             return 0
