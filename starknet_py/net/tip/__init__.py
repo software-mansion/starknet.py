@@ -3,7 +3,7 @@ import statistics
 from typing import Optional, Union
 
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Hash, TransactionV3, Tag
+from starknet_py.net.client_models import Hash, Tag, TransactionV3
 
 
 async def get_tips_median(
