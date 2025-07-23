@@ -5,7 +5,7 @@ Migration guide
 0.28.0-rc.1 Migration guide
 ***************************
 
-Version 0.28.0-rc.1 of **starknet.py** adds support for estimating tips and adds related utilites.
+Version 0.28.0-rc.1 of **starknet.py** comes with support for automatic transaction tip estimation.
 
 Tip Support
 -----------
