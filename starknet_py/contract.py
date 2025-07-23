@@ -197,7 +197,8 @@ class DeclareResult(SentTransaction):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> "DeployResult":
         """
         Deploys a contract.
@@ -212,6 +213,7 @@ class DeclareResult(SentTransaction):
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -230,6 +232,7 @@ class DeclareResult(SentTransaction):
             salt=salt,
             unique=unique,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
     def _get_abi(self) -> List:
@@ -375,7 +378,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
     """
 
     resource_bounds: Optional[ResourceBoundsMapping]
-    tip: int = 0
+    tip: Optional[int] = None
 
     async def invoke(
         self,
@@ -383,7 +386,8 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         auto_estimate: bool = False,
         *,
         nonce: Optional[int] = None,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeResult:
         """
         Send an Invoke transaction version 3 for the prepared data.
@@ -392,6 +396,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: InvokeResult.
         """
 
@@ -401,6 +406,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
             resource_bounds=resource_bounds or self.resource_bounds,
             auto_estimate=auto_estimate,
             tip=tip or self.tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
         return await self._invoke(transaction)
@@ -521,7 +527,7 @@ class ContractFunction:
         self,
         *args,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
-        tip: int = 0,
+        tip: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionInvokeV3:
         """
@@ -530,6 +536,7 @@ class ContractFunction:
         and adds more arguments when calling methods.
 
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: PreparedFunctionInvokeV3.
         """
 
@@ -688,7 +695,8 @@ class Contract:
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
 
@@ -703,6 +711,7 @@ class Contract:
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeclareResult instance.
         """
 
@@ -717,6 +726,7 @@ class Contract:
             resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
         return await _declare_contract(
@@ -737,7 +747,8 @@ class Contract:
         auto_estimate: bool = False,
         salt: Optional[int] = None,
         unique: bool = True,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> "DeployResult":
         """
         Deploys a contract through Universal Deployer Contract.
@@ -757,6 +768,7 @@ class Contract:
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -778,6 +790,7 @@ class Contract:
             resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
         if abi is None:

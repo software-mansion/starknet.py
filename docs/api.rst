@@ -23,3 +23,4 @@ API
    api/proxy_resolvers
    api/typed_data
    api/websocket_client
+   api/tip
