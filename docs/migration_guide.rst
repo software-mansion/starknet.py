@@ -7,7 +7,7 @@ Migration guide
 
 .. py:currentmodule:: starknet_py.net.udc_deployer.deployer
 
-1. Default deployer address in :class:`Deployer` is now the new UDC.
+1. Default deployer address in :class:`Deployer` is now the new UDC (``0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125``).
 
 [unreleased] Bugfixes
 ---------------------
