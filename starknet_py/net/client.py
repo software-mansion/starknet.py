@@ -15,6 +15,7 @@ from starknet_py.net.client_models import (
     DeprecatedContractClass,
     EstimatedFee,
     Hash,
+    LatestTag,
     MessageStatus,
     PreConfirmedBlockStateUpdate,
     PreConfirmedStarknetBlock,
@@ -111,8 +112,8 @@ class Client(ABC):
     @abstractmethod
     async def trace_block_transactions(
         self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
+        block_hash: Optional[Union[Hash, LatestTag]] = None,
+        block_number: Optional[Union[int, LatestTag]] = None,
     ) -> List[BlockTransactionTrace]:
         """
         Receive the traces of all the transactions within specified block
@@ -155,8 +156,8 @@ class Client(ABC):
     @abstractmethod
     async def get_storage_proof(
         self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
+        block_hash: Optional[Union[Hash, LatestTag]] = None,
+        block_number: Optional[Union[int, LatestTag]] = None,
         class_hashes: Optional[List[int]] = None,
         contract_addresses: Optional[List[int]] = None,
         contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,

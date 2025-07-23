@@ -576,7 +576,7 @@ async def test_get_compiled_casm(client_sepolia_testnet):
 
 @pytest.mark.asyncio
 async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet):
-    old_rpc_url = client_sepolia_testnet.url.replace("v0_8", "v0_7")
+    old_rpc_url = client_sepolia_testnet.url.replace("v0_9", "v0_8")
     node = FullNodeClient(old_rpc_url)
 
     pattern = (

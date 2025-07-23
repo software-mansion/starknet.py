@@ -45,6 +45,7 @@ from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.tip import estimate_tip
 from starknet_py.serialization.data_serializers import (
     ArraySerializer,
     FeltSerializer,
@@ -137,6 +138,20 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     def client(self) -> Client:
         return self._client
 
+    async def _get_tip(self, *, tip: Optional[int], auto_estimate_tip: bool) -> int:
+        if auto_estimate_tip is True and tip is not None:
+            raise ValueError(
+                "Arguments tip and auto_estimate_tip are mutually exclusive."
+            )
+
+        if auto_estimate_tip:
+            return await estimate_tip(self.client)
+
+        if tip is None:
+            return 0
+
+        return tip
+
     async def _get_resource_bounds(
         self,
         transaction: AccountTransaction,
@@ -168,8 +183,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeV3:
+        # pylint: disable=too-many-arguments
         """
         Takes calls and creates InvokeV3 from them.
 
@@ -182,6 +199,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce = await self.get_nonce()
 
         wrapped_calldata = _parse_calls(await self.cairo_version, calls)
+
+        tip = await self._get_tip(tip=tip, auto_estimate_tip=auto_estimate_tip)
 
         transaction = InvokeV3(
             calldata=wrapped_calldata,
@@ -378,14 +397,17 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeV3:
+        # pylint: disable=too-many-arguments
         invoke_tx = await self._prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
@@ -398,7 +420,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareV3:
         # pylint: disable=too-many-arguments
         declare_tx = await self._make_declare_v3_transaction(
@@ -406,6 +429,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             compiled_class_hash,
             nonce=nonce,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
         resource_bounds = await self._get_resource_bounds(
             declare_tx, resource_bounds, auto_estimate
@@ -421,7 +445,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
-        tip: int,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareV3:
         contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
@@ -429,6 +454,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
         if nonce is None:
             nonce = await self.get_nonce()
+
+        tip = await self._get_tip(tip=tip, auto_estimate_tip=auto_estimate_tip)
 
         declare_tx = DeclareV3(
             contract_class=contract_class.convert_to_sierra_contract_class(),
@@ -451,9 +478,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
+        tip = await self._get_tip(tip=tip, auto_estimate_tip=auto_estimate_tip)
+
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -481,14 +511,17 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> SentTransactionResponse:
+        # pylint: disable=too-many-arguments
         execute_transaction = await self.sign_invoke_v3(
             calls,
             nonce=nonce,
             resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
         return await self._client.send_transaction(execute_transaction)
 
@@ -518,7 +551,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> AccountDeploymentResult:
         # pylint: disable=too-many-arguments, too-many-locals
 
@@ -538,6 +572,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :param tip: The tip amount to be added to the transaction fee.
         """
         calldata = (
@@ -566,6 +601,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
         result = await client.deploy_account(deploy_account_tx)
