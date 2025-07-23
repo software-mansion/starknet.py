@@ -1,21 +1,6 @@
 Migration guide
 ===============
 
-****************************
-[unreleased] Migration guide
-****************************
-
-.. py:currentmodule:: starknet_py.net.udc_deployer.deployer
-
-1. Default deployer address in :class:`Deployer` is now the new UDC (``0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125``).
-
-[unreleased] Bugfixes
----------------------
-
-.. py:currentmodule:: starknet_py.contract
-
-1. Contracts which include fixed sized array type are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
-
 ***************************
 0.28.0-rc.1 Migration guide
 ***************************
@@ -28,8 +13,21 @@ Tip Estimation
 .. py:currentmodule:: starknet_py.net.tip
 
 1. Added :func:`estimate_tip` for automatic transaction tip estimation.
-2. Added ``auto_estimate_tip`` param to :class:`~starknet_py.net.account.account.Account` and :class:`~starknet_py.contract.Contract` methods that accept a ``tip`` argument.
-    If set to ``True``, median of tips from the ``pre_confirmed`` block will be used to estimate select at tip.
+2. Added ``auto_estimate_tip`` param to :class:`~starknet_py.net.account.account.Account` and :class:`~starknet_py.contract.Contract` methods that accept a ``tip`` argument. If set to ``True``, median of tips from the ``pre_confirmed`` block will be used to estimate select at tip.
+
+Deployment via UDC
+------------------
+
+.. py:currentmodule:: starknet_py.net.udc_deployer.deployer
+
+1. Default deployer address in :class:`Deployer` is now the new UDC (``0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125``).
+
+0.28.0-rc.1 Bugfixes
+---------------------
+
+.. py:currentmodule:: starknet_py.contract
+
+1. Contracts which include fixed sized array type are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
 
 ***************************
 0.28.0-rc.0 Migration guide
