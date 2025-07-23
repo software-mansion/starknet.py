@@ -150,14 +150,15 @@ class TypedData:
         """
         return cast(TypedData, TypedDataSchema().load(data))
 
-    def to_dict(self) -> dict:
+    # TODO verify
+    def to_dict(self) -> TypedDataDict:
         """
         Create TypedData dictionary from dataclass.
 
         :return: TypedData dictionary.
         """
 
-        return cast(Dict, TypedDataSchema().dump(obj=self))
+        return cast(TypedDataDict, TypedDataSchema().dump(obj=self))
 
     def _is_struct(self, type_name: str) -> bool:
         return type_name in self.types
