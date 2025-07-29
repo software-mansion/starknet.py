@@ -5,8 +5,8 @@ Migration guide
 0.28.0-rc.2 Migration guide
 ***************************
 
-Tip Estimation
---------------
+Tip Estimations
+---------------
 
 1. Automatic tip estimation will now use `latest` block instead of `pre_confirmed` to calculate tip if no block is provided.
 
