@@ -483,7 +483,8 @@ class FullNodeClient(Client):
         :param payload: Payload of the message.
         :param block_hash: Hash of the requested block or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
             Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pre_confirmed"`.
-        :param block_number: Number (height) of the requested block or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
+        :param block_number: Number (height) of the requested block or literals
+            `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
             Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pre_confirmed"`.
         """
         block_identifier = get_block_identifier(
