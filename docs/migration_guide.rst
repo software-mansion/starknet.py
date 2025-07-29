@@ -19,7 +19,7 @@ Tip Estimations
 
 .. py:currentmodule:: starknet_py.net.tip
 
-5. :func:`estimate_tip` will now use ``latest`` block instead of ``pre_confirmed`` if no block is provided
+1. :func:`estimate_tip` will now use ``latest`` block instead of ``pre_confirmed`` if no block is provided
 
 ***************************
 0.28.0-rc.1 Migration guide
