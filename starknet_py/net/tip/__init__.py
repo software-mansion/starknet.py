@@ -16,8 +16,8 @@ async def estimate_tip(
     If no block is provided, the `latest` block is used.
 
     :param client: Client instance.
-    :param block_hash: Block's hash or literals `"latest" or "pre_confirmed"`
-    :param block_number: Block's number or literals `"latest" or "pre_confirmed"``
+    :param block_hash: Block's hash or literals `"l1_accepted"`, `"latest" or "pre_confirmed"`
+    :param block_number: Block's number or literals `"l1_accepted"`, `"latest" or "pre_confirmed"``
     """
     if block_hash is None and block_number is None:
         block_hash = "latest"
