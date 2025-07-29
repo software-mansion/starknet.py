@@ -14,6 +14,9 @@ Version 0.28.0-rc.2 of **starknet.py** comes with support for RPC 0.9.0-rc.2!
 3. :class:`BlockStatus`: removed ``REJECTED`` variant.
 4. Added ``l1_accepted`` variant for ``BlockTag``.
 
+Tip Estimations
+---------------
+
 .. py:currentmodule:: starknet_py.net.tip
 
 5. :func:`estimate_tip` will now use ``latest`` block instead of ``pre_confirmed`` if no block is provided
