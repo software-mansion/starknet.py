@@ -13,6 +13,7 @@ Version 0.28.0-rc.2 of **starknet.py** comes with support for RPC 0.9.0-rc.2!
 2. Removed :class:`MessageFinalityStatus`.
 3. :class:`BlockStatus`: removed ``REJECTED`` variant.
 4. Added ``l1_accepted`` variant for ``BlockTag``.
+5. :func:`estimate_tip` will now use ``latest`` block instead of ``pre_confirmed`` if no block is provided
 
 ***************************
 0.28.0-rc.1 Migration guide
