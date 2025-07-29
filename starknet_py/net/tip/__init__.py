@@ -13,14 +13,14 @@ async def estimate_tip(
 ) -> int:
     """
     Estimates the transaction tip by taking the median of all V3 transaction tips in the specified block.
-    If no block is provided, the `pre-confirmed` block is used.
+    If no block is provided, the `latest` block is used.
 
     :param client: Client instance.
     :param block_hash: Block's hash or literals `"latest" or "pre_confirmed"`
     :param block_number: Block's number or literals `"latest" or "pre_confirmed"``
     """
     if block_hash is None and block_number is None:
-        block_hash = "pre_confirmed"
+        block_hash = "latest"
 
     block_with_txs = await client.get_block_with_txs(block_hash, block_number)
 
