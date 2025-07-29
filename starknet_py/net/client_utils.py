@@ -112,10 +112,8 @@ def _get_raw_block_identifier(
             "Arguments block_hash and block_number are mutually exclusive."
         )
 
-    if block_hash in ("latest", "pre_confirmed") or block_number in (
-        "latest",
-        "pre_confirmed",
-    ):
+    block_tags = get_args(Tag)
+    if block_hash in block_tags or block_number in block_tags:
         return block_hash or block_number
 
     if block_hash is not None:

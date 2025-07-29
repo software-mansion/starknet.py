@@ -32,7 +32,7 @@ from starknet_py.utils.constructor_args_translator import _is_abi_v2
 # pylint: disable=too-many-lines
 
 Hash = Union[int, str]
-Tag = Literal["pre_confirmed", "latest"]
+Tag = Literal["l1_accepted", "pre_confirmed", "latest"]
 LatestTag = Literal["latest"]
 
 
@@ -510,7 +510,6 @@ class BlockStatus(Enum):
     """
 
     PRE_CONFIRMED = "PRE_CONFIRMED"
-    REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
@@ -1204,19 +1203,10 @@ class StorageProofResponse:
     global_roots: GlobalRoots
 
 
-class MessageFinalityStatus(Enum):
-    """
-    Enum representing transaction statuses.
-    """
-
-    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
-    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-
-
 @dataclass
 class MessageStatus:
     transaction_hash: int
-    finality_status: MessageFinalityStatus
+    finality_status: TransactionFinalityStatus
     execution_status: TransactionExecutionStatus
     failure_reason: Optional[str] = None
 

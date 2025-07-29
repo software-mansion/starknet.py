@@ -62,8 +62,8 @@ class Client(ABC):
 
         Alias of :meth:`get_block_with_txs`.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: StarknetBlock object representing retrieved block
         """
 
@@ -76,8 +76,8 @@ class Client(ABC):
         """
         Retrieve the block's data by its number or hash.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: StarknetBlock object representing retrieved block with transactions.
         """
 
@@ -90,8 +90,8 @@ class Client(ABC):
         """
         Retrieve the block's data with a list of contained transaction hashes.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: StarknetBlockWithTxHashes object representing retrieved block with transactions.
         """
 
@@ -104,8 +104,8 @@ class Client(ABC):
         """
         Retrieve the block's data with a list of receipts for contained transactions.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: StarknetBlockWithReceipts object representing retrieved block with transactions.
         """
 
@@ -132,8 +132,8 @@ class Client(ABC):
         """
         Get the information about the result of executing the requested block
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: BlockStateUpdate object representing changes in the requested block
         """
 
@@ -148,8 +148,8 @@ class Client(ABC):
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Storage value of given contract
         """
 
@@ -165,8 +165,8 @@ class Client(ABC):
         """
         Get merkle paths in one of the state tries: global state, classes, individual contract.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param class_hashes: List of the class hashes for which we want to prove membership in the classes trie.
         :param contract_addresses: List of the contract addresses for which we want to prove membership in the
                                     contracts trie.
@@ -299,8 +299,8 @@ class Client(ABC):
 
         :param tx: Transaction to estimate
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`.
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`.
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
         :return: Estimated amount of Wei executing specified transaction will cost.
         """
 
@@ -315,8 +315,8 @@ class Client(ABC):
         Call the contract with given instance of InvokeTransaction
 
         :param call: Call
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: List of integers representing contract's function output (structured like calldata)
         """
 
@@ -363,8 +363,8 @@ class Client(ABC):
         Get the contract class hash for the contract deployed at the given address
 
         :param contract_address: Address of the contract whose class hash is to be returned
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Class hash
         """
 
@@ -390,8 +390,8 @@ class Client(ABC):
         Get the latest nonce associated with the given address
 
         :param contract_address: Get the latest nonce associated with the given address
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: The last nonce used for the given contract
         """
 

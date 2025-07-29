@@ -2,6 +2,19 @@ Migration guide
 ===============
 
 ***************************
+0.28.0-rc.2 Migration guide
+***************************
+
+Version 0.28.0-rc.2 of **starknet.py** comes with support for RPC 0.9.0-rc.2!
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. :class:`MessageStatus`: ``finality_status`` field is now of type :class:`TransactionFinalityStatus`.
+2. Removed :class:`MessageFinalityStatus`.
+3. :class:`BlockStatus`: removed ``REJECTED`` variant.
+4. Added ``l1_accepted`` variant for ``BlockTag``.
+
+***************************
 0.28.0-rc.1 Migration guide
 ***************************
 

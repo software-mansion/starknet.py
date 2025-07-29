@@ -31,10 +31,10 @@ from starknet_py.net.schemas.common import (
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
-    MessageFinalityStatusField,
     NumberAsHex,
     PriceUnitField,
     StatusField,
+    TransactionFinalityStatusField,
     TransactionTypeField,
     Uint64,
     Uint128,
@@ -359,7 +359,7 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
 
 class MessageStatusSchema(Schema):
     transaction_hash = NumberAsHex(data_key="transaction_hash", required=True)
-    finality_status = MessageFinalityStatusField(
+    finality_status = TransactionFinalityStatusField(
         data_key="finality_status", required=True
     )
     execution_status = ExecutionStatusField(data_key="execution_status", required=True)

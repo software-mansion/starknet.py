@@ -12,6 +12,14 @@ from starknet_py.net.client_models import (
 
 
 @pytest.mark.asyncio
+async def test_l1_accepted_block(account):
+    blk = await account.client.get_block(block_number="l1_accepted")
+    assert blk.block_hash
+    assert blk.transactions is not None
+    assert isinstance(blk, StarknetBlock)
+
+
+@pytest.mark.asyncio
 async def test_pre_confirmed_block(account):
     blk = await account.client.get_block(block_number="pre_confirmed")
     assert blk.transactions is not None

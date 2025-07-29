@@ -210,16 +210,20 @@ class FullNodeClient(Client):
             e.g. given an event with 3 keys, [[1,2],[],[3]] which should return events that have either 1 or 2 in
             the first key, any value for their second key and 3 for their third key.
         :param from_block_number: Number of the block from which events searched for **starts**
-            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``from_block_hash`` parameter.
+            or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`. Mutually exclusive
+            with ``from_block_hash`` parameter.
             If not provided, query starts from block 0.
         :param from_block_hash: Hash of the block from which events searched for **starts**
-            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``from_block_number`` parameter.
+            or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`. Mutually exclusive with
+            ``from_block_number`` parameter.
             If not provided, query starts from block 0.
         :param to_block_number: Number of the block to which events searched for **end**
-            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``to_block_hash`` parameter.
+            or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`. Mutually exclusive with
+            ``to_block_hash`` parameter.
             If not provided, query ends at block `"pre_confirmed"`.
         :param to_block_hash: Hash of the block to which events searched for **end**
-            or literals `"pre_confirmed"` or `"latest"`. Mutually exclusive with ``to_block_number`` parameter.
+            or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`. Mutually exclusive with
+            ``to_block_number`` parameter.
             If not provided, query ends at block `"pre_confirmed"`.
         :param follow_continuation_token: Flag deciding whether all events should be collected during one function call,
             defaults to False.
@@ -347,6 +351,11 @@ class FullNodeClient(Client):
         contract_addresses: Optional[List[int]] = None,
         contracts_storage_keys: Optional[List[ContractsStorageKeys]] = None,
     ) -> StorageProofResponse:
+        if block_hash == "pre_confirmed" or block_number == "pre_confirmed":
+            raise ValueError(
+                "'pre_confirmed' block tag is not allowed gor `get_storage_proof`"
+            )
+
         class_hashes_serialized = (
             [_to_rpc_felt(class_hash) for class_hash in class_hashes]
             if class_hashes
@@ -472,9 +481,9 @@ class FullNodeClient(Client):
         :param to_address: The target L2 (Starknet) address the message is sent to.
         :param entry_point_selector: The selector of the l1_handler in invoke in the target contract.
         :param payload: Payload of the message.
-        :param block_hash: Hash of the requested block or literals `"pre_confirmed"` or `"latest"`.
+        :param block_hash: Hash of the requested block or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
             Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"pre_confirmed"`.
-        :param block_number: Number (height) of the requested block or literals `"pre_confirmed"` or `"latest"`.
+        :param block_number: Number (height) of the requested block or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
             Mutually exclusive with ``block_hash`` parameter. If not provided, queries block `"pre_confirmed"`.
         """
         block_identifier = get_block_identifier(
@@ -653,7 +662,7 @@ class FullNodeClient(Client):
 
         :param index: Index of the transaction
         :param block_hash: Hash of the block
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Transaction object
         """
         block_identifier = get_block_identifier(
@@ -677,8 +686,8 @@ class FullNodeClient(Client):
         """
         Get the number of transactions in a block given a block id
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Number of transactions in the designated block
         """
         block_identifier = get_block_identifier(
@@ -702,8 +711,8 @@ class FullNodeClient(Client):
         Get the contract class definition in the given block at the given address
 
         :param contract_address: The address of the contract whose class definition will be returned
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Contract declared to Starknet
         """
         block_identifier = get_block_identifier(
@@ -816,8 +825,8 @@ class FullNodeClient(Client):
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
             of the next transaction.
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: The execution trace and consumed resources for each transaction.
         """
         block_identifier = get_block_identifier(

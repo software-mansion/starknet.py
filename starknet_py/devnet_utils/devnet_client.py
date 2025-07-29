@@ -123,7 +123,7 @@ class DevnetClient(FullNodeClient):
 
         :param address: Address of the account contract.
         :param unit: Literals `"FRI"` or `"WEI"` defaults to `"WEI"`.
-        :param block_tag: Literals `"pre_confirmed"` or `"latest"`, defaults to `"latest"`.
+        :param block_tag: Literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`, defaults to `"latest"`.
         """
 
         res = await self._devnet_client.call(
@@ -156,9 +156,9 @@ class DevnetClient(FullNodeClient):
         It is supported in the `--state-archive-capacity full` mode.
 
         :param block_number: Number of the block which the state of Devnet will be reverted to
-            or literals `"pre_confirmed"` or `"latest"`.
+            or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`.
         :param block_hash: Hash of the block which the state of Devnet will be reverted to
-            or literals `"pre_confirmed"` or `"latest"`
+            or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         """
 
         res = await self._devnet_client.call(
