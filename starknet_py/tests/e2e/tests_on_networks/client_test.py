@@ -23,12 +23,13 @@ from starknet_py.net.client_models import (
     PreConfirmedStarknetBlockWithReceipts,
     ResourceBounds,
     ResourceBoundsMapping,
+    StarknetBlock,
     StarknetBlockWithReceipts,
     Transaction,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionReceipt,
-    TransactionStatus, StarknetBlock,
+    TransactionStatus,
 )
 from starknet_py.net.executable_models import (
     CasmClass,
