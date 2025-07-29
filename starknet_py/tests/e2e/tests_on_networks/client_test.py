@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     PreConfirmedStarknetBlockWithReceipts,
     ResourceBounds,
     ResourceBoundsMapping,
+    StarknetBlock,
     StarknetBlockWithReceipts,
     Transaction,
     TransactionExecutionStatus,
@@ -585,3 +586,11 @@ async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet)
     )
     with pytest.warns(IncompatibleRPCVersionWarning, match=pattern):
         await node.get_chain_id()
+
+
+@pytest.mark.asyncio
+async def test_l1_accepted_block(account_sepolia_testnet):
+    blk = await account_sepolia_testnet.client.get_block(block_number="l1_accepted")
+    assert blk.block_hash
+    assert blk.transactions is not None
+    assert isinstance(blk, StarknetBlock)
