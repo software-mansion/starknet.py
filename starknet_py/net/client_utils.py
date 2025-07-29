@@ -113,6 +113,7 @@ def _get_raw_block_identifier(
         )
 
     block_tags = get_args(Tag)
+
     if block_hash in block_tags or block_number in block_tags:
         return block_hash or block_number
 
