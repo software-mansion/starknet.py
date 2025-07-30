@@ -8,6 +8,7 @@ Migration guide
 .. py:currentmodule:: starknet_py.net.account.account
 
 1. When no ``token_address`` is specified in the :meth:`Account.get_balance` method, the default token address now defaults to the STRK fee contract instead of ETH.
+2. Rename `FEE_CONTRACT_ADDRESS` to ``ETH_FEE_CONTRACT_ADDRESS``.
 
 ***************************
 0.28.0-rc.2 Migration guide
