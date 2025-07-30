@@ -14,7 +14,9 @@ from starknet_py.net.client_models import PriceUnit
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import HttpMethod, RpcHttpClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
+from starknet_py.net.signer.eth_signer import EthSigner
 from starknet_py.net.signer.key_pair import KeyPair
+from starknet_py.serialization import Uint256Serializer
 from starknet_py.tests.e2e.fixtures.constants import (
     DEVNET_PRE_DEPLOYED_ACCOUNT_ADDRESS,
     DEVNET_PRE_DEPLOYED_ACCOUNT_PRIVATE_KEY,
@@ -235,3 +237,49 @@ async def argent_account_v040(
 
     await deploy_result.wait_for_acceptance()
     return deploy_result.account
+
+
+@pytest_asyncio.fixture(scope="package")
+async def eth_account(
+    eth_fee_contract: Contract,
+    strk_fee_contract: Contract,
+    client,
+    eth_account_class_hash,
+) -> BaseAccount:
+    # private_key = int.from_bytes(os.urandom(32), byteorder="big")
+    private_key = _get_random_private_key_unsafe()
+
+    signer = EthSigner(private_key, chain_id=StarknetChainId.SEPOLIA)
+
+    # Manually serialize u512 into felt array
+    serializer = Uint256Serializer()
+    public_key_bytes = signer.public_key.to_bytes(64, byteorder="big")
+    constructor_calldata = serializer.serialize(
+        int.from_bytes(public_key_bytes[:32], byteorder="big")
+    ) + serializer.serialize(int.from_bytes(public_key_bytes[32:], byteorder="big"))
+
+    address, salt = _new_address(eth_account_class_hash, constructor_calldata)
+
+    await prepay_account(
+        address=address,
+        eth_fee_contract=eth_fee_contract,
+        strk_fee_contract=strk_fee_contract,
+    )
+
+    account = Account(
+        address=address,
+        client=client,
+        signer=signer,
+        chain=StarknetChainId.SEPOLIA.value,
+    )
+
+    deploy_account_tx = await account.sign_deploy_account_v3(
+        class_hash=eth_account_class_hash,
+        contract_address_salt=salt,
+        constructor_calldata=constructor_calldata,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+    )
+
+    await client.deploy_account(deploy_account_tx)
+
+    return account

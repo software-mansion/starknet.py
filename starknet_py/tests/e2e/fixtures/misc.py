@@ -28,6 +28,7 @@ from starknet_py.tests.e2e.fixtures.constants import (
     CONTRACTS_V2_COMPILED,
     TYPED_DATA_DIR,
 )
+from starknet_py.utils.typed_data import TypedData
 
 
 def pytest_addoption(parser):
@@ -59,6 +60,17 @@ def typed_data(request) -> TypedDataDict:
         typed_data = json.load(file)
 
     return typed_data
+
+
+@pytest.fixture()
+def load_typed_data(request) -> TypedData:
+    file_name = getattr(request, "param")
+    file_path = TYPED_DATA_DIR / file_name
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        typed_data_json = json.load(file)
+
+    return TypedData.from_dict(typed_data_json)
 
 
 @pytest.fixture(name="get_tx_receipt_path", scope="package")
