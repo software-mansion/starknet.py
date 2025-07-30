@@ -5,7 +5,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.constants import (
     ANY_CALLER,
-    FEE_CONTRACT_ADDRESS,
+    ETH_FEE_CONTRACT_ADDRESS,
     QUERY_VERSION_BASE,
     OutsideExecutionInterfaceID,
 )
@@ -313,7 +313,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         if token_address is None:
             chain_id = await self._get_chain_id()
             if chain_id in RECOGNIZED_CHAIN_IDS:
-                token_address = FEE_CONTRACT_ADDRESS
+                token_address = ETH_FEE_CONTRACT_ADDRESS
             else:
                 raise ValueError(
                     "Argument token_address must be specified when using a custom network."

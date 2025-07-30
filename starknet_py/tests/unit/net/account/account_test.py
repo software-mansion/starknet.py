@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.constants import FEE_CONTRACT_ADDRESS, STRK_FEE_CONTRACT_ADDRESS
+from starknet_py.constants import ETH_FEE_CONTRACT_ADDRESS, STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId, parse_address
@@ -33,7 +33,7 @@ async def test_get_balance_default_token_address():
 
     (call,) = call[0]
 
-    assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
+    assert call.to_addr == parse_address(ETH_FEE_CONTRACT_ADDRESS)
 
 
 @pytest.mark.asyncio

@@ -2,7 +2,7 @@
 
 import pytest
 
-from starknet_py.constants import FEE_CONTRACT_ADDRESS, STRK_FEE_CONTRACT_ADDRESS
+from starknet_py.constants import ETH_FEE_CONTRACT_ADDRESS, STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.net.account.base_account import BaseAccount
 
@@ -14,7 +14,7 @@ def eth_fee_contract(account: BaseAccount, cairo_0_fee_contract_abi) -> Contract
     """
 
     return Contract(
-        address=FEE_CONTRACT_ADDRESS,
+        address=ETH_FEE_CONTRACT_ADDRESS,
         abi=cairo_0_fee_contract_abi,
         provider=account,
         cairo_version=0,
