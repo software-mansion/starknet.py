@@ -270,6 +270,7 @@ async def test_deploy_account_and_transfer(client):
     assert recipient_balance_before + 100 == recipient_balance_after
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
@@ -310,7 +311,6 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
     await invocation.wait_for_acceptance()
 
 
-@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
