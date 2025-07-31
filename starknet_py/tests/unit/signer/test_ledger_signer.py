@@ -19,7 +19,6 @@ LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
 )
 
 
-@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.parametrize(
     "transaction",
     [
