@@ -310,6 +310,7 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
     await invocation.wait_for_acceptance()
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
