@@ -150,7 +150,6 @@ def test_blind_sign_warning():
         signer.sign_transaction(tx)
 
 
-@pytest.mark.skip(reason="TODO: Remove skip")
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
     platform == "win32",
