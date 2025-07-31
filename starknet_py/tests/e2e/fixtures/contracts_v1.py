@@ -272,6 +272,17 @@ async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
     return class_hash
 
 
+@pytest_asyncio.fixture(scope="package", name="eth_account_class_hash")
+async def declare_eth_account(account: BaseAccount) -> int:
+    contract = load_contract("EthAccountUpgradeable")
+    class_hash, _ = await declare_contract(
+        account,
+        contract["sierra"],
+        contract["casm"],
+    )
+    return class_hash
+
+
 @pytest_asyncio.fixture(scope="function")
 async def simple_storage_with_event_contract(
     account: BaseAccount,

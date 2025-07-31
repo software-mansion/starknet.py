@@ -1123,14 +1123,14 @@ test = ["pytest (>=7.0.0)", "pytest-xdist (>=2.4.0)"]
 
 [[package]]
 name = "eth-keys"
-version = "0.6.0"
+version = "0.7.0"
 description = "eth-keys: Common API for Ethereum key operations"
 optional = false
 python-versions = "<4,>=3.8"
 groups = ["main"]
 files = [
-    {file = "eth_keys-0.6.0-py3-none-any.whl", hash = "sha256:b396fdfe048a5bba3ef3990739aec64901eb99901c03921caa774be668b1db6e"},
-    {file = "eth_keys-0.6.0.tar.gz", hash = "sha256:ba33230f851d02c894e83989185b21d76152c49b37e35b61b1d8a6d9f1d20430"},
+    {file = "eth_keys-0.7.0-py3-none-any.whl", hash = "sha256:b0cdda8ffe8e5ba69c7c5ca33f153828edcace844f67aabd4542d7de38b159cf"},
+    {file = "eth_keys-0.7.0.tar.gz", hash = "sha256:79d24fd876201df67741de3e3fefb3f4dbcbb6ace66e47e6fe662851a4547814"},
 ]
 
 [package.dependencies]
@@ -1138,9 +1138,9 @@ eth-typing = ">=3"
 eth-utils = ">=2"
 
 [package.extras]
-coincurve = ["coincurve (>=12.0.0)"]
-dev = ["asn1tools (>=0.146.2)", "build (>=0.9.0)", "bumpversion (>=0.5.3)", "coincurve (>=12.0.0)", "eth-hash[pysha3]", "factory-boy (>=3.0.1)", "hypothesis (>=5.10.3)", "ipython", "pre-commit (>=3.4.0)", "pyasn1 (>=0.4.5)", "pytest (>=7.0.0)", "towncrier (>=21,<22)", "tox (>=4.0.0)", "twine", "wheel"]
-docs = ["towncrier (>=21,<22)"]
+coincurve = ["coincurve (>=17.0.0)"]
+dev = ["asn1tools (>=0.146.2)", "build (>=0.9.0)", "bump_my_version (>=0.19.0)", "coincurve (>=17.0.0)", "eth-hash[pysha3]", "factory-boy (>=3.0.1)", "hypothesis (>=5.10.3)", "ipython", "mypy (==1.10.0)", "pre-commit (>=3.4.0)", "pyasn1 (>=0.4.5)", "pytest (>=7.0.0)", "towncrier (>=24,<25)", "tox (>=4.0.0)", "twine", "wheel"]
+docs = ["towncrier (>=24,<25)"]
 test = ["asn1tools (>=0.146.2)", "eth-hash[pysha3]", "factory-boy (>=3.0.1)", "hypothesis (>=5.10.3)", "pyasn1 (>=0.4.5)", "pytest (>=7.0.0)"]
 
 [[package]]
@@ -3467,4 +3467,4 @@ ledger = ["ledgerwallet"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9, <3.13"
-content-hash = "978b5ee9e3df05c2b64b4047ea2fb78e3f8bfca54e09004b97b17d800c010a5b"
+content-hash = "9576f7e71e2313c1efd9c0eb8d48583c3c8f4003e39c650d2c36bcf47621bb55"

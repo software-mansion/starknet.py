@@ -4,12 +4,12 @@ version = "0.1.0"
 
 [dependencies]
 starknet = "2.10.0"
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag="v1.0.0" }
+openzeppelin = "1.0.0"
 
 [[target.starknet-contract]]
 casm = true
 sierra = true
 casm-add-pythonic-hints = true
 build-external-contracts = [
-    "openzeppelin::presets::account::Account",
+    "openzeppelin_presets::EthAccountUpgradeable",
 ]
