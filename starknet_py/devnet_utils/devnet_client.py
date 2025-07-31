@@ -91,14 +91,14 @@ class DevnetClient(FullNodeClient):
         await self._devnet_client.call(method_name="stopAutoImpersonate")
 
     async def mint(
-        self, address: Hash, amount: int, unit: Union[PriceUnit, str] = PriceUnit.WEI
+        self, address: Hash, amount: int, unit: Union[PriceUnit, str] = PriceUnit.FRI
     ) -> MintResponse:
         """
         Mint tokens to the given address.
 
         :param address: Address of the account contract.
         :param amount: Amount of tokens to mint. Must be integer.
-        :param unit: Literals `"FRI"` or `"WEI"`, default to `"WEI"`.
+        :param unit: Literals `"FRI"` or `"WEI"`, default to `"FRI"`.
         """
 
         res = await self._devnet_client.call(
