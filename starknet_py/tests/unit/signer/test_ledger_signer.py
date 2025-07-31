@@ -74,7 +74,6 @@ def test_clear_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
-@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.parametrize(
     "transaction",
     [
