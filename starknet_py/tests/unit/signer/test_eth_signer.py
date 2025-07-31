@@ -1,13 +1,11 @@
 import pytest
 
+from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import Call, TransactionExecutionStatus
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.eth_signer import EthSigner
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_RESOURCE_BOUNDS,
-    STRK_FEE_CONTRACT_ADDRESS,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 # pylint: disable=line-too-long
