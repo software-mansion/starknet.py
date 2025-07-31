@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.constants import EXPECTED_RPC_VERSION
+from starknet_py.constants import EXPECTED_RPC_VERSION, STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -46,7 +46,6 @@ from starknet_py.tests.e2e.fixtures.constants import (
     EMPTY_CONTRACT_ADDRESS_SEPOLIA,
     MAX_RESOURCE_BOUNDS_SEPOLIA,
     STRK_CLASS_HASH,
-    STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.transaction_errors import TransactionRevertedError
 
