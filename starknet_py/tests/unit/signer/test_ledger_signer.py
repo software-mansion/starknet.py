@@ -192,7 +192,6 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     return balance
 
 
-@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
