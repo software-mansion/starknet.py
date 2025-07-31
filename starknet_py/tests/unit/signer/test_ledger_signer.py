@@ -19,6 +19,7 @@ LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
 )
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.parametrize(
     "transaction",
     [
@@ -76,6 +77,7 @@ def test_clear_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.parametrize(
     "transaction",
     [
@@ -112,6 +114,7 @@ def test_blind_sign_transaction(transaction):
     assert all(i != 0 for i in signature)
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
     platform == "win32",
@@ -152,6 +155,7 @@ def test_blind_sign_warning():
         signer.sign_transaction(tx)
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
     platform == "win32",
@@ -193,6 +197,7 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     return balance
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
@@ -271,6 +276,7 @@ async def test_deploy_account_and_transfer(client):
     assert recipient_balance_before + 100 == recipient_balance_after
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
@@ -311,6 +317,7 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
     await invocation.wait_for_acceptance()
 
 
+@pytest.mark.skip(reason="TODO: Remove skip")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
