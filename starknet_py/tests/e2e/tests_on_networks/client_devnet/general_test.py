@@ -11,9 +11,9 @@ async def test_mint(devnet_client, account):
     amount = 1000
 
     balance_before_mint = await account.get_balance()
-    await devnet_client.mint(account.address, amount, PriceUnit.WEI)
-    await devnet_client.mint(account.address, amount, "wei")
-    await devnet_client.mint(account.address, amount, "WEI")
+    await devnet_client.mint(account.address, amount, PriceUnit.FRI)
+    await devnet_client.mint(account.address, amount, "fri")
+    await devnet_client.mint(account.address, amount, "FRI")
     await devnet_client.mint(account.address, amount)
     balance_after_mint = await account.get_balance()
 
