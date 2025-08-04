@@ -14,6 +14,10 @@ Migration guide
 
 3. ``unit`` param in :meth:`DevnetClient.mint` now defaults to ``PriceUnit.FRI``.
 
+.. py:currentmodule:: starknet_py.net.signer.eth_signer
+
+4. :class:`EthSigner` implementation has been added.
+
 ***************************
 0.28.0-rc.2 Migration guide
 ***************************

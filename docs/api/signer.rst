@@ -55,3 +55,15 @@ LedgerSigningMode
 .. autoclass:: LedgerSigningMode
     :members:
     :member-order: groupwise
+
+------------
+EthSigner
+------------
+
+Signer compatible with the Ethereum signature.
+
+.. py:module:: starknet_py.net.signer.eth_signer
+
+.. autoclass:: EthSigner
+    :members:
+    :member-order: groupwise
