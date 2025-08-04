@@ -45,7 +45,7 @@ class EthSigner(BaseSigner):
         return _serialize_signature(signature)
 
 
-# eth signature consists of u256 values
+# eth signature components `r` and `s` are 32 bytes each, so they are stored as u256
 def _serialize_signature(signature: Signature) -> List[int]:
     serializer = Uint256Serializer()
     return (
