@@ -3,13 +3,10 @@ import pytest
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.account.account import Account
 from starknet_py.net.client_models import Call, TransactionExecutionStatus
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.eth_signer import EthSigner
-from starknet_py.serialization import Uint256Serializer
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.tests.e2e.utils import _new_address, prepay_account
 
 
 # pylint: disable=line-too-long
@@ -82,64 +79,28 @@ def test_message_hash(loaded_typed_data, expected_r, expected_s, expected_v):
 
 
 @pytest.mark.asyncio
-async def test_validate_signature(
-    client, eth_account_class_hash, eth_fee_contract, strk_fee_contract
-):
-    signer = EthSigner(
-        0x525BC68475C0955FAE83869BEEC0996114D4BB27B28B781ED2A20EF23121B8DE,
-        chain_id=StarknetChainId.SEPOLIA,
+async def test_sign_transaction(eth_account, map_contract):
+    map_call = Call(
+        to_addr=map_contract.address,
+        selector=get_selector_from_name("put"),
+        calldata=[100, 101],
     )
 
-    # Manually serialize u512 into felt array
-    serializer = Uint256Serializer()
-    public_key_bytes = signer.public_key.to_bytes(64, byteorder="big")
-    constructor_calldata = serializer.serialize(
-        int.from_bytes(public_key_bytes[:32], byteorder="big")
-    ) + serializer.serialize(int.from_bytes(public_key_bytes[32:], byteorder="big"))
-
-    address, salt = _new_address(eth_account_class_hash, constructor_calldata)
-
-    await prepay_account(
-        address=address,
-        eth_fee_contract=eth_fee_contract,
-        strk_fee_contract=strk_fee_contract,
+    signed_tx = await eth_account.sign_invoke_v3(
+        calls=map_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
+    calldata = (
+        [signed_tx.calculate_hash(StarknetChainId.SEPOLIA.value)]
+        + [len(signed_tx.signature)]
+        + signed_tx.signature
     )
 
-    account = Account(
-        address=address,
-        client=client,
-        signer=signer,
-        chain=StarknetChainId.SEPOLIA.value,
-    )
-
-    deploy_account_tx = await account.sign_deploy_account_v3(
-        class_hash=eth_account_class_hash,
-        contract_address_salt=salt,
-        constructor_calldata=constructor_calldata,
-        resource_bounds=MAX_RESOURCE_BOUNDS,
-    )
-
-    await client.deploy_account(deploy_account_tx)
-
-    # Signature calculated first using starknet.js
-    # This is a call to the Map contract with
-    # address: 0x77AF8BE78F9AB70BA5DB594A079D53FB692256ACCA4F65ED4681BE63F766F8
-    # selector: put
-    # calldata: [100, 101]
-    call = Call(
-        to_addr=address,
+    validate_call = Call(
+        to_addr=eth_account.address,
         selector=get_selector_from_name("is_valid_signature"),
-        calldata=[
-            0x78EDDEAD1D83CF611C1C78B488BC3CBFEFF0696E9464EA967676100BBC1E674,  # tx hash
-            0x5,
-            0x89B5C415C2F37F5A6D1292EDC15958B2,
-            0xA2EC923770F021309C58B7FA68A6A4CE,
-            0xC4AE697F7D4999C9C6F6C6F13C97EF65,
-            0x1792B1FB77858EE84EF3244807A73A16,
-            0x0,
-        ],
+        calldata=calldata,
     )
-    (res,) = await client.call_contract(call=call)
+    (res,) = await eth_account.client.call_contract(call=validate_call)
     assert res == encode_shortstring("VALID")
 
 
