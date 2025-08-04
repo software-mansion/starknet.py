@@ -56,9 +56,9 @@ LedgerSigningMode
     :members:
     :member-order: groupwise
 
-------------
+---------
 EthSigner
-------------
+---------
 
 Signer compatible with the Ethereum signature.
 

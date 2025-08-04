@@ -90,7 +90,7 @@ async def test_sign_transaction(eth_account, map_contract):
         calls=map_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     calldata = (
-        [signed_tx.calculate_hash(StarknetChainId.SEPOLIA.value)]
+        [signed_tx.calculate_hash(StarknetChainId.SEPOLIA)]
         + [len(signed_tx.signature)]
         + signed_tx.signature
     )

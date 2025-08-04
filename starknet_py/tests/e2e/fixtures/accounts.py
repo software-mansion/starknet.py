@@ -269,7 +269,7 @@ async def eth_account(
         address=address,
         client=client,
         signer=signer,
-        chain=StarknetChainId.SEPOLIA.value,
+        chain=StarknetChainId.SEPOLIA,
     )
 
     deploy_account_tx = await account.sign_deploy_account_v3(
