@@ -40,7 +40,7 @@ def test_pub_key(private_key, expected_public_key):
 
 
 @pytest.mark.parametrize(
-    "load_typed_data, expected_r, expected_s, expected_v",
+    "loaded_typed_data, expected_r, expected_s, expected_v",
     [
         (
             "typed_data_rev_0_example.json",
@@ -61,15 +61,15 @@ def test_pub_key(private_key, expected_public_key):
             0x0,
         ),
     ],
-    indirect=["load_typed_data"],
+    indirect=["loaded_typed_data"],
 )
-def test_message_hash(load_typed_data, expected_r, expected_s, expected_v):
+def test_message_hash(loaded_typed_data, expected_r, expected_s, expected_v):
     eth_signer = EthSigner(
         private_key=0x525BC68475C0955FAE83869BEEC0996114D4BB27B28B781ED2A20EF23121B8DE,
         chain_id=StarknetChainId.MAINNET,
     )
     signed_message = eth_signer.sign_message(
-        load_typed_data,
+        loaded_typed_data,
         0x65A822FBEE1AE79E898688B5A4282DC79E0042CBED12F6169937FDDB4C26641,
     )
 
@@ -152,8 +152,6 @@ async def test_send_transaction(eth_account):
     )
     res = await eth_account.execute_v3(calls=call, resource_bounds=MAX_RESOURCE_BOUNDS)
 
-    receipt = await eth_account.client.get_transaction_receipt(
-        tx_hash=res.transaction_hash
-    )
+    receipt = await eth_account.client.get_transaction_receipt(res.transaction_hash)
 
     assert receipt.execution_status == TransactionExecutionStatus.SUCCEEDED

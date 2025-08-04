@@ -246,7 +246,6 @@ async def eth_account(
     client,
     eth_account_class_hash,
 ) -> BaseAccount:
-    # private_key = int.from_bytes(os.urandom(32), byteorder="big")
     private_key = _get_random_private_key_unsafe()
 
     signer = EthSigner(private_key, chain_id=StarknetChainId.SEPOLIA)

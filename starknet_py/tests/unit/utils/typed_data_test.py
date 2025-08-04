@@ -40,7 +40,7 @@ class CasesRev1(Enum):
     TD_ENUM = "typed_data_rev_1_enum_example.json"
 
 
-def load_typed_data(file_name: str) -> TypedData:
+def loaded_typed_data(file_name: str) -> TypedData:
     """
     Load TypedData object from file
     """
@@ -81,7 +81,7 @@ def test_parse_felt(value, result):
     ],
 )
 def test_encode_type(example, type_name, encoded_type):
-    typed_data = load_typed_data(example.value)
+    typed_data = loaded_typed_data(example.value)
     res = typed_data._encode_type(type_name)  # pylint: disable=protected-access
     assert res == encoded_type
 
@@ -115,7 +115,7 @@ def test_encode_type(example, type_name, encoded_type):
     ],
 )
 def test_type_hash(example, type_name, type_hash):
-    typed_data = load_typed_data(example.value)
+    typed_data = loaded_typed_data(example.value)
     res = typed_data.type_hash(type_name)
     assert hex(res) == type_hash
 
@@ -145,7 +145,7 @@ def test_type_hash(example, type_name, type_hash):
     ],
 )
 def test_struct_hash(example, type_name, attr_name, struct_hash):
-    typed_data = load_typed_data(example.value)
+    typed_data = loaded_typed_data(example.value)
     data = getattr(typed_data, attr_name)
     if isinstance(data, Domain):
         data = data.to_dict()
@@ -179,7 +179,7 @@ def test_struct_hash(example, type_name, attr_name, struct_hash):
     ],
 )
 def test_message_hash(example, account_address, msg_hash):
-    typed_data = load_typed_data(example.value)
+    typed_data = loaded_typed_data(example.value)
     res = typed_data.message_hash(int(account_address, 16))
     assert hex(res) == msg_hash
 

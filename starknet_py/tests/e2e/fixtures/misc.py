@@ -63,7 +63,7 @@ def typed_data(request) -> TypedDataDict:
 
 
 @pytest.fixture()
-def load_typed_data(request) -> TypedData:
+def loaded_typed_data(request) -> TypedData:
     file_name = getattr(request, "param")
     file_path = TYPED_DATA_DIR / file_name
 
