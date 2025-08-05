@@ -8,4 +8,5 @@ from .payload_serializer import PayloadSerializer
 from .struct_serializer import StructSerializer
 from .tuple_serializer import TupleSerializer
 from .uint256_serializer import Uint256Serializer
+from .uint512_serializer import Uint512Serializer
 from .uint_serializer import UintSerializer
