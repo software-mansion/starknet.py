@@ -42,44 +42,44 @@ def test_valid_values(value, serialized_value):
     assert serialized == serialized_value
 
     assert serialized_value == serializer.serialize(
-        {"low0": serialized_value[0], "low1": serialized_value[1], "high0": serialized_value[2], "high1": serialized_value[3]}
+        {"limb0": serialized_value[0], "limb1": serialized_value[1], "limb2": serialized_value[2], "limb3": serialized_value[3]}
     )
 
 
 def test_deserialize_invalid_values():
     # We need to escape braces
-    low0_error_message = re.escape(
-        "Error at path 'low0': expected value in range [0;2**128)"
+    limb0_error_message = re.escape(
+        "Error at path 'limb0': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=low0_error_message):
+    with pytest.raises(InvalidValueException, match=limb0_error_message):
         serializer.deserialize([MAX_U128 + 1, 0, 0, 0])
-    with pytest.raises(InvalidValueException, match=low0_error_message):
+    with pytest.raises(InvalidValueException, match=limb0_error_message):
         serializer.deserialize([MAX_U128 + 1, MAX_U128 + 1, MAX_U128 + 1, MAX_U128 + 1])
-    with pytest.raises(InvalidValueException, match=low0_error_message):
+    with pytest.raises(InvalidValueException, match=limb0_error_message):
         serializer.deserialize([-1, 0, 0, 0])
 
-    low1_error_message = re.escape(
-        "Error at path 'low1': expected value in range [0;2**128)"
+    limb1_error_message = re.escape(
+        "Error at path 'limb1': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=low1_error_message):
+    with pytest.raises(InvalidValueException, match=limb1_error_message):
         serializer.deserialize([0, MAX_U128 + 1, 0, 0])
-    with pytest.raises(InvalidValueException, match=low1_error_message):
+    with pytest.raises(InvalidValueException, match=limb1_error_message):
         serializer.deserialize([0, -1, 0, 0])
 
-    high0_error_message = re.escape(
-        "Error at path 'high0': expected value in range [0;2**128)"
+    limb2_error_message = re.escape(
+        "Error at path 'limb2': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=high0_error_message):
+    with pytest.raises(InvalidValueException, match=limb2_error_message):
         serializer.deserialize([0, 0, MAX_U128 + 1, 0])
-    with pytest.raises(InvalidValueException, match=high0_error_message):
+    with pytest.raises(InvalidValueException, match=limb2_error_message):
         serializer.deserialize([0, 0, -1, 0])
 
-    high1_error_message = re.escape(
-        "Error at path 'high1': expected value in range [0;2**128)"
+    limb3_error_message = re.escape(
+        "Error at path 'limb3': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=high1_error_message):
+    with pytest.raises(InvalidValueException, match=limb3_error_message):
         serializer.deserialize([0, 0, 0, MAX_U128 + 1])
-    with pytest.raises(InvalidValueException, match=high1_error_message):
+    with pytest.raises(InvalidValueException, match=limb3_error_message):
         serializer.deserialize([0, 0, 0, -1])
 
 
@@ -92,37 +92,37 @@ def test_serialize_invalid_int_value():
 
 
 def test_serialize_invalid_dict_values():
-    low0_error_message = re.escape(
-        "Error at path 'low0': expected value in range [0;2**128)"
+    limb0_error_message = re.escape(
+        "Error at path 'limb0': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=low0_error_message):
-        serializer.serialize({"low0": -1, "low1": 12324, "high0": 456, "high1": 789})
-    with pytest.raises(InvalidValueException, match=low0_error_message):
-        serializer.serialize({"low0": MAX_U128 + 1, "low1": 4543535, "high0": 456, "high1": 789})
+    with pytest.raises(InvalidValueException, match=limb0_error_message):
+        serializer.serialize({"limb0": -1, "limb1": 12324, "limb2": 456, "limb3": 789})
+    with pytest.raises(InvalidValueException, match=limb0_error_message):
+        serializer.serialize({"limb0": MAX_U128 + 1, "limb1": 4543535, "limb2": 456, "limb3": 789})
 
-    low1_error_message = re.escape(
-        "Error at path 'low1': expected value in range [0;2**128)"
+    limb1_error_message = re.escape(
+        "Error at path 'limb1': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=low1_error_message):
-        serializer.serialize({"low0": 652432, "low1": -1, "high0": 456, "high1": 789})
-    with pytest.raises(InvalidValueException, match=low1_error_message):
-        serializer.serialize({"low0": 0, "low1": MAX_U128 + 1, "high0": 456, "high1": 789})
+    with pytest.raises(InvalidValueException, match=limb1_error_message):
+        serializer.serialize({"limb0": 652432, "limb1": -1, "limb2": 456, "limb3": 789})
+    with pytest.raises(InvalidValueException, match=limb1_error_message):
+        serializer.serialize({"limb0": 0, "limb1": MAX_U128 + 1, "limb2": 456, "limb3": 789})
 
-    high0_error_message = re.escape(
-        "Error at path 'high0': expected value in range [0;2**128)"
+    limb2_error_message = re.escape(
+        "Error at path 'limb2': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=high0_error_message):
-        serializer.serialize({"low0": 652432, "low1": 123, "high0": -1, "high1": 789})
-    with pytest.raises(InvalidValueException, match=high0_error_message):
-        serializer.serialize({"low0": 0, "low1": 123, "high0": MAX_U128 + 1, "high1": 789})
+    with pytest.raises(InvalidValueException, match=limb2_error_message):
+        serializer.serialize({"limb0": 652432, "limb1": 123, "limb2": -1, "limb3": 789})
+    with pytest.raises(InvalidValueException, match=limb2_error_message):
+        serializer.serialize({"limb0": 0, "limb1": 123, "limb2": MAX_U128 + 1, "limb3": 789})
 
-    high1_error_message = re.escape(
-        "Error at path 'high1': expected value in range [0;2**128)"
+    limb3_error_message = re.escape(
+        "Error at path 'limb3': expected value in range [0;2**128)"
     )
-    with pytest.raises(InvalidValueException, match=high1_error_message):
-        serializer.serialize({"low0": 652432, "low1": 123, "high0": 456, "high1": -1})
-    with pytest.raises(InvalidValueException, match=high1_error_message):
-        serializer.serialize({"low0": 0, "low1": 123, "high0": 456, "high1": MAX_U128 + 1})
+    with pytest.raises(InvalidValueException, match=limb3_error_message):
+        serializer.serialize({"limb0": 652432, "limb1": 123, "limb2": 456, "limb3": -1})
+    with pytest.raises(InvalidValueException, match=limb3_error_message):
+        serializer.serialize({"limb0": 0, "limb1": 123, "limb2": 456, "limb3": MAX_U128 + 1})
 
 
 def test_invalid_type():

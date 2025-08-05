@@ -15,16 +15,16 @@ U128_UPPER_BOUND = 2**128
 
 
 class Uint512Dict(TypedDict):
-    low0: int
-    low1: int
-    high0: int
-    high1: int
+    limb0: int
+    limb1: int
+    limb2: int
+    limb3: int
 
 
 @dataclass
 class Uint512Serializer(CairoDataSerializer[Union[int, Uint512Dict], int]):
     """
-    Serializer of Uint512. In Cairo it is represented by structure {low0: Uint128, low1: Uint128, high0: Uint128, high1: Uint128}.
+    Serializer of Uint512. In Cairo it is represented by structure {limb0: Uint128, limb1: Uint128, limb2: Uint128, limb3: Uint128}.
     Can serialize an int.
     Deserializes data to an int.
 
@@ -38,19 +38,19 @@ class Uint512Serializer(CairoDataSerializer[Union[int, Uint512Dict], int]):
     """
 
     def deserialize_with_context(self, context: DeserializationContext) -> int:
-        [low0, low1, high0, high1] = context.reader.read(4)
+        [limb0, limb1, limb2, limb3] = context.reader.read(4)
 
         # Checking if resulting value is in [0, 2**512) range is not enough. Uint512 should be made of four uint128.
-        with context.push_entity("low0"):
-            self._ensure_valid_uint128(low0, context)
-        with context.push_entity("low1"):
-            self._ensure_valid_uint128(low1, context)
-        with context.push_entity("high0"):
-            self._ensure_valid_uint128(high0, context)
-        with context.push_entity("high1"):
-            self._ensure_valid_uint128(high1, context)
+        with context.push_entity("limb0"):
+            self._ensure_valid_uint128(limb0, context)
+        with context.push_entity("limb1"):
+            self._ensure_valid_uint128(limb1, context)
+        with context.push_entity("limb2"):
+            self._ensure_valid_uint128(limb2, context)
+        with context.push_entity("limb3"):
+            self._ensure_valid_uint128(limb3, context)
 
-        return (high1 << 384) + (high0 << 256) + (low1 << 128) + low0
+        return (limb3 << 384) + (limb2 << 256) + (limb1 << 128) + limb0
 
     def serialize_with_context(
         self, context: SerializationContext, value: Union[int, Uint512Dict]
@@ -64,28 +64,28 @@ class Uint512Serializer(CairoDataSerializer[Union[int, Uint512Dict], int]):
     @staticmethod
     def _serialize_from_int(value: int) -> Generator[int, None, None]:
         uint512_range_check(value)
-        low0 = value % (2**128)
-        low1 = (value >> 128) % (2**128)
-        high0 = (value >> 256) % (2**128)
-        high1 = (value >> 384) % (2**128)
-        result = (low0, low1, high0, high1)
+        limb0 = value % (2**128)
+        limb1 = (value >> 128) % (2**128)
+        limb2 = (value >> 256) % (2**128)
+        limb3 = (value >> 384) % (2**128)
+        result = (limb0, limb1, limb2, limb3)
         yield from result
 
     def _serialize_from_dict(
         self, context: SerializationContext, value: Uint512Dict
     ) -> Generator[int, None, None]:
-        with context.push_entity("low0"):
-            self._ensure_valid_uint128(value["low0"], context)
-            yield value["low0"]
-        with context.push_entity("low1"):
-            self._ensure_valid_uint128(value["low1"], context)
-            yield value["low1"]
-        with context.push_entity("high0"):
-            self._ensure_valid_uint128(value["high0"], context)
-            yield value["high0"]
-        with context.push_entity("high1"):
-            self._ensure_valid_uint128(value["high1"], context)
-            yield value["high1"]
+        with context.push_entity("limb0"):
+            self._ensure_valid_uint128(value["limb0"], context)
+            yield value["limb0"]
+        with context.push_entity("limb1"):
+            self._ensure_valid_uint128(value["limb1"], context)
+            yield value["limb1"]
+        with context.push_entity("limb2"):
+            self._ensure_valid_uint128(value["limb2"], context)
+            yield value["limb2"]
+        with context.push_entity("limb3"):
+            self._ensure_valid_uint128(value["limb3"], context)
+            yield value["limb3"]
 
     @staticmethod
     def _ensure_valid_uint128(value: int, context: Context):
