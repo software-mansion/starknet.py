@@ -457,11 +457,11 @@ class TransactionReceipt:
     execution_resources: ExecutionResources
     actual_fee: FeePayment
     type: TransactionType
+    block_number: int
 
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    block_number: Optional[int] = None
     block_hash: Optional[int] = None
 
     contract_address: Optional[int] = None  # DEPLOY_ACCOUNT_TXN_RECEIPT only
