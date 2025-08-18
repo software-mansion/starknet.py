@@ -443,7 +443,7 @@ class ExecutionResources:
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
-@dataclass(frozen=True)
+@dataclass
 class TransactionReceipt:
     """
     Dataclass representing details of sent transaction.
@@ -461,18 +461,16 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-
     contract_address: Optional[int] = None  # DEPLOY_ACCOUNT_TXN_RECEIPT only
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT only
 
     revert_reason: Optional[str] = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class TransactionReceiptWithBlockInfo(TransactionReceipt):
     block_number: int = 0
+    block_hash: Optional[int] = None
 
 
 @dataclass
