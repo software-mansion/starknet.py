@@ -2,6 +2,20 @@ Migration guide
 ===============
 
 ***************************
+0.28.0-rc.4 Migration guide
+***************************
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. Removed fields ``block_number`` and ``block_hash`` from :class:`TransactionReceipt`
+2. Added a dedicated class :class:`TransactionReceiptWithBlockInfo`, a subclass of :class:`TransactionReceipt`, that has non-optional field ``block_number`` and optional field ``block_hash``.
+
+.. currentmodule:: starknet_py.net.client
+
+3. Changed return type of :meth:`Client.get_transaction_receipt` to :class:`~starknet_py.net.client_models.TransactionReceiptWithBlockInfo`.
+4. Changed return type of :meth:`Client.wait_for_tx` to :class:`~starknet_py.net.client_models.TransactionReceiptWithBlockInfo`.
+
+***************************
 0.28.0-rc.3 Migration guide
 ***************************
 

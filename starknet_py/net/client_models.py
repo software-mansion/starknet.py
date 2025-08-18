@@ -469,6 +469,9 @@ class TransactionReceipt:
 
 @dataclass
 class TransactionReceiptWithBlockInfo(TransactionReceipt):
+    """
+    Dataclass representing details of sent transaction with additional block info.
+    """
     block_number: int = 0
     block_hash: Optional[int] = None
 
