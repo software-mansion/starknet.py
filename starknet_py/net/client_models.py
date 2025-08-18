@@ -443,7 +443,7 @@ class ExecutionResources:
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
-@dataclass
+@dataclass(frozen=True)
 class TransactionReceipt:
     """
     Dataclass representing details of sent transaction.
@@ -470,9 +470,9 @@ class TransactionReceipt:
     revert_reason: Optional[str] = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class TransactionReceiptWithBlockInfo(TransactionReceipt):
-    block_number: int
+    block_number: int = 0
 
 
 @dataclass
