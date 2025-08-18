@@ -90,6 +90,14 @@ class TransactionReceiptSchema(Schema):
         return TransactionReceipt(**data)
 
 
+class TransactionReceiptWithBlockInfoSchema(TransactionReceiptSchema):
+    block_number = fields.Integer(data_key="block_number", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
+        return TransactionReceipt(**data)
+
+
 class TransactionStatusResponseSchema(Schema):
     finality_status = StatusField(data_key="finality_status", required=True)
     execution_status = ExecutionStatusField(

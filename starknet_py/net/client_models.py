@@ -471,6 +471,11 @@ class TransactionReceipt:
 
 
 @dataclass
+class TransactionReceiptWithBlockInfo(TransactionReceipt):
+    block_number: int
+
+
+@dataclass
 class TransactionWithReceipt:
     transaction: Transaction
     receipt: TransactionReceipt
