@@ -30,7 +30,7 @@ from starknet_py.net.client_models import (
     Tag,
     Transaction,
     TransactionExecutionStatus,
-    TransactionReceipt,
+    TransactionReceiptWithBlockInfo,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -190,7 +190,7 @@ class Client(ABC):
     async def get_transaction_receipt(
         self,
         tx_hash: Hash,
-    ) -> TransactionReceipt:
+    ) -> TransactionReceiptWithBlockInfo:
         """
         Get the transaction receipt
 
@@ -214,7 +214,7 @@ class Client(ABC):
         tx_hash: Hash,
         check_interval: float = 2,
         retries: int = 500,
-    ) -> TransactionReceipt:
+    ) -> TransactionReceiptWithBlockInfo:
         # pylint: disable=too-many-branches
         """
         Awaits the transaction until its status is either ``ACCEPTED_ON_L2`` or ``ACCEPTED_ON_L1``
