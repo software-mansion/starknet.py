@@ -5,7 +5,7 @@ Migration guide
 0.28.0-rc.4 Migration guide
 ***************************
 
-Version 0.28.0-rc.4 of **starknet.py** comes with partial support for RPC 0.9.0 (without the support for changes in the Websockets methods).
+Version 0.28.0-rc.4 of **starknet.py** comes with support for RPC 0.9.0 (without the support for changes in the Websockets methods).
 
 .. currentmodule:: starknet_py.net.client_models
 
