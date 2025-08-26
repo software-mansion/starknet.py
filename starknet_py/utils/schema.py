@@ -16,13 +16,5 @@ class UnknownOpts(SchemaOpts):
         )
 
 
-# TODO(#1564): `ExcludeOpts` should be removed once issue is resolved.
-class ExcludeOpts(SchemaOpts):
-
-    def __init__(self, meta, **kwargs):
-        SchemaOpts.__init__(self, meta, **kwargs)
-        self.unknown = EXCLUDE
-
-
 class Schema(MarshmallowSchema):
     OPTIONS_CLASS = UnknownOpts
