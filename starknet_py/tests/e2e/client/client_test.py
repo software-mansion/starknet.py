@@ -30,7 +30,7 @@ from starknet_py.net.client_models import (
     StorageProofResponse,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
-    TransactionReceipt,
+    TransactionReceiptWithBlockInfo,
     TransactionStatus,
     TransactionStatusResponse,
     TransactionType,
@@ -471,7 +471,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
         get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
-        mocked_receipt.return_value = TransactionReceipt(
+        mocked_receipt.return_value = TransactionReceiptWithBlockInfo(
             transaction_hash=0x1,
             block_number=1,
             type=TransactionType.INVOKE,
@@ -514,7 +514,7 @@ async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_p
         get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
-        mocked_receipt.return_value = TransactionReceipt(
+        mocked_receipt.return_value = TransactionReceiptWithBlockInfo(
             transaction_hash=0x1,
             block_number=1,
             type=TransactionType.INVOKE,

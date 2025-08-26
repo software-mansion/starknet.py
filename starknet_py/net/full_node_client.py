@@ -36,7 +36,7 @@ from starknet_py.net.client_models import (
     SyncStatus,
     Tag,
     Transaction,
-    TransactionReceipt,
+    TransactionReceiptWithBlockInfo,
     TransactionStatusResponse,
     TransactionTrace,
 )
@@ -88,7 +88,7 @@ from starknet_py.net.schemas.rpc.transactions import (
     DeployAccountTransactionResponseSchema,
     MessageStatusSchema,
     SentTransactionSchema,
-    TransactionReceiptSchema,
+    TransactionReceiptWithBlockInfoSchema,
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
 )
@@ -425,13 +425,18 @@ class FullNodeClient(Client):
         encoded_message = encode_l1_message(tx)
         return keccak256(encoded_message)
 
-    async def get_transaction_receipt(self, tx_hash: Hash) -> TransactionReceipt:
+    async def get_transaction_receipt(
+        self, tx_hash: Hash
+    ) -> TransactionReceiptWithBlockInfo:
         res = await self._client.call(
             method_name="getTransactionReceipt",
             params={"transaction_hash": _to_rpc_felt(tx_hash)},
         )
 
-        return cast(TransactionReceipt, TransactionReceiptSchema().load(res))
+        return cast(
+            TransactionReceiptWithBlockInfo,
+            TransactionReceiptWithBlockInfoSchema().load(res),
+        )
 
     async def estimate_fee(
         self,
