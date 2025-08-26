@@ -89,6 +89,7 @@ async def test_subscribe_new_heads(
     assert unsubscribe_result is True
 
 
+@pytest.mark.skip(reason="TODO(cptartur): Unskip when adding changes for websockets in RPC 0.9.0 ")
 @pytest.mark.asyncio
 async def test_subscribe_events(
     websocket_client: WebsocketClient,
@@ -207,6 +208,7 @@ async def test_subscribe_transaction_status(
     assert unsubscribe_result is True
 
 
+@pytest.mark.skip(reason="TODO(cptartur): Unskip when adding changes for websockets in RPC 0.9.0 ")
 @pytest.mark.asyncio
 async def test_subscribe_pending_transactions(
     websocket_client: WebsocketClient,
