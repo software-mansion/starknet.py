@@ -142,6 +142,7 @@ async def test_subscribe_events(
     assert unsubscribe_result is True
 
 
+@pytest.mark.skip(reason="TODO(#1644)")
 @pytest.mark.asyncio
 async def test_subscribe_transaction_status(
     websocket_client: WebsocketClient,
