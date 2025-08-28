@@ -8,19 +8,19 @@ from starknet_py.net.schemas.common import Felt, TransactionFinalityStatusField
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
 from starknet_py.net.schemas.rpc.event import EmittedEventSchema
 from starknet_py.net.schemas.rpc.transactions import (
+    TransactionReceiptSchema,
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
-    TransactionReceiptSchema,
 )
 from starknet_py.net.websockets.models import (
     NewEventsNotification,
     NewHeadsNotification,
+    NewTransactionNotification,
+    NewTransactionReceiptsNotification,
     NewTransactionStatus,
     ReorgData,
     ReorgNotification,
     TransactionStatusNotification,
-    NewTransactionReceiptsNotification,
-    NewTransactionNotification,
 )
 from starknet_py.utils.schema import Schema
 

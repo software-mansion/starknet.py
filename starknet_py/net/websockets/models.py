@@ -3,24 +3,15 @@ Dataclasses representing responses from Starknet Websocket RPC API.
 """
 
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar
 
 from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEvent,
-    TransactionStatusResponse,
-    TransactionReceipt,
     Transaction,
     TransactionFinalityStatus,
-)
-from starknet_py.net.models import (
-    DeclareV1,
-    DeclareV2,
-    DeclareV3,
-    DeployAccountV1,
-    DeployAccountV3,
-    InvokeV1,
-    InvokeV3,
+    TransactionReceipt,
+    TransactionStatusResponse,
 )
 
 T = TypeVar("T")
