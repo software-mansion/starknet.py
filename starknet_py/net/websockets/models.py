@@ -9,6 +9,9 @@ from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEvent,
     TransactionStatusResponse,
+    TransactionReceipt,
+    Transaction,
+    TransactionFinalityStatus,
 )
 from starknet_py.net.models import (
     DeclareV1,
@@ -64,24 +67,6 @@ class TransactionStatusNotification(Notification[NewTransactionStatus]):
     """
 
 
-Transaction = Union[
-    DeclareV1,
-    DeclareV2,
-    DeclareV3,
-    DeployAccountV1,
-    DeployAccountV3,
-    InvokeV1,
-    InvokeV3,
-]
-
-
-@dataclass
-class PendingTransactionsNotification(Notification[Union[int, Transaction]]):
-    """
-    Notification to the client of a new pending transaction.
-    """
-
-
 @dataclass
 class ReorgData:
     """
@@ -98,4 +83,24 @@ class ReorgData:
 class ReorgNotification(Notification[ReorgData]):
     """
     Notification of a reorganization of the chain.
+    """
+
+
+@dataclass
+class NewTransactionReceiptsNotification(Notification[TransactionReceipt]):
+    """
+    Notification of a new transaction receipt
+    """
+
+
+@dataclass
+class NewTransactionNotificationResult:
+    transaction: Transaction
+    finality_status: TransactionFinalityStatus
+
+
+@dataclass
+class NewTransactionNotification(Notification[NewTransactionNotificationResult]):
+    """
+    Notification of a new transaction
     """

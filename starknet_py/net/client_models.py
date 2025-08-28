@@ -36,6 +36,16 @@ Tag = Literal["l1_accepted", "pre_confirmed", "latest"]
 LatestTag = Literal["latest"]
 
 
+class TransactionFinalityStatus(Enum):
+    """
+    Enum representing transaction finality statuses.
+    """
+
+    PRE_CONFIRMED = "PRE_CONFIRMED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+
+
 @dataclass
 class Call:
     """
@@ -68,6 +78,7 @@ class EmittedEvent(Event):
     """
 
     transaction_hash: int
+    finality_status: TransactionFinalityStatus
     block_hash: Optional[int] = None
     block_number: Optional[int] = None
 
@@ -409,16 +420,6 @@ class TransactionExecutionStatus(Enum):
 
     SUCCEEDED = "SUCCEEDED"
     REVERTED = "REVERTED"
-
-
-class TransactionFinalityStatus(Enum):
-    """
-    Enum representing transaction finality statuses.
-    """
-
-    PRE_CONFIRMED = "PRE_CONFIRMED"
-    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
-    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass
