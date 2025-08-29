@@ -4,7 +4,11 @@ from marshmallow import ValidationError, fields, post_load
 
 from starknet_py.net.client_models import Transaction
 from starknet_py.net.client_utils import _to_rpc_felt
-from starknet_py.net.schemas.common import Felt, TransactionFinalityStatusField
+from starknet_py.net.schemas.common import (
+    Felt,
+    TransactionFinalityStatusField,
+    TransactionStatusWithoutL1Field,
+)
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
 from starknet_py.net.schemas.rpc.event import EmittedEventWithFinalitySchema
 from starknet_py.net.schemas.rpc.transactions import (
@@ -134,7 +138,7 @@ class TypesOfTransactionWithFinalitySchema(TypesOfTransactionsSchema):
                 "Invalid payload for transaction with finality_status."
             )
 
-        finality_status_field = TransactionFinalityStatusField(
+        finality_status_field = TransactionStatusWithoutL1Field(
             data_key="finality_status", required=True
         )
         finality_status = finality_status_field.deserialize(

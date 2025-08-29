@@ -9,9 +9,9 @@ from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEvent,
     Transaction,
-    TransactionFinalityStatus,
     TransactionReceipt,
     TransactionStatusResponse,
+    TransactionStatusWithoutL1,
 )
 
 T = TypeVar("T")
@@ -87,7 +87,7 @@ class NewTransactionReceiptsNotification(Notification[TransactionReceipt]):
 @dataclass
 class NewTransactionNotificationResult:
     transaction: Transaction
-    finality_status: TransactionFinalityStatus
+    finality_status: TransactionStatusWithoutL1
 
 
 @dataclass

@@ -409,6 +409,17 @@ class TransactionStatus(Enum):
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
+class TransactionStatusWithoutL1(Enum):
+    """
+    Enum representing transaction statuses.
+    """
+
+    RECEIVED = "RECEIVED"
+    CANDIDATE = "CANDIDATE"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+
+
 class TransactionExecutionStatus(Enum):
     """
     Enum representing transaction execution statuses.

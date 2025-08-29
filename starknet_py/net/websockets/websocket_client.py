@@ -9,7 +9,7 @@ from starknet_py.net.client_models import (
     Hash,
     LatestTag,
     TransactionFinalityStatus,
-    TransactionStatus,
+    TransactionStatusWithoutL1,
 )
 from starknet_py.net.client_utils import _to_rpc_felt, get_block_identifier
 from starknet_py.net.schemas.rpc.websockets import (
@@ -197,7 +197,7 @@ class WebsocketClient:
         self,
         handler: Callable[[NewTransactionNotification], Any],
         sender_address: Optional[List[int]] = None,
-        finality_status: Optional[TransactionStatus] = None,
+        finality_status: Optional[TransactionStatusWithoutL1] = None,
     ) -> str:
         """
         Creates a WebSocket stream which will fire events when a new pending transaction is added.
@@ -215,10 +215,6 @@ class WebsocketClient:
                 _to_rpc_felt(address) for address in sender_address
             ]
         if finality_status is not None:
-            if finality_status == "L1_ACCEPTED":
-                raise ValueError(
-                    f"{finality_status} is not allowed to be used for new transactions subscription."
-                )
             params["finality_status"] = finality_status.value
 
         subscription_id = await self._subscribe(
