@@ -62,14 +62,21 @@ class Event:
 
 
 @dataclass
-class EmittedEvent(Event):
+class _EmittedEventBase(Event):
+    transaction_hash: int
+
+
+@dataclass
+class _EmittedEventDefaultBase(Event):
+    block_hash: Optional[int] = None
+    block_number: Optional[int] = None
+
+
+@dataclass
+class EmittedEvent(_EmittedEventDefaultBase, _EmittedEventBase):
     """
     Dataclass representing an event emitted by transaction.
     """
-
-    transaction_hash: int
-    block_hash: Optional[int] = None
-    block_number: Optional[int] = None
 
 
 @dataclass
@@ -400,6 +407,17 @@ class TransactionStatus(Enum):
     PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+
+
+class TransactionStatusWithoutL1(Enum):
+    """
+    Enum representing transaction statuses.
+    """
+
+    RECEIVED = "RECEIVED"
+    CANDIDATE = "CANDIDATE"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
 
 
 class TransactionExecutionStatus(Enum):
@@ -1251,3 +1269,17 @@ class OutsideExecution:
                 for call in self.calls
             ],
         }
+
+
+@dataclass
+class _EmittedEventWithFinalityStatus:
+    finality_status: TransactionFinalityStatus
+
+
+@dataclass
+class EmittedEventWithFinalityStatus(
+    _EmittedEventDefaultBase, _EmittedEventWithFinalityStatus, _EmittedEventBase
+):
+    """
+    Dataclass representing an event emitted by transaction.
+    """

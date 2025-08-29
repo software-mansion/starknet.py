@@ -1,7 +1,12 @@
 from marshmallow import fields, post_load
 
-from starknet_py.net.client_models import EmittedEvent, Event, EventsChunk
-from starknet_py.net.schemas.common import Felt
+from starknet_py.net.client_models import (
+    EmittedEvent,
+    EmittedEventWithFinalityStatus,
+    Event,
+    EventsChunk,
+)
+from starknet_py.net.schemas.common import Felt, FinalityStatusField
 from starknet_py.utils.schema import Schema
 
 
@@ -23,6 +28,14 @@ class EmittedEventSchema(EventSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> EmittedEvent:
         return EmittedEvent(**data)
+
+
+class EmittedEventWithFinalitySchema(EmittedEventSchema):
+    finality_status = FinalityStatusField(data_key="finality_status", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> EmittedEventWithFinalityStatus:
+        return EmittedEventWithFinalityStatus(**data)
 
 
 class EventsChunkSchema(Schema):

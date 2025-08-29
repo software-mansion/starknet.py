@@ -2,6 +2,18 @@ Migration guide
 ===============
 
 ***************************
+0.28.0 Migration guide
+***************************
+
+Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
+
+.. py:currentmodule:: starknet_py.net.websockets.websocket_client
+
+1. Removed ``subscribe_pending_transactions`` method and respective notification.
+2. Added :meth:`WebsocketClient.subscribe_new_transactions` and :meth:`WebsocketClient.subscribe_new_transaction_receipts` and respective notifications.
+3. Added field ``finality_status`` to :meth:`WebsocketClient.subscribe_events`, changed ``NewEventsNotification`` that is used in the handler inner type to contain finalty status.
+
+***************************
 0.28.0-rc.4 Migration guide
 ***************************
 

@@ -16,6 +16,7 @@ from starknet_py.net.client_models import (
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionStatus,
+    TransactionStatusWithoutL1,
     TransactionType,
 )
 
@@ -203,6 +204,27 @@ class TransactionFinalityStatusField(fields.Field):
             )
 
         return TransactionFinalityStatus(value)
+
+
+class TransactionStatusWithoutL1Field(fields.Field):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> TransactionStatusWithoutL1:
+        values = [v.value for v in TransactionStatusWithoutL1]
+
+        if value not in values:
+            raise ValidationError(
+                f"Invalid value provided for TransactionStatusWithoutL1: {value}."
+            )
+
+        return TransactionStatusWithoutL1(value)
 
 
 class BlockStatusField(fields.Field):
