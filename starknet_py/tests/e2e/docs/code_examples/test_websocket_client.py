@@ -12,12 +12,10 @@ from starknet_py.net.client_models import (
     Call,
     EmittedEvent,
     TransactionExecutionStatus,
-    TransactionStatus, TransactionReceipt,
+    TransactionReceipt,
+    TransactionStatus,
 )
-from starknet_py.net.websockets.models import (
-    NewTransactionStatus,
-    ReorgData,
-)
+from starknet_py.net.websockets.models import NewTransactionStatus, ReorgData
 from starknet_py.net.websockets.websocket_client import WebsocketClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
@@ -204,9 +202,7 @@ async def test_subscribe_transaction_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(
-    reason="TODO(cptartur): Investigate why tx hashes assertion fails"
-)
+@pytest.mark.skip(reason="TODO(cptartur): Investigate why tx hashes assertion fails")
 @pytest.mark.asyncio
 async def test_subscribe_new_transaction_receipts(
     websocket_client: WebsocketClient,
@@ -220,7 +216,9 @@ async def test_subscribe_new_transaction_receipts(
     from starknet_py.net.websockets.models import NewTransactionReceiptsNotification
 
     # Create a handler function that will be called when a new transaction is emitted
-    def handler(new_transaction_receipts_notification: NewTransactionReceiptsNotification):
+    def handler(
+        new_transaction_receipts_notification: NewTransactionReceiptsNotification,
+    ):
         # Perform the necessary actions with the new transaction receipts...
 
         # docs-end: subscribe_new_transaction_receipts
