@@ -392,7 +392,6 @@ class WebsocketClient:
         """
         method: NotificationMethod = data["method"]
         schema = _NOTIFICATION_SCHEMA_MAPPING[method]
-        print(data["params"])
         notification: Notification = schema().load(data["params"])
 
         if notification.subscription_id not in self._subscriptions:
