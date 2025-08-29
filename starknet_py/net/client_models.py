@@ -62,14 +62,21 @@ class Event:
 
 
 @dataclass
-class EmittedEvent(Event):
+class _EmittedEventBase(Event):
+    transaction_hash: int
+
+
+@dataclass
+class _EmittedEventDefaultBase(Event):
+    block_hash: Optional[int] = None
+    block_number: Optional[int] = None
+
+
+@dataclass
+class EmittedEvent(_EmittedEventDefaultBase, _EmittedEventBase):
     """
     Dataclass representing an event emitted by transaction.
     """
-
-    transaction_hash: int
-    block_hash: Optional[int] = None
-    block_number: Optional[int] = None
 
 
 @dataclass
@@ -1251,3 +1258,17 @@ class OutsideExecution:
                 for call in self.calls
             ],
         }
+
+
+@dataclass
+class _EmittedEventWithFinalityStatus:
+    finality_status: TransactionFinalityStatus
+
+
+@dataclass
+class EmittedEventWithFinalityStatus(
+    _EmittedEventDefaultBase, _EmittedEventWithFinalityStatus, _EmittedEventBase
+):
+    """
+    Dataclass representing an event emitted by transaction.
+    """

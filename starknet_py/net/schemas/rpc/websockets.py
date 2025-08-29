@@ -6,7 +6,7 @@ from starknet_py.net.client_models import Transaction
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.schemas.common import Felt, TransactionFinalityStatusField
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
-from starknet_py.net.schemas.rpc.event import EmittedEventSchema
+from starknet_py.net.schemas.rpc.event import EmittedEventWithFinalitySchema
 from starknet_py.net.schemas.rpc.transactions import (
     TransactionReceiptSchema,
     TransactionStatusResponseSchema,
@@ -36,7 +36,9 @@ class NewHeadsNotificationSchema(Schema):
 
 class NewEventsNotificationSchema(Schema):
     subscription_id = fields.Str(data_key="subscription_id", required=True)
-    result = fields.Nested(EmittedEventSchema(), data_key="result", required=True)
+    result = fields.Nested(
+        EmittedEventWithFinalitySchema(), data_key="result", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> NewEventsNotification:
