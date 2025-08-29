@@ -7,7 +7,7 @@ from typing import Generic, TypeVar
 
 from starknet_py.net.client_models import (
     BlockHeader,
-    EmittedEvent,
+    EmittedEventWithFinalityStatus,
     Transaction,
     TransactionReceipt,
     TransactionStatusResponse,
@@ -35,7 +35,7 @@ class NewHeadsNotification(Notification[BlockHeader]):
 
 
 @dataclass
-class NewEventsNotification(Notification[EmittedEvent]):
+class NewEventsNotification(Notification[EmittedEventWithFinalityStatus]):
     """
     Notification to the client of a new event.
     """
