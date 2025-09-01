@@ -6,7 +6,6 @@ from starknet_py.net.client_models import Transaction
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.schemas.common import (
     Felt,
-    TransactionFinalityStatusField,
     TransactionStatusWithoutL1Field,
 )
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
@@ -25,6 +24,7 @@ from starknet_py.net.websockets.models import (
     ReorgData,
     ReorgNotification,
     TransactionStatusNotification,
+    NewTransactionNotificationResult,
 )
 from starknet_py.utils.schema import Schema
 
@@ -151,7 +151,9 @@ class TypesOfTransactionWithFinalitySchema(TypesOfTransactionsSchema):
         tx_payload.pop("finality_status", None)
         tx_obj = super().load(tx_payload, many=many, partial=partial, unknown=unknown)
 
-        return {"transaction": tx_obj, "finality_status": finality_status}
+        return NewTransactionNotificationResult(
+            transaction=tx_obj, finality_status=finality_status
+        )
 
 
 class NewTransactionNotificationSchema(Schema):
