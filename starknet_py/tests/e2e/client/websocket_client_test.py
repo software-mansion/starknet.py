@@ -1,13 +1,31 @@
-from typing import Optional
+from typing import Optional, List
 
+import asyncio
 import pytest
 
 from starknet_py.devnet_utils.devnet_client import DevnetClient
-from starknet_py.net.client_models import BlockHeader, StarknetBlock
+from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.net.account.base_account import BaseAccount
+from starknet_py.net.client_models import (
+    BlockHeader,
+    StarknetBlock,
+    Call,
+    TransactionFinalityStatus,
+    TransactionFinalityStatusWithoutL1,
+    TransactionStatusWithoutL1,
+    TransactionReceipt,
+)
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.websockets.errors import WebsocketClientError
-from starknet_py.net.websockets.models import NewHeadsNotification
+from starknet_py.net.websockets.models import (
+    NewHeadsNotification,
+    NewEventsNotification,
+    NewTransactionNotification,
+    NewTransactionReceiptsNotification,
+    NewTransactionNotificationResult,
+)
 from starknet_py.net.websockets.websocket_client import WebsocketClient
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -107,3 +125,120 @@ async def test_unsubscribe_with_non_existing_id(
 ):
     unsubscribe_result = await websocket_client.unsubscribe("123")
     assert unsubscribe_result is False
+
+
+@pytest.mark.asyncio
+async def test_subscribe_events_with_finality_status(
+    websocket_client: WebsocketClient,
+    deployed_balance_contract,
+    argent_account_v040: BaseAccount,
+):
+    received_events: List = []
+
+    def handler(new_events_notification: NewEventsNotification):
+        nonlocal received_events
+        received_events.append(new_events_notification.result)
+
+    subscription_id = await websocket_client.subscribe_events(
+        handler=handler,
+        from_address=deployed_balance_contract.address,
+        finality_status=TransactionFinalityStatusWithoutL1.ACCEPTED_ON_L2,
+    )
+
+    increase_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[100],
+    )
+    execute = await argent_account_v040.execute_v3(
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
+
+    await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    await asyncio.sleep(3)
+
+    assert len(received_events) >= 1
+    # Ensure we received at least one event with the requested finality status
+    assert all(
+        ev.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
+        for ev in received_events
+    )
+
+    unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
+    assert unsubscribe_result is True
+
+
+@pytest.mark.asyncio
+async def test_subscribe_new_transactions_with_finality_status(
+    websocket_client: WebsocketClient,
+    deployed_balance_contract,
+    argent_account_v040: BaseAccount,
+):
+    received: List[NewTransactionNotificationResult] = []
+
+    def handler(new_tx_notification: NewTransactionNotification):
+        nonlocal received
+        received.append(new_tx_notification.result)
+
+    subscription_id = await websocket_client.subscribe_new_transactions(
+        handler=handler,
+        sender_address=[argent_account_v040.address],
+        finality_status=[TransactionStatusWithoutL1.ACCEPTED_ON_L2],
+    )
+
+    increase_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[100],
+    )
+    execute = await argent_account_v040.execute_v3(
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
+
+    await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    await asyncio.sleep(3)
+
+    assert len(received) >= 1
+    assert all(r.finality_status == TransactionStatusWithoutL1.ACCEPTED_ON_L2 for r in received)
+
+    unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
+    assert unsubscribe_result is True
+
+
+@pytest.mark.asyncio
+async def test_subscribe_new_transaction_receipts_with_finality_status(
+    websocket_client: WebsocketClient,
+    deployed_balance_contract,
+    argent_account_v040: BaseAccount,
+):
+    receipts: List[TransactionReceipt] = []
+
+    def handler(new_tx_receipt: NewTransactionReceiptsNotification):
+        nonlocal receipts
+        receipts.append(new_tx_receipt.result)
+
+    subscription_id = await websocket_client.subscribe_new_transaction_receipts(
+        handler=handler,
+        sender_address=[argent_account_v040.address],
+        finality_status=[TransactionFinalityStatusWithoutL1.ACCEPTED_ON_L2],
+    )
+
+    increase_balance_call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[100],
+    )
+    execute = await argent_account_v040.execute_v3(
+        calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
+
+    await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    await asyncio.sleep(3)
+
+    assert len(receipts) >= 1
+    assert all(
+        r.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2 for r in receipts
+    )
+
+    unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
+    assert unsubscribe_result is True
