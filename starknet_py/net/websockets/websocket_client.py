@@ -8,7 +8,7 @@ from websockets.asyncio.client import ClientConnection, connect
 from starknet_py.net.client_models import (
     Hash,
     LatestTag,
-    TransactionFinalityStatus,
+    TransactionFinalityStatusWithoutL1,
     TransactionStatusWithoutL1,
 )
 from starknet_py.net.client_utils import _to_rpc_felt, get_block_identifier
@@ -134,7 +134,7 @@ class WebsocketClient:
         keys: Optional[List[List[int]]] = None,
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
-        finality_status: Optional[TransactionFinalityStatus] = None,
+        finality_status: Optional[TransactionFinalityStatusWithoutL1] = None,
     ) -> str:
         """
         Creates a WebSocket stream which will fire events for new Starknet events with applied filters.
@@ -145,6 +145,9 @@ class WebsocketClient:
         :param block_hash: Hash of the block to get notifications from or literal `"latest"`.
             Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"latest"`.
         :param block_number: Number (height) of the block to get notifications from or literal `"latest"`.
+        :param finality_status: The finality status of the most recent events to include, default is ACCEPTED_ON_L2.
+            If PRE_CONFIRMED finality is selected, events might appear multiple times,
+            once for each finality status update.
         :return: The subscription ID.
         """
         params = {}
@@ -155,10 +158,6 @@ class WebsocketClient:
                 [_to_rpc_felt(key) for key in key_group] for key_group in keys
             ]
         if finality_status is not None:
-            if finality_status == "ACCEPTED_ON_L1":
-                raise ValueError(
-                    f"{finality_status} is not allowed to be used for events subscription."
-                )
             params["finality_status"] = finality_status.value
 
         block_id = get_block_identifier(block_hash, block_number, "latest")
@@ -197,7 +196,7 @@ class WebsocketClient:
         self,
         handler: Callable[[NewTransactionNotification], Any],
         sender_address: Optional[List[int]] = None,
-        finality_status: Optional[TransactionStatusWithoutL1] = None,
+        finality_status: Optional[List[TransactionStatusWithoutL1]] = None,
     ) -> str:
         """
         Creates a WebSocket stream which will fire events when a new pending transaction is added.
@@ -205,7 +204,7 @@ class WebsocketClient:
 
         :param handler: The function to call when a new pending transaction is received.
         :param sender_address: List of sender addresses to filter transactions by.
-        :param finality_status: The finality statuses to filter transaction receipts by.
+        :param finality_status: The finality statuses to filter transaction receipts by, default is [ACCEPTED_ON_L2].
 
         :return: The subscription ID.
         """
@@ -215,7 +214,7 @@ class WebsocketClient:
                 _to_rpc_felt(address) for address in sender_address
             ]
         if finality_status is not None:
-            params["finality_status"] = finality_status.value
+            params["finality_status"] = [status.value for status in finality_status]
 
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeNewTransactions", params
@@ -225,7 +224,7 @@ class WebsocketClient:
     async def subscribe_new_transaction_receipts(
         self,
         handler: Callable[[NewTransactionReceiptsNotification], Any],
-        finality_status: Optional[List[TransactionFinalityStatus]] = None,
+        finality_status: Optional[List[TransactionFinalityStatusWithoutL1]] = None,
         sender_address: Optional[List[int]] = None,
     ) -> str:
         """
@@ -234,7 +233,7 @@ class WebsocketClient:
         to be received multiple times, or not at all.
 
         :param handler: The function to call when a new pending transaction is received.
-        :param finality_status: The finality statuses to filter transaction receipts by.
+        :param finality_status: The finality statuses to filter transaction receipts by, default is [ACCEPTED_ON_L2].
         :param sender_address: List of addresses to filter transactions by.
 
         :return: The subscription ID.
@@ -246,15 +245,7 @@ class WebsocketClient:
                 _to_rpc_felt(address) for address in sender_address
             ]
         if finality_status is not None:
-            if finality_status == "pre_confirmed":
-                params["finality_status"] = "PRE_CONFIRMED"
-            elif finality_status == "accepted_on_l2":
-                params["finality_status"] = "ACCEPTED_ON_L2"
-            else:
-                raise ValueError(
-                    f"{finality_status} is not allowed to be used for new transaction receipts "
-                    f"subscription."
-                )
+            params["finality_status"] = [status.value for status in finality_status]
 
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeNewTransactionReceipts", params

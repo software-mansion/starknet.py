@@ -439,6 +439,15 @@ class TransactionFinalityStatus(Enum):
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
+class TransactionFinalityStatusWithoutL1(Enum):
+    """
+    Enum representing transaction finality statuses, without ACCEPTED_ON_L1 status.
+    """
+
+    PRE_CONFIRMED = "PRE_CONFIRMED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+
+
 @dataclass
 class InnerCallExecutionResources:
     """

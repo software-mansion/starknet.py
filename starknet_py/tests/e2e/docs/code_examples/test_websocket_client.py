@@ -15,7 +15,11 @@ from starknet_py.net.client_models import (
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.websockets.models import NewTransactionStatus, ReorgData
+from starknet_py.net.websockets.models import (
+    NewTransactionNotification,
+    NewTransactionStatus,
+    ReorgData,
+)
 from starknet_py.net.websockets.websocket_client import WebsocketClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
@@ -211,6 +215,7 @@ async def test_subscribe_new_transaction_receipts(
 ):
     account = argent_account_v040
     transaction_receipts: List[TransactionReceipt] = []
+    transactions = []
 
     # docs-start: subscribe_new_transaction_receipts
     from starknet_py.net.websockets.models import NewTransactionReceiptsNotification
@@ -225,16 +230,32 @@ async def test_subscribe_new_transaction_receipts(
         nonlocal transaction_receipts
         transaction_receipts.append(new_transaction_receipts_notification.result)
 
+    def handler2(
+        new_transaction_notification: NewTransactionNotification,
+    ):
+        # Perform the necessary actions with the new transaction receipts...
+
+        # docs-end: subscribe_new_transaction_receipts
+        nonlocal transactions
+        transactions.append(new_transaction_notification.result)
+
     # docs-start: subscribe_new_transaction_receipts
     # Subscribe to new transaction receipts notifications
     subscription_id = await websocket_client.subscribe_new_transaction_receipts(
         handler=handler,
         sender_address=[account.address],
     )
+    subscription_id2 = await websocket_client.subscribe_new_transactions(
+        handler=handler2,
+        sender_address=[account.address],
+    )
 
     # Here you can put code which will keep the application running (e.g. using loop and `asyncio.sleep`)
     # ...
     # docs-end: subscribe_new_transaction_receipts
+    # assert len(transaction_receipts) == 0
+    print("transactions before ", transactions)
+
     increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
@@ -244,19 +265,26 @@ async def test_subscribe_new_transaction_receipts(
         calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
-    await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    rec = await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
     await argent_account_v040.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )
+    print("transaction hash", execute.transaction_hash)
+    print("transaction receipt", rec)
+
+    await asyncio.sleep(5)
+    print("transactions after", transactions)
 
     assert len(transaction_receipts) == 1
     transaction_receipt = transaction_receipts[0]
+    assert increase_balance_call.to_addr == transaction_receipt.contract_address
     assert execute.transaction_hash == transaction_receipt.transaction_hash
 
     # docs-start: subscribe_new_transaction_receipts
 
     # Unsubscribe from the notifications
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
+    await websocket_client.unsubscribe(subscription_id2)
     # docs-end: subscribe_new_transaction_receipts
     assert unsubscribe_result is True
 
