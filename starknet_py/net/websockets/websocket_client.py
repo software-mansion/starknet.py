@@ -57,6 +57,7 @@ _NOTIFICATION_SCHEMA_MAPPING = {
 }
 
 
+# pylint: disable=too-many-instance-attributes
 class WebsocketClient:
     """
     Starknet client for WebSocket API.
@@ -74,12 +75,24 @@ class WebsocketClient:
         self._pending_responses: Dict[int, asyncio.Future] = {}
         self._on_chain_reorg: Optional[Callable[[ReorgNotification], Any]] = None
 
+        # New: future that completes with an exception if listen loop dies
+        self._listen_failed: Optional[asyncio.Future] = None
+
     async def connect(self):
         """
         Establishes the WebSocket connection.
         """
-        self.connection = await connect(self.node_url)
+        self.connection = await connect(
+            self.node_url, ping_interval=None, ping_timeout=None
+        )
+
+        # Create/reset the failure future for this connection
+        loop = asyncio.get_running_loop()
+        self._listen_failed = loop.create_future()
+
+        # Start listener and attach a synchronous done-callback
         self._listen_task = asyncio.create_task(self._listen())
+        self._listen_task.add_done_callback(self._fail_fast)
 
     async def disconnect(self):
         """
@@ -92,6 +105,11 @@ class WebsocketClient:
             self._listen_task.cancel()
             await asyncio.gather(self._listen_task, return_exceptions=True)
             self._listen_task = None
+
+        # Make sure waiters on _listen_failed don't hang forever
+        if self._listen_failed and not self._listen_failed.done():
+            self._listen_failed.cancel()
+
         await self.connection.close()
         self.connection = None
 
@@ -320,8 +338,28 @@ class WebsocketClient:
         if self.connection is None:
             raise InvalidState("Connection is not established.")
 
-        async for message in self.connection:
+        while True:
+            message = await self.connection.recv()
             self._handle_received_message(message)
+
+    def _fail_fast(self, task: asyncio.Task) -> None:
+        if task.cancelled():
+            # Propagate cancellation to waiters
+            if self._listen_failed and not self._listen_failed.done():
+                self._listen_failed.cancel()
+            return
+
+        exc = task.exception()
+        if exc is not None:
+            # Signal failure to any waiter
+            if self._listen_failed and not self._listen_failed.done():
+                self._listen_failed.set_exception(exc)
+
+            # Also fail any pending RPC futures to unblock callers
+            for fut in self._pending_responses.values():
+                if not fut.done():
+                    fut.set_exception(exc)
+            self._pending_responses.clear()
 
     async def _send_message(
         self,
@@ -337,6 +375,10 @@ class WebsocketClient:
         if self.connection is None:
             raise InvalidState("Connection is not established.")
 
+        # If the listener already failed, raise immediately
+        if self._listen_failed and self._listen_failed.done():
+            await self._listen_failed
+
         message_id = self._message_id
         self._message_id += 1
 
@@ -347,11 +389,22 @@ class WebsocketClient:
             "params": params if params else [],
         }
 
-        future = asyncio.Future()
+        future: asyncio.Future = asyncio.get_running_loop().create_future()
         self._pending_responses[message_id] = future
 
         await self.connection.send(json.dumps(payload))
-        response = await future
+
+        if self._listen_failed is not None:
+            # Get the first future that completes
+            done, _ = await asyncio.wait(
+                {future, self._listen_failed},
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            done_future = next(iter(done))
+            # If the first completed future was `_listen_failed`, an exception will be raised on awaiting
+            response = await done_future
+        else:
+            response = await future
 
         if "error" in response:
             self._handle_error(response)
@@ -369,9 +422,10 @@ class WebsocketClient:
         # case when the message is a response to `subscribe_{method}`
         if "id" in data and data["id"] in self._pending_responses:
             future = self._pending_responses.pop(data["id"])
-            future.set_result(data)
+            if not future.done():
+                future.set_result(data)
 
-        # case when the message is a notification
+        # Case when the message is a notification
         elif "method" in data:
             self._handle_notification(data)
 
