@@ -424,10 +424,11 @@ class WebsocketClient:
             future = self._pending_responses.pop(data["id"])
             if not future.done():
                 future.set_result(data)
-
         # Case when the message is a notification
         elif "method" in data:
             self._handle_notification(data)
+        else:
+            raise ValueError(f"Unexpected message: {data}")
 
     def _handle_notification(self, data: Dict):
         """
@@ -456,3 +457,15 @@ class WebsocketClient:
             message=result["error"]["message"],
             data=result["error"].get("data"),
         )
+
+    # Optional: public awaitable for callers that want to detect failure or closure explicitly
+    async def wait_closed_or_failed(self) -> None:
+        """
+        Awaits until the listener is canceled (on caling .disconnect() method)
+            or WebsocketClient fails with an exception.
+        If .connect() was never called or failure happened, this method returns immediately.
+        Raises the original exception on failure.
+        """
+        if self._listen_failed is None:
+            return
+        await self._listen_failed

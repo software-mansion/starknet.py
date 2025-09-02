@@ -1,6 +1,9 @@
 import asyncio
+from json import JSONDecodeError
 from typing import List, Optional
+from unittest.mock import patch
 
+import marshmallow
 import pytest
 
 from starknet_py.devnet_utils.devnet_client import DevnetClient
@@ -234,6 +237,7 @@ async def test_subscribe_new_transaction_receipts_with_finality_status(
     execute = await argent_account_v040.execute_v3(
         calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
+    print("increase balance hash", execute.transaction_hash)
 
     await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
     await asyncio.sleep(3)
@@ -291,3 +295,59 @@ async def test_subscribe_events_with_all_filters(
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
     assert unsubscribe_result is True
+
+
+@pytest.mark.asyncio
+async def test_subscribe_failure():
+    class FakeConnection:
+        async def recv(self):
+            return "xyz"
+
+        async def send(self, *args, **kwargs):
+            return
+
+        async def close(self, *args, **kwargs):
+            return
+
+    async def fake_connect(*_args, **_kwargs):
+        return FakeConnection()
+
+    with patch(
+        "starknet_py.net.websockets.websocket_client.connect", side_effect=fake_connect
+    ):
+        ws = WebsocketClient("wss://example.invalid")
+        await ws.connect()
+
+        with pytest.raises(JSONDecodeError):
+            await ws.subscribe_events(lambda _: None)
+
+        await ws.disconnect()
+
+
+@pytest.mark.asyncio
+async def test_listener_failure():
+    class FakeConnection:
+        async def recv(self):
+            return '{"method": "starknet_subscriptionNewTransactionReceipts", "params": {"subscription_id": "1234", "result": {"unknown_key": 12345}}}'
+
+        async def send(self, *args, **kwargs):
+            return
+
+        async def close(self, *args, **kwargs):
+            return
+
+    async def fake_connect(*_args, **_kwargs):
+        return FakeConnection()
+
+    with patch(
+        "starknet_py.net.websockets.websocket_client.connect", side_effect=fake_connect
+    ):
+        ws = WebsocketClient("wss://example.invalid")
+        await ws.connect()
+
+        ws._subscriptions["1234"] = lambda _: None
+
+        with pytest.raises(marshmallow.ValidationError):
+            await ws.wait_closed_or_failed()
+
+        await ws.disconnect()
