@@ -558,6 +558,8 @@ class ContractFunction:
         *args,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
         nonce: Optional[int] = None,
         **kwargs,
     ) -> InvokeResult:
@@ -567,6 +569,8 @@ class ContractFunction:
 
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
@@ -575,6 +579,8 @@ class ContractFunction:
             resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
+            tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
     @staticmethod
