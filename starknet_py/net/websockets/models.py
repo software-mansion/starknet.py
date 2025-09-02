@@ -9,9 +9,9 @@ from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEventWithFinalityStatus,
     Transaction,
-    TransactionReceipt,
     TransactionStatusResponse,
     TransactionStatusWithoutL1,
+    TransactionReceiptWithBlockInfo,
 )
 
 T = TypeVar("T")
@@ -78,7 +78,7 @@ class ReorgNotification(Notification[ReorgData]):
 
 
 @dataclass
-class NewTransactionReceiptsNotification(Notification[TransactionReceipt]):
+class NewTransactionReceiptsNotification(Notification[TransactionReceiptWithBlockInfo]):
     """
     Notification of a new transaction receipt
     """

@@ -1,30 +1,27 @@
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from marshmallow import ValidationError, fields, post_load
 
-from starknet_py.net.client_models import Transaction
+from starknet_py.net.client_models import Transaction, TransactionStatusWithoutL1
 from starknet_py.net.client_utils import _to_rpc_felt
-from starknet_py.net.schemas.common import (
-    Felt,
-    TransactionStatusWithoutL1Field,
-)
+from starknet_py.net.schemas.common import Felt, TransactionStatusWithoutL1Field
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
 from starknet_py.net.schemas.rpc.event import EmittedEventWithFinalitySchema
 from starknet_py.net.schemas.rpc.transactions import (
-    TransactionReceiptSchema,
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
+    TransactionReceiptWithBlockInfoSchema,
 )
 from starknet_py.net.websockets.models import (
     NewEventsNotification,
     NewHeadsNotification,
     NewTransactionNotification,
+    NewTransactionNotificationResult,
     NewTransactionReceiptsNotification,
     NewTransactionStatus,
     ReorgData,
     ReorgNotification,
     TransactionStatusNotification,
-    NewTransactionNotificationResult,
 )
 from starknet_py.utils.schema import Schema
 
@@ -123,7 +120,7 @@ class ReorgNotificationSchema(Schema):
 
 class NewTransactionReceiptsNotificationSchema(Schema):
     subscription_id = fields.Str(data_key="subscription_id", required=True)
-    result = fields.Nested(TransactionReceiptSchema(), data_key="result", required=True)
+    result = fields.Nested(TransactionReceiptWithBlockInfoSchema(), data_key="result", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> NewTransactionReceiptsNotification:
@@ -146,10 +143,12 @@ class TypesOfTransactionWithFinalitySchema(TypesOfTransactionsSchema):
             attr="finality_status",
             data=data,
         )
+        finality_status = cast(TransactionStatusWithoutL1, finality_status)
 
         tx_payload = dict(data)
         tx_payload.pop("finality_status", None)
         tx_obj = super().load(tx_payload, many=many, partial=partial, unknown=unknown)
+        tx_obj = cast(Transaction, tx_obj)
 
         return NewTransactionNotificationResult(
             transaction=tx_obj, finality_status=finality_status
