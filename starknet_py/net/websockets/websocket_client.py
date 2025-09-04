@@ -417,6 +417,7 @@ class WebsocketClient:
 
         :param message: The message received from the WebSocket server.
         """
+        print("pure response", message)
         data = cast(Dict, json.loads(message))
 
         # case when the message is a response to `subscribe_{method}`
@@ -436,6 +437,8 @@ class WebsocketClient:
 
         :param data: The notification data.
         """
+        print("data ", data)
+
         method: NotificationMethod = data["method"]
         schema = _NOTIFICATION_SCHEMA_MAPPING[method]
         notification: Notification = schema().load(data["params"])
