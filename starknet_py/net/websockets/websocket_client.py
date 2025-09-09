@@ -73,6 +73,7 @@ class WebsocketClient:
         self._subscriptions: Dict[str, NotificationHandler] = {}
         self._message_id = 0
         self._pending_responses: Dict[int, asyncio.Future] = {}
+        self._pending_notifications: Dict[str, List[Notification]] = {}
         self._on_chain_reorg: Optional[Callable[[ReorgNotification], Any]] = None
 
         # New: future that completes with an exception if listen loop dies
@@ -329,6 +330,10 @@ class WebsocketClient:
         subscription_id = response_message["result"]
         self._subscriptions[subscription_id] = handler
 
+        pending = self._pending_notifications.pop(subscription_id, [])
+        for notification in pending:
+            handler(notification)
+
         return subscription_id
 
     async def _listen(self):
@@ -440,7 +445,9 @@ class WebsocketClient:
         schema = _NOTIFICATION_SCHEMA_MAPPING[method]
         notification: Notification = schema().load(data["params"])
 
+        # Notification may arrive before the subscription is registered
         if notification.subscription_id not in self._subscriptions:
+            self._pending_notifications.setdefault(notification.subscription_id, []).append(notification)
             return
 
         if isinstance(notification, ReorgNotification):
