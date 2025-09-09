@@ -89,15 +89,6 @@ class Felt(NumberAsHex):
     REGEX_PATTERN = r"^0x(0|[a-fA-F1-9]{1}[a-fA-F0-9]{0,62})$"
 
 
-class EthAddress(NumberAsHex):
-    """
-    Field used to serialize and deserialize ETH address type.
-    """
-
-    MAX_VALUE = 2**160
-    REGEX_PATTERN = r"^0x[a-fA-F0-9]{40}$"
-
-
 class Uint64(NumberAsHex):
     """
     Field used to serialize and deserialize RPC u64 type.
@@ -193,6 +184,27 @@ class FinalityStatusField(fields.Field):
         return TransactionFinalityStatus(value)
 
 
+class TransactionFinalityStatusField(fields.Field):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> TransactionFinalityStatus:
+        values = [v.value for v in TransactionFinalityStatus]
+
+        if value not in values:
+            raise ValidationError(
+                f"Invalid value provided for TransactionFinalityStatusField: {value}."
+            )
+
+        return TransactionFinalityStatus(value)
+
+
 class BlockStatusField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
@@ -205,9 +217,6 @@ class BlockStatusField(fields.Field):
         **kwargs,
     ) -> BlockStatus:
         values = [v.value for v in BlockStatus]
-
-        if value in ("ABORTED", "REVERTED"):
-            return BlockStatus.REJECTED
 
         if value not in values:
             raise ValidationError(f"Invalid value for BlockStatus provided: {value}.")
@@ -366,6 +375,9 @@ class RevisionField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs) -> Revision:
         if isinstance(value, str):
             value = int(value)
+
+        if isinstance(value, Revision):
+            value = value.value
 
         revisions = [revision.value for revision in Revision]
         if value not in revisions:

@@ -2,9 +2,10 @@ name: Checks
 
 env:
   CAIRO_LANG_VERSION: "0.13.1"
-  DEVNET_VERSION: "0.1.2"
-  DEVNET_SHA: 7e7dbb5
-  LEDGER_APP_SHA: dd58c5c
+  # TODO(#1611)
+  DEVNET_SHA: 4798b6d516d7559aae02773721ff5fcb50ffccb2 # v0.5.0-rc.4
+  LEDGER_APP_SHA: 768a7b47b0da681b28112342edd76e2c9b292c4e # v2.3.1
+  LEDGER_APP_DEV_TOOLS_SHA: a845b2ab0b5dd824133f73858f6f373edea85ec1bd828245bf50ce9700f33bcb # v4.5.0
 
 on:
   push:
@@ -13,6 +14,10 @@ on:
       - development
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -31,10 +36,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'poetry'
@@ -45,7 +49,7 @@ jobs:
 
       - name: Check poetry.lock
         run: |
-          poetry lock --check
+          poetry check --lock
 
       - name: Lint
         run: |
@@ -75,7 +79,7 @@ jobs:
 
       - uses: actions/checkout@v4
       - uses: asdf-vm/actions/setup@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -84,10 +88,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -124,7 +127,7 @@ jobs:
           poetry run poe compile_contracts v1
 
       - name: Upload contracts artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
@@ -140,7 +143,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: [ "3.9", "3.12" ]
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
@@ -149,12 +152,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download contracts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -165,10 +168,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -185,7 +187,7 @@ jobs:
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
       - name: Pull speculos image
-        run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+        run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }}
 
 
       - name: Clone LedgerHQ Starknet app repository
@@ -194,18 +196,19 @@ jobs:
       - name: Build the app inside Docker container
         uses: addnab/docker-run-action@v3
         with:
-          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }}
           options: --rm -v ${{ github.workspace }}:/apps
           run: |
             cd /apps/app-starknet
             git checkout ${{ env.LEDGER_APP_SHA }}
+            cd starknet
             cargo clean
             cargo ledger build nanox
 
       - name: Start Speculos emulator container
         uses: addnab/docker-run-action@v3
         with:
-          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+          image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }}
           options: --rm -d --name speculos-emulator -v ${{ github.workspace }}:/apps --publish 5000:5000 --publish 9999:9999
           run: |
             speculos \
@@ -217,6 +220,9 @@ jobs:
 
       - name: Wait for Speculos to start
         run: sleep 5
+
+      - name: Allow blind signing
+        run: ./starknet_py/tests/unit/signer/allow_ledger_blind_signing.sh
 
       - name: Update automation rules
         working-directory: starknet_py/tests/unit/signer
@@ -231,6 +237,14 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
+      - uses: asdf-vm/actions/setup@v3
+
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
+
       - name: Run tests
         run: |
           poetry run poe test_ci_v2
@@ -241,7 +255,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # ..................RUN-TESTS-ON-NETWORKS................... #
@@ -257,16 +271,19 @@ jobs:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
       SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
       SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
+      # TODO(#1582): Remove braavos envs once integration is restored
+      SEPOLIA_BRAAVOS_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_ADDRESS }}
+      SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Download contracts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -277,10 +294,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'poetry'
@@ -300,8 +316,13 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
+      - uses: asdf-vm/actions/setup@v3
+
+#     TODO(#1498): Remove contracts compilation in the step below once issue with compilation is resolved
       - name: Run tests
         run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
@@ -309,7 +330,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # ....................RUN-TESTS-WINDOWS..................... #
@@ -323,22 +344,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: [ "3.9", "3.12" ]
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
-          toolchain: 1.79.0  # Doesn't work with "stable"
+          toolchain: 1.83.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -364,10 +385,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -392,7 +412,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # .....................RUN-DOCS-TESTS....................... #
@@ -405,17 +425,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: [ "3.9", "3.12" ]
     steps:
       - uses: actions/checkout@v4
 
       - name: Download contracts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -426,10 +446,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -445,6 +464,14 @@ jobs:
 
       # ====================== RUN TESTS ====================== #
 
+      - uses: asdf-vm/actions/setup@v3
+
+#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
+      - name: Compile contracts
+        run: |
+          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts v1
+
       - name: Run tests
         run: |
           poetry run poe test_ci_docs_v2
@@ -455,7 +482,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
 
   # ---------------------------------------------------------- #
   # .................RUN-DOCS-TESTS-WINDOWS................... #
@@ -469,20 +496,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.12" ]
+        python-version: [ "3.9", "3.12" ]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
         with:
-          toolchain: 1.79.0 # Doesn't work with "stable"
+          toolchain: 1.83.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: 'pip'
@@ -493,10 +520,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry config installer.modern-installation false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -533,4 +559,4 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5

@@ -2,16 +2,13 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.net.account.account import Account
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId, parse_address
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_FEE,
-    MAX_RESOURCE_BOUNDS_L1,
-    STRK_FEE_CONTRACT_ADDRESS,
-)
+from starknet_py.net.signer.key_pair import KeyPair
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.asyncio
@@ -36,23 +33,7 @@ async def test_get_balance_default_token_address():
 
     (call,) = call[0]
 
-    assert call.to_addr == parse_address(FEE_CONTRACT_ADDRESS)
-
-
-@pytest.mark.asyncio
-async def test_account_get_balance_eth(account, hello_starknet_contract):
-    balance = await account.get_balance()
-    block = await account.client.get_block(block_number="latest")
-
-    await hello_starknet_contract.functions["increase_balance"].invoke_v1(
-        amount=10, max_fee=MAX_FEE
-    )
-    new_balance = await account.get_balance()
-    old_balance = await account.get_balance(block_number=block.block_number)
-
-    assert balance > 0
-    assert new_balance < balance
-    assert old_balance == balance
+    assert call.to_addr == parse_address(STRK_FEE_CONTRACT_ADDRESS)
 
 
 @pytest.mark.asyncio
@@ -61,7 +42,7 @@ async def test_account_get_balance_strk(account, hello_starknet_contract):
     block = await account.client.get_block(block_number="latest")
 
     await hello_starknet_contract.functions["increase_balance"].invoke_v3(
-        amount=10, l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1
+        amount=10, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     new_balance = await account.get_balance(token_address=STRK_FEE_CONTRACT_ADDRESS)

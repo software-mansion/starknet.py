@@ -16,9 +16,9 @@ from starknet_py.net.client_models import (
 from starknet_py.net.schemas.common import CallTypeField, EntryPointTypeField, Felt
 from starknet_py.net.schemas.rpc.block import StateDiffSchema
 from starknet_py.net.schemas.rpc.general import (
-    ComputationResourcesSchema,
     EstimatedFeeSchema,
     ExecutionResourcesSchema,
+    InnerCallExecutionResourcesSchema,
 )
 from starknet_py.utils.schema import Schema
 
@@ -67,9 +67,12 @@ class FunctionInvocationSchema(Schema):
     messages = fields.List(
         fields.Nested(OrderedMessageSchema()), data_key="messages", required=True
     )
-    computation_resources = fields.Nested(
-        ComputationResourcesSchema(), data_key="execution_resources", required=True
+    execution_resources = fields.Nested(
+        InnerCallExecutionResourcesSchema(),
+        data_key="execution_resources",
+        required=True,
     )
+    is_reverted = fields.Boolean(data_key="is_reverted", required=True)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> FunctionInvocation:

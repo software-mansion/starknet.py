@@ -26,9 +26,15 @@ from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_pro
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import Call, EstimatedFee, Hash, ResourceBounds, Tag
+from starknet_py.net.client_models import (
+    Call,
+    EstimatedFee,
+    Hash,
+    ResourceBoundsMapping,
+    Tag,
+)
 from starknet_py.net.models import AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import Declare, Invoke
+from starknet_py.net.models.transaction import DeclareV3, InvokeV3
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.proxy.contract_abi_resolver import (
     ContractAbiResolver,
@@ -141,7 +147,7 @@ class InvokeResult(SentTransaction):
     contract: ContractData = None  # pyright: ignore
     """Additional information about the Contract that made the transaction."""
 
-    invoke_transaction: Invoke = None  # pyright: ignore
+    invoke_transaction: InvokeV3 = None  # pyright: ignore
     """A InvokeTransaction instance used."""
 
     def __post_init__(self):
@@ -165,7 +171,7 @@ class DeclareResult(SentTransaction):
     compiled_contract: str = None  # pyright: ignore
     """Compiled contract that was declared."""
 
-    declare_transaction: Declare = None  # pyright: ignore
+    declare_transaction: DeclareV3 = None  # pyright: ignore
     """A Declare transaction that has been sent."""
 
     def __post_init__(self):
@@ -181,48 +187,6 @@ class DeclareResult(SentTransaction):
         if self.declare_transaction is None:
             raise ValueError("Argument declare_transaction can't be None.")
 
-    async def deploy_v1(
-        self,
-        *,
-        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
-        salt: Optional[int] = None,
-        unique: bool = True,
-        constructor_args: Optional[Union[List, Dict]] = None,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> "DeployResult":
-        """
-        Deploys a contract.
-
-        :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/sepolia) by default.
-            Must be set when using custom network other than ones listed above.
-        :param salt: Optional salt. Random value is selected if it is not provided.
-        :param unique: Determines if the contract should be salted with the account address.
-        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
-        :param nonce: Nonce of the transaction with call to deployer.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeployResult instance.
-        """
-        # pylint: disable=too-many-arguments, too-many-locals
-        abi = self._get_abi()
-
-        return await Contract.deploy_contract_v1(
-            account=self._account,
-            class_hash=self.class_hash,
-            abi=abi,
-            constructor_args=constructor_args,
-            deployer_address=deployer_address,
-            cairo_version=self._cairo_version,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-            salt=salt,
-            unique=unique,
-        )
-
     async def deploy_v3(
         self,
         *,
@@ -231,8 +195,10 @@ class DeclareResult(SentTransaction):
         unique: bool = True,
         constructor_args: Optional[Union[List, Dict]] = None,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> "DeployResult":
         """
         Deploys a contract.
@@ -244,9 +210,10 @@ class DeclareResult(SentTransaction):
         :param unique: Determines if the contract should be salted with the account address.
         :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
         :param nonce: Nonce of the transaction with call to deployer.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -260,10 +227,12 @@ class DeclareResult(SentTransaction):
             deployer_address=deployer_address,
             cairo_version=self._cairo_version,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
             salt=salt,
             unique=unique,
+            tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
     def _get_abi(self) -> List:
@@ -382,13 +351,13 @@ class PreparedFunctionInvoke(ABC, PreparedCallBase):
 
         :param block_hash: Estimate fee at specific block hash.
         :param block_number: Estimate fee at given block number
-            (or "latest" / "pending" for the latest / pending block), default is "pending".
+            (or "latest" / "pre_confirmed" for the latest / pre_confirmed block), default is "pre_confirmed".
         :param nonce: Nonce of the transaction.
         :return: Estimated amount of the transaction cost, either in Wei or Fri associated with executing the
             specified transaction.
         """
 
-    async def _invoke(self, transaction: Invoke) -> InvokeResult:
+    async def _invoke(self, transaction: InvokeV3) -> InvokeResult:
         response = await self._client.send_transaction(transaction)
 
         invoke_result = InvokeResult(
@@ -403,89 +372,41 @@ class PreparedFunctionInvoke(ABC, PreparedCallBase):
 
 @add_sync_methods
 @dataclass
-class PreparedFunctionInvokeV1(PreparedFunctionInvoke):
-    """
-    Prepared date to send an InvokeV1 transaction.
-    """
-
-    max_fee: Optional[int]
-
-    async def invoke(
-        self,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        *,
-        nonce: Optional[int] = None,
-    ) -> InvokeResult:
-        """
-        Send an Invoke transaction version 1 for the prepared data.
-
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :param nonce: Nonce of the transaction.
-        :return: InvokeResult.
-        """
-
-        transaction = await self.get_account.sign_invoke_v1(
-            calls=self,
-            nonce=nonce,
-            max_fee=max_fee or self.max_fee,
-            auto_estimate=auto_estimate,
-        )
-
-        return await self._invoke(transaction)
-
-    async def estimate_fee(
-        self,
-        block_hash: Optional[Union[Hash, Tag]] = None,
-        block_number: Optional[Union[int, Tag]] = None,
-        *,
-        nonce: Optional[int] = None,
-    ) -> EstimatedFee:
-        tx = await self.get_account.sign_invoke_v1(calls=self, nonce=nonce, max_fee=0)
-        estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
-
-        estimated_fee = await self._client.estimate_fee(
-            tx=estimate_tx,
-            block_hash=block_hash,
-            block_number=block_number,
-        )
-
-        assert isinstance(estimated_fee, EstimatedFee)
-        return estimated_fee
-
-
-@add_sync_methods
-@dataclass
 class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
     """
     Prepared date to send an InvokeV3 transaction.
     """
 
-    l1_resource_bounds: Optional[ResourceBounds]
+    resource_bounds: Optional[ResourceBoundsMapping]
+    tip: Optional[int] = None
 
     async def invoke(
         self,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
         *,
         nonce: Optional[int] = None,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeResult:
         """
         Send an Invoke transaction version 3 for the prepared data.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
+        :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: InvokeResult.
         """
 
         transaction = await self.get_account.sign_invoke_v3(
             calls=self,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds or self.l1_resource_bounds,
+            resource_bounds=resource_bounds or self.resource_bounds,
             auto_estimate=auto_estimate,
+            tip=tip or self.tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
         return await self._invoke(transaction)
@@ -498,7 +419,9 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         nonce: Optional[int] = None,
     ) -> EstimatedFee:
         tx = await self.get_account.sign_invoke_v3(
-            calls=self, nonce=nonce, l1_resource_bounds=ResourceBounds.init_with_zeros()
+            calls=self,
+            nonce=nonce,
+            resource_bounds=ResourceBoundsMapping.init_with_zeros(),
         )
         estimate_tx = await self.get_account.sign_for_fee_estimate(transaction=tx)
 
@@ -600,59 +523,11 @@ class ContractFunction:
             block_hash=block_hash, block_number=block_number
         )
 
-    def prepare_invoke_v1(
-        self,
-        *args,
-        max_fee: Optional[int] = None,
-        **kwargs,
-    ) -> PreparedFunctionInvokeV1:
-        """
-        ``*args`` and ``**kwargs`` are translated into Cairo calldata.
-        Creates a ``PreparedFunctionInvokeV1`` instance which exposes calldata for every argument
-        and adds more arguments when calling methods.
-
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :return: PreparedFunctionCall.
-        """
-
-        calldata = self._payload_transformer.serialize(*args, **kwargs)
-        return PreparedFunctionInvokeV1(
-            to_addr=self.contract_data.address,
-            calldata=calldata,
-            selector=self.get_selector(self.name),
-            max_fee=max_fee,
-            _contract_data=self.contract_data,
-            _client=self.client,
-            _account=self.account,
-            _payload_transformer=self._payload_transformer,
-        )
-
-    async def invoke_v1(
-        self,
-        *args,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        nonce: Optional[int] = None,
-        **kwargs,
-    ) -> InvokeResult:
-        """
-        Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
-        Equivalent of ``.prepare_invoke_v1(*args, **kwargs).invoke()``.
-
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :param nonce: Nonce of the transaction.
-        :return: InvokeResult.
-        """
-        prepared_invoke = self.prepare_invoke_v1(*args, **kwargs)
-        return await prepared_invoke.invoke(
-            max_fee=max_fee, nonce=nonce, auto_estimate=auto_estimate
-        )
-
     def prepare_invoke_v3(
         self,
         *args,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
+        tip: Optional[int] = None,
         **kwargs,
     ) -> PreparedFunctionInvokeV3:
         """
@@ -660,8 +535,8 @@ class ContractFunction:
         Creates a ``PreparedFunctionInvokeV3`` instance which exposes calldata for every argument
         and adds more arguments when calling methods.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
+        :param tip: The tip amount to be added to the transaction fee.
         :return: PreparedFunctionInvokeV3.
         """
 
@@ -670,7 +545,8 @@ class ContractFunction:
             to_addr=self.contract_data.address,
             calldata=calldata,
             selector=self.get_selector(self.name),
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
+            tip=tip,
             _contract_data=self.contract_data,
             _client=self.client,
             _account=self.account,
@@ -680,7 +556,7 @@ class ContractFunction:
     async def invoke_v3(
         self,
         *args,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
         nonce: Optional[int] = None,
         **kwargs,
@@ -689,15 +565,14 @@ class ContractFunction:
         Invoke contract's function. ``*args`` and ``**kwargs`` are translated into Cairo calldata.
         Equivalent of ``.prepare_invoke_v3(*args, **kwargs).invoke()``.
 
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param nonce: Nonce of the transaction.
         :return: InvokeResult.
         """
         prepared_invoke = self.prepare_invoke_v3(*args, **kwargs)
         return await prepared_invoke.invoke(
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
         )
@@ -810,84 +685,6 @@ class Contract:
             cairo_version=cairo_version,
         )
 
-    # pylint: disable=line-too-long
-    @staticmethod
-    async def declare_v1(
-        account: BaseAccount,
-        compiled_contract: str,
-        *,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareResult:
-        """
-        Declares a contract.
-        This method is deprecated, not covered by tests and will be removed in the future.
-        Please use current version of transaction signing methods.
-
-        Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
-
-        :param account: BaseAccount used to sign and send declare transaction.
-        :param compiled_contract: String containing compiled contract.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeclareResult instance.
-        """
-
-        declare_tx = await account.sign_declare_v1(
-            compiled_contract=compiled_contract,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-
-        return await _declare_contract(
-            declare_tx, account, compiled_contract, cairo_version=0
-        )
-
-    # pylint: enable=line-too-long
-    @staticmethod
-    async def declare_v2(
-        account: BaseAccount,
-        compiled_contract: str,
-        *,
-        compiled_contract_casm: Optional[str] = None,
-        compiled_class_hash: Optional[int] = None,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-    ) -> DeclareResult:
-        # pylint: disable=too-many-arguments
-        """
-        Declares a contract.
-
-        :param account: BaseAccount used to sign and send declare transaction.
-        :param compiled_contract: String containing compiled contract.
-        :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
-        :param compiled_class_hash: Hash of the compiled_contract_casm.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :return: DeclareResult instance.
-        """
-
-        compiled_class_hash = _extract_compiled_class_hash(
-            compiled_contract_casm, compiled_class_hash
-        )
-
-        declare_tx = await account.sign_declare_v2(
-            compiled_contract=compiled_contract,
-            compiled_class_hash=compiled_class_hash,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-
-        return await _declare_contract(
-            declare_tx, account, compiled_contract, cairo_version=1
-        )
-
     @staticmethod
     async def declare_v3(
         account: BaseAccount,
@@ -896,8 +693,10 @@ class Contract:
         compiled_contract_casm: Optional[str] = None,
         compiled_class_hash: Optional[int] = None,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareResult:
         # pylint: disable=too-many-arguments
 
@@ -909,9 +708,10 @@ class Contract:
         :param compiled_contract_casm: String containing the content of the starknet-sierra-compile (.casm file).
         :param compiled_class_hash: Hash of the compiled_contract_casm.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
+        :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeclareResult instance.
         """
 
@@ -923,78 +723,15 @@ class Contract:
             compiled_contract=compiled_contract,
             compiled_class_hash=compiled_class_hash,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
+            tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
         return await _declare_contract(
             declare_tx, account, compiled_contract, cairo_version=1
         )
-
-    @staticmethod
-    async def deploy_contract_v1(
-        account: BaseAccount,
-        class_hash: Hash,
-        abi: List,
-        constructor_args: Optional[Union[List, Dict]] = None,
-        *,
-        deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
-        cairo_version: int = 0,
-        nonce: Optional[int] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate: bool = False,
-        salt: Optional[int] = None,
-        unique: bool = True,
-    ) -> "DeployResult":
-        """
-        Deploys a contract through Universal Deployer Contract.
-
-        :param account: BaseAccount used to sign and send deploy transaction.
-        :param class_hash: The class_hash of the contract to be deployed.
-        :param abi: An abi of the contract to be deployed.
-        :param constructor_args: a ``list`` or ``dict`` of arguments for the constructor.
-        :param deployer_address: Address of the UDC. Is set to the address of
-            the default UDC (same address on mainnet/sepolia) by default.
-            Must be set when using custom network other than ones listed above.
-        :param cairo_version: Version of the Cairo in which contract is written.
-            By default, it is set to 0.
-        :param nonce: Nonce of the transaction.
-        :param max_fee: Max amount of Wei to be paid when executing transaction.
-        :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
-        :param salt: Optional salt. Random value is selected if it is not provided.
-        :param unique: Determines if the contract should be salted with the account address.
-        :return: DeployResult instance.
-        """
-        # pylint: disable=too-many-arguments, too-many-locals
-        deployer = Deployer(
-            deployer_address=deployer_address,
-            account_address=account.address if unique else None,
-        )
-        deploy_call, address = deployer.create_contract_deployment(
-            class_hash=class_hash,
-            salt=salt,
-            abi=abi,
-            calldata=constructor_args,
-            cairo_version=cairo_version,
-        )
-
-        res = await account.execute_v1(
-            calls=deploy_call,
-            nonce=nonce,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate,
-        )
-
-        deployed_contract = Contract(
-            provider=account, address=address, abi=abi, cairo_version=cairo_version
-        )
-        deploy_result = DeployResult(
-            hash=res.transaction_hash,
-            _client=account.client,
-            deployed_contract=deployed_contract,
-        )
-
-        return deploy_result
 
     @staticmethod
     async def deploy_contract_v3(
@@ -1006,10 +743,12 @@ class Contract:
         deployer_address: AddressRepresentation = DEFAULT_DEPLOYER_ADDRESS,
         cairo_version: int = 1,
         nonce: Optional[int] = None,
-        l1_resource_bounds: Optional[ResourceBounds] = None,
+        resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
         salt: Optional[int] = None,
         unique: bool = True,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> "DeployResult":
         """
         Deploys a contract through Universal Deployer Contract.
@@ -1024,11 +763,12 @@ class Contract:
         :param cairo_version: Version of the Cairo in which contract is written.
             By default, it is set to 1.
         :param nonce: Nonce of the transaction.
-        :param l1_resource_bounds: Max amount and max price per unit of L1 gas (in Fri) used when executing
-            this transaction.
+        :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation (not recommended, as it may lead to high costs).
         :param salt: Optional salt. Random value is selected if it is not provided.
         :param unique: Determines if the contract should be salted with the account address.
+        :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeployResult instance.
         """
         # pylint: disable=too-many-arguments, too-many-locals
@@ -1047,18 +787,19 @@ class Contract:
         res = await account.execute_v3(
             calls=deploy_call,
             nonce=nonce,
-            l1_resource_bounds=l1_resource_bounds,
+            resource_bounds=resource_bounds,
             auto_estimate=auto_estimate,
+            tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
 
-        if abi is not None:
-            deployed_contract = Contract(
-                provider=account, address=address, abi=abi, cairo_version=cairo_version
-            )
-        else:
-            deployed_contract = await Contract.from_address(
-                address=address, provider=account
-            )
+        if abi is None:
+            contract_class = await account.client.get_class_by_hash(class_hash)
+            abi = ContractAbiResolver.get_abi_from_contract_class(contract_class)
+
+        deployed_contract = Contract(
+            provider=account, address=address, abi=abi, cairo_version=cairo_version
+        )
 
         deploy_result = DeployResult(
             hash=res.transaction_hash,
@@ -1122,7 +863,7 @@ class Contract:
 
 
 async def _declare_contract(
-    transaction: Declare,
+    transaction: DeclareV3,
     account: BaseAccount,
     compiled_contract: str,
     cairo_version: int,

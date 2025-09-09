@@ -2,14 +2,15 @@ from marshmallow import fields, post_load
 
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
+    BlockHeader,
     BlockStateUpdate,
     ContractsNonce,
     DeclaredContractHash,
     DeployedContract,
-    PendingBlockStateUpdate,
-    PendingStarknetBlock,
-    PendingStarknetBlockWithReceipts,
-    PendingStarknetBlockWithTxHashes,
+    PreConfirmedBlockStateUpdate,
+    PreConfirmedStarknetBlock,
+    PreConfirmedStarknetBlockWithReceipts,
+    PreConfirmedStarknetBlockWithTxHashes,
     ReplacedClass,
     ResourcePrice,
     StarknetBlock,
@@ -41,12 +42,15 @@ class ResourcePriceSchema(Schema):
         return ResourcePrice(**data)
 
 
-class PendingBlockHeaderSchema(Schema):
-    parent_hash = Felt(data_key="parent_hash", required=True)
+class PreConfirmedBlockHeaderSchema(Schema):
+    block_number = Felt(data_key="block_number", required=True)
     timestamp = fields.Integer(data_key="timestamp", required=True)
     sequencer_address = Felt(data_key="sequencer_address", required=True)
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
+    )
+    l2_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l2_gas_price", required=True
     )
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", required=True
@@ -65,11 +69,18 @@ class BlockHeaderSchema(Schema):
     l1_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_gas_price", required=True
     )
+    l2_gas_price = fields.Nested(
+        ResourcePriceSchema(), data_key="l2_gas_price", required=True
+    )
     l1_data_gas_price = fields.Nested(
         ResourcePriceSchema(), data_key="l1_data_gas_price", required=True
     )
     l1_da_mode = L1DAModeField(data_key="l1_da_mode", required=True)
     starknet_version = fields.String(data_key="starknet_version", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockHeader:
+        return BlockHeader(**data)
 
 
 class BlockHashAndNumberSchema(Schema):
@@ -176,21 +187,21 @@ class BlockStateUpdateSchema(Schema):
         return BlockStateUpdate(**data)
 
 
-class PendingBlockStateUpdateSchema(Schema):
+class PreConfirmedBlockStateUpdateSchema(Schema):
     old_root = Felt(data_key="old_root", required=True)
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingBlockStateUpdate:
-        return PendingBlockStateUpdate(**data)
+    def make_dataclass(self, data, **kwargs) -> PreConfirmedBlockStateUpdate:
+        return PreConfirmedBlockStateUpdate(**data)
 
 
-class PendingStarknetBlockWithTxHashesSchema(PendingBlockHeaderSchema):
+class PreConfirmedStarknetBlockWithTxHashesSchema(PreConfirmedBlockHeaderSchema):
     transactions = fields.List(Felt(), data_key="transactions", required=True)
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithTxHashes:
-        return PendingStarknetBlockWithTxHashes(**data)
+    def make_dataclass(self, data, **kwargs) -> PreConfirmedStarknetBlockWithTxHashes:
+        return PreConfirmedStarknetBlockWithTxHashes(**data)
 
 
 class StarknetBlockWithTxHashesSchema(BlockHeaderSchema):
@@ -215,7 +226,7 @@ class StarknetBlockWithReceiptsSchema(BlockHeaderSchema):
         return StarknetBlockWithReceipts(**data)
 
 
-class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
+class PreConfirmedStarknetBlockSchema(PreConfirmedBlockHeaderSchema):
     transactions = fields.List(
         fields.Nested(TypesOfTransactionsSchema()),
         data_key="transactions",
@@ -223,8 +234,8 @@ class PendingStarknetBlockSchema(PendingBlockHeaderSchema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlock:
-        return PendingStarknetBlock(**data)
+    def make_dataclass(self, data, **kwargs) -> PreConfirmedStarknetBlock:
+        return PreConfirmedStarknetBlock(**data)
 
 
 class StarknetBlockSchema(BlockHeaderSchema):
@@ -240,7 +251,7 @@ class StarknetBlockSchema(BlockHeaderSchema):
         return StarknetBlock(**data)
 
 
-class PendingStarknetBlockWithReceiptsSchema(PendingBlockHeaderSchema):
+class PreConfirmedStarknetBlockWithReceiptsSchema(PreConfirmedBlockHeaderSchema):
     transactions = fields.List(
         fields.Nested(TransactionWithReceiptSchema()),
         data_key="transactions",
@@ -248,5 +259,5 @@ class PendingStarknetBlockWithReceiptsSchema(PendingBlockHeaderSchema):
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> PendingStarknetBlockWithReceipts:
-        return PendingStarknetBlockWithReceipts(**data)
+    def make_dataclass(self, data, **kwargs) -> PreConfirmedStarknetBlockWithReceipts:
+        return PreConfirmedStarknetBlockWithReceipts(**data)

@@ -9,14 +9,10 @@ from starknet_py.common import create_casm_class, create_sierra_compiled_contrac
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.base_account import BaseAccount
-from starknet_py.net.models import DeclareV2
+from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, PRECOMPILED_CONTRACTS_DIR
-from starknet_py.tests.e2e.fixtures.misc import (
-    ContractVersion,
-    load_contract,
-    read_contract,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 async def declare_contract(
@@ -24,12 +20,12 @@ async def declare_contract(
 ) -> Tuple[int, int]:
     casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
 
-    declare_tx = await account.sign_declare_v2(
+    declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=casm_class_hash,
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
-    assert declare_tx.version == 2
+    assert declare_tx.version == 3
 
     resp = await account.client.declare(declare_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -68,21 +64,21 @@ def constructor_with_arguments_abi() -> List:
 
 
 @pytest_asyncio.fixture(scope="package")
-async def declare_v2_hello_starknet(account: BaseAccount) -> DeclareV2:
+async def declare_v3_hello_starknet(account: BaseAccount) -> DeclareV3:
     contract = load_contract("HelloStarknet")
     casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
 
-    declare_tx = await account.sign_declare_v2(
-        contract["sierra"], casm_class_hash, max_fee=MAX_FEE
+    declare_tx = await account.sign_declare_v3(
+        contract["sierra"], casm_class_hash, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     return declare_tx
 
 
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_class_hash_tx_hash(
-    account: BaseAccount, declare_v2_hello_starknet: DeclareV2
+    account: BaseAccount, declare_v3_hello_starknet: DeclareV3
 ) -> Tuple[int, int]:
-    resp = await account.client.declare(declare_v2_hello_starknet)
+    resp = await account.client.declare(declare_v3_hello_starknet)
     await account.client.wait_for_tx(resp.transaction_hash)
 
     return resp.class_hash, resp.transaction_hash
@@ -163,7 +159,7 @@ async def erc20_contract(account, erc20_class_hash):
         "initial_supply": 200,
         "recipient": account.address,
     }
-    return await deploy_v1_contract(
+    return await deploy_v3_contract(
         account=account,
         contract_name="ERC20",
         class_hash=erc20_class_hash,
@@ -173,7 +169,7 @@ async def erc20_contract(account, erc20_class_hash):
 
 @pytest_asyncio.fixture(scope="package")
 async def hello_starknet_contract(account: BaseAccount, hello_starknet_class_hash):
-    return await deploy_v1_contract(
+    return await deploy_v3_contract(
         account=account,
         contract_name="HelloStarknet",
         class_hash=hello_starknet_class_hash,
@@ -193,7 +189,7 @@ async def declare_string_contract(account: BaseAccount) -> int:
 async def deploy_string_contract(
     account: BaseAccount, string_contract_class_hash
 ) -> Contract:
-    return await deploy_v1_contract(
+    return await deploy_v3_contract(
         account=account,
         contract_name="MyString",
         class_hash=string_contract_class_hash,
@@ -213,7 +209,7 @@ async def map_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def map_contract(account: BaseAccount, map_class_hash) -> Contract:
-    return await deploy_v1_contract(
+    return await deploy_v3_contract(
         account=account,
         contract_name="Map",
         class_hash=map_class_hash,
@@ -276,12 +272,23 @@ async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
     return class_hash
 
 
+@pytest_asyncio.fixture(scope="package", name="eth_account_class_hash")
+async def declare_eth_account(account: BaseAccount) -> int:
+    contract = load_contract("EthAccountUpgradeable")
+    class_hash, _ = await declare_contract(
+        account,
+        contract["sierra"],
+        contract["casm"],
+    )
+    return class_hash
+
+
 @pytest_asyncio.fixture(scope="function")
 async def simple_storage_with_event_contract(
     account: BaseAccount,
     simple_storage_with_event_class_hash: int,
 ) -> Contract:
-    return await deploy_v1_contract(
+    return await deploy_v3_contract(
         account=account,
         contract_name="SimpleStorageWithEvent",
         class_hash=simple_storage_with_event_class_hash,
@@ -321,10 +328,10 @@ async def declare_account(
     Declares a specified account.
     """
 
-    declare_tx = await account.sign_declare_v2(
+    declare_tx = await account.sign_declare_v3(
         compiled_contract,
         compiled_class_hash,
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     resp = await account.client.declare(transaction=declare_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -343,12 +350,12 @@ async def account_declare_class_hash(
 
     casm_class = create_casm_class(compiled_account_contract_casm)
     casm_class_hash = compute_casm_class_hash(casm_class)
-    declare_v2_transaction = await account.sign_declare_v2(
+    declare_v3_transaction = await account.sign_declare_v3(
         compiled_contract=compiled_account_contract,
         compiled_class_hash=casm_class_hash,
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
-    resp = await account.client.declare(transaction=declare_v2_transaction)
+    resp = await account.client.declare(transaction=declare_v3_transaction)
     await account.client.wait_for_tx(resp.transaction_hash)
     return resp.class_hash
 
@@ -365,26 +372,7 @@ async def account_with_validate_deploy_class_hash(
     )
 
 
-@pytest_asyncio.fixture(scope="package")
-async def argent_account_class_hash(
-    account: BaseAccount,
-) -> int:
-    # Use precompiled argent account contracts
-    # we don't have the source code for this contract
-    compiled_contract = read_contract(
-        "argent_account.json", directory=PRECOMPILED_CONTRACTS_DIR
-    )
-    compiled_contract_casm = read_contract(
-        "argent_account.casm", directory=PRECOMPILED_CONTRACTS_DIR
-    )
-    return await account_declare_class_hash(
-        account=account,
-        compiled_account_contract=compiled_contract,
-        compiled_account_contract_casm=compiled_contract_casm,
-    )
-
-
-async def deploy_v1_contract(
+async def deploy_v3_contract(
     account: BaseAccount,
     contract_name: str,
     class_hash: int,
@@ -409,7 +397,9 @@ async def deploy_v1_contract(
         abi=abi,
         calldata=calldata,
     )
-    res = await account.execute_v1(calls=deploy_call, max_fee=MAX_FEE)
+    res = await account.execute_v3(
+        calls=deploy_call, resource_bounds=MAX_RESOURCE_BOUNDS
+    )
     await account.client.wait_for_tx(res.transaction_hash)
 
     return Contract(address, abi, provider=account)

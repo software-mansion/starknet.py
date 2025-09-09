@@ -4,6 +4,7 @@ import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.client_errors import ClientError
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
 @pytest.mark.skipif(
@@ -22,8 +23,8 @@ async def test_impersonate_account(
         provider=account_to_impersonate, address=f_string_contract.address
     )
 
-    invocation = await contract.functions["set_string"].invoke_v1(
-        "test", max_fee=int(1e16)
+    invocation = await contract.functions["set_string"].invoke_v3(
+        "test", resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     await devnet_client_fork_mode.stop_impersonate_account(
@@ -49,8 +50,8 @@ async def test_auto_impersonate(
         provider=account_to_impersonate, address=f_string_contract.address
     )
 
-    invocation = await contract.functions["set_string"].invoke_v1(
-        "test", max_fee=int(1e16)
+    invocation = await contract.functions["set_string"].invoke_v3(
+        "test", resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     await devnet_client_fork_mode.stop_auto_impersonate()
@@ -73,4 +74,4 @@ async def test_impersonated_account_should_fail(
     )
 
     with pytest.raises(ClientError):
-        await contract.functions["set_string"].invoke_v1("test", auto_estimate=True)
+        await contract.functions["set_string"].invoke_v3("test", auto_estimate=True)

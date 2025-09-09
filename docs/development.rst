@@ -25,7 +25,7 @@ Environment variables
 
 In order to be able to run tests on testnet network (``starknet_py/tests/e2e/tests_on_networks/``), you must set some environmental variables:
 
-    - ``SEPOLIA_RPC_URL``
+    - ``SEPOLIA_RPC_URL``    
     - ``SEPOLIA_ACCOUNT_PRIVATE_KEY``
     - ``SEPOLIA_ACCOUNT_ADDRESS``
 
@@ -129,7 +129,7 @@ Release checklist
 Perform these actions before releasing a new starknet.py version
 
 1. Bump package version in ``pyproject.toml``
-2. Re-lock using ``poetry lock --no-update``
+2. Re-lock using ``poetry lock``
 3. Make a PR to development with name of format ``vMAJOR.MINOR.PATCHES-alpha`` and merge it making sure that the merge commit message is the same as PR name
 4. Merge development into master without squashing
 

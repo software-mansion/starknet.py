@@ -1,6 +1,306 @@
 Migration guide
 ===============
 
+***************************
+0.28.0-rc.4 Migration guide
+***************************
+
+Version 0.28.0-rc.4 of **starknet.py** comes with support for RPC 0.9.0 (without the support for changes in the Websockets methods).
+
+.. currentmodule:: starknet_py.net.client_models
+
+1. Removed fields ``block_number`` and ``block_hash`` from :class:`TransactionReceipt`
+2. Added a dedicated class :class:`TransactionReceiptWithBlockInfo`, a subclass of :class:`TransactionReceipt`, that has non-optional field ``block_number`` and optional field ``block_hash``.
+
+.. currentmodule:: starknet_py.net.client
+
+3. Changed return type of :meth:`Client.get_transaction_receipt` to :class:`~starknet_py.net.client_models.TransactionReceiptWithBlockInfo`.
+4. Changed return type of :meth:`Client.wait_for_tx` to :class:`~starknet_py.net.client_models.TransactionReceiptWithBlockInfo`.
+
+***************************
+0.28.0-rc.3 Migration guide
+***************************
+
+.. py:currentmodule:: starknet_py.net.account.account
+
+1. When no ``token_address`` is specified in the :meth:`Account.get_balance` method, the default token address now defaults to the STRK fee contract instead of ETH.
+2. Rename ``FEE_CONTRACT_ADDRESS`` to ``ETH_FEE_CONTRACT_ADDRESS``.
+
+.. currentmodule:: starknet_py.devnet_utils.devnet_client
+
+3. ``unit`` param in :meth:`DevnetClient.mint` now defaults to ``PriceUnit.FRI``.
+
+.. py:currentmodule:: starknet_py.net.signer.eth_signer
+
+4. :class:`EthSigner` implementation has been added.
+
+***************************
+0.28.0-rc.2 Migration guide
+***************************
+
+Version 0.28.0-rc.2 of **starknet.py** comes with support for RPC 0.9.0-rc.2!
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. :class:`MessageStatus`: ``finality_status`` field is now of type :class:`TransactionFinalityStatus`.
+2. Removed :class:`MessageFinalityStatus`.
+3. :class:`BlockStatus`: removed ``REJECTED`` variant.
+4. Added ``l1_accepted`` variant for ``BlockTag``.
+
+Tip Estimations
+---------------
+
+.. py:currentmodule:: starknet_py.net.tip
+
+1. :func:`estimate_tip` will now use ``latest`` block instead of ``pre_confirmed`` if no block is provided
+
+***************************
+0.28.0-rc.1 Migration guide
+***************************
+
+Version 0.28.0-rc.1 of **starknet.py** comes with support for automatic transaction tip estimation.
+
+Tip Estimation
+--------------
+
+.. py:currentmodule:: starknet_py.net.tip
+
+1. Added :func:`estimate_tip` for automatic transaction tip estimation.
+2. Added ``auto_estimate_tip`` param to :class:`~starknet_py.net.account.account.Account` and :class:`~starknet_py.contract.Contract` methods that accept a ``tip`` argument. If set to ``True``, median of tips from the ``pre_confirmed`` block will be used to estimate select at tip.
+
+Deployment via UDC
+------------------
+
+.. py:currentmodule:: starknet_py.net.udc_deployer.deployer
+
+1. Default deployer address in :class:`Deployer` is now the new UDC (``0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125``).
+
+0.28.0-rc.1 Bugfixes
+---------------------
+
+.. py:currentmodule:: starknet_py.contract
+
+1. Contracts which include fixed sized array type are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
+
+***************************
+0.28.0-rc.0 Migration guide
+***************************
+
+Version 0.28.0-rc.0 of **starknet.py** comes with support for RPC 0.9.0-rc.1!
+
+``starknet_py.net.client_models``
+---------------------------------
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. Renamed :class:`PendingBlockHeader` to :class:`PreConfirmedBlockHeader`, changed field ``parent_hash`` to ``block_number``.
+2. Renamed :class:`PendingStarknetBlock` to :class:`PreConfirmedStarknetBlock`
+3. Renamed :class:`PendingStarknetBlockWithTxHashes` to :class:`PreConfirmedStarknetBlockWithTxHashes`
+4. Renamed :class:`PendingStarknetBlockWithReceipts` to :class:`PreConfirmedStarknetBlockWithReceipts`
+5. Renamed :class:`PendingBlockStateUpdate` to :class:`PreConfirmedBlockStateUpdate`
+6. Enum :class:`BlockStatus` variant ``PENDING`` removed, added ``PRE_CONFIRMED``
+7. Enum :class:`TransactionFinalityStatus`, added variant ``PRE_CONFIRMED``
+8. Enum :class:`TransactionStatus` variant ``REJECTED`` removed, added ``CANDIDATE``, ``PRE_CONFIRMED``
+
+``starknet_py.net.client``
+--------------------------
+
+.. py:currentmodule:: starknet_py.net.client
+
+
+1. :meth:`Client.get_storage_proof`: replaced param ``block_id`` with ``block_hash`` and ``block_number``.
+2. :meth:`Client.wait_for_tx` will now wait until transaction ``finality_status`` is either ``ACCEPTED_ON_L2`` or ``ACCEPTED_ON_L1``.
+3. :meth:`Client.wait_for_tx` will no longer raise ``TransactionRejectedError``, see the method docs for details.
+4. :meth:`Client.get_messages_status`: changed ``transaction_hash`` type from ``str`` to ``Hash``.
+
+Tip Support
+-----------
+
+Ability to pass tip for the transaction has been added to following methods.
+If ``tip`` is not provided, a default value of ``0`` will be used
+
+.. py:currentmodule:: starknet_py.contract
+
+- :meth:`DeclareResult.deploy_v3`
+- :meth:`PreparedFunctionInvokeV3.invoke`
+- :meth:`Contract.declare_v3`
+- :meth:`Contract.deploy_contract_v3`
+
+.. py:currentmodule:: starknet_py.net.account.account
+
+- :meth:`Account.sign_invoke_v3`
+- :meth:`Account.sign_declare_v3`
+- :meth:`Account.sign_deploy_account_v3`
+- :meth:`Account.execute_v3`
+- :meth:`Account.deploy_account_v3`
+
+Additionally, dataclasses representing transactions now require passing a tip.
+No default value is used for tip and it is a required parameter.
+
+.. py:currentmodule:: starknet_py.net.models.transaction
+
+- :class:`InvokeV3`, tip is now required
+- :class:`DeclareV3`, tip is now required
+- :class:`DeployAccountV3`, tip is now required
+
+**********************
+0.27.0 Migration guide
+**********************
+
+.. py:currentmodule:: starknet_py.net.signer.ledger_signer
+
+1. Support for clear signing with :class:`LedgerSigner` has been added. It's now the default signing mode (see :class:`LedgerSigningMode`).
+2. ``derivation_path_str`` param has been removed from :class:`LedgerSigner` constructor, while ``account_id``, ``application_name`` and ``signing_mode`` params have been added.
+
+0.27.0 Bugfixes
+---------------
+
+1. ABI parser supports now fixed size arrays.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+2. ``l1_address`` in :class:`L2ToL1Message` now accepts felts when deserializing.
+
+**********************
+0.26.2 Migration guide
+**********************
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+1. If an incompatible RPC version is detected between the node and :class:`FullNodeClient`, a warning will be emitted.
+
+**********************
+0.26.1 Migration guide
+**********************
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. Restored ``amount_multiplier`` and ``unit_price_multiplier`` params in :meth:`EstimatedFee.to_resource_bounds()`
+
+2. Using Braavos accounts is temporarily disabled because they don't work with starknet 0.13.5. Please read the `official post <https://community.starknet.io/t/starknet-devtools-for-0-13-5/115495#p-2359168-braavos-compatibility-issues-3>`_ for more details.
+
+0.26.1 Bugfixes
+---------------
+
+1. In :class:`FunctionInvocation`, ``execution_resources`` field is now of type :class:`InnerCallExecutionResources`.
+
+**********************
+0.26.0 Migration guide
+**********************
+
+Version 0.26.0 of **starknet.py** comes with support for RPC 0.8.1!
+
+0.26.0 Targeted versions
+------------------------
+
+- Starknet - `0.13.5 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.5>`_
+- RPC - `0.8.1 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.1>`_
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+1. New methods have been added: :meth:`~FullNodeClient.get_storage_proof`, :meth:`~FullNodeClient.get_messages_status` and :meth:`~FullNodeClient.get_compiled_casm`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+2. ``failure_reason`` field has been added to :class:`TransactionStatusResponse`.
+
+3. ``execution_resources`` and ``is_reverted`` fields have been added to :class:`FunctionInvocation`.
+
+.. py:currentmodule:: starknet_py.net.websockets.websocket_client
+
+4. Added :class:`WebsocketClient` which allows to interact with websockets API.
+
+0.26.0 Breaking changes
+-----------------------
+
+1. ``l1_resource_bounds`` parameter (in transaction methods) has been renamed to ``resource_bounds``, its type has also changed from :class:`~starknet_py.net.client_models.ResourceBounds` to :class:`~starknet_py.net.client_models.ResourceBoundsMapping`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+2. :class:`ComputationResources` and :class:`DataResources` have been removed.
+
+3. :class:`ExecutionResources`, :class:`EstimatedFee` have been modified according to new RPC specification.
+
+4. Submitting transactions other than v3 is not possible anymore.
+
+0.26.0 Bugfixes
+---------------
+
+.. py:currentmodule:: starknet_py.net.executable_models
+
+1. Fixed typo in :class:`TestLessThanOrEqualAddress` class name and schema data key.
+
+.. py:currentmodule:: starknet_py.contract
+
+2. Fixed an issue in :meth:`Contract.deploy_contract_v3` where omitting the ``abi`` param caused the node to return an error indicating that the contract was not found.
+
+
+******************************
+0.26.0-rc.1 Migration guide
+******************************
+
+The latest release candidate compatible with Starknet's JSON-RPC v0.8.0.
+
+0.26.0-rc.1 Bugfixes
+--------------------
+
+.. py:currentmodule:: starknet_py.net.executable_models
+
+1. Fixed typo in :class:`TestLessThanOrEqualAddress` class name and schema data key.
+
+.. py:currentmodule:: starknet_py.contract
+
+2. Fixed an issue in :meth:`Contract.deploy_contract_v3` where omitting the ``abi`` param caused the node to return an error indicating that the contract was not found.
+
+******************************
+0.26.0-rc.0 Migration guide
+******************************
+
+The latest release candidate compatible with Starknet's JSON-RPC v0.8.0.
+
+0.26.0-rc.0 Targeted versions
+------------------------------
+
+- Starknet - `0.13.4 <https://docs.starknet.io/documentation/starknet_versions/version_notes/#version0.13.4>`_
+- RPC - `0.8.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.8.0>`_
+
+1. ``l1_resource_bounds`` parameter (in transaction methods) has been renamed to ``resource_bounds``, its type has also changed from :class:`~starknet_py.net.client_models.ResourceBounds` to :class:`~starknet_py.net.client_models.ResourceBoundsMapping`.
+
+.. py:currentmodule:: starknet_py.net.full_node_client
+
+2. New methods have been added: :meth:`~FullNodeClient.get_storage_proof`, :meth:`~FullNodeClient.get_messages_status` and :meth:`~FullNodeClient.get_compiled_casm`.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+3. :class:`ComputationResources` and :class:`DataResources` have been removed.
+
+4. :class:`ExecutionResources`, :class:`EstimatedFee` have been modified according to new RPC specification.
+
+5. ``failure_reason`` field has been added to :class:`TransactionStatusResponse`.
+
+6. ``execution_resources`` and ``is_reverted`` fields have been added to :class:`FunctionInvocation`.
+
+7. Submitting transactions other than v3 is not possible anymore.
+
+******************************
+0.25.0 Migration guide
+******************************
+
+This version of starknet.py requires Python 3.9 as a minimum version.
+
+.. currentmodule:: starknet_py.cairo.data_types
+
+1. Added :class:`NonZeroType` in order to fix parsing ABI which contains Cairo`s `core::zeroable::NonZero <https://github.com/starkware-libs/cairo/blob/a2b9dddeb3212c8d529538454745b27d7a34a6cd/corelib/src/zeroable.cairo#L78>`_.
+
+2. Added `SNIP-9 <https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md>`_ support to :class:`~starknet_py.net.account.account.Account`. Now it's possible to create a :class:`~starknet_py.net.client_models.Call` for outside execution using :meth:`~starknet_py.net.account.account.Account.sign_outside_execution_call`.
+
+3. All methods and classes which use transactions other than v3 are now deprecated.
+
+0.25.0 Minor changes
+--------------------
+
+1. Added ``keys`` field to :class:`EventType` which contains the list of event fields marked with ``#[key]`` in Cairo code.
+
 ******************************
 0.24.3 Migration guide
 ******************************

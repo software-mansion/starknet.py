@@ -1,4 +1,6 @@
 # pylint: disable=too-many-arguments
+import dataclasses
+import numbers
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -10,33 +12,43 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockStateUpdate,
     Call,
+    ContractsStorageKeys,
+    DAMode,
     DeclaredContractHash,
-    DeclareTransactionV2,
-    DeployAccountTransactionV1,
+    DeclareTransactionV3,
+    DeployAccountTransactionV3,
     EstimatedFee,
     ExecutionResources,
     FeePayment,
     InvokeTransactionV3,
     L1HandlerTransaction,
+    MessageStatus,
     PriceUnit,
-    ResourceBounds,
+    ResourceBoundsMapping,
     SierraContractClass,
     SierraEntryPointsByType,
+    StorageProofResponse,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
-    TransactionReceipt,
+    TransactionReceiptWithBlockInfo,
     TransactionStatus,
     TransactionStatusResponse,
     TransactionType,
 )
+from starknet_py.net.executable_models import (
+    CasmClass,
+    Deref,
+    Immediate,
+    TestLessThan,
+    TestLessThanOrEqual,
+)
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.http_client import RpcHttpClient
-from starknet_py.net.models.transaction import DeclareV2
+from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.transaction_errors import (
     TransactionNotReceivedError,
-    TransactionRejectedError,
     TransactionRevertedError,
 )
 
@@ -47,7 +59,7 @@ async def test_get_declare_transaction(
 ):
     transaction = await client.get_transaction(declare_transaction_hash)
 
-    assert isinstance(transaction, DeclareTransactionV2)
+    assert isinstance(transaction, DeclareTransactionV3)
     assert transaction.class_hash == class_hash
     assert transaction.hash == declare_transaction_hash
     assert transaction.sender_address == account.address
@@ -69,7 +81,7 @@ async def test_get_invoke_transaction(
 async def test_get_deploy_account_transaction(client, deploy_account_transaction_hash):
     transaction = await client.get_transaction(deploy_account_transaction_hash)
 
-    assert isinstance(transaction, DeployAccountTransactionV1)
+    assert isinstance(transaction, DeployAccountTransactionV3)
     assert transaction.hash == deploy_account_transaction_hash
     assert len(transaction.signature) > 0
     assert transaction.nonce == 0
@@ -110,14 +122,157 @@ async def test_get_block_by_number(
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at(client, contract_address):
+async def test_get_storage_at(client, contract_address_2):
     storage = await client.get_storage_at(
-        contract_address=contract_address,
+        contract_address=contract_address_2,
         key=get_storage_var_address("balance"),
         block_hash="latest",
     )
 
-    assert storage == 1897
+    assert storage == 1777
+
+
+@pytest.mark.asyncio
+async def test_get_messages_status(client):
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_message_status_call_rpc:
+        return_value = [
+            {
+                "transaction_hash": "0x1",
+                "finality_status": "ACCEPTED_ON_L2",
+                "execution_status": "SUCCEEDED",
+            },
+            {
+                "transaction_hash": "0x2",
+                "finality_status": "ACCEPTED_ON_L2",
+                "execution_status": "REVERTED",
+                "failure_reason": "Some failure reason",
+            },
+        ]
+        mocked_message_status_call_rpc.return_value = return_value
+
+        messages_status = await client.get_messages_status(transaction_hash=0x1)
+
+        assert all(isinstance(message, MessageStatus) for message in messages_status)
+
+        assert messages_status[0].failure_reason is None
+        assert messages_status[1].failure_reason == "Some failure reason"
+
+
+@pytest.mark.asyncio
+async def test_get_storage_proof(client):
+    # Devnet doesn't support storage proofs, hence we need to use mock
+    # https://github.com/0xSpaceShard/starknet-devnet/blob/27594f86b86ca227fe85784dba4a93ddfed9650b/tests/integration/general_rpc_tests.rs#L56
+
+    with patch(
+        f"{RpcHttpClient.__module__}.RpcHttpClient.call", AsyncMock()
+    ) as mocked_message_status_call_rpc:
+        return_value = {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "classes_proof": [
+                    {"node": {"left": "0x123", "right": "0x123"}, "node_hash": "0x123"},
+                    {
+                        "node": {"child": "0x123", "length": 2, "path": "0x123"},
+                        "node_hash": "0x123",
+                    },
+                ],
+                "contracts_proof": {
+                    "contract_leaves_data": [
+                        {"class_hash": "0x123", "nonce": "0x0", "storage_root": "0x123"}
+                    ],
+                    "nodes": [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 232, "path": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                    ],
+                },
+                "contracts_storage_proofs": [
+                    [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 123, "path": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
+                    ]
+                ],
+                "global_roots": {
+                    "block_hash": "0x123",
+                    "classes_tree_root": "0x456",
+                    "contracts_tree_root": "0x789",
+                },
+            },
+        }
+        mocked_message_status_call_rpc.return_value = return_value["result"]
+
+        storage_proof = await client.get_storage_proof(
+            block_hash="latest",
+            contract_addresses=[123],
+            contracts_storage_keys=[
+                ContractsStorageKeys(
+                    contract_address=123,
+                    storage_keys=[123],
+                )
+            ],
+            class_hashes=[123],
+        )
+
+        assert isinstance(storage_proof, StorageProofResponse)
+        assert len(storage_proof.classes_proof) == 2
+        assert len(storage_proof.contracts_proof.nodes) == 2
+        assert len(storage_proof.contracts_storage_proofs) == 1
+        assert storage_proof.global_roots.block_hash == int("0x123", 16)
+        assert storage_proof.global_roots.classes_tree_root == int("0x456", 16)
+        assert storage_proof.global_roots.contracts_tree_root == int("0x789", 16)
+
+
+@pytest.mark.asyncio
+async def test_get_compiled_casm(client):
+    strk_devnet_class_hash = (
+        0x76791EF97C042F81FBF352AD95F39A22554EE8D7927B2CE3C681F3418B5206A
+    )
+    compiled_casm = await client.get_compiled_casm(class_hash=strk_devnet_class_hash)
+
+    assert isinstance(compiled_casm, CasmClass)
+    assert len(compiled_casm.bytecode) == 23286
+    assert len(compiled_casm.hints) == 954
+
+    first_hint = compiled_casm.hints[0][1][0]
+    assert isinstance(first_hint, TestLessThanOrEqual)
+    assert first_hint.test_less_than_or_equal.dst.offset == 0
+    assert first_hint.test_less_than_or_equal.dst.register == "AP"
+    assert isinstance(first_hint.test_less_than_or_equal.lhs, Immediate)
+    assert first_hint.test_less_than_or_equal.lhs.immediate == 0
+    assert isinstance(first_hint.test_less_than_or_equal.rhs, Deref)
+    assert first_hint.test_less_than_or_equal.rhs.deref.offset == -6
+    assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
+
+    second_hint = compiled_casm.hints[1][1][0]
+    assert isinstance(second_hint, TestLessThan)
+    assert isinstance(second_hint.test_less_than.lhs, Deref)
+    assert second_hint.test_less_than.lhs.deref.register == "AP"
+    assert second_hint.test_less_than.lhs.deref.offset == -2
+    assert isinstance(second_hint.test_less_than.rhs, Immediate)
+    assert (
+        second_hint.test_less_than.rhs.immediate
+        == 3618502788666131106986593281521497120414687020801267626233049500247285301248
+    )
+    assert second_hint.test_less_than.dst.register == "AP"
+    assert second_hint.test_less_than.dst.offset == 4
 
 
 @pytest.mark.asyncio
@@ -132,28 +287,6 @@ async def test_get_transaction_receipt(
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_invoke(account, contract_address):
-    invoke_tx = await account.sign_invoke_v1(
-        calls=Call(
-            to_addr=contract_address,
-            selector=get_selector_from_name("increase_balance"),
-            calldata=[1000],
-        ),
-        max_fee=MAX_FEE,
-    )
-    invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
-    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
-
-    assert isinstance(estimate_fee, EstimatedFee)
-    assert estimate_fee.unit == PriceUnit.WEI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
-
-
-@pytest.mark.asyncio
 async def test_estimate_fee_invoke_v3(account, contract_address):
     invoke_tx = await account.sign_invoke_v3(
         calls=Call(
@@ -161,66 +294,69 @@ async def test_estimate_fee_invoke_v3(account, contract_address):
             selector=get_selector_from_name("increase_balance"),
             calldata=[1000],
         ),
-        l1_resource_bounds=ResourceBounds.init_with_zeros(),
+        resource_bounds=ResourceBoundsMapping.init_with_zeros(),
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
-    estimate_fee = await account.client.estimate_fee(tx=invoke_tx)
+    estimated_fee = await account.client.estimate_fee(tx=invoke_tx)
 
-    assert isinstance(estimate_fee, EstimatedFee)
-    assert estimate_fee.unit == PriceUnit.FRI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert isinstance(estimated_fee, EstimatedFee)
+    assert estimated_fee.unit == PriceUnit.FRI
+
+    assert all(
+        getattr(estimated_fee, field.name) >= 0
+        for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
+    )
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_declare(
+async def test_estimate_fee_declare_v3(
     account, abi_types_compiled_contract_and_class_hash
 ):
-    declare_tx = await account.sign_declare_v2(
+    declare_tx = await account.sign_declare_v3(
         compiled_contract=abi_types_compiled_contract_and_class_hash[0],
         compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     declare_tx = await account.sign_for_fee_estimate(declare_tx)
-    estimate_fee = await account.client.estimate_fee(tx=declare_tx)
+    estimated_fee = await account.client.estimate_fee(tx=declare_tx)
 
-    assert isinstance(estimate_fee, EstimatedFee)
-    assert estimate_fee.unit == PriceUnit.WEI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert isinstance(estimated_fee, EstimatedFee)
+    assert estimated_fee.unit == PriceUnit.FRI
+
+    assert all(
+        getattr(estimated_fee, field.name) >= 0
+        for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
+    )
 
 
 @pytest.mark.asyncio
 async def test_estimate_fee_deploy_account(client, deploy_account_transaction):
-    estimate_fee = await client.estimate_fee(tx=deploy_account_transaction)
+    estimated_fee = await client.estimate_fee(tx=deploy_account_transaction)
 
-    assert isinstance(estimate_fee, EstimatedFee)
-    assert estimate_fee.unit == PriceUnit.WEI
-    assert estimate_fee.overall_fee > 0
-    assert estimate_fee.gas_price > 0
-    assert estimate_fee.gas_consumed > 0
-    assert estimate_fee.data_gas_price > 0
-    assert estimate_fee.data_gas_consumed > 0
+    assert isinstance(estimated_fee, EstimatedFee)
+    assert estimated_fee.unit == PriceUnit.FRI
+
+    assert all(
+        getattr(estimated_fee, field.name) >= 0
+        for field in dataclasses.fields(EstimatedFee)
+        if isinstance(getattr(estimated_fee, field.name), numbers.Number)
+    )
 
 
 @pytest.mark.asyncio
 async def test_estimate_fee_for_multiple_transactions(
     client, deploy_account_transaction, contract_address, account
 ):
-    invoke_tx = await account.sign_invoke_v1(
+    invoke_tx = await account.sign_invoke_v3(
         calls=Call(
             to_addr=contract_address,
             selector=get_selector_from_name("increase_balance"),
             calldata=[1000],
         ),
-        max_fee=MAX_FEE,
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     invoke_tx = await account.sign_for_fee_estimate(invoke_tx)
 
@@ -232,34 +368,35 @@ async def test_estimate_fee_for_multiple_transactions(
 
     for estimated_fee in estimated_fees:
         assert isinstance(estimated_fee, EstimatedFee)
-        assert estimated_fee.unit == PriceUnit.WEI
-        assert estimated_fee.overall_fee > 0
-        assert estimated_fee.gas_price > 0
-        assert estimated_fee.gas_consumed > 0
-        assert estimated_fee.data_gas_price > 0
-        assert estimated_fee.data_gas_consumed > 0
+        assert estimated_fee.unit == PriceUnit.FRI
+
+        assert all(
+            getattr(estimated_fee, field.name) >= 0
+            for field in dataclasses.fields(EstimatedFee)
+            if isinstance(getattr(estimated_fee, field.name), numbers.Number)
+        )
 
 
 @pytest.mark.asyncio
-async def test_call_contract(client, contract_address):
+async def test_call_contract(client, contract_address_2):
     call = Call(
-        to_addr=contract_address,
+        to_addr=contract_address_2,
         selector=get_selector_from_name("get_balance"),
         calldata=[],
     )
 
     result = await client.call_contract(call, block_number="latest")
 
-    assert result == [1897]
+    assert result == [1777]
 
 
 @pytest.mark.asyncio
 async def test_add_transaction(map_contract, client, account):
-    prepared_function_call = map_contract.functions["put"].prepare_invoke_v1(
+    prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
         key=73, value=12
     )
-    signed_invoke = await account.sign_invoke_v1(
-        calls=prepared_function_call, max_fee=MAX_FEE
+    signed_invoke = await account.sign_invoke_v3(
+        calls=prepared_function_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
     result = await client.send_transaction(signed_invoke)
@@ -268,6 +405,46 @@ async def test_add_transaction(map_contract, client, account):
 
     assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
     assert transaction_receipt.type == TransactionType.INVOKE
+
+
+@pytest.mark.asyncio
+async def test_add_invoke_v3_transaction_with_tip(map_contract, client, account):
+    prepared_function_call = map_contract.functions["put"].prepare_invoke_v3(
+        key=100, value=200
+    )
+    tip = 20000
+    signed_invoke = await account.sign_invoke_v3(
+        calls=prepared_function_call, resource_bounds=MAX_RESOURCE_BOUNDS, tip=tip
+    )
+
+    result = await client.send_transaction(signed_invoke)
+    await client.wait_for_tx(result.transaction_hash)
+    transaction_receipt = await client.get_transaction_receipt(result.transaction_hash)
+
+    assert transaction_receipt.execution_status == TransactionExecutionStatus.SUCCEEDED
+    assert transaction_receipt.type == TransactionType.INVOKE
+
+    transaction = await client.get_transaction(result.transaction_hash)
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_add_declare_v3_transaction_with_tip(
+    client, account, abi_types_compiled_contract_and_class_hash
+):
+    tip = 12345
+    declare = await account.sign_declare_v3(
+        compiled_contract=abi_types_compiled_contract_and_class_hash[0],
+        compiled_class_hash=abi_types_compiled_contract_and_class_hash[1],
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=tip,
+    )
+    result = await client.declare(declare)
+
+    transaction = await client.get_transaction(result.transaction_hash)
+    assert isinstance(transaction, DeclareTransactionV3)
+    assert transaction.tip == tip
 
 
 @pytest.mark.asyncio
@@ -294,7 +471,7 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
         get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
-        mocked_receipt.return_value = TransactionReceipt(
+        mocked_receipt.return_value = TransactionReceiptWithBlockInfo(
             transaction_hash=0x1,
             block_number=1,
             type=TransactionType.INVOKE,
@@ -305,11 +482,28 @@ async def test_wait_for_tx_accepted(client, get_tx_receipt_path, get_tx_status_p
         )
 
         mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.RECEIVED
+            finality_status=TransactionStatus.ACCEPTED_ON_L2,
         )
 
         tx_receipt = await client.wait_for_tx(tx_hash=0x1)
         assert tx_receipt.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
+
+
+@pytest.mark.asyncio
+async def test_wait_for_tx_not_received(client, get_tx_status_path):
+    exc_message = "Transaction not received."
+
+    with patch(get_tx_status_path, AsyncMock()) as mocked_status:
+        mocked_status.return_value = TransactionStatusResponse(
+            finality_status=TransactionStatus.RECEIVED
+        )
+
+        with pytest.raises(TransactionNotReceivedError) as err:
+            # We set `retries` to 1, otherwise `wait_for_tx` will try to fetch tx status until
+            # it is either `ACCEPTED_ON_L2` or `ACCEPTED_ON_L1`
+            await client.wait_for_tx(tx_hash=0x1, retries=1)
+
+        assert exc_message in err.value.message
 
 
 @pytest.mark.asyncio
@@ -320,36 +514,25 @@ async def test_wait_for_tx_reverted(client, get_tx_receipt_path, get_tx_status_p
         get_tx_receipt_path,
         AsyncMock(),
     ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
-        mocked_receipt.return_value = TransactionReceipt(
+        mocked_receipt.return_value = TransactionReceiptWithBlockInfo(
             transaction_hash=0x1,
             block_number=1,
             type=TransactionType.INVOKE,
             execution_status=TransactionExecutionStatus.REVERTED,
-            finality_status=Mock(spec=TransactionFinalityStatus),
+            finality_status=TransactionFinalityStatus.ACCEPTED_ON_L2,
             execution_resources=Mock(spec=ExecutionResources),
             revert_reason=exc_message,
             actual_fee=FeePayment(amount=1, unit=PriceUnit.WEI),
         )
 
         mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.RECEIVED
+            finality_status=TransactionStatus.ACCEPTED_ON_L2,
         )
 
         with pytest.raises(TransactionRevertedError) as err:
             await client.wait_for_tx(tx_hash=0x1)
 
         assert exc_message in err.value.message
-
-
-@pytest.mark.asyncio
-async def test_wait_for_tx_rejected(client, get_tx_status_path):
-    with patch(get_tx_status_path, AsyncMock()) as mocked_status:
-        mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.REJECTED
-        )
-
-        with pytest.raises(TransactionRejectedError):
-            await client.wait_for_tx(tx_hash=0x1)
 
 
 @pytest.mark.asyncio
@@ -362,7 +545,7 @@ async def test_wait_for_tx_unknown_error(
     ) as mocked_receipt, patch(get_tx_status_path, AsyncMock()) as mocked_status:
         mocked_receipt.side_effect = ClientError(message="Unknown error")
         mocked_status.return_value = TransactionStatusResponse(
-            finality_status=TransactionStatus.RECEIVED
+            finality_status=TransactionStatus.ACCEPTED_ON_L2
         )
 
         with pytest.raises(ClientError, match="Unknown error"):
@@ -378,8 +561,8 @@ async def test_custom_session_client(map_contract, devnet):
 
     tx_hash = (
         await (
-            await map_contract.functions["put"].invoke_v1(
-                key=10, value=20, max_fee=MAX_FEE
+            await map_contract.functions["put"].invoke_v3(
+                key=10, value=20, resource_bounds=MAX_RESOURCE_BOUNDS
             )
         ).wait_for_acceptance()
     ).hash
@@ -464,8 +647,8 @@ async def test_state_update_storage_diffs(
     client,
     map_contract,
 ):
-    resp = await map_contract.functions["put"].invoke_v1(
-        key=10, value=20, max_fee=MAX_FEE
+    resp = await map_contract.functions["put"].invoke_v3(
+        key=10, value=20, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     await resp.wait_for_acceptance()
 
@@ -483,8 +666,8 @@ async def test_state_update_deployed_contracts(
 ):
     deployer = Deployer()
     contract_deployment = deployer.create_contract_deployment(class_hash=class_hash)
-    deploy_invoke_tx = await account.sign_invoke_v1(
-        contract_deployment.call, max_fee=MAX_FEE
+    deploy_invoke_tx = await account.sign_invoke_v3(
+        contract_deployment.call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
     resp = await account.client.send_transaction(deploy_invoke_tx)
     await account.client.wait_for_tx(resp.transaction_hash)
@@ -510,49 +693,59 @@ async def test_get_class_by_hash_sierra_program(client, hello_starknet_class_has
 
 
 @pytest.mark.asyncio
-async def test_get_declare_v2_transaction(
+async def test_get_declare_v3_transaction(
     client,
     hello_starknet_class_hash_tx_hash,
-    declare_v2_hello_starknet: DeclareV2,
+    declare_v3_hello_starknet: DeclareV3,
 ):
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
-    assert isinstance(transaction, DeclareTransactionV2)
-    assert transaction == DeclareTransactionV2(
+    assert isinstance(transaction, DeclareTransactionV3)
+    assert transaction == DeclareTransactionV3(
         class_hash=class_hash,
-        compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
-        sender_address=declare_v2_hello_starknet.sender_address,
+        compiled_class_hash=declare_v3_hello_starknet.compiled_class_hash,
+        sender_address=declare_v3_hello_starknet.sender_address,
         hash=tx_hash,
-        max_fee=declare_v2_hello_starknet.max_fee,
-        signature=declare_v2_hello_starknet.signature,
-        nonce=declare_v2_hello_starknet.nonce,
-        version=declare_v2_hello_starknet.version,
+        resource_bounds=declare_v3_hello_starknet.resource_bounds,
+        signature=declare_v3_hello_starknet.signature,
+        nonce=declare_v3_hello_starknet.nonce,
+        version=declare_v3_hello_starknet.version,
+        account_deployment_data=[],
+        fee_data_availability_mode=DAMode.L1,
+        nonce_data_availability_mode=DAMode.L1,
+        paymaster_data=[],
+        tip=0,
     )
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_declare_v2(
+async def test_get_block_with_declare_v3(
     client,
     hello_starknet_class_hash_tx_hash,
-    declare_v2_hello_starknet: DeclareV2,
-    block_with_declare_v2_number: int,
+    declare_v3_hello_starknet: DeclareV3,
+    block_with_declare_v3_number: int,
 ):
     (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
 
-    block = await client.get_block(block_number=block_with_declare_v2_number)
+    block = await client.get_block(block_number=block_with_declare_v3_number)
 
     assert (
-        DeclareTransactionV2(
+        DeclareTransactionV3(
             class_hash=class_hash,
-            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
-            sender_address=declare_v2_hello_starknet.sender_address,
+            compiled_class_hash=declare_v3_hello_starknet.compiled_class_hash,
+            sender_address=declare_v3_hello_starknet.sender_address,
             hash=tx_hash,
-            max_fee=declare_v2_hello_starknet.max_fee,
-            signature=declare_v2_hello_starknet.signature,
-            nonce=declare_v2_hello_starknet.nonce,
-            version=declare_v2_hello_starknet.version,
+            resource_bounds=declare_v3_hello_starknet.resource_bounds,
+            signature=declare_v3_hello_starknet.signature,
+            nonce=declare_v3_hello_starknet.nonce,
+            version=declare_v3_hello_starknet.version,
+            account_deployment_data=[],
+            fee_data_availability_mode=DAMode.L1,
+            nonce_data_availability_mode=DAMode.L1,
+            paymaster_data=[],
+            tip=0,
         )
         in block.transactions
     )
@@ -563,17 +756,17 @@ async def test_get_block_with_declare_v2(
 async def test_get_new_state_update(
     client,
     hello_starknet_class_hash: int,
-    declare_v2_hello_starknet: DeclareV2,
-    block_with_declare_v2_number: int,
+    declare_v3_hello_starknet: DeclareV3,
+    block_with_declare_v3_number: int,
 ):
     state_update_first = await client.get_state_update(
-        block_number=block_with_declare_v2_number
+        block_number=block_with_declare_v3_number
     )
     assert state_update_first.state_diff.replaced_classes == []
     assert (
         DeclaredContractHash(
             class_hash=hello_starknet_class_hash,
-            compiled_class_hash=declare_v2_hello_starknet.compiled_class_hash,
+            compiled_class_hash=declare_v3_hello_starknet.compiled_class_hash,
         )
         in state_update_first.state_diff.declared_classes
     )

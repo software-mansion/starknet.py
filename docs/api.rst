@@ -7,6 +7,7 @@ API
    api/devnet_client
    api/account
    api/client_models
+   api/executable_models
    api/client_errors
    api/transaction_errors
    api/contract
@@ -21,3 +22,5 @@ API
    api/serializers
    api/proxy_resolvers
    api/typed_data
+   api/websocket_client
+   api/tip

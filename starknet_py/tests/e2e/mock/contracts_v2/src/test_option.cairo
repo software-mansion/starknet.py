@@ -6,7 +6,7 @@ struct OptionStruct {
     first_field: felt252,
     second_field: Option::<u256>,
     third_field: Option::<u8>,
-    fourth_field: felt252
+    fourth_field: felt252,
 }
 
 
@@ -19,7 +19,7 @@ mod TestOption {
 
     #[external(v0)]
     fn receive_and_send_option_struct(
-        self: @ContractState, option_struct: OptionStruct
+        self: @ContractState, option_struct: OptionStruct,
     ) -> OptionStruct {
         option_struct
     }
@@ -30,7 +30,7 @@ mod TestOption {
             first_field: 1,
             second_field: Option::Some(u256 { low: 2, high: 0 }),
             third_field: Option::None(()),
-            fourth_field: 4
+            fourth_field: 4,
         };
 
         option_struct

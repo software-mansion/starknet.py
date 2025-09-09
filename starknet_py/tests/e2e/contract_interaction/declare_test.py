@@ -1,8 +1,10 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
 from starknet_py.contract import Contract
-from starknet_py.tests.e2e.fixtures.constants import MAX_FEE, MAX_RESOURCE_BOUNDS_L1
-from starknet_py.tests.e2e.fixtures.misc import load_contract
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 
 
 @pytest.mark.asyncio
@@ -16,13 +18,57 @@ async def test_throws_when_cairo1_without_compiled_contract_casm_and_class_hash(
     compiled_contract = load_contract("Map")["sierra"]
 
     with pytest.raises(ValueError, match=error_message):
-        await Contract.declare_v2(
-            account, compiled_contract=compiled_contract, max_fee=MAX_FEE
+        await Contract.declare_v3(
+            account,
+            compiled_contract=compiled_contract,
+            resource_bounds=MAX_RESOURCE_BOUNDS,
         )
 
     with pytest.raises(ValueError, match=error_message):
         await Contract.declare_v3(
             account,
             compiled_contract=compiled_contract,
-            l1_resource_bounds=MAX_RESOURCE_BOUNDS_L1,
+            resource_bounds=MAX_RESOURCE_BOUNDS,
         )
+
+
+@pytest.mark.asyncio
+async def test_declare_v3(
+    account,
+):
+    contract = load_contract(contract_name="TestContract", version=ContractVersion.V2)
+
+    tip = 12345
+    declare_result = await Contract.declare_v3(
+        account,
+        compiled_contract=contract["sierra"],
+        compiled_contract_casm=contract["casm"],
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+        tip=tip,
+    )
+
+    await declare_result.wait_for_acceptance()
+    assert declare_result.declare_transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_declare_v3_auto_estimate_tip(
+    account,
+    get_block_with_txs_path,
+    block_with_tips_mock,
+):
+    contract = load_contract(contract_name="TestContract2", version=ContractVersion.V2)
+
+    with patch(get_block_with_txs_path, AsyncMock()) as get_block_with_txs_mock:
+        get_block_with_txs_mock.return_value = block_with_tips_mock
+
+        declare_result = await Contract.declare_v3(
+            account,
+            compiled_contract=contract["sierra"],
+            compiled_contract_casm=contract["casm"],
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
+        )
+
+    await declare_result.wait_for_acceptance()
+    assert declare_result.declare_transaction.tip == 2

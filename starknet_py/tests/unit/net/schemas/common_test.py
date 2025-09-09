@@ -224,21 +224,21 @@ def test_serialize_block_status_field():
     class SchemaWithBlockStatusField(Schema):
         value1 = BlockStatusField(data_key="value1")
 
-    data = {"value1": BlockStatus.PENDING}
+    data = {"value1": BlockStatus.PRE_CONFIRMED}
 
     serialized = SchemaWithBlockStatusField().dumps(data)
-    assert '"value1": "PENDING"' in serialized
+    assert '"value1": "PRE_CONFIRMED"' in serialized
 
 
 def test_deserialize_block_status_field():
     class SchemaWithBlockStatusField(Schema):
         value1 = BlockStatusField(data_key="value1")
 
-    data = {"value1": "PENDING"}
+    data = {"value1": "PRE_CONFIRMED"}
 
     deserialized = SchemaWithBlockStatusField().load(data)
     assert isinstance(deserialized, dict)
-    assert deserialized["value1"] == BlockStatus.PENDING
+    assert deserialized["value1"] == BlockStatus.PRE_CONFIRMED
 
 
 def test_serialize_block_status_field_throws_on_invalid_data():

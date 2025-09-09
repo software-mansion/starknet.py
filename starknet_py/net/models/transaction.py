@@ -94,10 +94,10 @@ class _DeprecatedAccountTransaction(AccountTransaction, ABC):
 @dataclass(frozen=True)
 class _AccountTransactionV3(AccountTransaction, ABC):
     resource_bounds: ResourceBoundsMapping
-    tip: int = field(init=False, default=0)
     nonce_data_availability_mode: DAMode = field(init=False, default=DAMode.L1)
     fee_data_availability_mode: DAMode = field(init=False, default=DAMode.L1)
     paymaster_data: List[int] = field(init=False, default_factory=list)
+    tip: int
 
     def get_common_fields(
         self,
@@ -157,6 +157,10 @@ class DeclareV2(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is a version 2 declaration of a Starknet contract
     class. Supports only sierra compiled contracts.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use :py:class:`~starknet_py.net.models.transaction.DeclareV3` instead.
     """
 
     contract_class: SierraContractClass = field(
@@ -185,13 +189,14 @@ class DeclareV2(_DeprecatedAccountTransaction):
 @dataclass(frozen=True)
 class DeclareV1(_DeprecatedAccountTransaction):
     """
-    This class is deprecated, not covered by tests and will be removed in the future.
-    Please use current version of transactions.
-
     Based on https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#transaction_versioning
 
     Represents a transaction in the Starknet network that is a declaration of a Starknet contract
     class.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use :py:class:`~starknet_py.net.models.transaction.DeclareV3` instead.
     """
 
     # The class to be declared, included for all methods involving execution (estimateFee, simulateTransactions)
@@ -273,6 +278,10 @@ class DeployAccountV1(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is a deployment of a Starknet account
     contract.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use :py:class:`~starknet_py.net.models.transaction.DeployAccountV3` instead
     """
 
     class_hash: int = field(metadata={"marshmallow_field": Felt()})
@@ -339,6 +348,10 @@ class InvokeV1(_DeprecatedAccountTransaction):
     """
     Represents a transaction in the Starknet network that is an invocation of a Cairo contract
     function.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use :py:class:`~starknet_py.net.models.transaction.InvokeV3` instead
     """
 
     sender_address: int = field(metadata={"marshmallow_field": Felt()})

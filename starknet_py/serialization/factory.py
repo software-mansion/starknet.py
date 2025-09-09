@@ -13,7 +13,9 @@ from starknet_py.cairo.data_types import (
     EnumType,
     EventType,
     FeltType,
+    FixedSizeArrayType,
     NamedTupleType,
+    NonZeroType,
     OptionType,
     StructType,
     TupleType,
@@ -32,6 +34,9 @@ from starknet_py.serialization.data_serializers.enum_serializer import EnumSeria
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 from starknet_py.serialization.data_serializers.named_tuple_serializer import (
     NamedTupleSerializer,
+)
+from starknet_py.serialization.data_serializers.non_zero_serializer import (
+    NonZeroSerializer,
 )
 from starknet_py.serialization.data_serializers.option_serializer import (
     OptionSerializer,
@@ -97,7 +102,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
             )
         )
 
-    if isinstance(cairo_type, ArrayType):
+    if isinstance(cairo_type, (ArrayType, FixedSizeArrayType)):
         return ArraySerializer(serializer_for_type(cairo_type.inner_type))
 
     if isinstance(cairo_type, TupleType):
@@ -118,6 +123,9 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
 
     if isinstance(cairo_type, OptionType):
         return OptionSerializer(serializer_for_type(cairo_type.type))
+
+    if isinstance(cairo_type, NonZeroType):
+        return NonZeroSerializer(serializer_for_type(cairo_type.type))
 
     if isinstance(cairo_type, UnitType):
         return UnitSerializer()

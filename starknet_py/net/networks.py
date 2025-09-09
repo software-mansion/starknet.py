@@ -1,6 +1,6 @@
 from typing import Literal, Union
 
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.constants import ETH_FEE_CONTRACT_ADDRESS
 
 MAINNET = "mainnet"
 SEPOLIA = "sepolia"
@@ -17,4 +17,4 @@ def default_token_address_for_network(net: Network) -> str:
             "Argument token_address must be specified when using a custom net address"
         )
 
-    return FEE_CONTRACT_ADDRESS
+    return ETH_FEE_CONTRACT_ADDRESS

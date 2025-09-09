@@ -18,22 +18,24 @@ from starknet_py.net.client_models import (
     InvokeTransactionV3,
     L1HandlerTransaction,
     L2toL1Message,
+    MessageStatus,
     ResourceBounds,
     ResourceBoundsMapping,
     SentTransactionResponse,
     TransactionReceipt,
+    TransactionReceiptWithBlockInfo,
     TransactionStatusResponse,
     TransactionWithReceipt,
 )
 from starknet_py.net.schemas.common import (
     DAModeField,
-    EthAddress,
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
     NumberAsHex,
     PriceUnitField,
     StatusField,
+    TransactionFinalityStatusField,
     TransactionTypeField,
     Uint64,
     Uint128,
@@ -46,7 +48,7 @@ from starknet_py.utils.schema import Schema
 
 class L2toL1MessageSchema(Schema):
     l2_address = Felt(data_key="from_address", required=True)
-    l1_address = EthAddress(data_key="to_address", required=True)
+    l1_address = Felt(data_key="to_address", required=True)
     payload = fields.List(Felt(), data_key="payload", required=True)
 
     @post_load
@@ -67,8 +69,6 @@ class TransactionReceiptSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
     execution_status = ExecutionStatusField(data_key="execution_status", required=True)
     finality_status = FinalityStatusField(data_key="finality_status", required=True)
-    block_number = fields.Integer(data_key="block_number", load_default=None)
-    block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = fields.Nested(FeePaymentSchema(), data_key="actual_fee", required=True)
     type = TransactionTypeField(data_key="type", required=True)
     contract_address = Felt(data_key="contract_address", load_default=None)
@@ -89,11 +89,21 @@ class TransactionReceiptSchema(Schema):
         return TransactionReceipt(**data)
 
 
+class TransactionReceiptWithBlockInfoSchema(TransactionReceiptSchema):
+    block_hash = Felt(data_key="block_hash", load_default=None)
+    block_number = fields.Integer(data_key="block_number", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionReceiptWithBlockInfo:
+        return TransactionReceiptWithBlockInfo(**data)
+
+
 class TransactionStatusResponseSchema(Schema):
     finality_status = StatusField(data_key="finality_status", required=True)
     execution_status = ExecutionStatusField(
         data_key="execution_status", load_default=None
     )
+    failure_reason = fields.String(data_key="failure_reason", load_default=None)
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionStatusResponse:
@@ -112,6 +122,9 @@ class ResourceBoundsSchema(Schema):
 class ResourceBoundsMappingSchema(Schema):
     l1_gas = fields.Nested(ResourceBoundsSchema(), data_key="l1_gas", required=True)
     l2_gas = fields.Nested(ResourceBoundsSchema(), data_key="l2_gas", required=True)
+    l1_data_gas = fields.Nested(
+        ResourceBoundsSchema(), data_key="l1_data_gas", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> ResourceBoundsMapping:
@@ -129,7 +142,7 @@ class DeprecatedTransactionSchema(TransactionSchema):
 
 
 class TransactionV3Schema(TransactionSchema):
-    tip = Uint64(data_key="tip", load_default=0)
+    tip = Uint64(data_key="tip", required=True)
     nonce_data_availability_mode = DAModeField(
         data_key="nonce_data_availability_mode", load_default=DAMode.L1
     )
@@ -350,3 +363,16 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> DeployAccountTransactionResponse:
         return DeployAccountTransactionResponse(**data)
+
+
+class MessageStatusSchema(Schema):
+    transaction_hash = NumberAsHex(data_key="transaction_hash", required=True)
+    finality_status = TransactionFinalityStatusField(
+        data_key="finality_status", required=True
+    )
+    execution_status = ExecutionStatusField(data_key="execution_status", required=True)
+    failure_reason = fields.String(data_key="failure_reason", load_default=None)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> MessageStatus:
+        return MessageStatus(**data)

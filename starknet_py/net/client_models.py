@@ -7,11 +7,12 @@ This can be achieved by setting the environment variable, STARKNET_PY_MARSHMALLO
 to true. Consequently, any unknown fields in response will be excluded.
 """
 
+import datetime
 import json
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, List, Literal, Optional, Union, cast
+from typing import Dict, Iterable, List, Literal, Optional, Union, cast
 
 from marshmallow import EXCLUDE
 
@@ -31,7 +32,8 @@ from starknet_py.utils.constructor_args_translator import _is_abi_v2
 # pylint: disable=too-many-lines
 
 Hash = Union[int, str]
-Tag = Literal["pending", "latest"]
+Tag = Literal["l1_accepted", "pre_confirmed", "latest"]
+LatestTag = Literal["latest"]
 
 
 @dataclass
@@ -116,18 +118,39 @@ class ResourceBounds:
 
 
 @dataclass
+class OutsideExecutionTimeBounds:
+    """
+    Dataclass representing time bounds within which outside execution
+    transaction is valid and allowed to be executed.
+    """
+
+    execute_after: datetime.datetime
+    execute_before: datetime.datetime
+
+    @property
+    def execute_after_timestamp(self) -> int:
+        return int(self.execute_after.timestamp())
+
+    @property
+    def execute_before_timestamp(self) -> int:
+        return int(self.execute_before.timestamp())
+
+
+@dataclass
 class ResourceBoundsMapping:
     """
     Dataclass representing resource limits that can be used in the transaction.
     """
 
     l1_gas: ResourceBounds
+    l1_data_gas: ResourceBounds
     l2_gas: ResourceBounds
 
     @staticmethod
     def init_with_zeros():
         return ResourceBoundsMapping(
             l1_gas=ResourceBounds.init_with_zeros(),
+            l1_data_gas=ResourceBounds.init_with_zeros(),
             l2_gas=ResourceBounds.init_with_zeros(),
         )
 
@@ -239,6 +262,10 @@ class InvokeTransactionV0(DeprecatedTransaction):
 class InvokeTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing invoke transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.InvokeTransactionV3` instead.
     """
 
     calldata: List[int]
@@ -272,6 +299,10 @@ class DeclareTransactionV0(DeprecatedTransaction):
 class DeclareTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
     """
 
     sender_address: int
@@ -283,6 +314,10 @@ class DeclareTransactionV1(DeprecatedTransaction):
 class DeclareTransactionV2(DeprecatedTransaction):
     """
     Dataclass representing declare transaction v2.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeclareTransactionV3` instead.
     """
 
     sender_address: int
@@ -319,6 +354,10 @@ class DeployTransaction(Transaction):
 class DeployAccountTransactionV1(DeprecatedTransaction):
     """
     Dataclass representing deploy account transaction v1.
+
+    .. deprecated:: 0.25.0
+        This class is deprecated and will be removed in future versions.
+        Use `starknet_py.net.client_models.DeployAccountTransactionV3` instead.
     """
 
     nonce: int
@@ -357,7 +396,8 @@ class TransactionStatus(Enum):
     """
 
     RECEIVED = "RECEIVED"
-    REJECTED = "REJECTED"
+    CANDIDATE = "CANDIDATE"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
@@ -376,47 +416,30 @@ class TransactionFinalityStatus(Enum):
     Enum representing transaction finality statuses.
     """
 
+    PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass
-class DataResources:
+class InnerCallExecutionResources:
     """
-    Dataclass representing the data-availability resources of the transaction
+    Dataclass representing the resource consumed by an inner call (does not account for state diffs).
     """
 
     l1_gas: int
-    l1_data_gas: int
+    l2_gas: int
 
 
 @dataclass
-class ComputationResources:
-    """
-    Dataclass representing the resources consumed by the VM.
-    """
-
-    # pylint: disable=too-many-instance-attributes
-
-    steps: int
-    memory_holes: Optional[int]
-    range_check_builtin_applications: Optional[int]
-    pedersen_builtin_applications: Optional[int]
-    poseidon_builtin_applications: Optional[int]
-    ec_op_builtin_applications: Optional[int]
-    ecdsa_builtin_applications: Optional[int]
-    bitwise_builtin_applications: Optional[int]
-    keccak_builtin_applications: Optional[int]
-    segment_arena_builtin: Optional[int]
-
-
-@dataclass
-class ExecutionResources(ComputationResources):
+class ExecutionResources:
     """
     Dataclass representing the resources consumed by the transaction, includes both computation and data.
     """
 
-    data_availability: DataResources
+    l1_gas: int
+    l1_data_gas: int
+    l2_gas: int
 
 
 # TODO (#1219): split into PendingTransactionReceipt and TransactionReceipt
@@ -438,13 +461,20 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-
     contract_address: Optional[int] = None  # DEPLOY_ACCOUNT_TXN_RECEIPT only
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT only
 
     revert_reason: Optional[str] = None
+
+
+@dataclass
+class TransactionReceiptWithBlockInfo(TransactionReceipt):
+    """
+    Dataclass representing details of sent transaction with additional block info.
+    """
+
+    block_number: int = 0
+    block_hash: Optional[int] = None
 
 
 @dataclass
@@ -486,45 +516,46 @@ class BlockStatus(Enum):
     Enum representing block status.
     """
 
-    PENDING = "PENDING"
-    REJECTED = "REJECTED"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
 @dataclass
-class PendingBlockHeader:
-    parent_hash: int
+class PreConfirmedBlockHeader:
+    # pylint: disable=too-many-instance-attributes
+    block_number: int
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l2_gas_price: ResourcePrice
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
 
 
 @dataclass
-class PendingStarknetBlock(PendingBlockHeader):
+class PreConfirmedStarknetBlock(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pending block on Starknet.
+    Dataclass representing a pre-confirmed block on Starknet.
     """
 
     transactions: List[Transaction]
 
 
 @dataclass
-class PendingStarknetBlockWithTxHashes(PendingBlockHeader):
+class PreConfirmedStarknetBlockWithTxHashes(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pending block on Starknet containing transaction hashes.
+    Dataclass representing a pre_confirmed block on Starknet containing transaction hashes.
     """
 
     transactions: List[int]
 
 
 @dataclass
-class PendingStarknetBlockWithReceipts(PendingBlockHeader):
+class PreConfirmedStarknetBlockWithReceipts(PreConfirmedBlockHeader):
     """
-    Dataclass representing a pending block on Starknet with txs and receipts result
+    Dataclass representing a pre_confirmed block on Starknet with txs and receipts result
     """
 
     transactions: List[TransactionWithReceipt]
@@ -545,6 +576,7 @@ class BlockHeader:
     timestamp: int
     sequencer_address: int
     l1_gas_price: ResourcePrice
+    l2_gas_price: ResourcePrice
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
@@ -618,14 +650,17 @@ class StorageDiffItem:
 
 @dataclass
 class EstimatedFee:
+    # pylint: disable=too-many-instance-attributes
     """
     Dataclass representing estimated fee.
     """
 
-    gas_consumed: int
-    gas_price: int
-    data_gas_consumed: int
-    data_gas_price: int
+    l1_gas_consumed: int
+    l1_gas_price: int
+    l2_gas_consumed: int
+    l2_gas_price: int
+    l1_data_gas_consumed: int
+    l1_data_gas_price: int
     overall_fee: int
     unit: PriceUnit
 
@@ -635,32 +670,37 @@ class EstimatedFee:
         """
         Converts estimated fee to resource bounds with applied multipliers.
 
-        Calculates max amount as `max_amount` = `overall_fee` / `gas_price`, unless `gas_price` is 0,
-        then `max_amount` is 0. Calculates max price per unit as `max_price_per_unit` = `gas_price`.
-
-        Then multiplies `max_amount` by `amount_multiplier` and `max_price_per_unit` by `unit_price_multiplier`.
-
         :param amount_multiplier: Multiplier for max amount, defaults to 1.5.
         :param unit_price_multiplier: Multiplier for max price per unit, defaults to 1.5.
         :return: Resource bounds with applied multipliers.
         """
 
-        if amount_multiplier <= 0 or unit_price_multiplier <= 0:
-            raise ValueError(
-                "Values of 'amount_multiplier' and 'unit_price_multiplier' must be greater than 0"
-            )
-
         l1_resource_bounds = ResourceBounds(
-            max_amount=int(
-                (self.overall_fee / self.gas_price) * amount_multiplier
-                if self.gas_price != 0
-                else 0
-            ),
-            max_price_per_unit=int(self.gas_price * unit_price_multiplier),
+            max_amount=int(self.l1_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l1_gas_price * unit_price_multiplier),
+        )
+
+        l2_resource_bounds = ResourceBounds(
+            max_amount=int(self.l2_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l2_gas_price * unit_price_multiplier),
+        )
+
+        l1_data_resource_bounds = ResourceBounds(
+            max_amount=int(self.l1_data_gas_consumed * amount_multiplier),
+            max_price_per_unit=int(self.l1_data_gas_price * unit_price_multiplier),
         )
 
         return ResourceBoundsMapping(
-            l1_gas=l1_resource_bounds, l2_gas=ResourceBounds.init_with_zeros()
+            l1_gas=l1_resource_bounds,
+            l2_gas=l2_resource_bounds,
+            l1_data_gas=l1_data_resource_bounds,
+        )
+
+    def calculate_overall_fee(self):
+        return (
+            self.l1_gas_consumed * self.l1_gas_price
+            + self.l2_gas_consumed * self.l2_gas_price
+            + self.l1_data_gas_consumed * self.l1_data_gas_price
         )
 
 
@@ -731,9 +771,9 @@ class BlockStateUpdate:
 
 
 @dataclass
-class PendingBlockStateUpdate:
+class PreConfirmedBlockStateUpdate:
     """
-    Dataclass representing a pending change in state of a block.
+    Dataclass representing a pre_confirmed change in state of a block.
     """
 
     old_root: int
@@ -907,7 +947,7 @@ class CasmClassEntryPoint:
 
     selector: int
     offset: int
-    builtins: Optional[List[str]]
+    builtins: List[str]
 
 
 @dataclass
@@ -922,21 +962,6 @@ class CasmClassEntryPointsByType:
 
 
 @dataclass
-class CasmClass:
-    """
-    Dataclass representing class compiled to Cairo assembly.
-    """
-
-    prime: int
-    bytecode: List[int]
-    hints: List[Any]
-    pythonic_hints: List[Any]
-    compiler_version: str
-    entry_points_by_type: CasmClassEntryPointsByType
-    bytecode_segment_lengths: Optional[List[int]]
-
-
-@dataclass
 class TransactionStatusResponse:
     """
     Dataclass representing transaction status for the FullNodeClient.
@@ -944,6 +969,7 @@ class TransactionStatusResponse:
 
     finality_status: TransactionStatus
     execution_status: Optional[TransactionExecutionStatus] = None
+    failure_reason: Optional[str] = None
 
 
 # ------------------------------- Trace API dataclasses -------------------------------
@@ -1019,7 +1045,8 @@ class FunctionInvocation:
     calls: List["FunctionInvocation"]
     events: List[OrderedEvent]
     messages: List[OrderedMessage]
-    computation_resources: ComputationResources
+    execution_resources: InnerCallExecutionResources
+    is_reverted: bool
 
 
 @dataclass
@@ -1106,3 +1133,121 @@ class BlockTransactionTrace:
 
     transaction_hash: int
     trace_root: TransactionTrace
+
+
+@dataclass
+class BinaryNode:
+    """
+    Dataclass representing an internal node whose both children are non-zero.
+    """
+
+    left: int
+    right: int
+
+
+@dataclass
+class EdgeNode:
+    """
+    Dataclass representing a path to the highest non-zero descendant node.
+    """
+
+    path: int
+    length: int
+    child: int
+
+
+MerkleNode = Union[BinaryNode, EdgeNode]
+
+
+@dataclass
+class NodeHashToNodeMappingItem:
+    node_hash: int
+    node: MerkleNode
+
+
+NodeHashToNodeMapping = List[NodeHashToNodeMappingItem]
+
+
+@dataclass
+class ContractsStorageKeys:
+    """
+    Dataclass representing a pair of contract address and storage keys.
+    """
+
+    contract_address: int
+    storage_keys: List[int]
+
+
+@dataclass
+class ContractLeafData:
+    nonce: int
+    class_hash: int
+    storage_root: Optional[int]
+
+
+@dataclass
+class GlobalRoots:
+    contracts_tree_root: int
+    classes_tree_root: int
+    block_hash: int
+
+
+@dataclass
+class ContractsProof:
+    nodes: NodeHashToNodeMapping
+    contract_leaves_data: List[ContractLeafData]
+
+
+@dataclass
+class StorageProofResponse:
+    """
+    Dataclass representing a response to a storage proof request.
+    """
+
+    classes_proof: NodeHashToNodeMapping
+    contracts_proof: ContractsProof
+    contracts_storage_proofs: List[NodeHashToNodeMapping]
+    global_roots: GlobalRoots
+
+
+@dataclass
+class MessageStatus:
+    transaction_hash: int
+    finality_status: TransactionFinalityStatus
+    execution_status: TransactionExecutionStatus
+    failure_reason: Optional[str] = None
+
+
+@dataclass
+class OutsideExecution:
+    """
+    Dataclass representing an outside execution.
+    (SNIP-9)[https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md]
+    """
+
+    caller: int
+    nonce: int
+    execute_after: int
+    execute_before: int
+    calls: List[Call]
+
+    # TODO(#1537): Use serialiser to convert to ABI dict.
+    def to_abi_dict(self) -> Dict:
+        """
+        Returns a dictionary that can be serialized (compiled) into calldata
+        using StructSerializer
+        """
+        return {
+            "caller": self.caller,
+            "nonce": self.nonce,
+            "execute_after": self.execute_after,
+            "execute_before": self.execute_before,
+            "calls": [
+                {
+                    "to": call.to_addr,
+                    "selector": call.selector,
+                    "calldata": call.calldata,
+                }
+                for call in self.calls
+            ],
+        }

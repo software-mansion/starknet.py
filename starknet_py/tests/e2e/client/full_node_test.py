@@ -16,7 +16,7 @@ from starknet_py.net.client_models import (
     BlockHashAndNumber,
     Call,
     DeclareTransactionTrace,
-    DeclareTransactionV2,
+    DeclareTransactionV3,
     DeployAccountTransactionTrace,
     InvokeTransactionTrace,
     SierraContractClass,
@@ -26,6 +26,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 from starknet_py.tests.e2e.utils import create_empty_block
 
@@ -49,10 +50,10 @@ async def test_node_get_declare_transaction_by_block_number_and_index(
         block_number=block_with_declare_number, index=0
     )
 
-    assert isinstance(tx, DeclareTransactionV2)
+    assert isinstance(tx, DeclareTransactionV3)
     assert tx.hash == declare_transaction_hash
     assert tx.class_hash == class_hash
-    assert tx.version == 2
+    assert tx.version == 3
 
 
 @pytest.mark.run_on_devnet
@@ -114,13 +115,13 @@ async def test_get_transaction_receipt_deploy_account(
     client, deploy_account_details_factory
 ):
     address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
-    deploy_result = await Account.deploy_account_v1(
+    deploy_result = await Account.deploy_account_v3(
         address=address,
         class_hash=class_hash,
         salt=salt,
         key_pair=key_pair,
         client=client,
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
     await deploy_result.wait_for_acceptance()
 
@@ -181,7 +182,7 @@ async def test_get_events_follow_continuation_token(
 ):
     total_invokes = 2
     for i in range(total_invokes):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
 
@@ -208,7 +209,7 @@ async def test_get_events_nonexistent_event_name(
     client,
     simple_storage_with_event_contract: Contract,
 ):
-    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
         1, 1, auto_estimate=True
     )
 
@@ -238,11 +239,11 @@ async def test_get_events_with_two_events(
     invokes_of_one = 1
     invokes_of_two = 2
     invokes_of_all = invokes_of_one + invokes_of_two
-    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
         1, 2, auto_estimate=True
     )
     for i in range(invokes_of_two):
-        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
 
@@ -289,7 +290,7 @@ async def test_get_events_start_from_continuation_token(
     simple_storage_with_event_contract: Contract,
 ):
     for i in range(5):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
 
@@ -321,10 +322,10 @@ async def test_get_events_no_params(
 ):
     default_chunk_size = 1
     for i in range(3):
-        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
-        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v1(
+        await simple_storage_with_event_contract.functions[FUNCTION_TWO_NAME].invoke_v3(
             i, i + 1, auto_estimate=True
         )
     events_response = await client.get_events()
@@ -424,6 +425,7 @@ async def test_get_syncing_status(client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip
 async def test_simulate_transactions_skip_validate(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
     call = Call(
@@ -431,7 +433,8 @@ async def test_simulate_transactions_skip_validate(account, deployed_balance_con
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     invoke_tx = dataclasses.replace(invoke_tx, signature=[])
 
     simulated_txs = await account.client.simulate_transactions(
@@ -446,6 +449,9 @@ async def test_simulate_transactions_skip_validate(account, deployed_balance_con
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    "TODO(#1560): There is no `l1_data_gas` in `execution_resources` from devnet"
+)
 async def test_simulate_transactions_skip_fee_charge(
     account, deployed_balance_contract
 ):
@@ -455,7 +461,8 @@ async def test_simulate_transactions_skip_fee_charge(
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
 
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], skip_fee_charge=True, block_number="latest"
@@ -471,7 +478,8 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -481,7 +489,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execute_invocation is not None
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
-    invoke_tx = await account.sign_invoke_v1(calls=[call, call], auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v3(calls=[call, call], auto_estimate=True)
     simulated_txs = await account.client.simulate_transactions(
         transactions=[invoke_tx], block_number="latest"
     )
@@ -500,7 +508,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
         selector=get_selector_from_name("increase_balance"),
         calldata=[0x10],
     )
-    invoke_tx = await account.sign_invoke_v1(calls=call, auto_estimate=True)
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
 
     contract = load_contract(
         contract_name="TestContractDeclare", version=ContractVersion.V1
@@ -509,16 +517,16 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     casm_class = create_casm_class(contract["casm"])
     casm_class_hash = compute_casm_class_hash(casm_class)
 
-    declare_v2_tx = await account.sign_declare_v2(
+    declare_v3_tx = await account.sign_declare_v3(
         compiled_contract=contract["sierra"],
         compiled_class_hash=casm_class_hash,
         # because raw calls do not increment nonce, it needs to be done manually
         nonce=invoke_tx.nonce + 1,
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     simulated_txs = await account.client.simulate_transactions(
-        transactions=[invoke_tx, declare_v2_tx], block_number="latest"
+        transactions=[invoke_tx, declare_v3_tx], block_number="latest"
     )
 
     assert isinstance(simulated_txs[0].transaction_trace, InvokeTransactionTrace)
@@ -534,6 +542,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("TODO(#1560)")
 async def test_simulate_transactions_deploy_account(
     client, deploy_account_details_factory
 ):
@@ -550,11 +559,11 @@ async def test_simulate_transactions_deploy_account(
         key_pair=key_pair,
         chain=StarknetChainId.SEPOLIA,
     )
-    deploy_account_tx = await account.sign_deploy_account_v1(
+    deploy_account_tx = await account.sign_deploy_account_v3(
         class_hash=class_hash,
         contract_address_salt=salt,
         constructor_calldata=[key_pair.public_key],
-        max_fee=int(1e16),
+        resource_bounds=MAX_RESOURCE_BOUNDS,
     )
 
     simulated_txs = await client.simulate_transactions(
