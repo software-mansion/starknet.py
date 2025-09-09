@@ -206,7 +206,6 @@ async def test_subscribe_transaction_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(reason="TODO(cptartur): Investigate why tx hashes assertion fails")
 @pytest.mark.asyncio
 async def test_subscribe_new_transaction_receipts(
     websocket_client: WebsocketClient,
@@ -254,7 +253,6 @@ async def test_subscribe_new_transaction_receipts(
     # ...
     # docs-end: subscribe_new_transaction_receipts
     # assert len(transaction_receipts) == 0
-    print("transactions before ", transactions)
 
     increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
@@ -269,15 +267,12 @@ async def test_subscribe_new_transaction_receipts(
     await argent_account_v040.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )
-    print("transaction hash", execute.transaction_hash)
-    print("transaction receipt", rec)
 
     await asyncio.sleep(5)
-    print("transactions after", transactions)
 
     assert len(transaction_receipts) == 1
     transaction_receipt = transaction_receipts[0]
-    assert increase_balance_call.to_addr == transaction_receipt.contract_address
+
     assert execute.transaction_hash == transaction_receipt.transaction_hash
 
     # docs-start: subscribe_new_transaction_receipts

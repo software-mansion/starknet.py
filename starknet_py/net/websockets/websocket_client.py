@@ -389,7 +389,7 @@ class WebsocketClient:
             "params": params if params else [],
         }
 
-        future: asyncio.Future = asyncio.get_running_loop().create_future()
+        future = asyncio.get_running_loop().create_future()
         self._pending_responses[message_id] = future
 
         await self.connection.send(json.dumps(payload))
@@ -417,7 +417,6 @@ class WebsocketClient:
 
         :param message: The message received from the WebSocket server.
         """
-        print("pure response", message)
         data = cast(Dict, json.loads(message))
 
         # case when the message is a response to `subscribe_{method}`
@@ -437,8 +436,6 @@ class WebsocketClient:
 
         :param data: The notification data.
         """
-        print("data ", data)
-
         method: NotificationMethod = data["method"]
         schema = _NOTIFICATION_SCHEMA_MAPPING[method]
         notification: Notification = schema().load(data["params"])
@@ -464,9 +461,11 @@ class WebsocketClient:
     # Optional: public awaitable for callers that want to detect failure or closure explicitly
     async def wait_closed_or_failed(self) -> None:
         """
-        Awaits until the listener is canceled (on caling .disconnect() method)
-            or WebsocketClient fails with an exception.
-        If .connect() was never called or failure happened, this method returns immediately.
+        Awaits until the listener is canceled (on calling
+        :meth:`~net.websockets.websocket_client.WebsocketClient.disconnect` method) or WebsocketClient fails with an
+        exception.
+        If :meth:`~net.websockets.websocket_client.WebsocketClient.connect` was never called or failure happened,
+        this method returns immediately.
         Raises the original exception on failure.
         """
         if self._listen_failed is None:

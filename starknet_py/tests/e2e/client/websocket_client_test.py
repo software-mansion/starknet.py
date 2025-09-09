@@ -237,7 +237,6 @@ async def test_subscribe_new_transaction_receipts_with_finality_status(
     execute = await argent_account_v040.execute_v3(
         calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
-    print("increase balance hash", execute.transaction_hash)
 
     await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
     await asyncio.sleep(3)
