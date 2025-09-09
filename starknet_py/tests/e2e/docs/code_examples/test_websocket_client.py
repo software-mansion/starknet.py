@@ -220,7 +220,7 @@ async def test_subscribe_new_transaction_receipts(
     from starknet_py.net.websockets.models import NewTransactionReceiptsNotification
 
     # Create a handler function that will be called when a new transaction is emitted
-    def handler(
+    def handler_a(
         new_transaction_receipts_notification: NewTransactionReceiptsNotification,
     ):
         # Perform the necessary actions with the new transaction receipts...
@@ -229,7 +229,7 @@ async def test_subscribe_new_transaction_receipts(
         nonlocal transaction_receipts
         transaction_receipts.append(new_transaction_receipts_notification.result)
 
-    def handler2(
+    def handler_b(
         new_transaction_notification: NewTransactionNotification,
     ):
         # Perform the necessary actions with the new transaction receipts...
@@ -241,11 +241,11 @@ async def test_subscribe_new_transaction_receipts(
     # docs-start: subscribe_new_transaction_receipts
     # Subscribe to new transaction receipts notifications
     subscription_id = await websocket_client.subscribe_new_transaction_receipts(
-        handler=handler,
+        handler=handler_a,
         sender_address=[account.address],
     )
     subscription_id2 = await websocket_client.subscribe_new_transactions(
-        handler=handler2,
+        handler=handler_b,
         sender_address=[account.address],
     )
 

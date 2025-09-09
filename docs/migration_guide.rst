@@ -7,6 +7,11 @@ Migration guide
 
 Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 
+0.28.0 Targeted versions
+------------------------
+- Starknet - `0.14.0 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-0-september-1>`_
+- RPC - `0.9.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.9.0>`_
+
 .. py:currentmodule:: starknet_py.net.websockets.websocket_client
 
 1. Removed ``subscribe_pending_transactions`` method and respective notification.
