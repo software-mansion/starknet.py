@@ -130,7 +130,6 @@ class NewTransactionReceiptsNotificationSchema(Schema):
 
 
 class TypesOfTransactionWithFinalitySchema(TypesOfTransactionsSchema):
-
     def load(self, data, *, many=None, partial=None, unknown=None, **kwargs):
         if not isinstance(data, dict):
             raise ValidationError(
