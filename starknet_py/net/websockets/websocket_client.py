@@ -447,7 +447,9 @@ class WebsocketClient:
 
         # Notification may arrive before the subscription is registered
         if notification.subscription_id not in self._subscriptions:
-            self._pending_notifications.setdefault(notification.subscription_id, []).append(notification)
+            self._pending_notifications.setdefault(
+                notification.subscription_id, []
+            ).append(notification)
             return
 
         if isinstance(notification, ReorgNotification):
