@@ -239,7 +239,7 @@ async def test_subscribe_new_transaction_receipts_with_finality_status(
     )
 
     await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
-    await asyncio.sleep(3)
+    await asyncio.sleep(10)
 
     assert len(receipts) >= 1
     assert all(
@@ -298,14 +298,16 @@ async def test_subscribe_events_with_all_filters(
 
 @pytest.mark.asyncio
 async def test_subscribe_failure():
+    # pylint: disable=no-self-use
     class FakeConnection:
         async def recv(self):
             return "xyz"
 
+        # pylint: disable=unused-argument
         async def send(self, *args, **kwargs):
             return
 
-        async def close(self, *args, **kwargs):
+        async def close(self):
             return
 
     async def fake_connect(*_args, **_kwargs):
@@ -325,14 +327,16 @@ async def test_subscribe_failure():
 
 @pytest.mark.asyncio
 async def test_listener_failure():
+    # pylint: disable=no-self-use
     class FakeConnection:
         async def recv(self):
-            return '{"method": "starknet_subscriptionNewTransactionReceipts", "params": {"subscription_id": "1234", "result": {"unknown_key": 12345}}}'
+            # pylint: disable=line-too-long
+            return '{"method": "starknet_subscriptionNewTransactionReceipts","params": {"subscription_id": "1234", "result": {"unknown_key": 12345}}}'
 
-        async def send(self, *args, **kwargs):
+        async def send(self):
             return
 
-        async def close(self, *args, **kwargs):
+        async def close(self):
             return
 
     async def fake_connect(*_args, **_kwargs):
@@ -344,6 +348,7 @@ async def test_listener_failure():
         ws = WebsocketClient("wss://example.invalid")
         await ws.connect()
 
+        # pylint: disable=protected-access
         ws._subscriptions["1234"] = lambda _: None
 
         with pytest.raises(marshmallow.ValidationError):

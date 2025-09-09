@@ -263,7 +263,7 @@ async def test_subscribe_new_transaction_receipts(
         calls=increase_balance_call, resource_bounds=MAX_RESOURCE_BOUNDS
     )
 
-    rec = await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
+    await argent_account_v040.client.wait_for_tx(tx_hash=execute.transaction_hash)
     await argent_account_v040.client.get_transaction_receipt(
         tx_hash=execute.transaction_hash
     )

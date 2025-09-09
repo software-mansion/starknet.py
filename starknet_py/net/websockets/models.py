@@ -9,9 +9,9 @@ from starknet_py.net.client_models import (
     BlockHeader,
     EmittedEventWithFinalityStatus,
     Transaction,
+    TransactionReceiptWithBlockInfo,
     TransactionStatusResponse,
     TransactionStatusWithoutL1,
-    TransactionReceiptWithBlockInfo,
 )
 
 T = TypeVar("T")

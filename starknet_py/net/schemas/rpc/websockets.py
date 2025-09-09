@@ -8,9 +8,9 @@ from starknet_py.net.schemas.common import Felt, TransactionStatusWithoutL1Field
 from starknet_py.net.schemas.rpc.block import BlockHeaderSchema
 from starknet_py.net.schemas.rpc.event import EmittedEventWithFinalitySchema
 from starknet_py.net.schemas.rpc.transactions import (
+    TransactionReceiptWithBlockInfoSchema,
     TransactionStatusResponseSchema,
     TypesOfTransactionsSchema,
-    TransactionReceiptWithBlockInfoSchema,
 )
 from starknet_py.net.websockets.models import (
     NewEventsNotification,
@@ -120,7 +120,9 @@ class ReorgNotificationSchema(Schema):
 
 class NewTransactionReceiptsNotificationSchema(Schema):
     subscription_id = fields.Str(data_key="subscription_id", required=True)
-    result = fields.Nested(TransactionReceiptWithBlockInfoSchema(), data_key="result", required=True)
+    result = fields.Nested(
+        TransactionReceiptWithBlockInfoSchema(), data_key="result", required=True
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> NewTransactionReceiptsNotification:
