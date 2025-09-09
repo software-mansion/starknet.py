@@ -17,7 +17,10 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 1. Removed ``subscribe_pending_transactions`` method and respective notification.
 2. Added :meth:`WebsocketClient.subscribe_new_transactions` and :meth:`WebsocketClient.subscribe_new_transaction_receipts` and respective notifications.
 3. Added field ``finality_status`` to :meth:`WebsocketClient.subscribe_events`, changed ``NewEventsNotification`` that is used in the handler inner type to contain finalty status.
-4. Added missing ``tip`` and ``auto_estimate_tip`` to :meth:`starknet_py.net.contract.ContractFunction.invoke_v3`.
+
+.. py:currentmodule:: starknet_py.contract
+
+4. Added missing ``tip`` and ``auto_estimate_tip`` to :meth:`ContractFunction.invoke_v3`.
 
 ***************************
 0.28.0-rc.4 Migration guide
