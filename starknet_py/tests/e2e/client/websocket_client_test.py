@@ -12,6 +12,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
     BlockHeader,
     Call,
+    EmittedEventWithFinalityStatus,
     StarknetBlock,
     TransactionFinalityStatus,
     TransactionFinalityStatusWithoutL1,
@@ -257,7 +258,7 @@ async def test_subscribe_events_with_all_filters(
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
 ):
-    received_events: List = []
+    received_events: List[EmittedEventWithFinalityStatus] = []
 
     def handler(new_events_notification: NewEventsNotification):
         nonlocal received_events
@@ -291,6 +292,11 @@ async def test_subscribe_events_with_all_filters(
         ev.finality_status == TransactionFinalityStatus.ACCEPTED_ON_L2
         for ev in received_events
     )
+    assert received_events[0].from_address == argent_account_v040.address
+
+    execute_receipt = await client.get_transaction_receipt(execute.transaction_hash)
+    assert received_events[0].block_number is not None
+    assert received_events[0].block_number + 1 == execute_receipt.block_number
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
     assert unsubscribe_result is True

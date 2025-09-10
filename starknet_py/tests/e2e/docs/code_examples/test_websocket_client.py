@@ -10,16 +10,12 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
     BlockHeader,
     Call,
-    EmittedEvent,
+    EmittedEventWithFinalityStatus,
     TransactionExecutionStatus,
     TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.websockets.models import (
-    NewTransactionNotification,
-    NewTransactionStatus,
-    ReorgData,
-)
+from starknet_py.net.websockets.models import NewTransactionStatus, ReorgData
 from starknet_py.net.websockets.websocket_client import WebsocketClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
@@ -96,7 +92,7 @@ async def test_subscribe_events(
     argent_account_v040: BaseAccount,
 ):
     account = argent_account_v040
-    emitted_events: List[EmittedEvent] = []
+    emitted_events: List[EmittedEventWithFinalityStatus] = []
 
     # docs-start: subscribe_events
     from starknet_py.net.websockets.models import NewEventsNotification
@@ -214,13 +210,12 @@ async def test_subscribe_new_transaction_receipts(
 ):
     account = argent_account_v040
     transaction_receipts: List[TransactionReceipt] = []
-    transactions = []
 
     # docs-start: subscribe_new_transaction_receipts
     from starknet_py.net.websockets.models import NewTransactionReceiptsNotification
 
     # Create a handler function that will be called when a new transaction is emitted
-    def handler_a(
+    def handler(
         new_transaction_receipts_notification: NewTransactionReceiptsNotification,
     ):
         # Perform the necessary actions with the new transaction receipts...
@@ -229,23 +224,10 @@ async def test_subscribe_new_transaction_receipts(
         nonlocal transaction_receipts
         transaction_receipts.append(new_transaction_receipts_notification.result)
 
-    def handler_b(
-        new_transaction_notification: NewTransactionNotification,
-    ):
-        # Perform the necessary actions with the new transaction receipts...
-
-        # docs-end: subscribe_new_transaction_receipts
-        nonlocal transactions
-        transactions.append(new_transaction_notification.result)
-
     # docs-start: subscribe_new_transaction_receipts
     # Subscribe to new transaction receipts notifications
     subscription_id = await websocket_client.subscribe_new_transaction_receipts(
-        handler=handler_a,
-        sender_address=[account.address],
-    )
-    subscription_id2 = await websocket_client.subscribe_new_transactions(
-        handler=handler_b,
+        handler=handler,
         sender_address=[account.address],
     )
 
@@ -279,7 +261,6 @@ async def test_subscribe_new_transaction_receipts(
 
     # Unsubscribe from the notifications
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
-    await websocket_client.unsubscribe(subscription_id2)
     # docs-end: subscribe_new_transaction_receipts
     assert unsubscribe_result is True
 
