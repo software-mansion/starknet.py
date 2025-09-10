@@ -66,7 +66,8 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 -------------------------------------------
 
 .. py:currentmodule:: starknet_py.contract
-4. Added missing ``tip`` and ``auto_estimate_tip`` to :meth:`ContractFunction.invoke_v3`.
+
+1. Added missing ``tip`` and ``auto_estimate_tip`` to :meth:`ContractFunction.invoke_v3`.
 
 Transaction Tip Support
 -----------------------
