@@ -295,6 +295,7 @@ async def test_subscribe_events_with_all_filters(
     assert received_events[0].from_address == argent_account_v040.address
 
     execute_receipt = await client.get_transaction_receipt(execute.transaction_hash)
+    assert received_events[0].block_number is not None
     assert received_events[0].block_number + 1 == execute_receipt.block_number
 
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)

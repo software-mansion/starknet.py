@@ -13,10 +13,9 @@ from starknet_py.net.client_models import (
     EmittedEvent,
     TransactionExecutionStatus,
     TransactionReceipt,
-    TransactionStatus,
+    TransactionStatus, EmittedEventWithFinalityStatus,
 )
 from starknet_py.net.websockets.models import (
-    NewTransactionNotification,
     NewTransactionStatus,
     ReorgData,
 )
@@ -96,7 +95,7 @@ async def test_subscribe_events(
     argent_account_v040: BaseAccount,
 ):
     account = argent_account_v040
-    emitted_events: List[EmittedEvent] = []
+    emitted_events: List[EmittedEventWithFinalityStatus] = []
 
     # docs-start: subscribe_events
     from starknet_py.net.websockets.models import NewEventsNotification
