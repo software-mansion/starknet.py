@@ -59,6 +59,13 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 
 .. py:currentmodule:: starknet_py.net.account.account
 
+``starknet_py.contract`` Changes
+-------------------------------------------
+
+.. py:currentmodule:: starknet_py.contract
+
+4. Added missing ``tip`` and ``auto_estimate_tip`` to :meth:`ContractFunction.invoke_v3`.
+
 1. When no ``token_address`` is specified in the :meth:`Account.get_balance` method, the default token address is now the STRK fee contract instead of ETH.
 2. Rename ``FEE_CONTRACT_ADDRESS`` to ``ETH_FEE_CONTRACT_ADDRESS``.
 
@@ -67,64 +74,6 @@ Transaction Tip Support
 
 Ability to pass tip for the transaction has been added to following methods.
 If ``tip`` is not provided, a default value of ``0`` will be used
-
-.. py:currentmodule:: starknet_py.contract
-
-- :meth:`DeclareResult.deploy_v3`
-- :meth:`PreparedFunctionInvokeV3.invoke`
-- :meth:`Contract.declare_v3`
-- :meth:`Contract.deploy_contract_v3`
-
-.. py:currentmodule:: starknet_py.net.account.account
-
-- :meth:`Account.sign_invoke_v3`
-- :meth:`Account.sign_declare_v3`
-- :meth:`Account.sign_deploy_account_v3`
-- :meth:`Account.execute_v3`
-- :meth:`Account.deploy_account_v3`
-
-Additionally, dataclasses representing transactions now require passing a tip.
-No default value is used for tip and it is a required parameter.
-
-.. py:currentmodule:: starknet_py.net.models.transaction
-
-- :class:`InvokeV3`, tip is now required
-- :class:`DeclareV3`, tip is now required
-- :class:`DeployAccountV3`, tip is now required
-
-Transaction Tip Estimation
---------------------------
-
-.. py:currentmodule:: starknet_py.net.tip
-
-1. Added :func:`estimate_tip` for automatic transaction tip estimation.
-2. Added ``auto_estimate_tip`` param to :class:`~starknet_py.net.account.account.Account` and :class:`~starknet_py.contract.Contract` methods that accept a ``tip`` argument. If set to ``True``, median of tips from the ``pre_confirmed`` block will be used to estimate select at tip.
-
-Deployment with UDC
--------------------
-
-.. py:currentmodule:: starknet_py.net.udc_deployer.deployer
-
-1. Default deployer address in :class:`Deployer` is now the new UDC (``0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125``).
-
-Other Changes
--------------
-
-.. currentmodule:: starknet_py.devnet_utils.devnet_client
-
-1. ``unit`` param in :meth:`DevnetClient.mint` now defaults to ``PriceUnit.FRI``.
-
-.. py:currentmodule:: starknet_py.net.signer.eth_signer
-
-2. :class:`EthSigner` implementation has been added.
-
-0.28.0 Bugfixes
----------------
-
-.. py:currentmodule:: starknet_py.contract
-
-1. Contracts which include fixed sized array type are now correctly serialized (e.g. when using :meth:`Contract.deploy_contract_v3`)
-
 
 ***************************
 0.28.0-rc.4 Migration guide
