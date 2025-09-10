@@ -76,7 +76,7 @@ class WebsocketClient:
         self._pending_notifications: Dict[str, List[Notification]] = {}
         self._on_chain_reorg: Optional[Callable[[ReorgNotification], Any]] = None
 
-        # New: future that completes with an exception if listen loop dies
+        # Future that completes with an exception if listen loop dies
         self._listen_failed: Optional[asyncio.Future] = None
 
     async def connect(self):
@@ -356,7 +356,7 @@ class WebsocketClient:
 
         exc = task.exception()
         if exc is not None:
-            # Signal failure to any waiter
+            # Signal failure to all waiters
             if self._listen_failed and not self._listen_failed.done():
                 self._listen_failed.set_exception(exc)
 
@@ -427,8 +427,7 @@ class WebsocketClient:
         # case when the message is a response to `subscribe_{method}`
         if "id" in data and data["id"] in self._pending_responses:
             future = self._pending_responses.pop(data["id"])
-            if not future.done():
-                future.set_result(data)
+            future.set_result(data)
         # Case when the message is a notification
         elif "method" in data:
             self._handle_notification(data)

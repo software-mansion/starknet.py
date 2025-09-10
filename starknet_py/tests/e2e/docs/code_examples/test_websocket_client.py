@@ -229,23 +229,10 @@ async def test_subscribe_new_transaction_receipts(
         nonlocal transaction_receipts
         transaction_receipts.append(new_transaction_receipts_notification.result)
 
-    def handler_b(
-        new_transaction_notification: NewTransactionNotification,
-    ):
-        # Perform the necessary actions with the new transaction receipts...
-
-        # docs-end: subscribe_new_transaction_receipts
-        nonlocal transactions
-        transactions.append(new_transaction_notification.result)
-
     # docs-start: subscribe_new_transaction_receipts
     # Subscribe to new transaction receipts notifications
     subscription_id = await websocket_client.subscribe_new_transaction_receipts(
         handler=handler_a,
-        sender_address=[account.address],
-    )
-    subscription_id2 = await websocket_client.subscribe_new_transactions(
-        handler=handler_b,
         sender_address=[account.address],
     )
 
@@ -279,7 +266,6 @@ async def test_subscribe_new_transaction_receipts(
 
     # Unsubscribe from the notifications
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
-    await websocket_client.unsubscribe(subscription_id2)
     # docs-end: subscribe_new_transaction_receipts
     assert unsubscribe_result is True
 
