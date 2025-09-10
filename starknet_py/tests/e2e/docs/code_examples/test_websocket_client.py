@@ -11,14 +11,12 @@ from starknet_py.net.client_models import (
     BlockHeader,
     Call,
     EmittedEvent,
+    EmittedEventWithFinalityStatus,
     TransactionExecutionStatus,
     TransactionReceipt,
-    TransactionStatus, EmittedEventWithFinalityStatus,
+    TransactionStatus,
 )
-from starknet_py.net.websockets.models import (
-    NewTransactionStatus,
-    ReorgData,
-)
+from starknet_py.net.websockets.models import NewTransactionStatus, ReorgData
 from starknet_py.net.websockets.websocket_client import WebsocketClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
