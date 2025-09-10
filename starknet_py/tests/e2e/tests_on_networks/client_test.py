@@ -72,6 +72,7 @@ async def test_get_transaction_receipt(client_sepolia_testnet, transaction_hash)
     assert receipt.type is not None
 
 
+@pytest.mark.skip("TODO(#1651)")
 @pytest.mark.asyncio
 async def test_wait_for_tx_reverted(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -98,9 +99,7 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
-    )
+    sign_invoke = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)

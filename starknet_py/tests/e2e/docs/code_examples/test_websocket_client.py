@@ -1,6 +1,6 @@
 # pylint: disable=import-outside-toplevel
 import asyncio
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import pytest
 
@@ -10,16 +10,12 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
     BlockHeader,
     Call,
-    EmittedEvent,
+    EmittedEventWithFinalityStatus,
     TransactionExecutionStatus,
+    TransactionReceipt,
     TransactionStatus,
 )
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.websockets.models import (
-    NewTransactionStatus,
-    ReorgData,
-    Transaction,
-)
+from starknet_py.net.websockets.models import NewTransactionStatus, ReorgData
 from starknet_py.net.websockets.websocket_client import WebsocketClient
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
@@ -89,9 +85,6 @@ async def test_subscribe_new_heads(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(
-    reason="TODO(cptartur): Unskip when adding changes for websockets in RPC 0.9.0 "
-)
 @pytest.mark.asyncio
 async def test_subscribe_events(
     websocket_client: WebsocketClient,
@@ -99,7 +92,7 @@ async def test_subscribe_events(
     argent_account_v040: BaseAccount,
 ):
     account = argent_account_v040
-    emitted_events: List[EmittedEvent] = []
+    emitted_events: List[EmittedEventWithFinalityStatus] = []
 
     # docs-start: subscribe_events
     from starknet_py.net.websockets.models import NewEventsNotification
@@ -145,7 +138,6 @@ async def test_subscribe_events(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(reason="TODO(#1644)")
 @pytest.mark.asyncio
 async def test_subscribe_transaction_status(
     websocket_client: WebsocketClient,
@@ -188,7 +180,7 @@ async def test_subscribe_transaction_status(
         tx_hash=execute.transaction_hash
     )
 
-    await asyncio.sleep(10)
+    await asyncio.sleep(5)
 
     assert new_transaction_status is not None
     assert new_transaction_status.transaction_hash == execute.transaction_hash
@@ -210,39 +202,40 @@ async def test_subscribe_transaction_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(
-    reason="TODO(cptartur): Unskip when adding changes for websockets in RPC 0.9.0 "
-)
 @pytest.mark.asyncio
-async def test_subscribe_pending_transactions(
+async def test_subscribe_new_transaction_receipts(
     websocket_client: WebsocketClient,
     deployed_balance_contract,
     argent_account_v040: BaseAccount,
 ):
     account = argent_account_v040
-    pending_transactions: List[Union[int, Transaction]] = []
+    transaction_receipts: List[TransactionReceipt] = []
 
-    # docs-start: subscribe_pending_transactions
-    from starknet_py.net.websockets.models import PendingTransactionsNotification
+    # docs-start: subscribe_new_transaction_receipts
+    from starknet_py.net.websockets.models import NewTransactionReceiptsNotification
 
-    # Create a handler function that will be called when a new pending transaction is emitted
-    def handler(pending_transaction_notification: PendingTransactionsNotification):
-        # Perform the necessary actions with the new pending transaction...
+    # Create a handler function that will be called when a new transaction is emitted
+    def handler(
+        new_transaction_receipts_notification: NewTransactionReceiptsNotification,
+    ):
+        # Perform the necessary actions with the new transaction receipts...
 
-        # docs-end: subscribe_pending_transactions
-        nonlocal pending_transactions
-        pending_transactions.append(pending_transaction_notification.result)
+        # docs-end: subscribe_new_transaction_receipts
+        nonlocal transaction_receipts
+        transaction_receipts.append(new_transaction_receipts_notification.result)
 
-    # docs-start: subscribe_pending_transactions
-    # Subscribe to pending transactions notifications
-    subscription_id = await websocket_client.subscribe_pending_transactions(
+    # docs-start: subscribe_new_transaction_receipts
+    # Subscribe to new transaction receipts notifications
+    subscription_id = await websocket_client.subscribe_new_transaction_receipts(
         handler=handler,
         sender_address=[account.address],
     )
 
     # Here you can put code which will keep the application running (e.g. using loop and `asyncio.sleep`)
     # ...
-    # docs-end: subscribe_pending_transactions
+    # docs-end: subscribe_new_transaction_receipts
+    # assert len(transaction_receipts) == 0
+
     increase_balance_call = Call(
         to_addr=deployed_balance_contract.address,
         selector=get_selector_from_name("increase_balance"),
@@ -257,21 +250,18 @@ async def test_subscribe_pending_transactions(
         tx_hash=execute.transaction_hash
     )
 
-    assert len(pending_transactions) == 1
-    pending_transaction = pending_transactions[0]
+    await asyncio.sleep(5)
 
-    transaction_hash = (
-        execute.transaction_hash
-        if isinstance(pending_transaction, int)
-        else pending_transaction.calculate_hash(StarknetChainId.SEPOLIA)
-    )
-    assert execute.transaction_hash == transaction_hash
+    assert len(transaction_receipts) == 1
+    transaction_receipt = transaction_receipts[0]
 
-    # docs-start: subscribe_pending_transactions
+    assert execute.transaction_hash == transaction_receipt.transaction_hash
+
+    # docs-start: subscribe_new_transaction_receipts
 
     # Unsubscribe from the notifications
     unsubscribe_result = await websocket_client.unsubscribe(subscription_id)
-    # docs-end: subscribe_pending_transactions
+    # docs-end: subscribe_new_transaction_receipts
     assert unsubscribe_result is True
 
 
