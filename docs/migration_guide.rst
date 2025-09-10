@@ -12,8 +12,8 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 - Starknet - `0.14.0 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-0-september-1>`_
 - RPC - `0.9.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.9.0>`_
 
-``starknet_py.net.client_models``
----------------------------------
+``starknet_py.net.client_models`` Changes
+-----------------------------------------
 
 .. py:currentmodule:: starknet_py.net.client_models
 
@@ -32,8 +32,8 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 13. Removed fields ``block_number`` and ``block_hash`` from :class:`TransactionReceipt`
 14. Added a dedicated class :class:`TransactionReceiptWithBlockInfo`, a subclass of :class:`TransactionReceipt`, that has non-optional field ``block_number`` and optional field ``block_hash``.
 
-``starknet_py.net.client``
---------------------------
+``starknet_py.net.client`` Changes
+----------------------------------
 
 .. py:currentmodule:: starknet_py.net.client
 
@@ -45,8 +45,8 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 5. Changed return type of :meth:`Client.get_transaction_receipt` to :class:`~starknet_py.net.client_models.TransactionReceiptWithBlockInfo`.
 6. Changed return type of :meth:`Client.wait_for_tx` to :class:`~starknet_py.net.client_models.TransactionReceiptWithBlockInfo`.
 
-``starknet_py.net.websockets.websocket_client``
------------------------------------------------
+``starknet_py.net.websockets.websocket_client`` Changes
+-------------------------------------------------------
 
 .. py:currentmodule:: starknet_py.net.websockets.websocket_client
 
@@ -54,8 +54,8 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 2. Added :meth:`WebsocketClient.subscribe_new_transactions` and :meth:`WebsocketClient.subscribe_new_transaction_receipts` and respective notifications.
 3. Added field ``finality_status`` to :meth:`WebsocketClient.subscribe_events`, changed ``NewEventsNotification`` that is used in the handler inner type to contain finalty status.
 
-``starknet_py.net.account.account``
------------------------------------
+``starknet_py.net.account.account`` Changes
+-------------------------------------------
 
 .. py:currentmodule:: starknet_py.net.account.account
 
@@ -100,8 +100,8 @@ Transaction Tip Estimation
 1. Added :func:`estimate_tip` for automatic transaction tip estimation.
 2. Added ``auto_estimate_tip`` param to :class:`~starknet_py.net.account.account.Account` and :class:`~starknet_py.contract.Contract` methods that accept a ``tip`` argument. If set to ``True``, median of tips from the ``pre_confirmed`` block will be used to estimate select at tip.
 
-Deployment via UDC
-------------------
+Deployment with UDC
+-------------------
 
 .. py:currentmodule:: starknet_py.net.udc_deployer.deployer
 
