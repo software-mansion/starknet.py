@@ -82,7 +82,7 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
+        calls=call, auto_estimate=True
     )
     invoke = await account.client.send_transaction(sign_invoke)
 
@@ -99,7 +99,7 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         calldata=[],
     )
     sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
+        calls=call, auto_estimate=True
     )
     invoke = await account.client.send_transaction(sign_invoke)
 
