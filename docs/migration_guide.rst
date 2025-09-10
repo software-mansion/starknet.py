@@ -62,6 +62,13 @@ Version 0.28.0 of **starknet.py** comes with full support for RPC 0.9.0.
 1. When no ``token_address`` is specified in the :meth:`Account.get_balance` method, the default token address is now the STRK fee contract instead of ETH.
 2. Rename ``FEE_CONTRACT_ADDRESS`` to ``ETH_FEE_CONTRACT_ADDRESS``.
 
+``starknet_py.contract`` Changes
+-------------------------------------------
+
+.. py:currentmodule:: starknet_py.contract
+
+1. Added missing ``tip`` and ``auto_estimate_tip`` to :meth:`ContractFunction.invoke_v3`.
+
 Transaction Tip Support
 -----------------------
 
