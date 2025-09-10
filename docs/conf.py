@@ -13,6 +13,7 @@
 #
 import os
 import sys
+import warnings
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
@@ -85,3 +86,5 @@ html_theme_options = {
     "light_logo": "logo.png",
     "dark_logo": "logo-contour-white.png",
 }
+
+warnings.filterwarnings("ignore", message="duplicate label")
