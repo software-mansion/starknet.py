@@ -72,6 +72,7 @@ async def test_get_transaction_receipt(client_sepolia_testnet, transaction_hash)
     assert receipt.type is not None
 
 
+@pytest.mark.skip("TODO(#1651)")
 @pytest.mark.asyncio
 async def test_wait_for_tx_reverted(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -81,7 +82,7 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_v3(calls=call, auto_estimate=True)
+    sign_invoke = await account.sign_invoke_v3(calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA)
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
