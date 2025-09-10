@@ -10,7 +10,6 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
     BlockHeader,
     Call,
-    EmittedEvent,
     EmittedEventWithFinalityStatus,
     TransactionExecutionStatus,
     TransactionReceipt,
@@ -211,7 +210,6 @@ async def test_subscribe_new_transaction_receipts(
 ):
     account = argent_account_v040
     transaction_receipts: List[TransactionReceipt] = []
-    transactions = []
 
     # docs-start: subscribe_new_transaction_receipts
     from starknet_py.net.websockets.models import NewTransactionReceiptsNotification
