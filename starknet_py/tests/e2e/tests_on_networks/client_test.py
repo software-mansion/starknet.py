@@ -82,7 +82,9 @@ async def test_wait_for_tx_reverted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[0x1, 0x2, 0x3, 0x4, 0x5],
     )
-    sign_invoke = await account.sign_invoke_v3(calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA)
+    sign_invoke = await account.sign_invoke_v3(
+        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
+    )
     invoke = await account.client.send_transaction(sign_invoke)
 
     with pytest.raises(TransactionRevertedError, match="Input too long for arguments"):
