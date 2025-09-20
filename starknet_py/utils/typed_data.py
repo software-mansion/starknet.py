@@ -12,7 +12,7 @@ from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_utils import _to_rpc_felt
 from starknet_py.net.models.typed_data import DomainDict, Revision, TypedDataDict
-from starknet_py.net.schemas.common import RevisionField
+from starknet_py.net.schemas.revision import RevisionField
 from starknet_py.serialization.data_serializers import ByteArraySerializer
 from starknet_py.utils.merkle_tree import MerkleTree
 

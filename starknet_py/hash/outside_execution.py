@@ -1,6 +1,6 @@
 from starknet_py.constants import OutsideExecutionInterfaceID
 from starknet_py.net.client_models import OutsideExecution
-from starknet_py.net.schemas.common import Revision
+from starknet_py.net.models.typed_data import Revision
 from starknet_py.utils.typed_data import TypedData
 
 OUTSIDE_EXECUTION_INTERFACE_ID_TO_TYPED_DATA_REVISION = {
