@@ -42,10 +42,10 @@ def encode_felts_to_u32s(felts: List[int]) -> List[int]:
 def pack_256_le_to_felt(hash_bytes: bytes) -> int:
     """
     Packs the first 32 bytes (256 bits) of hash_bytes into a Felt (252 bits).
-    Interprets the bytes as little-endian and applies modulo FIELD_PRIME.
+    Interprets the bytes as a Felt (252 bits)
     """
     assert len(hash_bytes) >= 32, "need at least 32 bytes to pack"
-    # Interpret the 32-byte buffer as a little-endian integer and apply field modulo
+    # Interpret the 32-byte buffer as a little-endian integer and convert to Felt
     return int.from_bytes(hash_bytes[:32], byteorder="little") % FIELD_PRIME
 
 
