@@ -23,6 +23,7 @@ from starknet_py.abi.v2.shape import (
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
+from starknet_py.hash.casm_class_hash import get_casm_hash_method_for_rpc_version
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -704,7 +705,7 @@ class Contract:
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
     ) -> DeclareResult:
-        # pylint: disable=too-many-arguments, import-outside-toplevel
+        # pylint: disable=too-many-arguments
 
         """
         Declares a contract.
@@ -720,9 +721,6 @@ class Contract:
         :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeclareResult instance.
         """
-        from starknet_py.hash.casm_class_hash import (
-            get_casm_hash_method_for_rpc_version,
-        )
 
         rpc_version = await account.client.spec_version()
         hash_method = get_casm_hash_method_for_rpc_version(rpc_version)
