@@ -704,7 +704,7 @@ class Contract:
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
     ) -> DeclareResult:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, import-outside-toplevel
 
         """
         Declares a contract.
@@ -720,9 +720,15 @@ class Contract:
         :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: DeclareResult instance.
         """
+        from starknet_py.hash.casm_class_hash import (
+            get_casm_hash_method_for_rpc_version,
+        )
+
+        rpc_version = await account.client.spec_version()
+        hash_method = get_casm_hash_method_for_rpc_version(rpc_version)
 
         compiled_class_hash = _extract_compiled_class_hash(
-            compiled_contract_casm, compiled_class_hash
+            compiled_contract_casm, compiled_class_hash, hash_method=hash_method
         )
 
         declare_tx = await account.sign_declare_v3(

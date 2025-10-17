@@ -3,6 +3,7 @@ from typing import List
 
 from poseidon_py.poseidon_hash import poseidon_hash, poseidon_hash_many
 
+from starknet_py.hash.blake2s import blake2s_hash_many
 from starknet_py.hash.utils import compute_hash_on_elements, pedersen_hash
 
 
@@ -13,12 +14,15 @@ class HashMethod(Enum):
 
     PEDERSEN = "pedersen"
     POSEIDON = "poseidon"
+    BLAKE2S = "blake2s"
 
     def hash(self, left: int, right: int):
         if self == HashMethod.PEDERSEN:
             return pedersen_hash(left, right)
         if self == HashMethod.POSEIDON:
             return poseidon_hash(left, right)
+        if self == HashMethod.BLAKE2S:
+            return blake2s_hash_many([left, right])
         raise ValueError(f"Unsupported hash method: {self}.")
 
     def hash_many(self, values: List[int]):
@@ -26,4 +30,6 @@ class HashMethod(Enum):
             return compute_hash_on_elements(values)
         if self == HashMethod.POSEIDON:
             return poseidon_hash_many(values)
+        if self == HashMethod.BLAKE2S:
+            return blake2s_hash_many(values)
         raise ValueError(f"Unsupported hash method: {self}.")

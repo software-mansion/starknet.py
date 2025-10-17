@@ -1,7 +1,5 @@
 from typing import List, Optional, Sequence, Tuple
 
-from poseidon_py.poseidon_hash import poseidon_hash_many
-
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.compiled_class_hash_objects import (
     BytecodeLeaf,
@@ -10,13 +8,30 @@ from starknet_py.hash.compiled_class_hash_objects import (
     BytecodeSegmentStructure,
     NestedIntList,
 )
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.net.client_models import CasmClassEntryPoint
 from starknet_py.net.executable_models import CasmClass
 
 CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
 
 
-def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
+def get_casm_hash_method_for_rpc_version(rpc_version: str) -> HashMethod:
+    try:
+        version_parts = [int(x) for x in rpc_version.split(".")]
+
+        # RPC 0.10.0 and later use Blake2s
+        if version_parts[0] > 0 or (version_parts[0] == 0 and version_parts[1] >= 10):
+            return HashMethod.BLAKE2S
+    except (ValueError, IndexError):
+        # If we can't parse the version, default to Poseidon
+        pass
+
+    return HashMethod.POSEIDON
+
+
+def compute_casm_class_hash(
+    casm_contract_class: CasmClass, hash_method: HashMethod = HashMethod.POSEIDON
+) -> int:
     """
     Calculate class hash of a CasmClass.
     """
@@ -24,14 +39,14 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
 
     _entry_points = casm_contract_class.entry_points_by_type
 
-    external_entry_points_hash = poseidon_hash_many(
-        _entry_points_array(_entry_points.external)
+    external_entry_points_hash = hash_method.hash_many(
+        _entry_points_array(_entry_points.external, hash_method)
     )
-    l1_handler_entry_points_hash = poseidon_hash_many(
-        _entry_points_array(_entry_points.l1_handler)
+    l1_handler_entry_points_hash = hash_method.hash_many(
+        _entry_points_array(_entry_points.l1_handler, hash_method)
     )
-    constructor_entry_points_hash = poseidon_hash_many(
-        _entry_points_array(_entry_points.constructor)
+    constructor_entry_points_hash = hash_method.hash_many(
+        _entry_points_array(_entry_points.constructor, hash_method)
     )
 
     if casm_contract_class.bytecode_segment_lengths is not None:
@@ -39,11 +54,11 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
             bytecode=casm_contract_class.bytecode,
             bytecode_segment_lengths=casm_contract_class.bytecode_segment_lengths,
             visited_pcs=None,
-        ).hash()
+        ).hash(hash_method)
     else:
-        bytecode_hash = poseidon_hash_many(casm_contract_class.bytecode)
+        bytecode_hash = hash_method.hash_many(casm_contract_class.bytecode)
 
-    return poseidon_hash_many(
+    return hash_method.hash_many(
         [
             casm_class_version,
             external_entry_points_hash,
@@ -54,12 +69,14 @@ def compute_casm_class_hash(casm_contract_class: CasmClass) -> int:
     )
 
 
-def _entry_points_array(entry_points: List[CasmClassEntryPoint]) -> List[int]:
+def _entry_points_array(
+    entry_points: List[CasmClassEntryPoint], hash_method: HashMethod
+) -> List[int]:
     entry_points_array = []
     for entry_point in entry_points:
         assert entry_point.builtins is not None
         _encoded_builtins = [encode_shortstring(val) for val in entry_point.builtins]
-        builtins_hash = poseidon_hash_many(_encoded_builtins)
+        builtins_hash = hash_method.hash_many(_encoded_builtins)
 
         entry_points_array.extend(
             [entry_point.selector, entry_point.offset, builtins_hash]
