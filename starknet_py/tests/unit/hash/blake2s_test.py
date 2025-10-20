@@ -1,9 +1,7 @@
-# pylint: disable=line-too-long
 # fmt: off
 """
-Test the encode_felt252_data_and_calc_blake_hash function
-with the same results as the Cairo v0.14 implementation.
-Reference: https://github.com/starkware-libs/cairo-lang/releases/tag/v0.14.0
+The test values are taken from sequencer repository:
+https://github.com/starkware-libs/sequencer/blob/main/crates/blake2s/tests/blake2s_tests.rs
 """
 import pytest
 

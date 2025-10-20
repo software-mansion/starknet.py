@@ -16,17 +16,22 @@ CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
 
 
 def get_casm_hash_method_for_rpc_version(rpc_version: str) -> HashMethod:
-    try:
-        version_parts = [int(x) for x in rpc_version.split(".")]
+    major, minor, patch = _parse_version(rpc_version)
 
-        # RPC 0.10.0 and later use Blake2s
-        if version_parts[0] > 0 or (version_parts[0] == 0 and version_parts[1] >= 10):
-            return HashMethod.BLAKE2S
-    except (ValueError, IndexError):
-        # If we can't parse the version, default to Poseidon
-        pass
+    # RPC 0.10.0 and later use Blake2s
+    if (major, minor, patch) >= (0, 10, 0):
+        return HashMethod.BLAKE2S
 
     return HashMethod.POSEIDON
+
+
+def _parse_version(version: str) -> Tuple[int, int, int]:
+    parts = version.split(".")
+
+    if len(parts) != 3:
+        raise ValueError("Version must have three parts separated by dots.")
+
+    return int(parts[0]), int(parts[1]), int(parts[2])
 
 
 def compute_casm_class_hash(
