@@ -69,7 +69,7 @@ class BytecodeSegmentedNode(BytecodeSegmentStructure):
         return (
             hash_method.hash_many(
                 list(
-                    itertools.chain(  # pyright: ignore
+                    itertools.chain(
                         *[
                             (
                                 node.segment_length,
