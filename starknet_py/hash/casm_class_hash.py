@@ -1,5 +1,7 @@
 from typing import List, Optional, Sequence, Tuple
 
+import semver
+
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.compiled_class_hash_objects import (
     BytecodeLeaf,
@@ -16,22 +18,13 @@ CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
 
 
 def get_casm_hash_method_for_rpc_version(rpc_version: str) -> HashMethod:
-    major, minor, patch = _parse_version(rpc_version)
-
     # RPC 0.10.0 and later use Blake2s
-    if (major, minor, patch) >= (0, 10, 0):
+
+    version = semver.Version.parse(rpc_version)
+    if version >= semver.Version.parse("0.10.0"):
         return HashMethod.BLAKE2S
 
     return HashMethod.POSEIDON
-
-
-def _parse_version(version: str) -> Tuple[int, int, int]:
-    parts = version.split(".")
-
-    if len(parts) != 3:
-        raise ValueError("Version must have three parts separated by dots.")
-
-    return int(parts[0]), int(parts[1]), int(parts[2])
 
 
 def compute_casm_class_hash(

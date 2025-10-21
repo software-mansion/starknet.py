@@ -1,8 +1,9 @@
+import warnings
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
 
-from starknet_py.constants import RPC_CONTRACT_ERROR
+from starknet_py.constants import EXPECTED_RPC_VERSION, RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError
@@ -50,7 +51,11 @@ from starknet_py.net.client_utils import (
     get_block_identifier,
 )
 from starknet_py.net.executable_models import CasmClass
-from starknet_py.net.http_client import RpcHttpClient
+from starknet_py.net.http_client import (
+    HttpMethod,
+    IncompatibleRPCVersionWarning,
+    RpcHttpClient,
+)
 from starknet_py.net.models.transaction import (
     AccountTransaction,
     DeclareV3,
@@ -113,6 +118,7 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
+        self._spec_version: Optional[str] = None
 
     async def get_block(
         self,
@@ -772,11 +778,9 @@ class FullNodeClient(Client):
 
         :return: String with version of the Starknet JSON-RPC specification.
         """
-        res = await self._client.call(
-            method_name="specVersion",
-            params={},
-        )
-        return res
+        if not self._spec_version:
+            self._spec_version = await self._warn_if_incompatible_rpc_version()
+        return self._spec_version
 
     async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
         res = await self._client.call(
@@ -787,6 +791,27 @@ class FullNodeClient(Client):
             TransactionStatusResponse,
             TransactionStatusResponseSchema().load(res),
         )
+
+    async def _warn_if_incompatible_rpc_version(self):
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "starknet_specVersion",
+            "id": 0,
+        }
+
+        res = await self._client.request(
+            http_method=HttpMethod.POST, address=self.url, payload=payload
+        )
+        spec_version = res["result"]
+
+        if spec_version != EXPECTED_RPC_VERSION:
+            warnings.warn(
+                f"RPC node with the url {self.url} uses incompatible version {spec_version}. "
+                f"Expected version: {EXPECTED_RPC_VERSION}",
+                IncompatibleRPCVersionWarning,
+                stacklevel=4,
+            )
+        return cast(str, spec_version)
 
     # ------------------------------- Trace API -------------------------------
 

@@ -1,7 +1,7 @@
 # fmt: off
 """
 The test values are taken from sequencer repository:
-https://github.com/starkware-libs/sequencer/blob/main/crates/blake2s/tests/blake2s_tests.rs
+https://github.com/starkware-libs/sequencer/blob/b29c0e8c61f7b2340209e256cf87dfe9f2c811aa/crates/blake2s/tests/blake2s_tests.rs
 """
 import pytest
 
