@@ -527,7 +527,7 @@ async def test_get_storage_proof(client_sepolia_testnet):
         contracts_storage_keys=[
             ContractsStorageKeys(
                 contract_address=int(STRK_FEE_CONTRACT_ADDRESS, 16),
-                storage_keys=[int("0x45524332305f62616c616e636573", 16)],
+                storage_keys=["0x45524332305f62616c616e636573"],
             )
         ],
         class_hashes=[int(STRK_CLASS_HASH, 16)],
