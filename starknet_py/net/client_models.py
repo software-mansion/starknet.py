@@ -772,6 +772,16 @@ class ReplacedClass:
 
 
 @dataclass
+class MigratedClass:
+    """
+    Dataclass representing migrated compiled class.
+    """
+
+    class_hash: int
+    compiled_class_hash: int
+
+
+@dataclass
 class StateDiff:
     """
     Dataclass representing state changes in the block.
@@ -780,6 +790,7 @@ class StateDiff:
     storage_diffs: List[StorageDiffItem]
     deprecated_declared_classes: List[int]
     declared_classes: List[DeclaredContractHash]
+    migrated_compiled_classes: List[MigratedClass]
     deployed_contracts: List[DeployedContract]
     replaced_classes: List[ReplacedClass]
     nonces: List[ContractsNonce]
@@ -803,7 +814,7 @@ class PreConfirmedBlockStateUpdate:
     Dataclass representing a pre_confirmed change in state of a block.
     """
 
-    old_root: int
+    old_root: Optional[int]
     state_diff: StateDiff
 
 
@@ -1202,7 +1213,7 @@ class ContractsStorageKeys:
     """
 
     contract_address: int
-    storage_keys: List[int]
+    storage_keys: List[str]
 
 
 @dataclass

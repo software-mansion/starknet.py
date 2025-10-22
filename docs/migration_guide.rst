@@ -2,6 +2,18 @@ Migration guide
 ===============
 
 ***************************
+0.29.0-rc.0 Migration guide
+***************************
+
+Version 0.29.0-rc.0 of **starknet.py** comes with support for RPC 0.10.0-rc.0.
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. :class:`StateDiff` has a new field ``migrated_compiled_classes``.
+2. ``storage_keys`` field in :class:`ContractsStorageKeys` is now of type ``str``.
+3. ``old_root`` field in :class:`PreConfirmedBlockStateUpdate` is now optional.
+
+***************************
 0.28.0 Migration guide
 ***************************
 
