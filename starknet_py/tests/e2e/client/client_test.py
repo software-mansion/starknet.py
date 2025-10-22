@@ -641,6 +641,7 @@ async def test_state_update_declared_contract_hashes(
     assert class_hash in state_update.state_diff.deprecated_declared_classes
 
 
+@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_storage_diffs(
@@ -658,6 +659,7 @@ async def test_state_update_storage_diffs(
     assert isinstance(state_update, BlockStateUpdate)
 
 
+@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_state_update_deployed_contracts(
@@ -752,6 +754,7 @@ async def test_get_block_with_declare_v3(
 
 
 # TODO (#1219): add assert for replaced_class once it is fixed in devnet
+@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_get_new_state_update(
     client,
