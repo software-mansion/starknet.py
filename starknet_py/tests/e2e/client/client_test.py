@@ -225,7 +225,7 @@ async def test_get_storage_proof(client):
             contracts_storage_keys=[
                 ContractsStorageKeys(
                     contract_address=123,
-                    storage_keys=[123],
+                    storage_keys=["0x7b"],
                 )
             ],
             class_hashes=[123],

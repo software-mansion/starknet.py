@@ -7,6 +7,7 @@ from starknet_py.net.client_models import (
     ContractsNonce,
     DeclaredContractHash,
     DeployedContract,
+    MigratedClass,
     PreConfirmedBlockStateUpdate,
     PreConfirmedStarknetBlock,
     PreConfirmedStarknetBlockWithReceipts,
@@ -141,6 +142,15 @@ class ReplacedClassSchema(Schema):
         return ReplacedClass(**data)
 
 
+class MigratedClassSchema(Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    compiled_class_hash = Felt(data_key="compiled_class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> MigratedClass:
+        return MigratedClass(**data)
+
+
 class StateDiffSchema(Schema):
     storage_diffs = fields.List(
         fields.Nested(StorageDiffSchema()),
@@ -155,6 +165,11 @@ class StateDiffSchema(Schema):
     declared_classes = fields.List(
         fields.Nested(DeclaredContractHashSchema()),
         data_key="declared_classes",
+        required=True,
+    )
+    migrated_compiled_classes = fields.List(
+        fields.Nested(MigratedClassSchema()),
+        data_key="migrated_compiled_classes",
         required=True,
     )
     deployed_contracts = fields.List(
@@ -188,7 +203,7 @@ class BlockStateUpdateSchema(Schema):
 
 
 class PreConfirmedBlockStateUpdateSchema(Schema):
-    old_root = Felt(data_key="old_root", required=True)
+    old_root = Felt(data_key="old_root", required=False)
     state_diff = fields.Nested(StateDiffSchema(), data_key="state_diff", required=True)
 
     @post_load
