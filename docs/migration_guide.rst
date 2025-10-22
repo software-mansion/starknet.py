@@ -12,6 +12,7 @@ Version 0.29.0-rc.0 of **starknet.py** comes with support for RPC 0.10.0-rc.0.
 1. :class:`StateDiff` has a new field ``migrated_compiled_classes``.
 2. ``storage_keys`` field in :class:`ContractsStorageKeys` is now of type ``str``.
 3. ``old_root`` field in :class:`PreConfirmedBlockStateUpdate` is now optional.
+4. Hash function for contract declaration is now automatically selected based on node's RPC version: Blake2s for RPC >= 0.10.0-rc.0, Poseidon for older versions.
 
 ***************************
 0.28.0 Migration guide
