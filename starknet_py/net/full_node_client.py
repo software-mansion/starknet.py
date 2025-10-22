@@ -113,6 +113,7 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
+        self._spec_version: Optional[str] = None
 
     async def get_block(
         self,
@@ -772,11 +773,15 @@ class FullNodeClient(Client):
 
         :return: String with version of the Starknet JSON-RPC specification.
         """
-        res = await self._client.call(
-            method_name="specVersion",
-            params={},
-        )
-        return res
+        if self._spec_version is None:
+            self._spec_version = cast(
+                str,
+                await self._client.call(
+                    method_name="specVersion",
+                    params={},
+                ),
+            )
+        return self._spec_version
 
     async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
         res = await self._client.call(

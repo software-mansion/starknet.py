@@ -416,3 +416,11 @@ class Client(ABC):
         :param class_hash: Hash of the contract class whose CASM will be returned
         :return: CasmClass object
         """
+
+    @abstractmethod
+    async def spec_version(self) -> str:
+        """
+        Returns the version of the Starknet JSON-RPC specification being used.
+
+        :return: String with version of the Starknet JSON-RPC specification.
+        """
