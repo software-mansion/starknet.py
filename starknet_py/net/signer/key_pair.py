@@ -52,5 +52,5 @@ class KeyPair:
         :param password: Password to decrypt the keystore file.
         :return: KeyPair object.
         """
-        key = extract_key_from_keyfile(path, password.encode())
+        key = extract_key_from_keyfile(path, password)
         return KeyPair.from_private_key(int.from_bytes(key, byteorder="big"))
