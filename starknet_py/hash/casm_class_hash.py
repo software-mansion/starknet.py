@@ -1,6 +1,6 @@
 from typing import List, Optional, Sequence, Tuple
 
-import semver
+from semver import Version
 
 from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.hash.compiled_class_hash_objects import (
@@ -19,9 +19,9 @@ CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
 
 def get_casm_hash_method_for_rpc_version(rpc_version: str) -> HashMethod:
     # RPC 0.10.0 and later use Blake2s
+    version = Version.parse(rpc_version)
 
-    version = semver.Version.parse(rpc_version)
-    if version >= semver.Version.parse("0.10.0"):
+    if version >= Version.parse("0.10.0"):
         return HashMethod.BLAKE2S
 
     return HashMethod.POSEIDON

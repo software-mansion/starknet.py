@@ -1,4 +1,3 @@
-# pylint: disable=line-too-long
 # fmt: off
 import pytest
 
@@ -45,7 +44,7 @@ def test_compute_casm_class_hash_with_poseidon(contract, expected_casm_class_has
         ("starknet_contract_v2_6.casm", 0x603dd72504d8b0bc54df4f1102fdcf87fc3b2b94750a9083a5876913eec08e4),
     ],
 )
-def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_source, expected_casm_class_hash_poseidon):
+def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_source, expected_casm_class_hash_poseidon): # pylint: disable=line-too-long
     casm_contract_class_str = read_contract(
         casm_contract_class_source, directory=PRECOMPILED_CONTRACTS_DIR
     )

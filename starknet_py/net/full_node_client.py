@@ -773,7 +773,7 @@ class FullNodeClient(Client):
 
         :return: String with version of the Starknet JSON-RPC specification.
         """
-        if not self._spec_version:
+        if self._spec_version is None:
             self._spec_version = cast(
                 str,
                 await self._client.call(

@@ -10,7 +10,7 @@ from starknet_py.net.client import Client
 def _extract_compiled_class_hash(
     compiled_contract_casm: Optional[str] = None,
     compiled_class_hash: Optional[int] = None,
-    hash_method: HashMethod = HashMethod.POSEIDON,
+    hash_method: HashMethod = HashMethod.BLAKE2S,
 ) -> int:
     if compiled_class_hash is None and compiled_contract_casm is None:
         raise ValueError(
