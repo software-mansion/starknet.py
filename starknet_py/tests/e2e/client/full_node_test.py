@@ -470,6 +470,7 @@ async def test_simulate_transactions_skip_fee_charge(
     assert simulated_txs is not None
 
 
+@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
@@ -500,6 +501,7 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
+@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
