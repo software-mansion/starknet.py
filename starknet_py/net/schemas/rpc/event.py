@@ -1,4 +1,4 @@
-from marshmallow import fields, post_load
+from marshmallow import fields, post_load, validate
 
 from starknet_py.net.client_models import (
     EmittedEvent,
@@ -22,6 +22,18 @@ class EventSchema(Schema):
 
 class EmittedEventSchema(EventSchema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
+    transaction_index = fields.Integer(
+        data_key="transaction_index",
+        required=True,
+        validate=validate.Range(
+            min=0, error="`transaction_index` must be greater than 0"
+        ),
+    )
+    event_index = fields.Integer(
+        data_key="event_index",
+        required=True,
+        validate=validate.Range(min=0, error="`event_index` must be greater than 0"),
+    )
     block_hash = Felt(data_key="block_hash", load_default=None)
     block_number = fields.Integer(data_key="block_number", load_default=None)
 
