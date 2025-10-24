@@ -25,9 +25,7 @@ class EmittedEventSchema(EventSchema):
     transaction_index = fields.Integer(
         data_key="transaction_index",
         required=True,
-        validate=validate.Range(
-            min=0, error="`transaction_index` must be >= 0"
-        ),
+        validate=validate.Range(min=0, error="`transaction_index` must be >= 0"),
     )
     event_index = fields.Integer(
         data_key="event_index",
