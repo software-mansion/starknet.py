@@ -26,13 +26,13 @@ class EmittedEventSchema(EventSchema):
         data_key="transaction_index",
         required=True,
         validate=validate.Range(
-            min=0, error="`transaction_index` must be greater than 0"
+            min=0, error="`transaction_index` must be >= 0"
         ),
     )
     event_index = fields.Integer(
         data_key="event_index",
         required=True,
-        validate=validate.Range(min=0, error="`event_index` must be greater than 0"),
+        validate=validate.Range(min=0, error="`event_index` must be >= 0"),
     )
     block_hash = Felt(data_key="block_hash", load_default=None)
     block_number = fields.Integer(data_key="block_number", load_default=None)
