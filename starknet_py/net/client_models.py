@@ -64,6 +64,8 @@ class Event:
 @dataclass
 class _EmittedEventBase(Event):
     transaction_hash: int
+    transaction_index: int
+    event_index: int
 
 
 @dataclass

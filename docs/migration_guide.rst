@@ -5,7 +5,7 @@ Migration guide
 0.29.0-rc.0 Migration guide
 ***************************
 
-Version 0.29.0-rc.0 of **starknet.py** comes with support for RPC 0.10.0-rc.0.
+Version 0.29.0-rc.0 of **starknet.py** comes with support for RPC 0.10.0-rc.1.
 
 .. py:currentmodule:: starknet_py.net.client_models
 
@@ -13,6 +13,7 @@ Version 0.29.0-rc.0 of **starknet.py** comes with support for RPC 0.10.0-rc.0.
 2. ``storage_keys`` field in :class:`ContractsStorageKeys` is now of type ``str``.
 3. ``old_root`` field in :class:`PreConfirmedBlockStateUpdate` is now optional.
 4. Hash function for contract declaration is now automatically selected based on node's RPC version: Blake2s for RPC >= 0.10.0-rc.0, Poseidon for older versions.
+5. :class:`EmittedEvent` has new fields: ``transaction_index`` and ``event_index``.
 
 ***************************
 0.28.0 Migration guide
