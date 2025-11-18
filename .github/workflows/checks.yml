@@ -45,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install -E ledger
+          poetry install
 
       - name: Check poetry.lock
         run: |
@@ -175,6 +175,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
+      - name: Install HIDAPI system dependencies
+        run: |
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev
+
       - name: Install dependencies
         run: |
           poetry install -E ledger
@@ -301,6 +305,10 @@ jobs:
           python-version: "3.14"
           cache: 'poetry'
 
+      - name: Install HIDAPI system dependencies
+        run: |
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev
+
       - name: Install dependencies
         run: |
           poetry install -E ledger
@@ -394,7 +402,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install -E ledger
+          poetry install
 
       # ====================== RUN TESTS ====================== #
 
