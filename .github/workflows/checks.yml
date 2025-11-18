@@ -45,7 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install -E ledger
 
       - name: Check poetry.lock
         run: |
