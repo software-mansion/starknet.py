@@ -43,6 +43,10 @@ jobs:
           python-version: "3.14"
           cache: 'poetry'
 
+      - name: Install dependencies needed for HIDAPI and Pillow
+        run: |
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
+
       - name: Install dependencies
         run: |
           poetry install -E ledger
