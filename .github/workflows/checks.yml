@@ -177,7 +177,7 @@ jobs:
 
       - name: Install dependencies needed for HIDAPI and Pillow
         run: |
-          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
 
       - name: Install dependencies
         run: |
@@ -307,7 +307,7 @@ jobs:
 
       - name: Install dependencies needed for HIDAPI and Pillow
         run: |
-          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
 
       - name: Install dependencies
         run: |
