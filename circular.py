@@ -12,7 +12,7 @@ def _import_from_path(module_name, file_path):
 
 def test_circular_imports():
     for path, _, files in os.walk("starknet_py"):
-        py_files = [f for f in files if f.endswith(".py")]
+        py_files = sorted([f for f in files if f.endswith(".py")])
         for file_ in py_files:
             file_path = os.path.join(path, file_)
             _import_from_path(file_, file_path)
