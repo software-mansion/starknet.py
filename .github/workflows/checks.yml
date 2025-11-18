@@ -175,9 +175,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: Install HIDAPI system dependencies
+      - name: Install dependencies needed for HIDAPI and Pillow
         run: |
-          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg
 
       - name: Install dependencies
         run: |
@@ -305,9 +305,9 @@ jobs:
           python-version: "3.14"
           cache: 'poetry'
 
-      - name: Install HIDAPI system dependencies
+      - name: Install dependencies needed for HIDAPI and Pillow
         run: |
-          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev
+          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg
 
       - name: Install dependencies
         run: |
