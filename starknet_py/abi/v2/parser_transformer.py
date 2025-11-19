@@ -10,7 +10,6 @@ from starknet_py.cairo.data_types import (
     CairoType,
     FeltType,
     FixedSizeArrayType,
-    IntType,
     NonZeroType,
     OptionType,
     TupleType,
@@ -28,7 +27,6 @@ ABI_EBNF = """
         | type_bool
         | type_felt
         | type_bytes
-        | type_int
         | type_uint
         | type_bounded_int
         | type_contract_address
@@ -47,7 +45,6 @@ ABI_EBNF = """
     type_felt: "core::felt252"
     type_bytes: "core::bytes_31::bytes31"
     type_bool: "core::bool"
-    type_int: "core::integer::i" INT
     type_uint: "core::integer::u" INT
     type_bounded_int: "core::internal::BoundedInt::<" INT "," WS? INT ">" | "core::internal::bounded_int::BoundedInt::<" INT "," WS? INT ">"
     type_contract_address: "core::starknet::contract_address::ContractAddress"
@@ -114,12 +111,6 @@ class ParserTransformer(Transformer):
         Bool does not contain any additional arguments, so `_value` is just an empty list.
         """
         return BoolType()
-
-    def type_int(self, value: List[Token]) -> IntType:
-        """
-        Int type contains information about its size. It is present in the value[0].
-        """
-        return IntType(int(value[0]))
 
     def type_uint(self, value: List[Token]) -> UintType:
         """

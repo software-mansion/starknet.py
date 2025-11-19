@@ -14,7 +14,6 @@ from starknet_py.cairo.data_types import (
     EventType,
     FeltType,
     FixedSizeArrayType,
-    IntType,
     NamedTupleType,
     NonZeroType,
     OptionType,
@@ -33,7 +32,6 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 )
 from starknet_py.serialization.data_serializers.enum_serializer import EnumSerializer
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
-from starknet_py.serialization.data_serializers.int_serializer import IntSerializer
 from starknet_py.serialization.data_serializers.named_tuple_serializer import (
     NamedTupleSerializer,
 )
@@ -119,9 +117,6 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
                 for name, member_type in cairo_type.types.items()
             )
         )
-
-    if isinstance(cairo_type, IntType):
-        return IntSerializer(bits=cairo_type.bits)
 
     if isinstance(cairo_type, UintType):
         return UintSerializer(bits=cairo_type.bits)
