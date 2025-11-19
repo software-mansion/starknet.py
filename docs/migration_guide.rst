@@ -2,6 +2,15 @@ Migration guide
 ===============
 
 ***************************
+x.y.z Migration guide
+***************************
+
+x.y.z Bugfixes
+--------------
+
+1. Fixed parsing ABI that contains signed integers (e.g. ``i128``).
+
+***************************
 0.29.0-rc.0 Migration guide
 ***************************
 
@@ -481,6 +490,7 @@ This version of starknet.py requires Python 3.9 as a minimum version.
 ******************************
 0.24.1 Migration guide
 ******************************
+
 This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, ``u96`` is now compiled to `BoundedInt` in ABI.
 
 0.24.1 Minor changes
