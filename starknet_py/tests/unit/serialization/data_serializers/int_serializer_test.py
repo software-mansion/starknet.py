@@ -13,6 +13,9 @@ MAX_I128 = 2**127 - 1
 
 
 def _felt(x: int) -> int:
+    if abs(x) >= FIELD_PRIME:
+        raise ValueError("Value is out of field range.")
+
     return x % FIELD_PRIME
 
 

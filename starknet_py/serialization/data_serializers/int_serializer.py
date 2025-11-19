@@ -25,18 +25,16 @@ class IntSerializer(CairoDataSerializer[int, int]):
     def deserialize_with_context(self, context: DeserializationContext) -> int:
         (raw,) = context.reader.read(1)
 
+        signed_threshold = 1 << (self.bits - 1)
+        deserialized_val = raw if raw < signed_threshold else raw - FIELD_PRIME
         with context.push_entity("int" + str(self.bits)):
             self._ensure_valid_int(
-                raw if raw < (1 << (self.bits - 1)) else raw - FIELD_PRIME,
+                deserialized_val,
                 context,
                 self.bits,
             )
 
-            # unsigned → signed
-            if raw >= (1 << (self.bits - 1)):
-                raw = raw - FIELD_PRIME
-
-            return raw
+            return deserialized_val
 
     def serialize_with_context(
         self, context: SerializationContext, value: int
