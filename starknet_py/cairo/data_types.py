@@ -94,6 +94,15 @@ class OptionType(CairoType):
 
 
 @dataclass
+class IntType(CairoType):
+    """
+    Type representation of Cairo signed integers.
+    """
+
+    bits: int  #: Number of bits in the integer.
+
+
+@dataclass
 class UintType(CairoType):
     """
     Type representation of Cairo unsigned integers.
