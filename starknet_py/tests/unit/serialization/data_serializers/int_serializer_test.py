@@ -35,10 +35,6 @@ def _felt(x: int) -> int:
     ],
 )
 def test_valid_values(value, serializer, serialized_value):
-    print("-------")
-    print("value:", value)
-    print("serialized value:", serialized_value)
-    print("-------")
     deserialized = serializer.deserialize(serialized_value)
     assert deserialized == value
 
