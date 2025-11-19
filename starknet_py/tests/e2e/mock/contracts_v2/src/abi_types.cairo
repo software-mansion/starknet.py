@@ -20,6 +20,7 @@ struct ExampleStruct {
     field_e: NonZero<felt252>,
     field_f: NonZero<u8>,
     field_g: [u64; 5],
+    field_h: [i128; 5],
 }
 
 #[starknet::interface]
@@ -73,6 +74,7 @@ mod AbiTypes {
                 field_e: felt_to_nonzero(100),
                 field_f: u8_to_nonzero(100),
                 field_g: [1, 2, 3, 4, 5],
+                field_h: [-2000, -1000, 0, 1000, 2000],
             }
         }
     }
