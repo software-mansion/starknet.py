@@ -16,7 +16,7 @@ def _felt(x: int) -> int:
     if abs(x) >= FIELD_PRIME:
         raise ValueError("Value is out of field range.")
 
-    return x % FIELD_PRIME
+    return x + FIELD_PRIME if x < 0 else x
 
 
 @pytest.mark.parametrize(
@@ -35,6 +35,10 @@ def _felt(x: int) -> int:
     ],
 )
 def test_valid_values(value, serializer, serialized_value):
+    print("-------")
+    print("value:", value)
+    print("serialized value:", serialized_value)
+    print("-------")
     deserialized = serializer.deserialize(serialized_value)
     assert deserialized == value
 
