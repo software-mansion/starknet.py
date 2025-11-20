@@ -5,7 +5,12 @@ Migration guide
 0.28.1 Migration guide
 ***************************
 
-1. This version adds support for Blake hash, in order to allow compatibility for Starknet versions >= 0.14.1.
+1. This version adds support for Blake hash used in CASM class hash computation.
+
+0.28.1 Targeted versions
+------------------------
+- Starknet - `0.14.0 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-0-september-1>`_ and `0.14.1 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-1-tbd>`_
+- RPC - `0.9.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.9.0>`_
 
 0.28.1 Breaking changes
 -----------------------
