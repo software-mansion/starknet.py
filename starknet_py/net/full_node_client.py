@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
-from semver import Version
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
