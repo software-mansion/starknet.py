@@ -40,7 +40,7 @@ jobs:
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'poetry'
 
       - name: Install dependencies needed for HIDAPI and Pillow
@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.13" ]
+        python-version: [ "3.14" ]
     steps:
 
       # ====================== SETUP ====================== #
@@ -85,7 +85,7 @@ jobs:
       - uses: asdf-vm/actions/setup@v3
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
 
       - name: Install poetry
@@ -147,7 +147,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.13" ]
+        python-version: [ "3.10", "3.14" ]
     env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
@@ -163,7 +163,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -293,7 +293,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -306,7 +306,7 @@ jobs:
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'poetry'
 
       - name: Install dependencies needed for HIDAPI and Pillow
@@ -356,7 +356,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.13" ]
+        python-version: [ "3.10", "3.14" ]
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
@@ -373,7 +373,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
 
       # ====================== SETUP DEVNET ====================== #
@@ -437,7 +437,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.13" ]
+        python-version: [ "3.10", "3.14" ]
     steps:
       - uses: actions/checkout@v4
 
@@ -449,7 +449,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
@@ -508,7 +508,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.13" ]
+        python-version: [ "3.10", "3.14" ]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
@@ -523,7 +523,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
 
       # ====================== SETUP PYTHON ====================== #
