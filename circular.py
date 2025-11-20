@@ -10,7 +10,6 @@ PACKAGE_NAME = "starknet_py"
 
 def _import_from_path(module_name, file_path):
     spec = importlib.util.spec_from_file_location(module_name, file_path)
-
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
@@ -18,16 +17,15 @@ def _import_from_path(module_name, file_path):
 
 def assert_no_circular_imports():
     for path, _, files in os.walk(PACKAGE_NAME):
-        for f in files:
-            if not f.endswith(".py"):
-                continue
+        py_files = [f for f in files if f.endswith(".py")]
+        for file in py_files:
 
-            file_path = os.path.join(path, f)
+            file_path = os.path.join(path, file)
 
-            rel = os.path.relpath(file_path, PACKAGE_NAME)
-            rel_no_ext = rel.removesuffix(".py")
-            dotted = rel_no_ext.replace(os.sep, ".")
-            module_name = f"{PACKAGE_NAME}.{dotted}"
+            relative_path = os.path.relpath(file_path, PACKAGE_NAME)
+            module_path_no_ext = relative_path.removesuffix(".py")
+            dotted_module_path = module_path_no_ext.replace(os.sep, ".")
+            module_name = f"{PACKAGE_NAME}.{dotted_module_path}"
 
             _import_from_path(module_name, file_path)
 
