@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import aiohttp
+from semver import Version
 
 from starknet_py.constants import RPC_CONTRACT_ERROR
 from starknet_py.hash.utils import keccak256
@@ -113,7 +114,7 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-        self._spec_version: Optional[str] = None
+        self._starknet_version: Optional[Version] = None
 
     async def get_block(
         self,
@@ -773,15 +774,14 @@ class FullNodeClient(Client):
 
         :return: String with version of the Starknet JSON-RPC specification.
         """
-        if self._spec_version is None:
-            self._spec_version = cast(
-                str,
-                await self._client.call(
-                    method_name="specVersion",
-                    params={},
-                ),
-            )
-        return self._spec_version
+        spec_version = cast(
+            str,
+            await self._client.call(
+                method_name="specVersion",
+                params={},
+            ),
+        )
+        return spec_version
 
     async def get_transaction_status(self, tx_hash: Hash) -> TransactionStatusResponse:
         res = await self._client.call(

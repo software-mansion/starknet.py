@@ -4,7 +4,7 @@ import pytest
 from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import (
     compute_casm_class_hash,
-    get_casm_hash_method_for_rpc_version,
+    get_casm_hash_method_for_starknet_version,
 )
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.tests.e2e.fixtures.constants import PRECOMPILED_CONTRACTS_DIR
@@ -57,19 +57,19 @@ def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_s
 @pytest.mark.parametrize(
     "rpc_version, expected_hash_method",
     [
-        ("0.8.0", HashMethod.POSEIDON),
-        ("0.9.0", HashMethod.POSEIDON),
-        ("0.9.1", HashMethod.POSEIDON),
-        ("0.10.0", HashMethod.BLAKE2S),
-        ("0.10.1", HashMethod.BLAKE2S),
-        ("0.11.0", HashMethod.BLAKE2S),
+        ("0.13.5", HashMethod.POSEIDON),
+        ("0.14.0", HashMethod.POSEIDON),
+        ("0.14.1", HashMethod.BLAKE2S),
+        ("0.15.0", HashMethod.BLAKE2S),
         ("1.0.0", HashMethod.BLAKE2S),
+        ("1.10.0", HashMethod.BLAKE2S),
     ],
 )
-def test_get_casm_hash_method_for_rpc_version(rpc_version, expected_hash_method):
-    """Test that the correct hash method is returned for different RPC versions."""
-    hash_method = get_casm_hash_method_for_rpc_version(rpc_version)
+def test_get_casm_hash_method_for_starknet_version(rpc_version, expected_hash_method):
+    """Test that the correct hash method is returned for different Starknet versions."""
+    hash_method = get_casm_hash_method_for_starknet_version(rpc_version)
     assert hash_method == expected_hash_method
+
 
 @pytest.mark.parametrize(
     "contract, expected_casm_class_hash_blake2s",
