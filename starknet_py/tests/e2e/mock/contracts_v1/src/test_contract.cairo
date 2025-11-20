@@ -33,11 +33,6 @@ mod TestContract {
     }
 
     #[external]
-    fn call_foo_2(another_contract_address: starknet::ContractAddress, a: u128) -> u128 {
-        IAnotherContractDispatcher { contract_address: another_contract_address }.foo(a)
-    }
-
-    #[external]
     fn libcall_foo(a: u128) -> u128 {
         IAnotherContractLibraryDispatcher { class_hash: starknet::class_hash_const::<0>() }.foo(a)
     }
