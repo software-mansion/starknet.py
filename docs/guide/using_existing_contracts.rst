@@ -105,6 +105,18 @@ internally and use the returned value. ``max_amount`` and ``max_price_per_unit``
     It is possible to configure the value by which the estimated fee is multiplied,
     by changing ``ESTIMATED_AMOUNT_MULTIPLIER`` and ``ESTIMATED_UNIT_PRICE_MULTIPLIER``.
 
+Transaction Tips
+----------------
+
+Until Starknet 0.14.0, transactions were processed in FIFO order.
+Starting from this version, it is possible to include a *tip* with the transaction fee to incentivize it being placed in an earlier block.
+
+Starknet.py supports this mechanism in several interfaces.
+
+.. code-block:: python
+
+    call = contract.functions["get"].prepare_invoke_v3(key=1234, tip=12345)
+
 Account and Client interoperability
 -----------------------------------
 

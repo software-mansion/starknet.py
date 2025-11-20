@@ -3,21 +3,15 @@ Dataclasses representing responses from Starknet Websocket RPC API.
 """
 
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar
 
 from starknet_py.net.client_models import (
     BlockHeader,
-    EmittedEvent,
+    EmittedEventWithFinalityStatus,
+    Transaction,
+    TransactionReceiptWithBlockInfo,
     TransactionStatusResponse,
-)
-from starknet_py.net.models import (
-    DeclareV1,
-    DeclareV2,
-    DeclareV3,
-    DeployAccountV1,
-    DeployAccountV3,
-    InvokeV1,
-    InvokeV3,
+    TransactionStatusWithoutL1,
 )
 
 T = TypeVar("T")
@@ -41,7 +35,7 @@ class NewHeadsNotification(Notification[BlockHeader]):
 
 
 @dataclass
-class NewEventsNotification(Notification[EmittedEvent]):
+class NewEventsNotification(Notification[EmittedEventWithFinalityStatus]):
     """
     Notification to the client of a new event.
     """
@@ -64,24 +58,6 @@ class TransactionStatusNotification(Notification[NewTransactionStatus]):
     """
 
 
-Transaction = Union[
-    DeclareV1,
-    DeclareV2,
-    DeclareV3,
-    DeployAccountV1,
-    DeployAccountV3,
-    InvokeV1,
-    InvokeV3,
-]
-
-
-@dataclass
-class PendingTransactionsNotification(Notification[Union[int, Transaction]]):
-    """
-    Notification to the client of a new pending transaction.
-    """
-
-
 @dataclass
 class ReorgData:
     """
@@ -98,4 +74,24 @@ class ReorgData:
 class ReorgNotification(Notification[ReorgData]):
     """
     Notification of a reorganization of the chain.
+    """
+
+
+@dataclass
+class NewTransactionReceiptsNotification(Notification[TransactionReceiptWithBlockInfo]):
+    """
+    Notification of a new transaction receipt
+    """
+
+
+@dataclass
+class NewTransactionNotificationResult:
+    transaction: Transaction
+    finality_status: TransactionStatusWithoutL1
+
+
+@dataclass
+class NewTransactionNotification(Notification[NewTransactionNotificationResult]):
+    """
+    Notification of a new transaction
     """

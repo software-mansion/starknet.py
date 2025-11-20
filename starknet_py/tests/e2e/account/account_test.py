@@ -4,8 +4,10 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from starknet_py.common import create_casm_class
 from starknet_py.constants import ARGENT_V040_CLASS_HASH
 from starknet_py.hash.address import compute_address
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
@@ -31,6 +33,7 @@ from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.accounts import AccountPrerequisites
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest.mark.run_on_devnet
@@ -650,7 +653,7 @@ async def test_account_execute_v3(account, deployed_balance_contract):
 
 
 @pytest.mark.asyncio
-async def test_invoke_with_tip(account, hello_starknet_class_hash):
+async def test_invoke_v3_with_tip(account, hello_starknet_class_hash):
     deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
 
     invoke_tx = await account.execute_v3(
@@ -669,6 +672,33 @@ async def test_invoke_with_tip(account, hello_starknet_class_hash):
 
     assert isinstance(transaction, InvokeTransactionV3)
     assert transaction.tip == 123456
+
+
+@pytest.mark.asyncio
+async def test_invoke_v3_auto_estimate_tip(
+    account, hello_starknet_class_hash, get_block_with_txs_path, block_with_tips_mock
+):
+    with patch(get_block_with_txs_path, AsyncMock()) as mocked_block_with_txs:
+        mocked_block_with_txs.return_value = block_with_tips_mock
+
+        deployment = Deployer().create_contract_deployment(hello_starknet_class_hash)
+
+        invoke_tx = await account.execute_v3(
+            Call(
+                deployment.address,
+                get_selector_from_name("increase_balance"),
+                [20000],
+            ),
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
+        )
+
+    transaction = await account.client.get_transaction(
+        tx_hash=invoke_tx.transaction_hash
+    )
+
+    assert isinstance(transaction, InvokeTransactionV3)
+    assert transaction.tip == 2
 
 
 @pytest.mark.asyncio
@@ -693,17 +723,41 @@ async def test_deploy_account_v3_with_tip(client, deploy_account_details_factory
 
 
 @pytest.mark.asyncio
-async def test_declare_v3_with_tip(
-    account, sierra_minimal_compiled_contract_and_class_hash
+async def test_deploy_account_v3_auto_estimate_tip(
+    client,
+    deploy_account_details_factory,
+    get_block_with_txs_path,
+    block_with_tips_mock,
 ):
-    (
-        compiled_contract,
-        compiled_class_hash,
-    ) = sierra_minimal_compiled_contract_and_class_hash
+    address, key_pair, salt, class_hash = await deploy_account_details_factory.get()
+
+    with patch(get_block_with_txs_path, AsyncMock()) as mocked_block_with_txs:
+        mocked_block_with_txs.return_value = block_with_tips_mock
+
+        deploy_result = await Account.deploy_account_v3(
+            address=address,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=client,
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
+        )
+        await deploy_result.wait_for_acceptance()
+
+    transaction = await client.get_transaction(tx_hash=deploy_result.hash)
+    assert isinstance(transaction, DeployAccountTransactionV3)
+    assert transaction.tip == 2
+
+
+@pytest.mark.asyncio
+async def test_declare_v3_with_tip(account):
+    compiled_contract = load_contract("TestContract3")
+
     tip = 12345
     signed_tx = await account.sign_declare_v3(
-        compiled_contract,
-        compiled_class_hash,
+        compiled_contract["sierra"],
+        compute_casm_class_hash(create_casm_class(compiled_contract["casm"])),
         resource_bounds=MAX_RESOURCE_BOUNDS,
         tip=tip,
     )
@@ -712,3 +766,26 @@ async def test_declare_v3_with_tip(
     transaction = await account.client.get_transaction(tx_hash=result.transaction_hash)
     assert isinstance(transaction, DeclareTransactionV3)
     assert transaction.tip == tip
+
+
+@pytest.mark.asyncio
+async def test_declare_v3_auto_estimate_tip(
+    account,
+    get_block_with_txs_path,
+    block_with_tips_mock,
+):
+    compiled_contract = load_contract("TestContract4")
+
+    with patch(get_block_with_txs_path, AsyncMock()) as mocked_block_with_txs:
+        mocked_block_with_txs.return_value = block_with_tips_mock
+        signed_tx = await account.sign_declare_v3(
+            compiled_contract["sierra"],
+            compute_casm_class_hash(create_casm_class(compiled_contract["casm"])),
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
+        )
+
+    result = await account.client.declare(signed_tx)
+    transaction = await account.client.get_transaction(tx_hash=result.transaction_hash)
+    assert isinstance(transaction, DeclareTransactionV3)
+    assert transaction.tip == 2

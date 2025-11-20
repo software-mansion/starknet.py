@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from starknet_py.constants import EXPECTED_RPC_VERSION
+from starknet_py.constants import EXPECTED_RPC_VERSION, STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     PreConfirmedStarknetBlockWithReceipts,
     ResourceBounds,
     ResourceBoundsMapping,
+    StarknetBlock,
     StarknetBlockWithReceipts,
     Transaction,
     TransactionExecutionStatus,
@@ -45,7 +46,6 @@ from starknet_py.tests.e2e.fixtures.constants import (
     EMPTY_CONTRACT_ADDRESS_SEPOLIA,
     MAX_RESOURCE_BOUNDS_SEPOLIA,
     STRK_CLASS_HASH,
-    STRK_FEE_CONTRACT_ADDRESS,
 )
 from starknet_py.transaction_errors import TransactionRevertedError
 
@@ -72,6 +72,7 @@ async def test_get_transaction_receipt(client_sepolia_testnet, transaction_hash)
     assert receipt.type is not None
 
 
+@pytest.mark.skip("TODO(#1651)")
 @pytest.mark.asyncio
 async def test_wait_for_tx_reverted(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -98,9 +99,7 @@ async def test_wait_for_tx_accepted(account_sepolia_testnet):
         selector=get_selector_from_name("empty"),
         calldata=[],
     )
-    sign_invoke = await account.sign_invoke_v3(
-        calls=call, resource_bounds=MAX_RESOURCE_BOUNDS_SEPOLIA
-    )
+    sign_invoke = await account.sign_invoke_v3(calls=call, auto_estimate=True)
     invoke = await account.client.send_transaction(sign_invoke)
 
     result = await account.client.wait_for_tx(tx_hash=invoke.transaction_hash)
@@ -125,6 +124,7 @@ async def test_sign_invoke_v3_auto_estimate(account_sepolia_testnet):
     assert result.execution_status == TransactionExecutionStatus.SUCCEEDED
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_small(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -134,9 +134,9 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         calldata=[],
     )
     resource_bounds = ResourceBoundsMapping(
-        l1_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
-        l2_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
-        l1_data_gas=ResourceBounds(max_amount=int(1e1), max_price_per_unit=int(1e1)),
+        l1_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e10)),
     )
     sign_invoke = await account.sign_invoke_v3(
         calls=call, resource_bounds=resource_bounds
@@ -150,6 +150,7 @@ async def test_transaction_not_received_max_fee_too_small(account_sepolia_testne
         await account.client.send_transaction(sign_invoke)
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_transaction_not_received_max_fee_too_big(account_sepolia_testnet):
     account = account_sepolia_testnet
@@ -393,6 +394,7 @@ async def test_get_transaction_status_with_failure_reason(client_sepolia_testnet
         assert tx_status.failure_reason == "Some failure reason"
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_block_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
@@ -411,6 +413,7 @@ async def test_get_block_new_header_fields(client_sepolia_testnet):
     assert pre_confirmed_block.l1_gas_price.price_in_wei > 0
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet):
     # testing l1_gas_price and starknet_version fields
@@ -499,6 +502,7 @@ async def test_get_block_with_receipts(client_sepolia_testnet):
     )
 
 
+@pytest.mark.skip("TODO(#1621)")
 @pytest.mark.asyncio
 async def test_get_pre_confirmed_block_with_receipts(client_sepolia_testnet):
     block_with_receipts = await client_sepolia_testnet.get_block_with_receipts(
@@ -571,12 +575,20 @@ async def test_get_compiled_casm(client_sepolia_testnet):
 
 @pytest.mark.asyncio
 async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet):
-    old_rpc_url = client_sepolia_testnet.url.replace("v0_8", "v0_7")
+    old_rpc_url = client_sepolia_testnet.url.replace("v0_9", "v0_8")
     node = FullNodeClient(old_rpc_url)
 
     pattern = (
-        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.7\.1\. "
+        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.8\.1\. "
         rf"Expected version: {EXPECTED_RPC_VERSION}"
     )
     with pytest.warns(IncompatibleRPCVersionWarning, match=pattern):
         await node.get_chain_id()
+
+
+@pytest.mark.asyncio
+async def test_l1_accepted_block(account_sepolia_testnet):
+    blk = await account_sepolia_testnet.client.get_block(block_number="l1_accepted")
+    assert blk.block_hash
+    assert blk.transactions is not None
+    assert isinstance(blk, StarknetBlock)

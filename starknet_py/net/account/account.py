@@ -5,8 +5,8 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.constants import (
     ANY_CALLER,
-    FEE_CONTRACT_ADDRESS,
     QUERY_VERSION_BASE,
+    STRK_FEE_CONTRACT_ADDRESS,
     OutsideExecutionInterfaceID,
 )
 from starknet_py.hash.address import compute_address
@@ -45,6 +45,7 @@ from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.tip import estimate_tip
 from starknet_py.serialization.data_serializers import (
     ArraySerializer,
     FeltSerializer,
@@ -52,7 +53,6 @@ from starknet_py.serialization.data_serializers import (
     StructSerializer,
     UintSerializer,
 )
-from starknet_py.utils.account import _raise_error_for_braavos_account
 from starknet_py.utils.iterable import ensure_iterable
 from starknet_py.utils.sync import add_sync_methods
 from starknet_py.utils.typed_data import TypedData
@@ -138,6 +138,20 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
     def client(self) -> Client:
         return self._client
 
+    async def _get_tip(self, *, tip: Optional[int], auto_estimate_tip: bool) -> int:
+        if auto_estimate_tip is True and tip is not None:
+            raise ValueError(
+                "Arguments tip and auto_estimate_tip are mutually exclusive."
+            )
+
+        if auto_estimate_tip:
+            return await estimate_tip(self.client)
+
+        if tip is None:
+            return 0
+
+        return tip
+
     async def _get_resource_bounds(
         self,
         transaction: AccountTransaction,
@@ -169,8 +183,10 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeV3:
+        # pylint: disable=too-many-arguments
         """
         Takes calls and creates InvokeV3 from them.
 
@@ -183,6 +199,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             nonce = await self.get_nonce()
 
         wrapped_calldata = _parse_calls(await self.cairo_version, calls)
+
+        tip = await self._get_tip(tip=tip, auto_estimate_tip=auto_estimate_tip)
 
         transaction = InvokeV3(
             calldata=wrapped_calldata,
@@ -228,8 +246,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         """
         Get the current nonce of the account.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: nonce.
         """
         return await self._client.get_contract_nonce(
@@ -295,7 +313,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         if token_address is None:
             chain_id = await self._get_chain_id()
             if chain_id in RECOGNIZED_CHAIN_IDS:
-                token_address = FEE_CONTRACT_ADDRESS
+                token_address = STRK_FEE_CONTRACT_ADDRESS
             else:
                 raise ValueError(
                     "Argument token_address must be specified when using a custom network."
@@ -379,14 +397,17 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeV3:
+        # pylint: disable=too-many-arguments
         invoke_tx = await self._prepare_invoke_v3(
             calls,
             resource_bounds=resource_bounds,
             nonce=nonce,
             auto_estimate=auto_estimate,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
@@ -399,7 +420,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareV3:
         # pylint: disable=too-many-arguments
         declare_tx = await self._make_declare_v3_transaction(
@@ -407,6 +429,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             compiled_class_hash,
             nonce=nonce,
             tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
         )
         resource_bounds = await self._get_resource_bounds(
             declare_tx, resource_bounds, auto_estimate
@@ -422,7 +445,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         compiled_class_hash: int,
         *,
         nonce: Optional[int] = None,
-        tip: int,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareV3:
         contract_class = create_sierra_compiled_contract(
             compiled_contract=compiled_contract
@@ -430,6 +454,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
 
         if nonce is None:
             nonce = await self.get_nonce()
+
+        tip = await self._get_tip(tip=tip, auto_estimate_tip=auto_estimate_tip)
 
         declare_tx = DeclareV3(
             contract_class=contract_class.convert_to_sierra_contract_class(),
@@ -452,9 +478,12 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
+        tip = await self._get_tip(tip=tip, auto_estimate_tip=auto_estimate_tip)
+
         deploy_account_tx = DeployAccountV3(
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
@@ -482,22 +511,19 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> SentTransactionResponse:
-        # TODO(#1582): Remove below adjustment when braavos integration is restored
-        try:
-            execute_transaction = await self.sign_invoke_v3(
-                calls,
-                nonce=nonce,
-                resource_bounds=resource_bounds,
-                auto_estimate=auto_estimate,
-                tip=tip,
-            )
-            return await self._client.send_transaction(execute_transaction)
-
-        except Exception as exception:
-            await _raise_error_for_braavos_account(exception, self.address, self.client)
-            raise exception
+        # pylint: disable=too-many-arguments
+        execute_transaction = await self.sign_invoke_v3(
+            calls,
+            nonce=nonce,
+            resource_bounds=resource_bounds,
+            auto_estimate=auto_estimate,
+            tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
+        )
+        return await self._client.send_transaction(execute_transaction)
 
     def sign_message(self, typed_data: Union[TypedData, TypedDataDict]) -> List[int]:
         if isinstance(typed_data, TypedData):
@@ -525,7 +551,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> AccountDeploymentResult:
         # pylint: disable=too-many-arguments, too-many-locals
 
@@ -545,47 +572,43 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         :param nonce: Nonce of the transaction.
         :param resource_bounds: Resource limits (L1 and L2) used when executing this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :param tip: The tip amount to be added to the transaction fee.
         """
-        # TODO(#1582): Remove below adjustment when braavos integration is restored
-        try:
-            calldata = (
-                constructor_calldata
-                if constructor_calldata is not None
-                else [key_pair.public_key]
-            )
+        calldata = (
+            constructor_calldata
+            if constructor_calldata is not None
+            else [key_pair.public_key]
+        )
 
-            chain = await client.get_chain_id()
+        chain = await client.get_chain_id()
 
-            account = _prepare_account_to_deploy(
-                address=address,
-                class_hash=class_hash,
-                salt=salt,
-                key_pair=key_pair,
-                client=client,
-                chain=chain,
-                calldata=calldata,
-            )
+        account = _prepare_account_to_deploy(
+            address=address,
+            class_hash=class_hash,
+            salt=salt,
+            key_pair=key_pair,
+            client=client,
+            chain=chain,
+            calldata=calldata,
+        )
 
-            deploy_account_tx = await account.sign_deploy_account_v3(
-                class_hash=class_hash,
-                contract_address_salt=salt,
-                constructor_calldata=calldata,
-                nonce=nonce,
-                resource_bounds=resource_bounds,
-                auto_estimate=auto_estimate,
-                tip=tip,
-            )
+        deploy_account_tx = await account.sign_deploy_account_v3(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata=calldata,
+            nonce=nonce,
+            resource_bounds=resource_bounds,
+            auto_estimate=auto_estimate,
+            tip=tip,
+            auto_estimate_tip=auto_estimate_tip,
+        )
 
-            result = await client.deploy_account(deploy_account_tx)
+        result = await client.deploy_account(deploy_account_tx)
 
-            return AccountDeploymentResult(
-                hash=result.transaction_hash, account=account, _client=account.client
-            )
-        except Exception as exception:
-            address = parse_address(address)
-            await _raise_error_for_braavos_account(exception, address, client)
-            raise exception
+        return AccountDeploymentResult(
+            hash=result.transaction_hash, account=account, _client=account.client
+        )
 
     async def _get_chain_id(self) -> int:
         if self._chain_id is None:

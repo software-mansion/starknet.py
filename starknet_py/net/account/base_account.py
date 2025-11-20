@@ -106,8 +106,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
 
         :param tx: Transaction or list of transactions to estimate
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed
-        :param block_hash: Block hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Estimated fee or list of estimated fees for each transaction
         """
 
@@ -121,8 +121,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         """
         Get the current nonce of the account.
 
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: nonce of the account.
         """
 
@@ -139,8 +139,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         By default, it uses the L2 ETH address for mainnet and sepolia networks.
 
         :param token_address: Address of the ERC20 contract.
-        :param block_hash: Block's hash or literals `"pre_confirmed"` or `"latest"`
-        :param block_number: Block's number or literals `"pre_confirmed"` or `"latest"`
+        :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: Token balance.
         """
 
@@ -165,8 +165,10 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> InvokeV3:
+        # pylint: disable=too-many-arguments
         """
         Takes calls and creates signed Invoke.
 
@@ -175,6 +177,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: Invoke created from the calls.
         """
 
@@ -187,7 +190,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: Optional[int] = None,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeclareV3:
         # pylint: disable=too-many-arguments
         """
@@ -201,6 +205,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param resource_bounds: Resource limits (L1 and L2) that can be used in this transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: Signed DeclareV3 transaction.
         """
 
@@ -214,7 +219,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         nonce: int = 0,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> DeployAccountV3:
         # pylint: disable=too-many-arguments
         """
@@ -229,6 +235,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
             Enough tokens must be prefunded before sending the transaction for it to succeed.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: Signed DeployAccountV3 transaction.
         """
 
@@ -240,8 +247,10 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         resource_bounds: Optional[ResourceBoundsMapping] = None,
         nonce: Optional[int] = None,
         auto_estimate: bool = False,
-        tip: int = 0,
+        tip: Optional[int] = None,
+        auto_estimate_tip: bool = False,
     ) -> SentTransactionResponse:
+        # pylint: disable=too-many-arguments
         """
         Takes calls and executes transaction.
 
@@ -250,6 +259,7 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param nonce: Nonce of the transaction.
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param tip: The tip amount to be added to the transaction fee.
+        :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :return: SentTransactionResponse.
         """
 

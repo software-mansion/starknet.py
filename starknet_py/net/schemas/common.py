@@ -11,12 +11,12 @@ from starknet_py.net.client_models import (
     DAMode,
     EntryPointType,
     L1DAMode,
-    MessageFinalityStatus,
     PriceUnit,
     StorageEntry,
     TransactionExecutionStatus,
     TransactionFinalityStatus,
     TransactionStatus,
+    TransactionStatusWithoutL1,
     TransactionType,
 )
 
@@ -185,7 +185,7 @@ class FinalityStatusField(fields.Field):
         return TransactionFinalityStatus(value)
 
 
-class MessageFinalityStatusField(fields.Field):
+class TransactionFinalityStatusField(fields.Field):
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         return value.name if value is not None else ""
 
@@ -195,15 +195,36 @@ class MessageFinalityStatusField(fields.Field):
         attr: Optional[str],
         data: Optional[Mapping[str, Any]],
         **kwargs,
-    ) -> MessageFinalityStatus:
-        values = [v.value for v in MessageFinalityStatus]
+    ) -> TransactionFinalityStatus:
+        values = [v.value for v in TransactionFinalityStatus]
 
         if value not in values:
             raise ValidationError(
-                f"Invalid value provided for MessageFinalityStatus: {value}."
+                f"Invalid value provided for TransactionFinalityStatusField: {value}."
             )
 
-        return MessageFinalityStatus(value)
+        return TransactionFinalityStatus(value)
+
+
+class TransactionStatusWithoutL1Field(fields.Field):
+    def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
+        return value.name if value is not None else ""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ) -> TransactionStatusWithoutL1:
+        values = [v.value for v in TransactionStatusWithoutL1]
+
+        if value not in values:
+            raise ValidationError(
+                f"Invalid value provided for TransactionStatusWithoutL1: {value}."
+            )
+
+        return TransactionStatusWithoutL1(value)
 
 
 class BlockStatusField(fields.Field):
@@ -218,9 +239,6 @@ class BlockStatusField(fields.Field):
         **kwargs,
     ) -> BlockStatus:
         values = [v.value for v in BlockStatus]
-
-        if value in ("ABORTED", "REVERTED"):
-            return BlockStatus.REJECTED
 
         if value not in values:
             raise ValidationError(f"Invalid value for BlockStatus provided: {value}.")

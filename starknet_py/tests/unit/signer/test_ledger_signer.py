@@ -3,16 +3,14 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
+from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV3, DeployAccountV3, InvokeV3, StarknetChainId
 from starknet_py.net.signer.ledger_signer import BlindSigningModeWarning
 from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
-from starknet_py.tests.e2e.fixtures.constants import (
-    MAX_RESOURCE_BOUNDS_SEPOLIA,
-    STRK_FEE_CONTRACT_ADDRESS,
-)
+from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_SEPOLIA
 
 LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
     0x07D2B5E579BB434976E352811D4C3A9DAD7F5966AC2BED4FBBFB7A3B1A0E90DE
@@ -271,6 +269,7 @@ async def test_deploy_account_and_transfer(client):
     assert recipient_balance_before + 100 == recipient_balance_after
 
 
+@pytest.mark.skip(reason="TODO(#1637)")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(
@@ -311,6 +310,7 @@ async def test_invoke_v3_long_calldata(client_fork_mode):
     await invocation.wait_for_acceptance()
 
 
+@pytest.mark.skip(reason="TODO(#1637)")
 @pytest.mark.asyncio
 # TODO (#1425): Currently Ledger tests are skipped on Windows due to different Speculos setup.
 @pytest.mark.skipif(

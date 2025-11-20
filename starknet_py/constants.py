@@ -1,13 +1,17 @@
 from enum import IntEnum
 from pathlib import Path
 
-# Address came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
-FEE_CONTRACT_ADDRESS = (
+# Addresses came from starkware-libs/starknet-addresses repository: https://github.com/starkware-libs/starknet-addresses
+ETH_FEE_CONTRACT_ADDRESS = (
     "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7"
 )
 
+STRK_FEE_CONTRACT_ADDRESS = (
+    "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
+)
+
 DEFAULT_DEPLOYER_ADDRESS = (
-    "0x041a78e741e5aF2fEc34B695679bC6891742439f7AFB8484Ecd7766661aD02BF"
+    "0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125"
 )
 
 API_VERSION = 0
@@ -49,7 +53,7 @@ class OutsideExecutionInterfaceID(IntEnum):
     V2 = 0x1D1144BB2138366FF28D8E9AB57456B1D332AC42196230C3A602003C89872
 
 
-EXPECTED_RPC_VERSION = "0.8.1"
+EXPECTED_RPC_VERSION = "0.9.0"
 
 ARGENT_V040_CLASS_HASH = (
     0x036078334509B514626504EDC9FB252328D1A240E4E948BEF8D0C08DFF45927F

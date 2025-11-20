@@ -23,6 +23,7 @@ from starknet_py.net.client_models import (
     ResourceBoundsMapping,
     SentTransactionResponse,
     TransactionReceipt,
+    TransactionReceiptWithBlockInfo,
     TransactionStatusResponse,
     TransactionWithReceipt,
 )
@@ -31,10 +32,10 @@ from starknet_py.net.schemas.common import (
     ExecutionStatusField,
     Felt,
     FinalityStatusField,
-    MessageFinalityStatusField,
     NumberAsHex,
     PriceUnitField,
     StatusField,
+    TransactionFinalityStatusField,
     TransactionTypeField,
     Uint64,
     Uint128,
@@ -68,8 +69,6 @@ class TransactionReceiptSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
     execution_status = ExecutionStatusField(data_key="execution_status", required=True)
     finality_status = FinalityStatusField(data_key="finality_status", required=True)
-    block_number = fields.Integer(data_key="block_number", load_default=None)
-    block_hash = Felt(data_key="block_hash", load_default=None)
     actual_fee = fields.Nested(FeePaymentSchema(), data_key="actual_fee", required=True)
     type = TransactionTypeField(data_key="type", required=True)
     contract_address = Felt(data_key="contract_address", load_default=None)
@@ -88,6 +87,15 @@ class TransactionReceiptSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> TransactionReceipt:
         return TransactionReceipt(**data)
+
+
+class TransactionReceiptWithBlockInfoSchema(TransactionReceiptSchema):
+    block_hash = Felt(data_key="block_hash", load_default=None)
+    block_number = fields.Integer(data_key="block_number", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> TransactionReceiptWithBlockInfo:
+        return TransactionReceiptWithBlockInfo(**data)
 
 
 class TransactionStatusResponseSchema(Schema):
@@ -359,7 +367,7 @@ class DeployAccountTransactionResponseSchema(SentTransactionSchema):
 
 class MessageStatusSchema(Schema):
     transaction_hash = NumberAsHex(data_key="transaction_hash", required=True)
-    finality_status = MessageFinalityStatusField(
+    finality_status = TransactionFinalityStatusField(
         data_key="finality_status", required=True
     )
     execution_status = ExecutionStatusField(data_key="execution_status", required=True)

@@ -32,7 +32,7 @@ from starknet_py.utils.constructor_args_translator import _is_abi_v2
 # pylint: disable=too-many-lines
 
 Hash = Union[int, str]
-Tag = Literal["pre_confirmed", "latest"]
+Tag = Literal["l1_accepted", "pre_confirmed", "latest"]
 LatestTag = Literal["latest"]
 
 
@@ -62,14 +62,21 @@ class Event:
 
 
 @dataclass
-class EmittedEvent(Event):
+class _EmittedEventBase(Event):
+    transaction_hash: int
+
+
+@dataclass
+class _EmittedEventDefaultBase(Event):
+    block_hash: Optional[int] = None
+    block_number: Optional[int] = None
+
+
+@dataclass
+class EmittedEvent(_EmittedEventDefaultBase, _EmittedEventBase):
     """
     Dataclass representing an event emitted by transaction.
     """
-
-    transaction_hash: int
-    block_hash: Optional[int] = None
-    block_number: Optional[int] = None
 
 
 @dataclass
@@ -402,6 +409,17 @@ class TransactionStatus(Enum):
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
 
+class TransactionStatusWithoutL1(Enum):
+    """
+    Enum representing transaction statuses.
+    """
+
+    RECEIVED = "RECEIVED"
+    CANDIDATE = "CANDIDATE"
+    PRE_CONFIRMED = "PRE_CONFIRMED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
+
+
 class TransactionExecutionStatus(Enum):
     """
     Enum representing transaction execution statuses.
@@ -419,6 +437,15 @@ class TransactionFinalityStatus(Enum):
     PRE_CONFIRMED = "PRE_CONFIRMED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
+
+
+class TransactionFinalityStatusWithoutL1(Enum):
+    """
+    Enum representing transaction finality statuses, without ACCEPTED_ON_L1 status.
+    """
+
+    PRE_CONFIRMED = "PRE_CONFIRMED"
+    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
 
 
 @dataclass
@@ -461,13 +488,20 @@ class TransactionReceipt:
     events: List[Event] = field(default_factory=list)
     messages_sent: List[L2toL1Message] = field(default_factory=list)
 
-    block_number: Optional[int] = None
-    block_hash: Optional[int] = None
-
     contract_address: Optional[int] = None  # DEPLOY_ACCOUNT_TXN_RECEIPT only
     message_hash: Optional[int] = None  # L1_HANDLER_TXN_RECEIPT only
 
     revert_reason: Optional[str] = None
+
+
+@dataclass
+class TransactionReceiptWithBlockInfo(TransactionReceipt):
+    """
+    Dataclass representing details of sent transaction with additional block info.
+    """
+
+    block_number: int = 0
+    block_hash: Optional[int] = None
 
 
 @dataclass
@@ -510,7 +544,6 @@ class BlockStatus(Enum):
     """
 
     PRE_CONFIRMED = "PRE_CONFIRMED"
-    REJECTED = "REJECTED"
     ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
     ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
 
@@ -1204,19 +1237,10 @@ class StorageProofResponse:
     global_roots: GlobalRoots
 
 
-class MessageFinalityStatus(Enum):
-    """
-    Enum representing transaction statuses.
-    """
-
-    ACCEPTED_ON_L2 = "ACCEPTED_ON_L2"
-    ACCEPTED_ON_L1 = "ACCEPTED_ON_L1"
-
-
 @dataclass
 class MessageStatus:
     transaction_hash: int
-    finality_status: MessageFinalityStatus
+    finality_status: TransactionFinalityStatus
     execution_status: TransactionExecutionStatus
     failure_reason: Optional[str] = None
 
@@ -1254,3 +1278,17 @@ class OutsideExecution:
                 for call in self.calls
             ],
         }
+
+
+@dataclass
+class _EmittedEventWithFinalityStatus:
+    finality_status: TransactionFinalityStatus
+
+
+@dataclass
+class EmittedEventWithFinalityStatus(
+    _EmittedEventDefaultBase, _EmittedEventWithFinalityStatus, _EmittedEventBase
+):
+    """
+    Dataclass representing an event emitted by transaction.
+    """
