@@ -2,13 +2,14 @@ Migration guide
 ===============
 
 ***************************
-x.y.z Migration guide
+0.29.0-rc.1 Migration guide
 ***************************
 
-x.y.z Bugfixes
---------------
+0.29.0-rc.1 Bugfixes
+--------------------
 
 1. Fixed parsing ABI that contains signed integers (e.g. ``i128``).
+2. Fixed logic for choosing hash method used to calculated CASM class hash.
 
 ***************************
 0.29.0-rc.0 Migration guide
