@@ -23,7 +23,6 @@ dependencies = [
     "eth-keyfile>=0.8.1,<1.0.0",
     "eth-keys==0.7.0",
     "websockets>=15.0.1,<16.0.0",
-    "semver>=3.0.0,<4.0.0",
 ]
 
 [project.optional-dependencies]

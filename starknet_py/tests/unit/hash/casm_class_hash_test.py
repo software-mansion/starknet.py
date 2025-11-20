@@ -2,11 +2,7 @@
 import pytest
 
 from starknet_py.common import create_casm_class
-from starknet_py.hash.casm_class_hash import (
-    compute_casm_class_hash,
-    get_casm_hash_method_for_rpc_version,
-)
-from starknet_py.hash.hash_method import HashMethod
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.tests.e2e.fixtures.constants import PRECOMPILED_CONTRACTS_DIR
 from starknet_py.tests.e2e.fixtures.misc import (
     ContractVersion,
@@ -55,24 +51,7 @@ def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_s
 
 
 @pytest.mark.parametrize(
-    "rpc_version, expected_hash_method",
-    [
-        ("0.8.0", HashMethod.POSEIDON),
-        ("0.9.0", HashMethod.POSEIDON),
-        ("0.9.1", HashMethod.POSEIDON),
-        ("0.10.0", HashMethod.BLAKE2S),
-        ("0.10.1", HashMethod.BLAKE2S),
-        ("0.11.0", HashMethod.BLAKE2S),
-        ("1.0.0", HashMethod.BLAKE2S),
-    ],
-)
-def test_get_casm_hash_method_for_rpc_version(rpc_version, expected_hash_method):
-    """Test that the correct hash method is returned for different RPC versions."""
-    hash_method = get_casm_hash_method_for_rpc_version(rpc_version)
-    assert hash_method == expected_hash_method
-
-@pytest.mark.parametrize(
-    "contract, expected_casm_class_hash_blake2s",
+    "contract, expected_casm_class_hash",
     [
         ("Account", 0x714c833f7b359955f6a4a495ba995cca2114158db2178aff587f643daa19c80),
         ("ERC20", 0x44312efaec9c719168eee3586314b01ed7a1fd7e31d3cf0c5a17e0a5b4fbe7d),
@@ -81,18 +60,17 @@ def test_get_casm_hash_method_for_rpc_version(rpc_version, expected_hash_method)
         ("TokenBridge", 0x6409448fd244060b15748b02b6e0bdb185d5271be231492ca33a7147e43994c),
     ],
 )
-
-def test_compute_casm_class_hash_with_blake2s(contract, expected_casm_class_hash_blake2s):
+def test_compute_casm_class_hash(contract, expected_casm_class_hash):
     casm_contract_class_str = load_contract(
         contract, version=ContractVersion.V2
     )['casm']
 
     casm_class = create_casm_class(casm_contract_class_str)
-    casm_class_hash = compute_casm_class_hash(casm_class, hash_method=HashMethod.BLAKE2S)
-    assert casm_class_hash == expected_casm_class_hash_blake2s
+    casm_class_hash = compute_casm_class_hash(casm_class)
+    assert casm_class_hash == expected_casm_class_hash
 
 @pytest.mark.parametrize(
-    "casm_contract_class_source, expected_casm_class_hash_blake2s",
+    "casm_contract_class_source, expected_casm_class_hash",
     [
         ("minimal_contract_compiled_v2_1.casm",
          0x195cfeec43b384e0f0ec83937149a1a4d88571772b2806ed7e4f41a1ecb4c74),
@@ -101,11 +79,11 @@ def test_compute_casm_class_hash_with_blake2s(contract, expected_casm_class_hash
         ("starknet_contract_v2_6.casm", 0xf8c27dd667e50ba127e5e0e469381606ffece27d8c5148548b6bbc4cacf717),
     ],
 )
-def test_precompiled_compute_casm_class_hash_with_blake2s(casm_contract_class_source, expected_casm_class_hash_blake2s):
+def test_precompiled_compute_casm_class_hash(casm_contract_class_source, expected_casm_class_hash):
     casm_contract_class_str = read_contract(
         casm_contract_class_source, directory=PRECOMPILED_CONTRACTS_DIR
     )
 
     casm_class = create_casm_class(casm_contract_class_str)
-    casm_class_hash = compute_casm_class_hash(casm_class, hash_method=HashMethod.BLAKE2S)
-    assert casm_class_hash == expected_casm_class_hash_blake2s
+    casm_class_hash = compute_casm_class_hash(casm_class)
+    assert casm_class_hash == expected_casm_class_hash
