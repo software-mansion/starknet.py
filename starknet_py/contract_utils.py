@@ -2,6 +2,7 @@ from typing import Optional, Tuple, Union
 
 from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
 
@@ -9,6 +10,7 @@ from starknet_py.net.client import Client
 def _extract_compiled_class_hash(
     compiled_contract_casm: Optional[str] = None,
     compiled_class_hash: Optional[int] = None,
+    hash_method: HashMethod = HashMethod.BLAKE2S,
 ) -> int:
     if compiled_class_hash is None and compiled_contract_casm is None:
         raise ValueError(
@@ -19,7 +21,7 @@ def _extract_compiled_class_hash(
     if compiled_class_hash is None:
         assert compiled_contract_casm is not None
         compiled_class_hash = compute_casm_class_hash(
-            create_casm_class(compiled_contract_casm)
+            create_casm_class(compiled_contract_casm), hash_method=hash_method
         )
 
     return compiled_class_hash

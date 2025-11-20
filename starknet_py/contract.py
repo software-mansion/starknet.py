@@ -7,6 +7,7 @@ from functools import cached_property
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from marshmallow import ValidationError
+from semver import Version
 
 from starknet_py.abi.v0 import Abi as AbiV0
 from starknet_py.abi.v0 import AbiParser as AbiParserV0
@@ -23,6 +24,7 @@ from starknet_py.abi.v2.shape import (
 from starknet_py.common import create_compiled_contract, create_sierra_compiled_contract
 from starknet_py.constants import DEFAULT_DEPLOYER_ADDRESS
 from starknet_py.contract_utils import _extract_compiled_class_hash, _unpack_provider
+from starknet_py.hash.casm_class_hash import get_casm_hash_method_for_starknet_version
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client import Client
@@ -721,8 +723,12 @@ class Contract:
         :return: DeclareResult instance.
         """
 
+        block = await account.client.get_block()
+        starknet_version = Version.parse(block.starknet_version)
+        hash_method = get_casm_hash_method_for_starknet_version(starknet_version)
+
         compiled_class_hash = _extract_compiled_class_hash(
-            compiled_contract_casm, compiled_class_hash
+            compiled_contract_casm, compiled_class_hash, hash_method=hash_method
         )
 
         declare_tx = await account.sign_declare_v3(

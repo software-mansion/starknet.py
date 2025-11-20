@@ -2,6 +2,12 @@ Migration guide
 ===============
 
 ***************************
+0.28.1 Migration guide
+***************************
+
+1. This version adds support for Blake hash, in order to allow compatibility for Starknet versions >= 0.14.1.
+
+***************************
 0.28.0 Migration guide
 ***************************
 
