@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
 from starknet_py.contract import Contract, PreparedFunctionInvokeV3
@@ -6,6 +8,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import Call, ResourceBounds, ResourceBoundsMapping
 from starknet_py.net.models import InvokeV3
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import transaction_mock_with_tip
 
 
 @pytest.mark.asyncio
@@ -77,6 +80,56 @@ async def test_throws_when_invoke_v3_with_resource_bounds_and_auto_estimate(
         await prepared_invoke.invoke(
             resource_bounds=MAX_RESOURCE_BOUNDS, auto_estimate=True
         )
+
+
+@pytest.mark.asyncio
+async def test_throws_when_invoke_v3_with_tip_and_auto_estimate_tip(map_contract):
+    error_message = "Arguments tip and auto_estimate_tip are mutually exclusive."
+
+    prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=2, value=3)
+    with pytest.raises(ValueError, match=error_message):
+        await prepared_invoke.invoke(
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+            tip=12345,
+            auto_estimate_tip=True,
+        )
+
+
+@pytest.mark.asyncio
+async def test_default_tip_is_zero(map_contract):
+    prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=2, value=3)
+    result = await prepared_invoke.invoke(
+        resource_bounds=MAX_RESOURCE_BOUNDS,
+    )
+    assert result.invoke_transaction.tip == 0
+
+
+@pytest.mark.asyncio
+async def test_provided_tip_is_used(map_contract):
+    prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(key=2, value=3)
+    result = await prepared_invoke.invoke(
+        resource_bounds=MAX_RESOURCE_BOUNDS, tip=11223344
+    )
+    assert result.invoke_transaction.tip == 11223344
+
+
+@pytest.mark.asyncio
+async def test_auto_estimate_tip_is_used(
+    map_contract, get_block_with_txs_path, block_with_tips_mock
+):
+    with patch(get_block_with_txs_path, AsyncMock()) as get_block_with_txs_mock:
+        block_with_tips_mock.transactions = [transaction_mock_with_tip(1000)]
+        get_block_with_txs_mock.return_value = block_with_tips_mock
+
+        prepared_invoke = map_contract.functions["put"].prepare_invoke_v3(
+            key=2, value=3
+        )
+        result = await prepared_invoke.invoke(
+            resource_bounds=MAX_RESOURCE_BOUNDS,
+            auto_estimate_tip=True,
+        )
+
+    assert result.invoke_transaction.tip == 1000
 
 
 @pytest.mark.asyncio

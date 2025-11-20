@@ -60,19 +60,19 @@ Every time a transaction status changes, the event will be fired.
     :end-before: docs-end: subscribe_transaction_status
 
 
-Pending transactions
+Transaction Receipts
 ####################
 
-To subscribe to pending transactions, use :meth:`~starknet_py.net.websockets.websocket_client.WebsocketClient.subscribe_pending_transactions`.
-Every time a new pending transaction is added, the event will be fired.
+To subscribe to new transaction receipts, use :meth:`~starknet_py.net.websockets.websocket_client.WebsocketClient.subscribe_new_transaction_receipts`.
+Every time a new transaction receipt is created, the event will be fired.
 
-It's possible to filter pending transactions by sender address.
+It's possible to filter new transaction receipts by finality status and sender address.
 
 .. codesnippet:: ../../starknet_py/tests/e2e/docs/code_examples/test_websocket_client.py
     :language: python
     :dedent: 4
-    :start-after: docs-start: subscribe_pending_transactions
-    :end-before: docs-end: subscribe_pending_transactions
+    :start-after: docs-start: subscribe_new_transaction_receipts
+    :end-before: docs-end: subscribe_new_transaction_receipts
 
 Handling chain reorganization notifications
 ###########################################

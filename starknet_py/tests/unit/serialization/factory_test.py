@@ -64,6 +64,7 @@ user_serializer = StructSerializer(
         name_len=FeltSerializer(),
         name=ArraySerializer(FeltSerializer()),
         pool_id=pool_id_serializer,
+        favorite_numbers_triplet=ArraySerializer(FeltSerializer()),
     )
 )
 

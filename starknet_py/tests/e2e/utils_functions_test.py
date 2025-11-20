@@ -1,6 +1,6 @@
 import pytest
 
-from starknet_py.constants import FEE_CONTRACT_ADDRESS
+from starknet_py.constants import ETH_FEE_CONTRACT_ADDRESS
 from starknet_py.net.full_node_client import _is_valid_eth_address
 from starknet_py.net.networks import default_token_address_for_network
 
@@ -13,10 +13,10 @@ def test_is_valid_eth_address():
 
 def test_default_token_address_for_network():
     res = default_token_address_for_network("mainnet")
-    assert res == FEE_CONTRACT_ADDRESS
+    assert res == ETH_FEE_CONTRACT_ADDRESS
 
     res = default_token_address_for_network("sepolia")
-    assert res == FEE_CONTRACT_ADDRESS
+    assert res == ETH_FEE_CONTRACT_ADDRESS
 
     with pytest.raises(
         ValueError,
