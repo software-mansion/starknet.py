@@ -1,5 +1,6 @@
 # fmt: off
 import pytest
+from semver import Version
 
 from starknet_py.common import create_casm_class
 from starknet_py.hash.casm_class_hash import (
@@ -55,7 +56,7 @@ def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_s
 
 
 @pytest.mark.parametrize(
-    "rpc_version, expected_hash_method",
+    "starknet_version, expected_hash_method",
     [
         ("0.13.5", HashMethod.POSEIDON),
         ("0.14.0", HashMethod.POSEIDON),
@@ -65,9 +66,10 @@ def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_s
         ("1.10.0", HashMethod.BLAKE2S),
     ],
 )
-def test_get_casm_hash_method_for_starknet_version(rpc_version, expected_hash_method):
+def test_get_casm_hash_method_for_starknet_version(starknet_version, expected_hash_method):
     """Test that the correct hash method is returned for different Starknet versions."""
-    hash_method = get_casm_hash_method_for_starknet_version(rpc_version)
+    starknet_version = Version.parse(starknet_version)
+    hash_method = get_casm_hash_method_for_starknet_version(starknet_version)
     assert hash_method == expected_hash_method
 
 
