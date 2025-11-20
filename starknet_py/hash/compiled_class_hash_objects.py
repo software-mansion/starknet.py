@@ -4,9 +4,10 @@
 import dataclasses
 import itertools
 from abc import ABC, abstractmethod
-from typing import Any, List, Union
+from typing import TYPE_CHECKING, Any, List, Union
 
-from poseidon_py.poseidon_hash import poseidon_hash_many
+if TYPE_CHECKING:
+    from starknet_py.hash.hash_method import HashMethod
 
 
 class BytecodeSegmentStructure(ABC):
@@ -17,9 +18,11 @@ class BytecodeSegmentStructure(ABC):
     """
 
     @abstractmethod
-    def hash(self) -> int:
+    def hash(self, hash_method: "HashMethod") -> int:
         """
         Computes the hash of the node.
+
+        :param hash_method: Hash method to use.
         """
 
     def bytecode_with_skipped_segments(self):
@@ -46,8 +49,8 @@ class BytecodeLeaf(BytecodeSegmentStructure):
 
     data: List[int]
 
-    def hash(self) -> int:
-        return poseidon_hash_many(self.data)
+    def hash(self, hash_method: "HashMethod") -> int:
+        return hash_method.hash_many(self.data)
 
     def add_bytecode_with_skipped_segments(self, data: List[int]):
         data.extend(self.data)
@@ -62,14 +65,19 @@ class BytecodeSegmentedNode(BytecodeSegmentStructure):
 
     segments: List["BytecodeSegment"]
 
-    def hash(self) -> int:
+    def hash(self, hash_method: "HashMethod") -> int:
         return (
-            poseidon_hash_many(
-                itertools.chain(  # pyright: ignore
-                    *[
-                        (node.segment_length, node.inner_structure.hash())
-                        for node in self.segments
-                    ]
+            hash_method.hash_many(
+                list(
+                    itertools.chain(
+                        *[
+                            (
+                                node.segment_length,
+                                node.inner_structure.hash(hash_method),
+                            )
+                            for node in self.segments
+                        ]
+                    )
                 )
             )
             + 1

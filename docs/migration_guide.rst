@@ -2,6 +2,21 @@ Migration guide
 ===============
 
 ***************************
+0.28.1 Migration guide
+***************************
+
+1. This version adds support for Blake hash, in order to allow compatibility for Starknet versions >= 0.14.1.
+
+0.28.1 Breaking changes
+-----------------------
+
+.. py:currentmodule:: starknet_py.hash.compiled_class_hash_objects
+
+1. :meth:`BytecodeSegmentStructure.hash` has new param ``hash_method``.
+2. :meth:`BytecodeLeaf.hash` has new param ``hash_method``.
+3. :meth:`BytecodeSegmentedNode.hash` has new param ``hash_method``.
+
+***************************
 0.28.0 Migration guide
 ***************************
 
