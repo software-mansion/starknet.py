@@ -114,7 +114,6 @@ class FullNodeClient(Client):
         """
         self.url = node_url
         self._client = RpcHttpClient(url=node_url, session=session)
-        self._starknet_version: Optional[Version] = None
 
     async def get_block(
         self,
