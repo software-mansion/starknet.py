@@ -52,7 +52,7 @@ def test_circular_imports_present():
 
     error_regex = (
         rf"cannot import name 'B' from '{PACKAGE_NAME}.temp_module.file_b' (.*"
-        rf"/{PACKAGE_NAME}/temp_module/file_b.py)"
+        rf"{PACKAGE_NAME}/temp_module/file_b.py)"
     )
     with pytest.raises(ImportError, match=error_regex):
         assert_no_circular_imports()
@@ -73,7 +73,7 @@ def test_circular_imports_present_with_relative_imports():
 
     error_regex = (
         rf"cannot import name 'B' from '{PACKAGE_NAME}.temp_module.file_b' (.*"
-        rf"/{PACKAGE_NAME}/temp_module/file_b.py)"
+        rf"{PACKAGE_NAME}/temp_module/file_b.py)"
     )
     with pytest.raises(ImportError, match=error_regex):
         assert_no_circular_imports()
