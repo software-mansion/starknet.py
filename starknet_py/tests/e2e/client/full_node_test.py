@@ -8,6 +8,7 @@ from starknet_py.common import create_casm_class
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.account.account import Account
@@ -522,7 +523,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     )
 
     casm_class = create_casm_class(contract["casm"])
-    casm_class_hash = compute_casm_class_hash(casm_class)
+    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
 
     declare_v3_tx = await account.sign_declare_v3(
         compiled_contract=contract["sierra"],

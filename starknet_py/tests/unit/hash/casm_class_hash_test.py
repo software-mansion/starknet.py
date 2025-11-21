@@ -32,7 +32,7 @@ def test_compute_casm_class_hash_with_poseidon(contract, expected_casm_class_has
     )['casm']
 
     casm_class = create_casm_class(casm_contract_class_str)
-    casm_class_hash = compute_casm_class_hash(casm_class)
+    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     assert casm_class_hash == expected_casm_class_hash_poseidon
 
 @pytest.mark.parametrize(
@@ -51,7 +51,7 @@ def test_precompiled_compute_casm_class_hash_with_poseidon(casm_contract_class_s
     )
 
     casm_class = create_casm_class(casm_contract_class_str)
-    casm_class_hash = compute_casm_class_hash(casm_class)
+    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     assert casm_class_hash == expected_casm_class_hash_poseidon
 
 
