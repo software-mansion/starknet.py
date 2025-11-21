@@ -8,6 +8,7 @@ from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.common import create_casm_class, create_sierra_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
@@ -18,7 +19,7 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 async def declare_contract(
     account: BaseAccount, compiled_contract: str, compiled_contract_casm: str
 ) -> Tuple[int, int]:
-    casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm))
+    casm_class_hash = compute_casm_class_hash(create_casm_class(compiled_contract_casm), HashMethod.POSEIDON)
 
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
@@ -66,7 +67,7 @@ def constructor_with_arguments_abi() -> List:
 @pytest_asyncio.fixture(scope="package")
 async def declare_v3_hello_starknet(account: BaseAccount) -> DeclareV3:
     contract = load_contract("HelloStarknet")
-    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON)
 
     declare_tx = await account.sign_declare_v3(
         contract["sierra"], casm_class_hash, resource_bounds=MAX_RESOURCE_BOUNDS
@@ -232,7 +233,7 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
     return (
         contract["sierra"],
-        compute_casm_class_hash(create_casm_class(contract["casm"])),
+        compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON),
     )
 
 
@@ -242,7 +243,7 @@ def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
 
     return (
         contract["sierra"],
-        compute_casm_class_hash(create_casm_class(contract["casm"])),
+        compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON),
     )
 
 
@@ -252,7 +253,7 @@ def map_compiled_contract_and_class_hash_copy_2() -> Tuple[str, int]:
 
     return (
         contract["sierra"],
-        compute_casm_class_hash(create_casm_class(contract["casm"])),
+        compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON),
     )
 
 
@@ -304,7 +305,7 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
     return (
         contract["sierra"],
-        compute_casm_class_hash(create_casm_class(contract["casm"])),
+        compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON),
     )
 
 
@@ -317,7 +318,7 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
     return (
         contract["sierra"],
-        compute_casm_class_hash(create_casm_class(contract["casm"])),
+        compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON),
     )
 
 
@@ -349,7 +350,7 @@ async def account_declare_class_hash(
     """
 
     casm_class = create_casm_class(compiled_account_contract_casm)
-    casm_class_hash = compute_casm_class_hash(casm_class)
+    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     declare_v3_transaction = await account.sign_declare_v3(
         compiled_contract=compiled_account_contract,
         compiled_class_hash=casm_class_hash,
@@ -365,7 +366,7 @@ async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
     contract = load_contract("Account")
-    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]), HashMethod.POSEIDON)
 
     return await declare_account(
         pre_deployed_account_with_validate_deploy, contract["sierra"], casm_class_hash

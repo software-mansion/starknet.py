@@ -8,6 +8,7 @@ from starknet_py.common import create_casm_class
 from starknet_py.constants import ARGENT_V040_CLASS_HASH
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
@@ -757,7 +758,7 @@ async def test_declare_v3_with_tip(account):
     tip = 12345
     signed_tx = await account.sign_declare_v3(
         compiled_contract["sierra"],
-        compute_casm_class_hash(create_casm_class(compiled_contract["casm"])),
+        compute_casm_class_hash(create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON),
         resource_bounds=MAX_RESOURCE_BOUNDS,
         tip=tip,
     )
@@ -780,7 +781,7 @@ async def test_declare_v3_auto_estimate_tip(
         mocked_block_with_txs.return_value = block_with_tips_mock
         signed_tx = await account.sign_declare_v3(
             compiled_contract["sierra"],
-            compute_casm_class_hash(create_casm_class(compiled_contract["casm"])),
+            compute_casm_class_hash(create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON),
             resource_bounds=MAX_RESOURCE_BOUNDS,
             auto_estimate_tip=True,
         )
