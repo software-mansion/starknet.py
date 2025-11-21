@@ -403,6 +403,16 @@ async def test_get_block_new_header_fields(client_sepolia_testnet):
     assert block.starknet_version is not None
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
+    assert block.event_commitment is not None
+    assert block.transaction_commitment is not None
+    assert block.receipt_commitment is not None
+    assert block.state_diff_commitment is not None
+    assert block.event_count is not None
+    assert block.transaction_count is not None
+    assert block.state_diff_length is not None
+    assert block.event_count >= 0
+    assert block.transaction_count >= 0
+    assert block.state_diff_length >= 0
 
     pre_confirmed_block = await client_sepolia_testnet.get_block_with_txs(
         block_number="pre_confirmed"
@@ -422,6 +432,16 @@ async def test_get_block_with_tx_hashes_new_header_fields(client_sepolia_testnet
     assert block.starknet_version is not None
     assert block.l1_gas_price is not None
     assert block.l1_gas_price.price_in_wei > 0
+    assert block.event_commitment is not None
+    assert block.transaction_commitment is not None
+    assert block.receipt_commitment is not None
+    assert block.state_diff_commitment is not None
+    assert block.event_count is not None
+    assert block.transaction_count is not None
+    assert block.state_diff_length is not None
+    assert block.event_count >= 0
+    assert block.transaction_count >= 0
+    assert block.state_diff_length >= 0
 
     pre_confirmed_block = await client_sepolia_testnet.get_block_with_tx_hashes(
         block_number="pre_confirmed"

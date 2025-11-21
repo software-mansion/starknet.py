@@ -82,9 +82,15 @@ class BlockHeaderSchema(Schema):
     transaction_commitment = Felt(data_key="transaction_commitment", required=True)
     receipt_commitment = Felt(data_key="receipt_commitment", required=True)
     state_diff_commitment = Felt(data_key="state_diff_commitment", required=True)
-    event_count = fields.Integer(data_key="event_count", required=True, validate=validate.Range(min=0))
-    transaction_count = fields.Integer(data_key="transaction_count", required=True, validate=validate.Range(min=0))
-    state_diff_length = fields.Integer(data_key="state_diff_length", required=True, validate=validate.Range(min=0))
+    event_count = fields.Integer(
+        data_key="event_count", required=True, validate=validate.Range(min=0)
+    )
+    transaction_count = fields.Integer(
+        data_key="transaction_count", required=True, validate=validate.Range(min=0)
+    )
+    state_diff_length = fields.Integer(
+        data_key="state_diff_length", required=True, validate=validate.Range(min=0)
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockHeader:
