@@ -2,6 +2,16 @@ Migration guide
 ===============
 
 ***************************
+0.29.0-rc.1 Migration guide
+***************************
+
+0.29.0-rc.1 Bugfixes
+--------------------
+
+1. Fixed parsing ABI that contains signed integers (e.g. ``i128``).
+2. Fixed logic for choosing hash method used in CASM class hash computation.
+
+***************************
 0.29.0-rc.0 Migration guide
 ***************************
 
@@ -14,6 +24,26 @@ Version 0.29.0-rc.0 of **starknet.py** comes with support for RPC 0.10.0-rc.1.
 3. ``old_root`` field in :class:`PreConfirmedBlockStateUpdate` is now optional.
 4. Hash function for contract declaration is now automatically selected based on node's RPC version: Blake2s for RPC >= 0.10.0-rc.0, Poseidon for older versions.
 5. :class:`EmittedEvent` has new fields: ``transaction_index`` and ``event_index``.
+
+***************************
+0.28.1 Migration guide
+***************************
+
+1. This version adds support for Blake hash used in CASM class hash computation.
+
+0.28.1 Targeted versions
+------------------------
+- Starknet - `0.14.0 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-0-september-1>`_ and `0.14.1 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-1-tbd>`_
+- RPC - `0.9.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.9.0>`_
+
+0.28.1 Breaking changes
+-----------------------
+
+.. py:currentmodule:: starknet_py.hash.compiled_class_hash_objects
+
+1. :meth:`BytecodeSegmentStructure.hash` has new param ``hash_method``.
+2. :meth:`BytecodeLeaf.hash` has new param ``hash_method``.
+3. :meth:`BytecodeSegmentedNode.hash` has new param ``hash_method``.
 
 ***************************
 0.28.0 Migration guide
@@ -481,6 +511,7 @@ This version of starknet.py requires Python 3.9 as a minimum version.
 ******************************
 0.24.1 Migration guide
 ******************************
+
 This version contains a quick fix to parsing ABI for Cairo v2 contracts. Due to new release of compiler, ``u96`` is now compiled to `BoundedInt` in ABI.
 
 0.24.1 Minor changes
