@@ -1,6 +1,13 @@
 Migration guide
 ===============
 
+****************************
+<unreleased> Migration guide
+****************************
+
+Version <unreleased> changes the supported Python version.
+The **lowest** supported version Python is now 3.10.
+
 ***************************
 0.29.0-rc.1 Migration guide
 ***************************
