@@ -758,7 +758,9 @@ async def test_declare_v3_with_tip(account):
     tip = 12345
     signed_tx = await account.sign_declare_v3(
         compiled_contract["sierra"],
-        compute_casm_class_hash(create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON),
+        compute_casm_class_hash(
+            create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON
+        ),
         resource_bounds=MAX_RESOURCE_BOUNDS,
         tip=tip,
     )
@@ -781,7 +783,9 @@ async def test_declare_v3_auto_estimate_tip(
         mocked_block_with_txs.return_value = block_with_tips_mock
         signed_tx = await account.sign_declare_v3(
             compiled_contract["sierra"],
-            compute_casm_class_hash(create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON),
+            compute_casm_class_hash(
+                create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON
+            ),
             resource_bounds=MAX_RESOURCE_BOUNDS,
             auto_estimate_tip=True,
         )
