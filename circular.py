@@ -52,7 +52,8 @@ def _run_circular_import_test(module_name, import_a, import_b):
             assert_no_circular_imports()
     finally:
         # Clean up temporary files
-        shutil.rmtree(module_path, ignore_errors=True)
+        if os.path.exists(module_path):
+            shutil.rmtree(module_path)
         sys.modules.pop(f"{PACKAGE_NAME}.{module_name}.file_a", None)
         sys.modules.pop(f"{PACKAGE_NAME}.{module_name}.file_b", None)
         sys.modules.pop(f"{PACKAGE_NAME}.{module_name}", None)
