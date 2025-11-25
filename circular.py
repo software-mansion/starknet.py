@@ -19,7 +19,6 @@ def assert_no_circular_imports():
     for path, _, files in os.walk(PACKAGE_NAME):
         py_files = [f for f in files if f.endswith(".py")]
         for file in py_files:
-
             file_path = os.path.join(path, file)
 
             relative_path = os.path.relpath(file_path, PACKAGE_NAME)
