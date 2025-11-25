@@ -17,11 +17,9 @@ from starknet_py.net.executable_models import CasmClass
 CASM_CLASS_VERSION = "COMPILED_CLASS_V1"
 
 
-def get_casm_hash_method_for_rpc_version(rpc_version: str) -> HashMethod:
-    # RPC 0.10.0 and later use Blake2s
-    version = Version.parse(rpc_version)
-
-    if version >= Version.parse("0.10.0"):
+def get_casm_hash_method_for_starknet_version(starknet_version: Version) -> HashMethod:
+    # Starknet 0.14.1 and later use Blake2s
+    if starknet_version >= Version.parse("0.14.1"):
         return HashMethod.BLAKE2S
 
     return HashMethod.POSEIDON
