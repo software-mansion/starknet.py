@@ -34,56 +34,46 @@ def test_circular_imports_absent():
     assert_no_circular_imports()
 
 
-def test_circular_imports_present():
-    # Create temporary files which cause circular imports
-    os.makedirs(f"{PACKAGE_NAME}/module_x", exist_ok=True)
+def _run_circular_import_test(module_name, import_a, import_b):
+    module_path = f"{PACKAGE_NAME}/{module_name}"
+    os.makedirs(module_path, exist_ok=True)
     try:
-        with open(f"{PACKAGE_NAME}/module_x/__init__.py", "w") as f:
+        with open(f"{module_path}/__init__.py", "w") as f:
             f.write("")
-        with open(f"{PACKAGE_NAME}/module_x/file_a.py", "w") as f:
-            f.write(
-                f"from {PACKAGE_NAME}.module_x.file_b import B\nclass A:\n    pass\n"
-            )
-        with open(f"{PACKAGE_NAME}/module_x/file_b.py", "w") as f:
-            f.write(
-                f"from {PACKAGE_NAME}.module_x.file_a import A\nclass B:\n    pass\n"
-            )
-
+        with open(f"{module_path}/file_a.py", "w") as f:
+            f.write(f"{import_a}\nclass A:\n    pass\n")
+        with open(f"{module_path}/file_b.py", "w") as f:
+            f.write(f"{import_b}\nclass B:\n    pass\n")
         error_regex = (
-            rf"cannot import name 'B' from '{PACKAGE_NAME}.module_x.file_b' (.*"
-            rf"{PACKAGE_NAME}[\\/]+module_x[\\/]+file_b\.py)"
+            rf"cannot import name 'B' from '{PACKAGE_NAME}.{module_name}.file_b' (.*"
+            rf"{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_b\.py)"
         )
         with pytest.raises(ImportError, match=error_regex):
             assert_no_circular_imports()
     finally:
         # Clean up temporary files
-        shutil.rmtree(f"{PACKAGE_NAME}/module_x")
-        sys.modules.pop(f"{PACKAGE_NAME}.module_x.file_a", None)
-        sys.modules.pop(f"{PACKAGE_NAME}.module_x.file_b", None)
-        sys.modules.pop(f"{PACKAGE_NAME}.module_x", None)
+        shutil.rmtree(module_path)
+        sys.modules.pop(f"{PACKAGE_NAME}.{module_name}.file_a", None)
+        sys.modules.pop(f"{PACKAGE_NAME}.{module_name}.file_b", None)
+        sys.modules.pop(f"{PACKAGE_NAME}.{module_name}", None)
+
+
+def test_circular_imports_present():
+    _run_circular_import_test(
+        "module_x",
+        f"from {PACKAGE_NAME}.module_x.file_b import B",
+        f"from {PACKAGE_NAME}.module_x.file_a import A",
+    )
 
 
 def test_circular_imports_present_with_relative_imports():
-    # In this case, we use relative imports
-    # Create temporary files which cause circular imports
-    os.makedirs(f"{PACKAGE_NAME}/module_y", exist_ok=True)
-    try:
-        with open(f"{PACKAGE_NAME}/module_y/__init__.py", "w") as f:
-            f.write("")
-        with open(f"{PACKAGE_NAME}/module_y/file_a.py", "w") as f:
-            f.write(f"from .file_b import B\nclass A:\n    pass\n")
-        with open(f"{PACKAGE_NAME}/module_y/file_b.py", "w") as f:
-            f.write(f"from .file_a import A\nclass B:\n    pass\n")
+    # This test verifies that circular import detection works correctly when the problematic modules use
+    # relative imports (e.g., `from .file_b import B`) rather than
+    # absolute imports (e.g., `from starknet_py.module.file_b import B`),
+    # which was tested in the previous test case.
 
-        error_regex = (
-            rf"cannot import name 'B' from '{PACKAGE_NAME}.module_y.file_b' (.*"
-            rf"{PACKAGE_NAME}[\\/]+module_y[\\/]+file_b\.py)"
-        )
-        with pytest.raises(ImportError, match=error_regex):
-            assert_no_circular_imports()
-    finally:
-        # Clean up temporary files
-        shutil.rmtree(f"{PACKAGE_NAME}/module_y")
-        sys.modules.pop(f"{PACKAGE_NAME}.module_y.file_a", None)
-        sys.modules.pop(f"{PACKAGE_NAME}.module_y.file_b", None)
-        sys.modules.pop(f"{PACKAGE_NAME}.module_y", None)
+    _run_circular_import_test(
+        "module_y",
+        "from .file_b import B",
+        "from .file_a import A",
+    )
