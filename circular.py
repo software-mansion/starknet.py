@@ -35,14 +35,14 @@ def test_circular_imports_absent():
 
 
 def _run_circular_import_test(module_name, import_a, import_b):
-    module_path = f"{PACKAGE_NAME}/{module_name}"
+    module_path = os.path.join(PACKAGE_NAME, module_name)
     os.makedirs(module_path, exist_ok=True)
     try:
-        with open(f"{module_path}/__init__.py", "w") as f:
+        with open(os.path.join(module_path, "__init__.py"), "w") as f:
             f.write("")
-        with open(f"{module_path}/file_a.py", "w") as f:
+        with open(os.path.join(module_path, "file_a.py"), "w") as f:
             f.write(f"{import_a}\nclass A:\n    pass\n")
-        with open(f"{module_path}/file_b.py", "w") as f:
+        with open(os.path.join(module_path, "file_b.py"), "w") as f:
             f.write(f"{import_b}\nclass B:\n    pass\n")
         error_regex = (
             rf"cannot import name 'B' from '{PACKAGE_NAME}.{module_name}.file_b' (.*"
@@ -52,7 +52,7 @@ def _run_circular_import_test(module_name, import_a, import_b):
             assert_no_circular_imports()
     finally:
         # Clean up temporary files
-        shutil.rmtree(module_path)
+        shutil.rmtree(module_path, ignore_errors=True)
         sys.modules.pop(f"{PACKAGE_NAME}.{module_name}.file_a", None)
         sys.modules.pop(f"{PACKAGE_NAME}.{module_name}.file_b", None)
         sys.modules.pop(f"{PACKAGE_NAME}.{module_name}", None)
