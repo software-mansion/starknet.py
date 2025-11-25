@@ -55,8 +55,11 @@ def _run_circular_import_test(module_name, import_a, import_b):
         with open(os.path.join(module_path, "file_b.py"), "w") as f:
             f.write(f"{import_b}\nclass B:\n    pass\n")
         error_regex = (
-            rf"cannot import name '[AB]' from '{PACKAGE_NAME}.{module_name}.file_[ab]' \(.*"
-            rf"{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_[ab]\.py\)"
+            rf"(?:"
+            rf"cannot import name 'A' from '{PACKAGE_NAME}.{module_name}.file_a' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_a\.py\)"
+            rf"|"
+            rf"cannot import name 'B' from '{PACKAGE_NAME}.{module_name}.file_b' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_b\.py\)"
+            rf")"
         )
         with pytest.raises(ImportError, match=error_regex):
             assert_no_circular_imports()
