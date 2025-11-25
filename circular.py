@@ -24,8 +24,19 @@ def assert_no_circular_imports():
 
             relative_path = os.path.relpath(file_path, PACKAGE_NAME)
             module_path_no_ext = relative_path.removesuffix(".py")
-            dotted_module_path = module_path_no_ext.replace(os.sep, ".")
-            module_name = f"{PACKAGE_NAME}.{dotted_module_path}"
+            # Handle __init__.py files specially
+            if module_path_no_ext.endswith("__init__"):
+                module_path_no_init = module_path_no_ext.removesuffix(
+                    "__init__"
+                ).rstrip(os.sep)
+                if not module_path_no_init:  # Top-level __init__.py
+                    module_name = PACKAGE_NAME
+                else:
+                    dotted_module_path = module_path_no_init.replace(os.sep, ".")
+                    module_name = f"{PACKAGE_NAME}.{dotted_module_path}"
+            else:
+                dotted_module_path = module_path_no_ext.replace(os.sep, ".")
+                module_name = f"{PACKAGE_NAME}.{dotted_module_path}"
 
             _import_from_path(module_name, file_path)
 
@@ -45,8 +56,8 @@ def _run_circular_import_test(module_name, import_a, import_b):
         with open(os.path.join(module_path, "file_b.py"), "w") as f:
             f.write(f"{import_b}\nclass B:\n    pass\n")
         error_regex = (
-            rf"cannot import name 'B' from '{PACKAGE_NAME}.{module_name}.file_b' (.*"
-            rf"{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_b\.py)"
+            rf"cannot import name '[AB]' from '{PACKAGE_NAME}.{module_name}.file_[ab]' \(.*"
+            rf"{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_[ab]\.py\)"
         )
         with pytest.raises(ImportError, match=error_regex):
             assert_no_circular_imports()
