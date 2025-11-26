@@ -40,7 +40,7 @@ body:
     id: python-version
     attributes:
       label: Python version
-      description: What version of Python are you using? Note that the currently supported Python version is 3.9.
+      description: What version of Python are you using? Note that the lowest currently supported Python version is 3.10.
     validations:
       required: true
 
