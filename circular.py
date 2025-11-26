@@ -28,9 +28,9 @@ def assert_no_circular_imports():
                 module_path_no_init = module_path_no_ext.removesuffix(
                     "__init__"
                 ).rstrip(os.sep)
-                if (
-                    not module_path_no_init
-                ):  # Top-level __init__.py gives empty module path
+
+                # Top-level __init__.py gives empty module path
+                if not module_path_no_init:
                     module_name = PACKAGE_NAME
                 else:
                     dotted_module_path = module_path_no_init.replace(os.sep, ".")
