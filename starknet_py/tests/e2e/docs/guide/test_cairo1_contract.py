@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.net.client_models import SierraContractClass
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
