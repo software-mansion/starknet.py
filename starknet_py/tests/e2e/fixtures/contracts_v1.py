@@ -20,6 +20,7 @@ async def declare_contract(
     account: BaseAccount, compiled_contract: str, compiled_contract_casm: str
 ) -> Tuple[int, int]:
     casm_class_hash = compute_casm_class_hash(
+        # TODO(#1659)
         create_casm_class(compiled_contract_casm), HashMethod.POSEIDON
     )
 
@@ -70,6 +71,7 @@ def constructor_with_arguments_abi() -> List:
 async def declare_v3_hello_starknet(account: BaseAccount) -> DeclareV3:
     contract = load_contract("HelloStarknet")
     casm_class_hash = compute_casm_class_hash(
+        # TODO(#1659)
         create_casm_class(contract["casm"]), HashMethod.POSEIDON
     )
 
@@ -238,6 +240,7 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
     return (
         contract["sierra"],
         compute_casm_class_hash(
+            # TODO(#1659)
             create_casm_class(contract["casm"]), HashMethod.POSEIDON
         ),
     )
@@ -250,6 +253,7 @@ def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
     return (
         contract["sierra"],
         compute_casm_class_hash(
+            # TODO(#1659)
             create_casm_class(contract["casm"]), HashMethod.POSEIDON
         ),
     )
@@ -262,6 +266,7 @@ def map_compiled_contract_and_class_hash_copy_2() -> Tuple[str, int]:
     return (
         contract["sierra"],
         compute_casm_class_hash(
+            # TODO(#1659)
             create_casm_class(contract["casm"]), HashMethod.POSEIDON
         ),
     )
@@ -316,6 +321,7 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     return (
         contract["sierra"],
         compute_casm_class_hash(
+            # TODO(#1659)
             create_casm_class(contract["casm"]), HashMethod.POSEIDON
         ),
     )
@@ -331,6 +337,7 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     return (
         contract["sierra"],
         compute_casm_class_hash(
+            # TODO(#1659)
             create_casm_class(contract["casm"]), HashMethod.POSEIDON
         ),
     )
@@ -364,6 +371,7 @@ async def account_declare_class_hash(
     """
 
     casm_class = create_casm_class(compiled_account_contract_casm)
+    # TODO(#1659)
     casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     declare_v3_transaction = await account.sign_declare_v3(
         compiled_contract=compiled_account_contract,

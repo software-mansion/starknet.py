@@ -31,6 +31,7 @@ async def test_cairo1_contract(
     # contract_compiled_casm is a string containing the content of the starknet-sierra-compile (.casm file)
     casm_class = create_casm_class(contract_compiled_casm)
 
+    # TODO(#1659)
     # Compute Casm class hash
     casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     # docs: end
