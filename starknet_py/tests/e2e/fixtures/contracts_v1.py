@@ -21,7 +21,8 @@ async def declare_contract(
 ) -> Tuple[int, int]:
     casm_class_hash = compute_casm_class_hash(
         # TODO(#1659)
-        create_casm_class(compiled_contract_casm), HashMethod.POSEIDON
+        create_casm_class(compiled_contract_casm),
+        HashMethod.POSEIDON,
     )
 
     declare_tx = await account.sign_declare_v3(
@@ -72,7 +73,8 @@ async def declare_v3_hello_starknet(account: BaseAccount) -> DeclareV3:
     contract = load_contract("HelloStarknet")
     casm_class_hash = compute_casm_class_hash(
         # TODO(#1659)
-        create_casm_class(contract["casm"]), HashMethod.POSEIDON
+        create_casm_class(contract["casm"]),
+        HashMethod.POSEIDON,
     )
 
     declare_tx = await account.sign_declare_v3(
@@ -241,7 +243,8 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(
             # TODO(#1659)
-            create_casm_class(contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(contract["casm"]),
+            HashMethod.POSEIDON,
         ),
     )
 
@@ -254,7 +257,8 @@ def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(
             # TODO(#1659)
-            create_casm_class(contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(contract["casm"]),
+            HashMethod.POSEIDON,
         ),
     )
 
@@ -267,7 +271,8 @@ def map_compiled_contract_and_class_hash_copy_2() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(
             # TODO(#1659)
-            create_casm_class(contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(contract["casm"]),
+            HashMethod.POSEIDON,
         ),
     )
 
@@ -322,7 +327,8 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(
             # TODO(#1659)
-            create_casm_class(contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(contract["casm"]),
+            HashMethod.POSEIDON,
         ),
     )
 
@@ -338,7 +344,8 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
         contract["sierra"],
         compute_casm_class_hash(
             # TODO(#1659)
-            create_casm_class(contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(contract["casm"]),
+            HashMethod.POSEIDON,
         ),
     )
 

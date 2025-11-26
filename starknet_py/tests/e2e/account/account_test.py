@@ -760,7 +760,8 @@ async def test_declare_v3_with_tip(account):
         compiled_contract["sierra"],
         compute_casm_class_hash(
             # TODO(#1659)
-            create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(compiled_contract["casm"]),
+            HashMethod.POSEIDON,
         ),
         resource_bounds=MAX_RESOURCE_BOUNDS,
         tip=tip,
@@ -786,7 +787,8 @@ async def test_declare_v3_auto_estimate_tip(
             compiled_contract["sierra"],
             compute_casm_class_hash(
                 # TODO(#1659)
-                create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON
+                create_casm_class(compiled_contract["casm"]),
+                HashMethod.POSEIDON,
             ),
             resource_bounds=MAX_RESOURCE_BOUNDS,
             auto_estimate_tip=True,
