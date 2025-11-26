@@ -5,7 +5,7 @@ Migration guide
 0.29.0-rc.2 Migration guide
 ****************************
 
-Version <unreleased> changes the supported Python version.
+Version 0.29.0-rc.2 changes the supported Python version.
 The **lowest** supported version Python is now 3.10.
 
 0.29.0-rc.2 Dependency changes
