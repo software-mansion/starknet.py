@@ -21,8 +21,8 @@ The **lowest** supported version Python is now 3.10.
 
 These packages are needed for HIDAPI compilation. Read official `ledgerctl installation guide <https://github.com/LedgerHQ/ledgerctl?tab=readme-ov-file#quick-install)>`_ for more details.
 
-<unreleased> Minor changes
---------------------------
+<unreleased> Breaking changes
+-----------------------------
 
 .. currentmodule:: starknet_py.hash.class_hash
 
