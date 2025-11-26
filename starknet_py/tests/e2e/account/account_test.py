@@ -759,7 +759,7 @@ async def test_declare_v3_with_tip(account):
     signed_tx = await account.sign_declare_v3(
         compiled_contract["sierra"],
         compute_casm_class_hash(
-            # TODO(#1659)
+            # TODO(#1659): Use blake
             create_casm_class(compiled_contract["casm"]),
             HashMethod.POSEIDON,
         ),
@@ -786,7 +786,7 @@ async def test_declare_v3_auto_estimate_tip(
         signed_tx = await account.sign_declare_v3(
             compiled_contract["sierra"],
             compute_casm_class_hash(
-                # TODO(#1659)
+                # TODO(#1659): Use blake
                 create_casm_class(compiled_contract["casm"]),
                 HashMethod.POSEIDON,
             ),

@@ -523,6 +523,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     )
 
     casm_class = create_casm_class(contract["casm"])
+    # TODO(#1659): Use blake
     casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
 
     declare_v3_tx = await account.sign_declare_v3(
