@@ -523,7 +523,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     )
 
     casm_class = create_casm_class(contract["casm"])
-    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
+    casm_class_hash = compute_casm_class_hash(casm_class)
 
     declare_v3_tx = await account.sign_declare_v3(
         compiled_contract=contract["sierra"],

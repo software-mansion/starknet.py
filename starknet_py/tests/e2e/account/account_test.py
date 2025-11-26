@@ -759,7 +759,7 @@ async def test_declare_v3_with_tip(account):
     signed_tx = await account.sign_declare_v3(
         compiled_contract["sierra"],
         compute_casm_class_hash(
-            create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON
+            create_casm_class(compiled_contract["casm"])
         ),
         resource_bounds=MAX_RESOURCE_BOUNDS,
         tip=tip,
@@ -784,7 +784,7 @@ async def test_declare_v3_auto_estimate_tip(
         signed_tx = await account.sign_declare_v3(
             compiled_contract["sierra"],
             compute_casm_class_hash(
-                create_casm_class(compiled_contract["casm"]), HashMethod.POSEIDON
+                create_casm_class(compiled_contract["casm"])
             ),
             resource_bounds=MAX_RESOURCE_BOUNDS,
             auto_estimate_tip=True,

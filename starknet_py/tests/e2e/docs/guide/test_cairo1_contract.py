@@ -32,7 +32,7 @@ async def test_cairo1_contract(
     casm_class = create_casm_class(contract_compiled_casm)
 
     # Compute Casm class hash
-    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
+    casm_class_hash = compute_casm_class_hash(casm_class)
     # docs: end
 
     assert casm_class_hash == compiled_class_hash
