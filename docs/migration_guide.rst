@@ -8,6 +8,19 @@ Migration guide
 Version <unreleased> changes the supported Python version.
 The **lowest** supported version Python is now 3.10.
 
+<unreleased> Minor changes
+--------------------------
+
+.. py:currentmodule:: starknet_py.net.signer.ledger_signer
+
+1. When installing extra dependencies needed for :class:`LedgerSigner`, Linux users may have to install additional packages:
+
+.. code-block:: bash
+
+    sudo apt install python3-dev libusb-1.0-0-dev libudev-dev
+
+These packages are needed for HIDAPI compilation. Read official `ledgerctl installation guide <https://github.com/LedgerHQ/ledgerctl?tab=readme-ov-file#quick-install)>`_ for more details.
+
 ***************************
 0.29.0-rc.1 Migration guide
 ***************************
