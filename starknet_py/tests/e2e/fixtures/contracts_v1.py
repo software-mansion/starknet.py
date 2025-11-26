@@ -316,7 +316,7 @@ def sierra_minimal_compiled_contract_and_class_hash() -> Tuple[str, int]:
     return (
         contract["sierra"],
         compute_casm_class_hash(
-            create_casm_class(contract["casm"])
+            create_casm_class(contract["casm"]), HashMethod.POSEIDON
         ),
     )
 
@@ -364,7 +364,7 @@ async def account_declare_class_hash(
     """
 
     casm_class = create_casm_class(compiled_account_contract_casm)
-    casm_class_hash = compute_casm_class_hash(casm_class)
+    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     declare_v3_transaction = await account.sign_declare_v3(
         compiled_contract=compiled_account_contract,
         compiled_class_hash=casm_class_hash,
@@ -381,7 +381,7 @@ async def account_with_validate_deploy_class_hash(
 ) -> int:
     contract = load_contract("Account")
     casm_class_hash = compute_casm_class_hash(
-        create_casm_class(contract["casm"])
+        create_casm_class(contract["casm"]), HashMethod.POSEIDON
     )
 
     return await declare_account(
