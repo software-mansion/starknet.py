@@ -9,7 +9,7 @@ Version <unreleased> changes the supported Python version.
 The **lowest** supported version Python is now 3.10.
 
 <unreleased> Dependency changes
---------------------------
+-------------------------------
 
 .. py:currentmodule:: starknet_py.net.signer.ledger_signer
 
