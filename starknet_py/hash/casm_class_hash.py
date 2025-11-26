@@ -26,7 +26,7 @@ def get_casm_hash_method_for_starknet_version(starknet_version: Version) -> Hash
 
 
 def compute_casm_class_hash(
-    casm_contract_class: CasmClass, hash_method: HashMethod = HashMethod.POSEIDON
+    casm_contract_class: CasmClass, hash_method: HashMethod = HashMethod.BLAKE2S
 ) -> int:
     """
     Calculate class hash of a CasmClass.
