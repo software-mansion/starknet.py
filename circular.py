@@ -20,15 +20,15 @@ def assert_no_circular_imports():
         py_files = [f for f in files if f.endswith(".py")]
         for file in py_files:
             file_path = os.path.join(path, file)
-
             relative_path = os.path.relpath(file_path, PACKAGE_NAME)
             module_path_no_ext = relative_path.removesuffix(".py")
+
             # Handle __init__.py files specially
             if module_path_no_ext.endswith("__init__"):
                 module_path_no_init = module_path_no_ext.removesuffix(
                     "__init__"
                 ).rstrip(os.sep)
-                if not module_path_no_init:  # Top-level __init__.py
+                if not module_path_no_init:  # Top-level __init__.py gives empty module path
                     module_name = PACKAGE_NAME
                 else:
                     dotted_module_path = module_path_no_init.replace(os.sep, ".")
