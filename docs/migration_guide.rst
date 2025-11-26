@@ -2,13 +2,13 @@ Migration guide
 ===============
 
 ****************************
-<unreleased> Migration guide
+0.29.0-rc.2 Migration guide
 ****************************
 
 Version <unreleased> changes the supported Python version.
 The **lowest** supported version Python is now 3.10.
 
-<unreleased> Dependency changes
+0.29.0-rc.2 Dependency changes
 -------------------------------
 
 .. py:currentmodule:: starknet_py.net.signer.ledger_signer
