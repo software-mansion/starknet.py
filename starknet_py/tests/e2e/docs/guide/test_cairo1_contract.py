@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from starknet_py.hash.hash_method import HashMethod
 from starknet_py.net.client_models import SierraContractClass
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
@@ -30,8 +31,9 @@ async def test_cairo1_contract(
     # contract_compiled_casm is a string containing the content of the starknet-sierra-compile (.casm file)
     casm_class = create_casm_class(contract_compiled_casm)
 
+    # TODO(#1659): Use blake
     # Compute Casm class hash
-    casm_class_hash = compute_casm_class_hash(casm_class)
+    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
     # docs: end
 
     assert casm_class_hash == compiled_class_hash
