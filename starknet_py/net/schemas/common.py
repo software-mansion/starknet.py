@@ -41,7 +41,7 @@ class NumberAsHex(fields.Field):
     """
 
     MAX_VALUE = sys.maxsize
-    REGEX_PATTERN = r"^0x[a-fA-F0-9]+$"
+    REGEX_PATTERN = r"^-?0x[a-fA-F0-9]+$"
 
     def _serialize(self, value: Any, attr: Optional[str], obj: Any, **kwargs):
         if self._is_int_and_in_range(value):
@@ -72,7 +72,7 @@ class NumberAsHex(fields.Field):
         )
 
     def _is_int_and_in_range(self, value: Any) -> bool:
-        return isinstance(value, int) and 0 <= value < self.MAX_VALUE
+        return isinstance(value, int) and -self.MAX_VALUE < value < self.MAX_VALUE
 
     def _is_str_and_valid_pattern(self, value: Any) -> bool:
         return (
