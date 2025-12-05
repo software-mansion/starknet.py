@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, Mock
 import pytest
 
 from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
-from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
@@ -197,7 +196,7 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
     platform == "win32",
     reason="Testing Ledger is skipped on Windows due to different Speculos setup.",
 )
-async def test_deploy_account_and_transfer(client):
+async def test_deploy_account_and_transfer(client, devnet_client):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
     from starknet_py.contract import Contract
@@ -232,8 +231,7 @@ async def test_deploy_account_and_transfer(client):
     # Remember to prefund the account
     # docs-deploy-account-and-transfer: end
     # Here we prefund the devnet account for test purposes
-    # await mint_token_on_devnet(
-    devnet_client = DevnetClient(rpc_client.url)
+
     await devnet_client.mint(address, int(1e24))
     # docs-deploy-account-and-transfer: start
     signed_tx = await account.sign_deploy_account_v3(

@@ -9,6 +9,7 @@ from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 async def test_deploy_prefunded_account(
     account_with_validate_deploy_class_hash: int,
     client: Client,
+    devnet_client: DevnetClient,
 ):
     # pylint: disable=import-outside-toplevel, too-many-locals, unused-variable
     full_node_client_fixture = client
@@ -46,7 +47,6 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = full_node_client_fixture
-    devnet_client = DevnetClient(client.url)
     await devnet_client.mint(address, int(1e24))
 
     # docs: start

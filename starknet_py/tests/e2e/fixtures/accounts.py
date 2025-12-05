@@ -42,6 +42,7 @@ class AccountPrerequisites:
 async def devnet_account_details(
     client: FullNodeClient,
     class_hash: int,
+    devnet_client: DevnetClient,
 ) -> Tuple[str, str]:
     """
     Deploys an Account and adds fee tokens to its balance (only on devnet).
@@ -58,7 +59,6 @@ async def devnet_account_details(
         deployer_address=0,
     )
 
-    devnet_client = DevnetClient(client.url)
     await devnet_client.mint(address, int(1e30), PriceUnit.WEI)
     await devnet_client.mint(address, int(1e30), PriceUnit.FRI)
 

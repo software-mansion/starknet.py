@@ -74,7 +74,7 @@ async def test_subscribe_new_heads(
     # ...
     # docs-end: subscribe_new_heads
     new_block_hash = await devnet_client.create_block()
-
+    await asyncio.sleep(5)
     assert received_block is not None
     assert int(new_block_hash, 16) == received_block.block_hash
     # docs-start: subscribe_new_heads
