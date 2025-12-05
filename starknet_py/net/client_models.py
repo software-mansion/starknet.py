@@ -799,10 +799,10 @@ class StateDiff:
     storage_diffs: List[StorageDiffItem]
     deprecated_declared_classes: List[int]
     declared_classes: List[DeclaredContractHash]
-    migrated_compiled_classes: Optional[List[MigratedClass]]
     deployed_contracts: List[DeployedContract]
     replaced_classes: List[ReplacedClass]
     nonces: List[ContractsNonce]
+    migrated_compiled_classes: Optional[List[MigratedClass]] = None
 
 
 @dataclass
