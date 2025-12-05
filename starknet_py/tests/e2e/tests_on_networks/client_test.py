@@ -468,7 +468,6 @@ async def test_get_chain_id_sepolia_testnet(client_sepolia_testnet):
     assert chain_id == hex(StarknetChainId.SEPOLIA.value)
 
 
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.asyncio
 async def test_get_events_sepolia_testnet(client_sepolia_testnet):
     events_chunk = await client_sepolia_testnet.get_events(

@@ -42,7 +42,6 @@ async def test_get_block(client, block_with_declare_hash):
     # docs-end: get_block
 
 
-@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_get_state_update(
     client, declare_transaction_hash

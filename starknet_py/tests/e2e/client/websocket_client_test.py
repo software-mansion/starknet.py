@@ -131,7 +131,6 @@ async def test_unsubscribe_with_non_existing_id(
     assert unsubscribe_result is False
 
 
-@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_events_with_finality_status(
     websocket_client: WebsocketClient,
@@ -174,7 +173,6 @@ async def test_subscribe_events_with_finality_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_new_transactions_with_finality_status(
     websocket_client: WebsocketClient,
@@ -214,7 +212,6 @@ async def test_subscribe_new_transactions_with_finality_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_new_transaction_receipts_with_finality_status(
     websocket_client: WebsocketClient,
@@ -254,7 +251,6 @@ async def test_subscribe_new_transaction_receipts_with_finality_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_events_with_all_filters(
     client: FullNodeClient,

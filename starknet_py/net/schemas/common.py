@@ -49,7 +49,7 @@ class NumberAsHex(fields.Field):
 
         if self._is_str_and_valid_pattern(value):
             return value
-
+        print("xxx", value)
         raise ValidationError(
             f"Invalid value provided for {self.__class__.__name__}: {value}"
         )

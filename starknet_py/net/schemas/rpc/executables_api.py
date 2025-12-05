@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from marshmallow import ValidationError, fields, post_load, validate
 
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.net.executable_models import (
     AllocConstantSize,
     AllocConstantSizeInner,
@@ -147,7 +148,10 @@ class ImmediateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Immediate:
-        return Immediate(**data)
+        # Normalizacja modulo FIELD_PRIME
+        print("xxx", data)
+        value = data["immediate"] % FIELD_PRIME
+        return Immediate(immediate=value)
 
 
 class BinOpBField(fields.Field):
