@@ -124,6 +124,13 @@ def starknet_block_mock() -> StarknetBlock:
         starknet_version="0.14.0",
         status=BlockStatus.ACCEPTED_ON_L2,
         transactions=[],
+        event_commitment=0,
+        transaction_commitment=0,
+        receipt_commitment=0,
+        state_diff_commitment=0,
+        event_count=0,
+        transaction_count=0,
+        state_diff_length=0,
     )
 
 

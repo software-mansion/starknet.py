@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from marshmallow import ValidationError, fields, post_load, validate
 
+from starknet_py.constants import FIELD_PRIME
 from starknet_py.net.executable_models import (
     AllocConstantSize,
     AllocConstantSizeInner,

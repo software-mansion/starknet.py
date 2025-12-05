@@ -6,7 +6,6 @@ from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.net.account.account import Account
 from starknet_py.net.client import Client
-from starknet_py.net.http_client import HttpClient, HttpMethod
 from starknet_py.net.models import DeployAccountV3, StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import _get_random_salt
@@ -82,11 +81,3 @@ def _get_random_private_key_unsafe() -> int:
     This is not a safe way of generating private keys and should be used only in tests.
     """
     return random.randint(1, EC_ORDER - 1)
-
-
-async def create_empty_block(http_client: HttpClient) -> None:
-    url = http_client.url[:-4] if http_client.url.endswith("/rpc") else http_client.url
-    await http_client.request(
-        address=f"{url}/create_block",
-        http_method=HttpMethod.POST,
-    )

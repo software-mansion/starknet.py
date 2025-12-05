@@ -1,6 +1,22 @@
 Migration guide
 ===============
 
+************************
+0.29.0-0 Migration guide
+************************
+
+Version 0.29.0 of **starknet.py** comes with full support for RPC 0.10.0.
+
+0.29.0 Targeted versions
+------------------------
+
+- Starknet - `0.14.1 <https://docs.starknet.io/learn/cheatsheets/version-notes#starknet-v0-14-1-tbd>`_
+- RPC - `0.10.0 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.10.0>`_
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+1. :class:`BlockHeader`: Added new fields: ``event_commitment``, ``transaction_commitment``, ``receipt_commitment``, ``state_diff_commitment``, ``event_count``, ``transaction_count``, ``state_diff_length``.
+
 ****************************
 0.29.0-rc.2 Migration guide
 ****************************

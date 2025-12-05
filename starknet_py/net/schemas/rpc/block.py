@@ -1,4 +1,4 @@
-from marshmallow import fields, post_load
+from marshmallow import fields, post_load, validate
 
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
@@ -78,6 +78,19 @@ class BlockHeaderSchema(Schema):
     )
     l1_da_mode = L1DAModeField(data_key="l1_da_mode", required=True)
     starknet_version = fields.String(data_key="starknet_version", required=True)
+    event_commitment = Felt(data_key="event_commitment", required=True)
+    transaction_commitment = Felt(data_key="transaction_commitment", required=True)
+    receipt_commitment = Felt(data_key="receipt_commitment", required=True)
+    state_diff_commitment = Felt(data_key="state_diff_commitment", required=True)
+    event_count = fields.Integer(
+        data_key="event_count", required=True, validate=validate.Range(min=0)
+    )
+    transaction_count = fields.Integer(
+        data_key="transaction_count", required=True, validate=validate.Range(min=0)
+    )
+    state_diff_length = fields.Integer(
+        data_key="state_diff_length", required=True, validate=validate.Range(min=0)
+    )
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> BlockHeader:
@@ -170,7 +183,7 @@ class StateDiffSchema(Schema):
     migrated_compiled_classes = fields.List(
         fields.Nested(MigratedClassSchema()),
         data_key="migrated_compiled_classes",
-        required=True,
+        required=False,
     )
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
