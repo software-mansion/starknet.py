@@ -7,6 +7,9 @@ Migration guide
 
 Version 0.29.0 of **starknet.py** comes with full support for RPC 0.10.0.
 
+It also changes the supported Python version.
+The **lowest** supported version Python is now 3.10.
+
 0.29.0 Targeted versions
 ------------------------
 
@@ -16,6 +19,30 @@ Version 0.29.0 of **starknet.py** comes with full support for RPC 0.10.0.
 .. py:currentmodule:: starknet_py.net.client_models
 
 1. :class:`BlockHeader`: Added new fields: ``event_commitment``, ``transaction_commitment``, ``receipt_commitment``, ``state_diff_commitment``, ``event_count``, ``transaction_count``, ``state_diff_length``.
+2. :class:`StateDiff` has a new optional field ``migrated_compiled_classes``.
+3. ``storage_keys`` field in :class:`ContractsStorageKeys` is now of type ``str``.
+4. ``old_root`` field in :class:`PreConfirmedBlockStateUpdate` is now optional.
+5. Hash function for contract declaration is now automatically selected based on Starknet version: Blake2s for Starknet >= 0.14.1, Poseidon for older versions.
+6. :class:`EmittedEvent` has new fields: ``transaction_index`` and ``event_index``.
+
+0.29.0 Bugfixes
+---------------
+
+1. Fixed parsing ABI that contains signed integers (e.g. ``i128``).
+
+0.29.0 Dependency changes
+--------------------------
+
+.. py:currentmodule:: starknet_py.net.signer.ledger_signer
+
+1. When installing extra dependencies needed for :class:`LedgerSigner`, Linux users may have to install additional packages:
+
+.. code-block:: bash
+
+    sudo apt install python3-dev libusb-1.0-0-dev libudev-dev
+
+These packages are needed for HIDAPI compilation. Read official `ledgerctl installation guide <https://github.com/LedgerHQ/ledgerctl?tab=readme-ov-file#quick-install)>`_ for more details.
+
 
 ****************************
 0.29.0-rc.2 Migration guide
