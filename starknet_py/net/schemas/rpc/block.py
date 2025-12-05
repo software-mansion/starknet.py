@@ -183,7 +183,7 @@ class StateDiffSchema(Schema):
     migrated_compiled_classes = fields.List(
         fields.Nested(MigratedClassSchema()),
         data_key="migrated_compiled_classes",
-        required=True,
+        required=False,
     )
     deployed_contracts = fields.List(
         fields.Nested(DeployedContractSchema()),
