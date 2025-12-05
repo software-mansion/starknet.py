@@ -365,9 +365,7 @@ async def account_with_validate_deploy_class_hash(
     pre_deployed_account_with_validate_deploy: BaseAccount,
 ) -> int:
     contract = load_contract("Account")
-    casm_class_hash = compute_casm_class_hash(
-        create_casm_class(contract["casm"])
-    )
+    casm_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
 
     return await declare_account(
         pre_deployed_account_with_validate_deploy, contract["sierra"], casm_class_hash
