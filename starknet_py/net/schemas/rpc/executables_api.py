@@ -148,7 +148,7 @@ class ImmediateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Immediate:
-        return Immediate(immediate=data)
+        return Immediate(**data)
 
 
 class BinOpBField(fields.Field):
