@@ -1,8 +1,7 @@
 import pytest
 
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_models import PriceUnit
-from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.utils import _get_random_private_key_unsafe
 
 
@@ -47,8 +46,8 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = full_node_client_fixture
-    client_url = client.url.replace("/rpc", "")
-    await mint_token_on_devnet(client_url, address, int(1e24), PriceUnit.FRI.value)
+    devnet_client = DevnetClient(client.url)
+    await devnet_client.mint(address, int(1e24))
 
     # docs: start
 

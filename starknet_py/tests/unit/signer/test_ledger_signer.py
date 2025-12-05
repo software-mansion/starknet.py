@@ -4,12 +4,12 @@ from unittest.mock import MagicMock, Mock
 import pytest
 
 from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.client_models import Call
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV3, DeployAccountV3, InvokeV3, StarknetChainId
 from starknet_py.net.signer.ledger_signer import BlindSigningModeWarning
-from starknet_py.tests.e2e.fixtures.accounts import mint_token_on_devnet
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_SEPOLIA
 
 LEDGER_ACCOUNT_ADDRESS_SEPOLIA = (
@@ -232,12 +232,9 @@ async def test_deploy_account_and_transfer(client):
     # Remember to prefund the account
     # docs-deploy-account-and-transfer: end
     # Here we prefund the devnet account for test purposes
-    await mint_token_on_devnet(
-        url=rpc_client.url.replace("/rpc", ""),
-        address=address,
-        amount=5000000000000000000000,
-        unit="FRI",
-    )
+    # await mint_token_on_devnet(
+    devnet_client = DevnetClient(rpc_client.url)
+    await devnet_client.mint(address, int(1e24))
     # docs-deploy-account-and-transfer: start
     signed_tx = await account.sign_deploy_account_v3(
         class_hash=class_hash,
