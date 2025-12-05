@@ -148,10 +148,7 @@ class ImmediateSchema(Schema):
 
     @post_load
     def make_dataclass(self, data, **kwargs) -> Immediate:
-        # Normalizacja modulo FIELD_PRIME
-        print("xxx", data)
-        value = data["immediate"] % FIELD_PRIME
-        return Immediate(immediate=value)
+        return Immediate(immediate=data)
 
 
 class BinOpBField(fields.Field):
