@@ -8,7 +8,6 @@ from starknet_py.cairo.felt import encode_shortstring
 from starknet_py.common import create_casm_class, create_sierra_compiled_contract
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
-from starknet_py.hash.hash_method import HashMethod
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
@@ -367,7 +366,7 @@ async def account_with_validate_deploy_class_hash(
 ) -> int:
     contract = load_contract("Account")
     casm_class_hash = compute_casm_class_hash(
-        create_casm_class(contract["casm"]), HashMethod.POSEIDON
+        create_casm_class(contract["casm"])
     )
 
     return await declare_account(
