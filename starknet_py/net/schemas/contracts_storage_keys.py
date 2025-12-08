@@ -15,7 +15,7 @@ class StorageKeySchema(fields.Str):
         super().__init__(
             validate=validate.Regexp(
                 regex=STORAGE_KEY_PATTERN,
-                error="Storage key must match the pattern: " + STORAGE_KEY_PATTERN,
+                error=f"Storage key must match the pattern: {STORAGE_KEY_PATTERN}",
             ),
             **kwargs,
         )
