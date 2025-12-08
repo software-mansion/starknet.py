@@ -2,7 +2,7 @@ Migration guide
 ===============
 
 ************************
-0.29.0-0 Migration guide
+0.29.0 Migration guide
 ************************
 
 Version 0.29.0 of **starknet.py** comes with full support for RPC 0.10.0.
