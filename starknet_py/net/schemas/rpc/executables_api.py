@@ -21,8 +21,6 @@ from starknet_py.net.executable_models import (
     AssertLtAssertValidInputInner,
     BinOp,
     BinOpInner,
-    CasmClass,
-    CasmClassEntryPointsByType,
     CellRef,
     Cheatcode,
     CheatcodeInner,
