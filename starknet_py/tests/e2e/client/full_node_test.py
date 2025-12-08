@@ -8,7 +8,6 @@ from starknet_py.common import create_casm_class
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
-from starknet_py.hash.hash_method import HashMethod
 from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.account.account import Account
@@ -29,7 +28,6 @@ from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
-from starknet_py.tests.e2e.utils import create_empty_block
 
 
 def _parse_event_name(event: str) -> str:
@@ -146,7 +144,6 @@ async def test_get_storage_at_incorrect_address_full_node_client(client):
     "--contract_dir=v1" in sys.argv,
     reason="Contract exists only in v2 directory",
 )
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_without_following_continuation_token(
@@ -176,7 +173,6 @@ async def test_get_events_without_following_continuation_token(
     "--contract_dir=v1" in sys.argv,
     reason="Contract exists only in v2 directory",
 )
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_follow_continuation_token(
@@ -233,7 +229,6 @@ async def test_get_events_nonexistent_event_name(
     "--contract_dir=v1" in sys.argv,
     reason="Contract exists only in v2 directory",
 )
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_with_two_events(
@@ -287,7 +282,6 @@ async def test_get_events_with_two_events(
     "--contract_dir=v1" in sys.argv,
     reason="Contract exists only in v2 directory",
 )
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_start_from_continuation_token(
@@ -319,7 +313,6 @@ async def test_get_events_start_from_continuation_token(
     "--contract_dir=v1" in sys.argv,
     reason="Contract exists only in v2 directory",
 )
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_events_no_params(
@@ -361,30 +354,30 @@ async def test_get_events_nonexistent_starting_block(
 
 
 @pytest.mark.asyncio
-async def test_get_block_number(client):
+async def test_get_block_number(client, devnet_client):
     # pylint: disable=protected-access
-    await create_empty_block(client._client)
+    await devnet_client.create_block()
 
     block_number = await client.get_block_number()
 
     # pylint: disable=protected-access
-    await create_empty_block(client._client)
+    await devnet_client.create_block()
 
     new_block_number = await client.get_block_number()
     assert new_block_number == block_number + 1
 
 
 @pytest.mark.asyncio
-async def test_get_block_hash_and_number(client):
+async def test_get_block_hash_and_number(client, devnet_client):
     # pylint: disable=protected-access
-    await create_empty_block(client._client)
+    await devnet_client.create_block()
 
     block_hash_and_number = await client.get_block_hash_and_number()
 
     assert isinstance(block_hash_and_number, BlockHashAndNumber)
 
     # pylint: disable=protected-access
-    await create_empty_block(client._client)
+    await devnet_client.create_block()
 
     new_block_hash_and_number = await client.get_block_hash_and_number()
 
@@ -476,7 +469,6 @@ async def test_simulate_transactions_skip_fee_charge(
     assert simulated_txs is not None
 
 
-@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
@@ -507,7 +499,6 @@ async def test_simulate_transactions_invoke(account, deployed_balance_contract):
     assert simulated_txs[0].transaction_trace.execution_resources is not None
 
 
-@pytest.mark.skip(reason="TODO(#1659)")
 @pytest.mark.asyncio
 async def test_simulate_transactions_two_txs(account, deployed_balance_contract):
     assert isinstance(deployed_balance_contract, Contract)
@@ -523,8 +514,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     )
 
     casm_class = create_casm_class(contract["casm"])
-    # TODO(#1659): Use blake
-    casm_class_hash = compute_casm_class_hash(casm_class, HashMethod.POSEIDON)
+    casm_class_hash = compute_casm_class_hash(casm_class)
 
     declare_v3_tx = await account.sign_declare_v3(
         compiled_contract=contract["sierra"],

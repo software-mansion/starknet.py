@@ -2,8 +2,8 @@
 set -e
 
 DEVNET_INSTALL_DIR="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/devnet/bin"
-DEVNET_REPO="https://github.com/0xSpaceShard/starknet-devnet-rs"
-DEVNET_VERSION="v0.5.1"
+DEVNET_REPO="https://github.com/0xSpaceShard/starknet-devnet"
+DEVNET_VERSION="v0.7.0"
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then

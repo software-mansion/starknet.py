@@ -74,7 +74,7 @@ async def test_subscribe_new_heads(
     # ...
     # docs-end: subscribe_new_heads
     new_block_hash = await devnet_client.create_block()
-
+    await asyncio.sleep(5)
     assert received_block is not None
     assert int(new_block_hash, 16) == received_block.block_hash
     # docs-start: subscribe_new_heads
@@ -85,7 +85,6 @@ async def test_subscribe_new_heads(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_events(
     websocket_client: WebsocketClient,
@@ -139,7 +138,6 @@ async def test_subscribe_events(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_transaction_status(
     websocket_client: WebsocketClient,
@@ -204,7 +202,6 @@ async def test_subscribe_transaction_status(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.asyncio
 async def test_subscribe_new_transaction_receipts(
     websocket_client: WebsocketClient,
@@ -268,7 +265,6 @@ async def test_subscribe_new_transaction_receipts(
     assert unsubscribe_result is True
 
 
-@pytest.mark.skip("TODO(#1659)")
 @pytest.mark.asyncio
 async def test_on_chain_reorg(
     websocket_client: WebsocketClient,

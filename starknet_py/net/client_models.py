@@ -609,6 +609,13 @@ class BlockHeader:
     l1_data_gas_price: ResourcePrice
     l1_da_mode: L1DAMode
     starknet_version: str
+    event_commitment: int
+    transaction_commitment: int
+    receipt_commitment: int
+    state_diff_commitment: int
+    event_count: int
+    transaction_count: int
+    state_diff_length: int
 
 
 @dataclass
@@ -792,10 +799,10 @@ class StateDiff:
     storage_diffs: List[StorageDiffItem]
     deprecated_declared_classes: List[int]
     declared_classes: List[DeclaredContractHash]
-    migrated_compiled_classes: List[MigratedClass]
     deployed_contracts: List[DeployedContract]
     replaced_classes: List[ReplacedClass]
     nonces: List[ContractsNonce]
+    migrated_compiled_classes: Optional[List[MigratedClass]] = None
 
 
 @dataclass
