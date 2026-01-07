@@ -3,5 +3,5 @@ mod SaltedContract {
     #[storage]
     struct Storage {}
     #[external(v0)]
-    fn empty_(ref self: ContractState) {}
+    fn empty___salt_placeholder__(ref self: ContractState) {}
 }

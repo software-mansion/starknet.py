@@ -30,7 +30,7 @@ update_salted_contracts() {
     shopt -s nullglob # Enable nullglob to avoid issues if no files match
 
     for FILE in ./src/salted_*.cairo; do
-        sed -i.bak "s/__salt_placeholder__/${CURRENT_MILLIS}/g" "$FILE"
+        sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
         rm "$FILE.bak"
     done
 
