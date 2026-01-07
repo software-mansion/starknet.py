@@ -115,9 +115,7 @@ async def test_deploy_account_v3(
 
 
 @pytest.mark.asyncio
-async def test_declare_v3(
-    account_sepolia_testnet
-):
+async def test_declare_v3(account_sepolia_testnet):
     contract = load_contract(contract_name="SaltedContract", version=ContractVersion.V2)
 
     compiled_contract = contract["sierra"]
