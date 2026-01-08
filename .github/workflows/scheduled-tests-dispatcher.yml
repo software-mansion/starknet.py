@@ -1,19 +1,24 @@
 name: Run scheduled tests with multiple RPC versions
 
+on:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
 jobs:
   dispatch:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        repo:
-          target:
-            - repo: software-mansion/starknet.py
-              ref: development
-            - repo: software-mansion/starknet-jvm
-              ref: main
-            - repo: software-mansion/starknet.swift
-              ref: main
+        target:
+          - repo: software-mansion/starknet.py
+            ref: development
+          - repo: software-mansion/starknet-jvm
+            ref: main
+          - repo: software-mansion/starknet.swift
+            ref: main
         rpc_version: [ "v0_8", "v0_9", "v0_10" ]
 
   steps:
