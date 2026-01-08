@@ -52,7 +52,6 @@ restore_salted_contracts() {
     echo "Restored salted contracts to original state"
 
     shopt -u nullglob
-
 }
 
 compile_contracts_with_scarb() {
