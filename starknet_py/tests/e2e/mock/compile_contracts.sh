@@ -22,7 +22,7 @@ setup_scarb() {
     fi
 }
 
-update_salted_contracts() {
+apply_contract_salt() {
     SALT="$1"
 
     echo "Updating salted contracts with salt: ${SALT}"
@@ -39,7 +39,7 @@ update_salted_contracts() {
     shopt -u nullglob
 }
 
-restore_salted_contracts() {
+revert_contract_salt() {
     SALT="$1"
     echo "Restoring salted contracts to original state by removing salt: ${SALT}"
     shopt -s nullglob # Enable nullglob to avoid issues if no files match
@@ -66,13 +66,12 @@ compile_contracts_with_scarb() {
     scarb fmt --check
 
     SALT=$(uuidgen | tr -d '-')
-    trap 'restore_salted_contracts "$SALT"' EXIT
+    trap 'revert_contract_salt "$SALT"' EXIT
 
-    update_salted_contracts "$SALT"
+    apply_contract_salt "$SALT"
 
     echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
     scarb clean && scarb build
-
     popd >/dev/null || exit 1
 }
 
