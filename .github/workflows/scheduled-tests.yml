@@ -1,0 +1,146 @@
+name: Scheduled tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      rpc_version:
+        description: "RPC version path segment, e.g. v0_10"
+        required: true
+        type: string
+
+jobs:
+    setup-tests:
+        name: Setup Tests
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [ "3.14" ]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: asdf-vm/actions/setup@v3
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: 'pip'
+
+            - name: Install poetry
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install poetry
+
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: 'poetry'
+
+            - name: Install dependencies
+              run: |
+                  poetry install
+
+            - name: Cache contracts v1
+              id: cache-contracts-v1
+              env:
+                CONTRACTS_DIR: starknet_py/tests/e2e/mock/contracts_v1
+              uses: actions/cache@v4
+              with:
+                path: starknet_py/tests/e2e/mock/contracts_v1/target
+                key: >
+                  ${{ runner.os }}-contracts-v1-
+                  ${{ hashFiles(
+                    'starknet_py/tests/e2e/mock/contracts_v1/**/Scarb.toml',
+                    'starknet_py/tests/e2e/mock/contracts_v1/**/Scarb.lock',
+                    'starknet_py/tests/e2e/mock/contracts_v1/**/*.cairo',
+                    '.tool-versions'
+                  ) }}
+                restore-keys: |
+                  ${{ runner.os }}-contracts-v1-
+
+            - name: Compile contracts v1
+              if: steps.cache-contracts.outputs.cache-hit != 'true'
+              run: |
+                poetry run poe compile_contracts v1
+
+            - name: Cache contracts v2
+              id: cache-contracts-v2
+              uses: actions/cache@v4
+              with:
+                path: starknet_py/tests/e2e/mock/contracts_v2/target
+                key: >
+                  ${{ runner.os }}-contracts-v2-
+                  ${{ hashFiles(
+                    'starknet_py/tests/e2e/mock/contracts_v2/**/Scarb.toml',
+                    'starknet_py/tests/e2e/mock/contracts_v2/**/Scarb.lock',
+                    'starknet_py/tests/e2e/mock/contracts_v2/**/*.cairo',
+                    '.tool-versions'
+                  ) }}
+                restore-keys: |
+                  ${{ runner.os }}-contracts-v2-
+
+            - name: Compile contracts v2
+              if: steps.cache-contracts.outputs.cache-hit != 'true'
+              run: |
+                poetry run poe compile_contracts v2
+
+            - name: Upload contracts artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: contract-artifacts
+                  path: starknet_py/tests/e2e/mock/
+
+    run-network-tests:
+        name: Network tests (testnet)
+        needs: setup-tests
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+        env:
+            SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+            SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
+            SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
+            RPC_VERSION: ${{ inputs.rpc_version }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Download contracts
+              uses: actions/download-artifact@v4
+              with:
+                  name: contract-artifacts
+                  path: starknet_py/tests/e2e/mock/
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.14"
+                  cache: 'pip'
+
+            - name: Install poetry
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install poetry
+
+            - name: Set up Python 3.14
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.14"
+                  cache: 'poetry'
+
+            - uses: asdf-vm/actions/setup@v3
+
+            - name: Update RPC url with version from matrix
+              run: |
+                URL="${SEPOLIA_RPC_URL}"
+                RPC_VERION="${{ matrix.rpc_version }}"
+                URL="${URL%/}" # Remove trailing slash if any
+                URL="${URL%/*}" # Get base URL without version
+                RPC_URL="${URL}/${RPC_VERION}"
+                echo "SEPOLIA_RPC_URL=${RPC_URL}" >> "$GITHUB_ENV"
+
+            - name: Run tests
+              run: poetry run poe test_ci_on_networks
+
+            - name: Generate coverage in XML
+              run: |
+                  poetry run coverage xml
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
