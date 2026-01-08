@@ -98,7 +98,6 @@ jobs:
             SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
             SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
             SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
-            RPC_VERSION: ${{ inputs.rpc_version }}
         steps:
             - uses: actions/checkout@v4
 
@@ -126,10 +125,10 @@ jobs:
 
             - uses: asdf-vm/actions/setup@v3
 
-            - name: Update RPC url with version from matrix
+            - name: Update RPC url with version from inputs
               run: |
                 URL="${SEPOLIA_RPC_URL}"
-                RPC_VERION="${{ matrix.rpc_version }}"
+                RPC_VERION="${{ inputs.rpc_version }}"
                 URL="${URL%/}" # Remove trailing slash if any
                 URL="${URL%/*}" # Get base URL without version
                 RPC_URL="${URL}/${RPC_VERION}"
