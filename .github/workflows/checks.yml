@@ -27,7 +27,7 @@ jobs:
 
   lint-format-typecheck:
     name: Lint - Format - Typecheck
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
 
       - uses: actions/checkout@v4
@@ -143,7 +143,7 @@ jobs:
   run-tests:
     name: Tests
     needs: setup-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -272,7 +272,7 @@ jobs:
   run-tests-on-networks:
     name: Tests on networks (testnet)
     needs: setup-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
     env:
