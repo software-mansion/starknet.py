@@ -41,6 +41,7 @@ update_salted_contracts() {
 
 restore_salted_contracts() {
     SALT="$1"
+    echo "Restoring salted contracts to original state by removing salt: ${SALT}"
     shopt -s nullglob # Enable nullglob to avoid issues if no files match
 
     for FILE in ./src/salted_*.cairo; do
@@ -65,14 +66,13 @@ compile_contracts_with_scarb() {
     echo "Checking Cairo contracts formatting"
     scarb fmt --check
 
-    SALT=$(date +%s%3)
+    SALT=$(uuidgen | tr -d '-')
+    trap 'restore_salted_contracts "$SALT"' EXIT
 
     update_salted_contracts "$SALT"
 
     echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
     scarb clean && scarb build
-
-    restore_salted_contracts "$SALT"
 
     popd >/dev/null || exit 1
 }

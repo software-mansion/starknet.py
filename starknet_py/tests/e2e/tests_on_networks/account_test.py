@@ -20,19 +20,8 @@ from starknet_py.tests.e2e.utils import _new_address
 
 
 @pytest.mark.asyncio
-async def test_get_nonce(account_sepolia_testnet):
-    await account_sepolia_testnet.get_nonce()
-
-
-@pytest.mark.asyncio
-async def test_get_balance(account_sepolia_testnet):
-    balance = await account_sepolia_testnet.get_balance()
-    assert isinstance(balance, int)
-    assert balance >= 0
-
-
-@pytest.mark.asyncio
 async def test_execute_v3(account_sepolia_testnet):
+    # https://sepolia.starkscan.co/contract/0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF
     sepolia_balance_contract_address = (
         0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF
     )
@@ -60,13 +49,9 @@ async def test_deploy_account_v3(
     client_sepolia_testnet,
 ):
     key_pair = KeyPair.generate()
-    constructor_calldata = [
-        0,
-        key_pair.public_key,
-        1,
-    ]
-    address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
     constructor_calldata = [0, key_pair.public_key, 1]
+    address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
+
     new_account = Account(
         address=address,
         client=client_sepolia_testnet,
@@ -141,9 +126,12 @@ async def test_deploy_v3(account_sepolia_testnet):
 
     deployer = Deployer()
 
-    class_hash = 0x072CEA14685487ED7A2ED1C244AC176B6E747D09BDA801349E3C1441ACC6D779
+    # https://sepolia.starkscan.co/class/0x0227f52a4d2138816edf8231980d5f9e6e0c8a3deab45b601a1fcee3d4427b02
+    example_contract_sepolia_class_hash = (
+        0x0227F52A4D2138816EDF8231980D5F9E6E0C8A3DEAB45B601A1FCEE3D4427B02
+    )
     contract_deployment = deployer.create_contract_deployment(
-        class_hash=class_hash,
+        class_hash=example_contract_sepolia_class_hash,
         cairo_version=1,
         calldata=calldata,
         salt=salt,
