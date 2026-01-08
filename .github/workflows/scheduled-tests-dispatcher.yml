@@ -27,7 +27,7 @@ jobs:
         with:
           owner: "software-mansion"
           repo: ${{ matrix.target.repo }}
-          github_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          github_token: ${{ secrets.CI_DISPATCH_TOKEN }}
           workflow_file_name: scheduled-tests.yml
           ref: scheduled-tests
           client_payload: '{ "rpc_version": "${{ matrix.rpc_version }}" }'
