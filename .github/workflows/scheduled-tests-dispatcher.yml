@@ -33,7 +33,7 @@ jobs:
           OWNER="${REPO%%/*}"
           REPO_NAME="${REPO##*/}"
   
-          curl f -sS -X POST \
+          curl -f -sS -X POST \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/${OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
