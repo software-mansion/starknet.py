@@ -67,6 +67,11 @@ async def test_deploy_account_v3(
         auto_estimate=True,
     )
     deploy_account_fee = await new_account.estimate_fee(tx=tx)
+    deploy_account_fee = (
+        deploy_account_fee[0]
+        if isinstance(deploy_account_fee, list)
+        else deploy_account_fee
+    )
 
     contract = await Contract.from_address(
         provider=account_sepolia_testnet, address=STRK_FEE_CONTRACT_ADDRESS
