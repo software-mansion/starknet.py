@@ -1,0 +1,42 @@
+name: Run scheduled tests with multiple RPC versions
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    name: Dispatch (${{ matrix.target.repo }} - RPC ${{ matrix.rpc_version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - repo: software-mansion/starknet.py
+            ref: scheduled-tests # TODO: Change this to development
+          - repo: software-mansion/starknet-jvm
+            ref: main
+          - repo: software-mansion/starknet.swift
+            ref: main
+        rpc_version: [ "v0_8", "v0_9", "v0_10" ]
+
+    steps:
+      - name: Dispatch target workflow
+        env:
+          GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
+          REPO: ${{ matrix.target.repo }}
+          REF: ${{ matrix.target.ref }}
+          RPC_VERSION: ${{ matrix.rpc_version }}
+          WORKFLOW_FILE: scheduled-tests.yml
+        run: |
+          REPO=${REPO}
+  
+          curl -f -sS -X POST \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+              -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
+  
+          echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
