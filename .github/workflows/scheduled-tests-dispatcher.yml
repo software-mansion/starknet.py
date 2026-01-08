@@ -21,22 +21,22 @@ jobs:
             ref: main
         rpc_version: [ "v0_8", "v0_9", "v0_10" ]
 
-  steps:
-    - name: Dispatch target workflow
-      env:
-        GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
-        REPO: ${{ matrix.target.repo }}
-        REF: ${{ matrix.target.ref }}
-        RPC_VERSION: ${{ matrix.rpc_version }}
-        WORKFLOW_FILE: scheduled-tests.yml
-      run: |
-        OWNER="${REPO%%/*}"
-        REPO_NAME="${REPO##*/}"
-        
-        curl -sS -X POST \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
-            -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\",\"network\":\"${NETWORK}\"}}"
-
-        echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
+    steps:
+      - name: Dispatch target workflow
+        env:
+          GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
+          REPO: ${{ matrix.target.repo }}
+          REF: ${{ matrix.target.ref }}
+          RPC_VERSION: ${{ matrix.rpc_version }}
+          WORKFLOW_FILE: scheduled-tests.yml
+        run: |
+          OWNER="${REPO%%/*}"
+          REPO_NAME="${REPO##*/}"
+  
+          curl f -sS -X POST \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+              -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
+  
+          echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
