@@ -14,37 +14,29 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - repo: starknet.py
+          - repo: software-mansion/starknet.py
             ref: scheduled-tests # TODO: Change this to development
-          - repo: starknet-jvm
+          - repo: software-mansion/starknet-jvm
             ref: main
-          - repo: starknet.swift
+          - repo: software-mansion/starknet.swift
             ref: main
         rpc_version: [ "v0_8", "v0_9", "v0_10" ]
 
     steps:
-      - uses: convictional/trigger-workflow-and-wait@v1.6.1
-        with:
-          owner: "software-mansion"
-          repo: ${{ matrix.target.repo }}
-          github_token: ${{ secrets.CI_DISPATCH_TOKEN }}
-          workflow_file_name: scheduled-tests.yml
-          ref: scheduled-tests
-          client_payload: '{ "rpc_version": "${{ matrix.rpc_version }}" }'
-#        env:
-#          GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
-#          REPO: ${{ matrix.target.repo }}
-#          REF: ${{ matrix.target.ref }}
-#          RPC_VERSION: ${{ matrix.rpc_version }}
-#          WORKFLOW_FILE: scheduled-tests.yml
-#        run: |
-#          REPO=${REPO}
-#
-#          curl -f -sS -X POST \
-#              -H "Authorization: Bearer ${GH_TOKEN}" \
-#              -H "Accept: application/vnd.github+json" \
-#              "https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
-#              -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
-#
-#          echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
-
+      - name: Dispatch target workflow
+        env:
+          GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
+          REPO: ${{ matrix.target.repo }}
+          REF: ${{ matrix.target.ref }}
+          RPC_VERSION: ${{ matrix.rpc_version }}
+          WORKFLOW_FILE: scheduled-tests.yml
+        run: |
+          REPO=${REPO}
+  
+          curl -f -sS -X POST \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+              -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
+  
+          echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
