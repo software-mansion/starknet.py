@@ -89,7 +89,7 @@ jobs:
                   path: starknet_py/tests/e2e/mock/
 
     run-network-tests:
-        name: Network tests (testnet)
+        name: Network tests (testnet) with RPC version ${{ inputs.rpc_version }}
         needs: setup-tests
         runs-on: ubuntu-latest
         strategy:
