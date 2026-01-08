@@ -15,7 +15,7 @@ jobs:
       matrix:
         target:
           - repo: software-mansion/starknet.py
-            ref: development
+            ref: scheduled-tests # TODO: Change this to development
           - repo: software-mansion/starknet-jvm
             ref: main
           - repo: software-mansion/starknet.swift
