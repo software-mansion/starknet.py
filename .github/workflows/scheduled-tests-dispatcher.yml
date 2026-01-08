@@ -23,7 +23,6 @@ jobs:
         rpc_version: [ "v0_8", "v0_9", "v0_10" ]
 
     steps:
-      - name: Dispatch target workflow
       - uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
           owner: "software-mansion"
@@ -31,6 +30,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
           workflow_file_name: scheduled-tests.yml
           ref: scheduled-tests
+          client_payload: '{ "rpc_version": "${{ matrix.rpc_version }}" }'
 #        env:
 #          GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
 #          REPO: ${{ matrix.target.repo }}
