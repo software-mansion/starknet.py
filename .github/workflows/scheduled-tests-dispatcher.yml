@@ -8,6 +8,7 @@ on:
 
 jobs:
   dispatch:
+    name: Dispatch (${{ matrix.target.repo }} - RPC ${{ matrix.rpc_version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
