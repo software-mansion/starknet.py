@@ -27,11 +27,11 @@ apply_contract_salt() {
 
     echo "Updating salted contracts with salt: ${SALT}"
 
-    shopt -s nullglob # Enable nullglob to avoid issues if no files match
+    shopt -s nullglob
 
     for FILE in ./src/salted_*.cairo; do
         sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
-        rm "$FILE.bak"
+        rm "$FILE".bak 2> /dev/null
     done
 
     echo "Salted contracts updated"
@@ -42,11 +42,11 @@ apply_contract_salt() {
 revert_contract_salt() {
     SALT="$1"
     echo "Restoring salted contracts to original state by removing salt: ${SALT}"
-    shopt -s nullglob # Enable nullglob to avoid issues if no files match
+    shopt -s nullglob
 
     for FILE in ./src/salted_*.cairo; do
         sed -i.bak "s/${SALT}/__salt_placeholder__/g" "$FILE"
-        rm "$FILE.bak"
+        rm "$FILE.bak" 2> /dev/null
     done
 
     echo "Restored salted contracts to original state"
@@ -66,7 +66,7 @@ compile_contracts_with_scarb() {
     scarb fmt --check
 
     SALT=$(uuidgen | tr -d '-')
-    trap 'revert_contract_salt "$SALT"' EXIT
+    trap 'cd "$CONTRACTS_DIRECTORY" && revert_contract_salt "$SALT"' EXIT
 
     apply_contract_salt "$SALT"
 
