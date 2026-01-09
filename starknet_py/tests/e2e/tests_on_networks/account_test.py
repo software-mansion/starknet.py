@@ -122,13 +122,13 @@ async def test_declare_v3(account_sepolia_testnet):
     await account_sepolia_testnet.client.wait_for_tx(declare_response.transaction_hash)
 
     assert declare_response.class_hash != 0
+    assert declare_response.class_hash == compiled_class_hash
 
 
 @pytest.mark.asyncio
 async def test_deploy_v3(account_sepolia_testnet):
     calldata = []
     salt = _get_random_salt()
-
     deployer = Deployer()
 
     # https://sepolia.starkscan.co/class/0x0227f52a4d2138816edf8231980d5f9e6e0c8a3deab45b601a1fcee3d4427b02
@@ -137,15 +137,14 @@ async def test_deploy_v3(account_sepolia_testnet):
     )
     contract_deployment = deployer.create_contract_deployment(
         class_hash=example_contract_sepolia_class_hash,
-        cairo_version=1,
         calldata=calldata,
         salt=salt,
     )
 
-    res = await account_sepolia_testnet.execute_v3(
+    tx_response = await account_sepolia_testnet.execute_v3(
         calls=contract_deployment.call, auto_estimate=True
     )
-    await account_sepolia_testnet.client.wait_for_tx(res.transaction_hash)
+    await account_sepolia_testnet.client.wait_for_tx(tx_response.transaction_hash)
 
     assert isinstance(contract_deployment.address, int)
     assert contract_deployment.address != 0
