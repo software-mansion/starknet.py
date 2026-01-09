@@ -22,6 +22,38 @@ setup_scarb() {
     fi
 }
 
+apply_contract_salt() {
+    SALT="$1"
+
+    echo "Updating salted contracts with salt: ${SALT}"
+
+    shopt -s nullglob
+
+    for FILE in ./src/salted_*.cairo; do
+        sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
+        rm "$FILE".bak 2> /dev/null
+    done
+
+    echo "Salted contracts updated"
+
+    shopt -u nullglob
+}
+
+revert_contract_salt() {
+    SALT="$1"
+    echo "Restoring salted contracts to original state by removing salt: ${SALT}"
+    shopt -s nullglob
+
+    for FILE in ./src/salted_*.cairo; do
+        sed -i.bak "s/${SALT}/__salt_placeholder__/g" "$FILE"
+        rm "$FILE.bak" 2> /dev/null
+    done
+
+    echo "Restored salted contracts to original state"
+
+    shopt -u nullglob
+}
+
 compile_contracts_with_scarb() {
     CONTRACTS_DIRECTORY="$1"
     SCARB_VERSION=$(awk '/scarb/ {print $2}' "${CONTRACTS_DIRECTORY}/.tool-versions")
@@ -32,6 +64,11 @@ compile_contracts_with_scarb() {
 
     echo "Checking Cairo contracts formatting"
     scarb fmt --check
+
+    SALT=$(uuidgen | tr -d '-')
+    trap 'cd "$CONTRACTS_DIRECTORY" && revert_contract_salt "$SALT"' EXIT
+
+    apply_contract_salt "$SALT"
 
     echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
     scarb clean && scarb build
