@@ -105,9 +105,9 @@ jobs:
 
       # ====================== CONTRACTS v2 ====================== #
 
-      - name: Compile contracts contracts_v2
+      - name: Compile contracts v2
         run: |
-          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts contracts_v2
 
       # ====================== CONTRACTS v1 ====================== #
 
