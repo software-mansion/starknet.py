@@ -154,7 +154,7 @@ def load_contract(contract_name: str, package: Optional[str] = None):
     artifacts_map_path = f"{MOCK_DIR}/${package}/{package}.starknet_artifacts.json"
     directory = f"{MOCK_DIR}/{package}/target/dev"
 
-    artifacts_map = json.loads((artifacts_map_path).read_text("utf-8"))
+    artifacts_map = json.loads(Path(artifacts_map_path).read_text("utf-8"))
 
     artifact_file_names = next(
         (
