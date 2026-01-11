@@ -13,7 +13,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import DeclareV3, StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 def test_init():
@@ -60,7 +60,9 @@ async def test_from_address(account, contract_address):
 
 @pytest.mark.asyncio
 async def test_declare_v3(account):
-    contract = load_contract(contract_name="TestContract", version=ContractVersion.V2)
+    contract = load_contract(
+        contract_name="TestContract",
+    )
     # docs-start: declare_v3
     # here `contract` is a dict containing sierra and casm artifacts
     resource_bounds = ResourceBoundsMapping(

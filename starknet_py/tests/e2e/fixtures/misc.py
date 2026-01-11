@@ -3,7 +3,6 @@
 import json
 import random
 import sys
-from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -21,13 +20,7 @@ from starknet_py.net.client_models import (
 )
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models.typed_data import TypedDataDict
-from starknet_py.tests.e2e.fixtures.constants import (
-    CONTRACTS_V1_ARTIFACTS_MAP,
-    CONTRACTS_V1_COMPILED,
-    CONTRACTS_V2_ARTIFACTS_MAP,
-    CONTRACTS_V2_COMPILED,
-    TYPED_DATA_DIR,
-)
+from starknet_py.tests.e2e.fixtures.constants import MOCK_DIR, TYPED_DATA_DIR
 from starknet_py.utils.typed_data import TypedData
 
 
@@ -145,28 +138,21 @@ def block_with_tips_mock():
     return block
 
 
-class ContractVersion(Enum):
-    V1 = "V1"
-    V2 = "V2"
-
-
 class UnknownArtifacts(BaseException):
     pass
 
 
-def load_contract(contract_name: str, version: Optional[ContractVersion] = None):
-    if version is None:
+def load_contract(contract_name: str, package: Optional[str] = None):
+    if package is None:
         if "--contract_dir=v1" in sys.argv:
-            version = ContractVersion.V1
+            package = "contracts_v1"
         if "--contract_dir=v2" in sys.argv:
-            version = ContractVersion.V2
-
-    if version == ContractVersion.V1:
-        artifacts_map_path = CONTRACTS_V1_ARTIFACTS_MAP
-        directory = CONTRACTS_V1_COMPILED
+            package = "contracts_v2"
     else:
-        artifacts_map_path = CONTRACTS_V2_ARTIFACTS_MAP
-        directory = CONTRACTS_V2_COMPILED
+        package = "contracts_v2"
+
+    artifacts_map_path = MOCK_DIR / package / f"{package}.starknet_artifacts.json"
+    directory = MOCK_DIR / package / "target/dev"
 
     artifacts_map = json.loads((artifacts_map_path).read_text("utf-8"))
 
