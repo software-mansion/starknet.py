@@ -28,7 +28,7 @@ apply_contract_salt() {
 
     shopt -s nullglob
 
-    for FILE in ./src/salted_*.cairo; do
+    for FILE in ./src/*.cairo; do
         sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
         rm "$FILE".bak 2> /dev/null
     done
@@ -43,7 +43,7 @@ revert_contract_salt() {
     echo "Restoring salted contracts to original state by removing salt: ${SALT}"
     shopt -s nullglob
 
-    for FILE in ./src/salted_*.cairo; do
+    for FILE in ./src/*.cairo; do
         sed -i.bak "s/${SALT}/__salt_placeholder__/g" "$FILE"
         rm "$FILE.bak" 2> /dev/null
     done
