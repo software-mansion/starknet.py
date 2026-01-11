@@ -232,12 +232,6 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
-
       - name: Run tests
         run: |
           poetry run poe test_ci_v2
@@ -315,11 +309,8 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#     TODO(#1498): Remove contracts compilation in the step below once issue with compilation is resolved
       - name: Run tests
         run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
@@ -462,12 +453,6 @@ jobs:
       # ====================== RUN TESTS ====================== #
 
       - uses: asdf-vm/actions/setup@v3
-
-#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
 
       - name: Run tests
         run: |
