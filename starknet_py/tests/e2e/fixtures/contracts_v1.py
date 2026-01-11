@@ -12,7 +12,7 @@ from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.models import DeclareV3
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 async def declare_contract(
@@ -178,7 +178,9 @@ async def hello_starknet_contract(account: BaseAccount, hello_starknet_class_has
 
 @pytest_asyncio.fixture(scope="package", name="string_contract_class_hash")
 async def declare_string_contract(account: BaseAccount) -> int:
-    contract = load_contract("MyString", version=ContractVersion.V2)
+    contract = load_contract(
+        "MyString",
+    )
     class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
@@ -313,7 +315,9 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns abi_types contract compiled to sierra and its compiled class hash.
     """
-    contract = load_contract(contract_name="AbiTypes", version=ContractVersion.V2)
+    contract = load_contract(
+        contract_name="AbiTypes",
+    )
 
     return (
         contract["sierra"],

@@ -114,7 +114,7 @@ jobs:
       - name: Compile contracts v2
         if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
         run: |
-          poetry run poe compile_contracts v2
+          poetry run poe compile_contracts contracts_v2
 
       # ====================== CONTRACTS v1 ====================== #
 
@@ -128,7 +128,7 @@ jobs:
       - name: Compile contracts v1
         if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
         run: |
-          poetry run poe compile_contracts v1
+          poetry run poe compile_contracts contracts_v1
 
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
