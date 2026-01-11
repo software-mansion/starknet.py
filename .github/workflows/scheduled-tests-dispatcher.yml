@@ -8,35 +8,46 @@ on:
 
 jobs:
   dispatch:
-    name: Dispatch (${{ matrix.target.repo }} - RPC ${{ matrix.rpc_version }})
+    name: Dispatch (RPC ${{ matrix.rpc_version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - repo: software-mansion/starknet.py
-            ref: scheduled-tests # TODO: Change this to development
-          - repo: software-mansion/starknet-jvm
-            ref: main
-          - repo: software-mansion/starknet.swift
-            ref: main
-        rpc_version: [ "v0_8", "v0_9", "v0_10" ]
+        include:
+          - rpc_version: "v0_8"
+            starknet_py_version: "x.y.z"  # TODO: Replace with actual version
+            starknet_jvm_version: "a.b.c"  # TODO: Replace with actual version
+            starknet_swift_version: "d.e.f"  # TODO: Replace with actual version
+          - rpc_version: "v0_9"
+            starknet_py_version: "x.y.z"  # TODO: Replace with actual version
+            starknet_jvm_version: "a.b.c"  # TODO: Replace with actual version
+            starknet_swift_version: "d.e.f"  # TODO: Replace with actual version
+          - rpc_version: "v0_10"
+            starknet_py_version: "x.y.z"  # TODO: Replace with actual version
+            starknet_jvm_version: "a.b.c"  # TODO: Replace with actual version
+            starknet_swift_version: "d.e.f"  # TODO: Replace with actual version
 
     steps:
-      - name: Dispatch target workflow
-        env:
-          GH_TOKEN: ${{ secrets.CI_DISPATCH_TOKEN }}
-          REPO: ${{ matrix.target.repo }}
-          REF: ${{ matrix.target.ref }}
-          RPC_VERSION: ${{ matrix.rpc_version }}
-          WORKFLOW_FILE: scheduled-tests.yml
-        run: |
-          REPO=${REPO}
-  
-          curl -f -sS -X POST \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
-              -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
-  
-          echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
+      - name: Dispatch starknet.py workflow
+        uses: ./.github/actions/dispatch-scheduled-tests
+        with:
+          repo: software-mansion/starknet.py
+          ref: ${{ matrix.starknet_py_version }}
+          rpc_version: ${{ matrix.rpc_version }}
+          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+
+      - name: Dispatch starknet-jvm workflow
+        uses: ./.github/actions/dispatch-scheduled-tests
+        with:
+          repo: software-mansion/starknet-jvm
+          ref: ${{ matrix.starknet_jvm_version }}
+          rpc_version: ${{ matrix.rpc_version }}
+          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+
+      - name: Dispatch starknet.swift workflow
+        uses: ./.github/actions/dispatch-scheduled-tests
+        with:
+          repo: software-mansion/starknet.swift
+          ref: ${{ matrix.starknet_swift_version }}
+          rpc_version: ${{ matrix.rpc_version }}
+          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}

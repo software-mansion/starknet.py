@@ -1,0 +1,41 @@
+name: 'Dispatch Scheduled Tests'
+description: 'Dispatch scheduled tests workflow to a target repository'
+
+inputs:
+  repo:
+    description: 'Target repository (e.g., software-mansion/starknet.py)'
+    required: true
+  ref:
+    description: 'Git reference (branch, tag, or commit SHA) to use'
+    required: true
+  rpc_version:
+    description: 'RPC version path segment (e.g., v0_10)'
+    required: true
+  workflow_file:
+    description: 'Workflow file name to dispatch'
+    required: false
+    default: 'scheduled-tests.yml'
+  gh_token:
+    description: 'GitHub token for API authentication'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Dispatch workflow
+      shell: bash
+      env:
+        REPO: ${{ inputs.repo }}
+        REF: ${{ inputs.ref }}
+        RPC_VERSION: ${{ inputs.rpc_version }}
+        WORKFLOW_FILE: ${{ inputs.workflow_file }}
+        GH_TOKEN: ${{ inputs.gh_token }}
+      run: |
+        curl -f -sS -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+            -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
+        
+        echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
+
