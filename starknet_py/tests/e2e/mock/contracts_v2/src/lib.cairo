@@ -21,4 +21,3 @@ mod simple_storage_with_event;
 mod balance;
 mod account;
 mod account_copy_1;
-mod salted_contract;
