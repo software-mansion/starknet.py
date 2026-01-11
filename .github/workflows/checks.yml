@@ -105,7 +105,7 @@ jobs:
 
       # ====================== CONTRACTS v2 ====================== #
 
-      - name: Compile contracts v2
+      - name: Compile contracts contracts_v2
         run: |
           poetry run poe compile_contracts v2
 
@@ -113,7 +113,7 @@ jobs:
 
       - name: Compile contracts v1
         run: |
-          poetry run poe compile_contracts v1
+          poetry run poe compile_contracts contracts_v1
 
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
