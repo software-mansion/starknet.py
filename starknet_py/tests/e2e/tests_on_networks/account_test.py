@@ -15,7 +15,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer, _get_random_salt
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.tests.e2e.utils import _new_address
 
 
@@ -106,7 +106,7 @@ async def test_deploy_account_v3(
 
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
-    contract = load_contract(contract_name="SaltedContract", version=ContractVersion.V2)
+    contract = load_contract(contract_name="SaltedContract", package="contracts_salted")
 
     compiled_contract = contract["sierra"]
     compiled_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
