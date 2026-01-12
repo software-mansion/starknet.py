@@ -31,4 +31,3 @@ runs:
       shell: bash
       run: |
         poetry run poe compile_contracts ${{ inputs.package }}
-
