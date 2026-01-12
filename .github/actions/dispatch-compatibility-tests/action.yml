@@ -34,7 +34,7 @@ runs:
         gh workflow run "${WORKFLOW_FILE}" \
             --repo "${REPO}" \
             --ref "${REF}" \
-            --field rpc_version="${RPC_VERSION}"
+            --json "{ \"rpc_version\": \"${RPC_VERSION}\" }"
         
         echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
 
