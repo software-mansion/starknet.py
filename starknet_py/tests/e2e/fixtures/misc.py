@@ -149,7 +149,9 @@ def load_contract(contract_name: str, package: Optional[str] = None):
         else:
             package = "contracts_v2"
 
-    artifacts_map_path = f"{MOCK_DIR}/{package}/target/dev/{package}.starknet_artifacts.json"
+    artifacts_map_path = (
+        f"{MOCK_DIR}/{package}/target/dev/{package}.starknet_artifacts.json"
+    )
     directory = f"{MOCK_DIR}/{package}/target/dev"
 
     artifacts_map = json.loads(Path(artifacts_map_path).read_text("utf-8"))
