@@ -2,7 +2,6 @@
 set -e
 
 MOCK_DIRECTORY="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/mock"
-CONTRACTS_DIRECTORY="$MOCK_DIRECTORY/$1"
 
 setup_scarb() {
     SCARB_VERSION="$1"
@@ -48,7 +47,7 @@ if [ -n "$1" ]; then
     compile_contracts_with_scarb "$TARGET_DIR"
 else
     for DIR in "$MOCK_DIRECTORY"/*; do
-        if [ -d "$DIR" ]; then
+        if [ -d "$DIR" && [ -f "$DIR/Scarb.toml" ]; then
             compile_contracts_with_scarb "$DIR"
         fi
     done
