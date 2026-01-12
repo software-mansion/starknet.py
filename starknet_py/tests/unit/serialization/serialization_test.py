@@ -16,11 +16,7 @@ from starknet_py.serialization.factory import (
 from starknet_py.serialization.tuple_dataclass import TupleDataclass
 from starknet_py.tests.e2e.fixtures.abi_v1_structures import event_abi_v1
 from starknet_py.tests.e2e.fixtures.constants import CAIRO_0_CONTRACTS_ABI_DIR
-from starknet_py.tests.e2e.fixtures.misc import (
-    ContractVersion,
-    load_contract,
-    read_contract,
-)
+from starknet_py.tests.e2e.fixtures.misc import load_contract, read_contract
 
 dog = {"name": encode_shortstring("Cooper"), "species": encode_shortstring("dog")}
 dog_serialized = [dog["name"], dog["species"]]
@@ -158,7 +154,7 @@ def test_event_serialization_v1():
 def test_event_serialization_v2():
     abi_v2 = json.loads(
         load_contract(
-            contract_name="NewSyntaxTestContract", version=ContractVersion.V2
+            contract_name="NewSyntaxTestContract",
         )["sierra"]
     )["abi"]
 

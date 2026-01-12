@@ -1,7 +1,7 @@
 # pylint: disable=import-outside-toplevel, pointless-string-statement, unbalanced-tuple-unpacking
 import json
 
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 def test_short_strings():
@@ -20,9 +20,9 @@ def test_short_strings():
 
 def test_abi_parsing():
     raw_abi_string = json.loads(
-        load_contract(contract_name="TestContract", version=ContractVersion.V2)[
-            "sierra"
-        ]
+        load_contract(
+            contract_name="TestContract",
+        )["sierra"]
     )["abi"]
     # docs-serializer: start
     from starknet_py.abi.v2 import AbiParser
@@ -56,7 +56,9 @@ def test_abi_parsing():
     # docs-serializer: end
 
     raw_abi_string = json.loads(
-        load_contract(contract_name="ERC20", version=ContractVersion.V2)["sierra"]
+        load_contract(
+            contract_name="ERC20",
+        )["sierra"]
     )["abi"]
     abi = AbiParser(raw_abi_string).parse()
 

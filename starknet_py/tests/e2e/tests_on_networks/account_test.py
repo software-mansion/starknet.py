@@ -15,7 +15,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer, _get_random_salt
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.tests.e2e.utils import _new_address
 
 
@@ -106,7 +106,7 @@ async def test_deploy_account_v3(
 
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
-    contract = load_contract(contract_name="SaltedContract", version=ContractVersion.V2)
+    contract = load_contract(contract_name="SimpleContract", package="contracts_salted")
 
     compiled_contract = contract["sierra"]
     compiled_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
@@ -128,7 +128,6 @@ async def test_declare_v3(account_sepolia_testnet):
 async def test_deploy_v3(account_sepolia_testnet):
     calldata = []
     salt = _get_random_salt()
-
     deployer = Deployer()
 
     # https://sepolia.starkscan.co/class/0x0227f52a4d2138816edf8231980d5f9e6e0c8a3deab45b601a1fcee3d4427b02
@@ -137,15 +136,14 @@ async def test_deploy_v3(account_sepolia_testnet):
     )
     contract_deployment = deployer.create_contract_deployment(
         class_hash=example_contract_sepolia_class_hash,
-        cairo_version=1,
         calldata=calldata,
         salt=salt,
     )
 
-    res = await account_sepolia_testnet.execute_v3(
+    tx_response = await account_sepolia_testnet.execute_v3(
         calls=contract_deployment.call, auto_estimate=True
     )
-    await account_sepolia_testnet.client.wait_for_tx(res.transaction_hash)
+    await account_sepolia_testnet.client.wait_for_tx(tx_response.transaction_hash)
 
     assert isinstance(contract_deployment.address, int)
     assert contract_deployment.address != 0

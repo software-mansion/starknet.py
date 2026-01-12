@@ -7,7 +7,7 @@ from starknet_py.cairo.felt import decode_shortstring
 from starknet_py.contract import Contract, DeclareResult, DeployResult
 from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 U128_MAX = (1 << 128) - 1
 U256_MAX = (1 << 256) - 1
@@ -15,7 +15,9 @@ U256_MAX = (1 << 256) - 1
 
 @pytest_asyncio.fixture(scope="package")
 async def declare_deploy_hello2(account) -> Tuple[DeclareResult, DeployResult]:
-    contract = load_contract(contract_name="Hello2", version=ContractVersion.V2)
+    contract = load_contract(
+        contract_name="Hello2",
+    )
 
     declare_result = await Contract.declare_v3(
         account=account,

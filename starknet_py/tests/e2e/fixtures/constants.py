@@ -70,13 +70,3 @@ CAIRO_0_CONTRACTS_ABI_DIR = MOCK_DIR / "cairo_0_contracts_abi"
 # PRECOMPILED_CONTRACTS are contracts compiled with various Sierras
 # They are mainly used to verify if we compute class_hash for older Sierras correctly
 PRECOMPILED_CONTRACTS_DIR = MOCK_DIR / "precompiled_contracts"
-
-CONTRACTS_V2_COMPILED = MOCK_DIR / "contracts_v2/target/dev"
-CONTRACTS_V2_ARTIFACTS_MAP = (
-    CONTRACTS_V2_COMPILED / "contracts_v2.starknet_artifacts.json"
-)
-
-CONTRACTS_V1_COMPILED = MOCK_DIR / "contracts_v1/target/dev"
-CONTRACTS_V1_ARTIFACTS_MAP = (
-    CONTRACTS_V1_COMPILED / "contracts_v1.starknet_artifacts.json"
-)

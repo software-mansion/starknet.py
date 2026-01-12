@@ -9,11 +9,7 @@ from starknet_py.hash.casm_class_hash import (
 )
 from starknet_py.hash.hash_method import HashMethod
 from starknet_py.tests.e2e.fixtures.constants import PRECOMPILED_CONTRACTS_DIR
-from starknet_py.tests.e2e.fixtures.misc import (
-    ContractVersion,
-    load_contract,
-    read_contract,
-)
+from starknet_py.tests.e2e.fixtures.misc import load_contract, read_contract
 
 
 @pytest.mark.parametrize(
@@ -28,7 +24,7 @@ from starknet_py.tests.e2e.fixtures.misc import (
 )
 def test_compute_casm_class_hash_with_poseidon(contract, expected_casm_class_hash_poseidon):
     casm_contract_class_str = load_contract(
-        contract, version=ContractVersion.V2
+        contract,
     )['casm']
 
     casm_class = create_casm_class(casm_contract_class_str)
@@ -85,9 +81,7 @@ def test_get_casm_hash_method_for_starknet_version(starknet_version, expected_ha
 )
 
 def test_compute_casm_class_hash_with_blake2s(contract, expected_casm_class_hash_blake2s):
-    casm_contract_class_str = load_contract(
-        contract, version=ContractVersion.V2
-    )['casm']
+    casm_contract_class_str = load_contract(contract)['casm']
 
     casm_class = create_casm_class(casm_contract_class_str)
     casm_class_hash = compute_casm_class_hash(casm_class, hash_method=HashMethod.BLAKE2S)

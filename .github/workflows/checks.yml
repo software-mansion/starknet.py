@@ -103,32 +103,15 @@ jobs:
         run: |
           poetry install
 
-      # ====================== CONTRACTS v2 ====================== #
-      - name: Cache contracts v2
-        id: cache-contracts_v2
-        uses: actions/cache@v4
+      - name: Cache and compile contracts v2
+        uses: ./.github/actions/cache-and-compile-contracts
         with:
-          path: starknet_py/tests/e2e/mock/contracts_v2/target
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v2') }}
+          package: contracts_v2
 
-      - name: Compile contracts v2
-        if: steps.cache-contracts_v2.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts v2
-
-      # ====================== CONTRACTS v1 ====================== #
-
-      - name: Cache contracts v1
-        id: cache-contracts_v1
-        uses: actions/cache@v4
+      - name: Cache and compile contracts v1
+        uses: ./.github/actions/cache-and-compile-contracts
         with:
-          path: starknet_py/tests/e2e/mock/contracts_v1/target
-          key: ${{ runner.os }}-contracts-${{ hashFiles('starknet_py/tests/e2e/mock/contracts_v1') }}
-
-      - name: Compile contracts v1
-        if: steps.cache-contracts_v1.outputs.cache-hit != 'true'
-        run: |
-          poetry run poe compile_contracts v1
+          package: contracts_v1
 
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
@@ -247,12 +230,6 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
-
       - name: Run tests
         run: |
           poetry run poe test_ci_v2
@@ -330,11 +307,8 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#     TODO(#1498): Remove contracts compilation in the step below once issue with compilation is resolved
       - name: Run tests
         run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
           poetry run poe test_ci_on_networks
 
       - name: Generate coverage in XML
@@ -477,12 +451,6 @@ jobs:
       # ====================== RUN TESTS ====================== #
 
       - uses: asdf-vm/actions/setup@v3
-
-#     TODO(#1498): Remove below step once issue with compiled contracts is resolved
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
 
       - name: Run tests
         run: |
