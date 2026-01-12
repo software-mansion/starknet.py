@@ -146,8 +146,6 @@ def load_contract(contract_name: str, package: Optional[str] = None):
     if package is None:
         if "--contract_dir=v1" in sys.argv:
             package = "contracts_v1"
-        elif "--contract_dir=v2" in sys.argv:
-            package = "contracts_v2"
         else:
             package = "contracts_v2"
 
