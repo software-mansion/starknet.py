@@ -1,0 +1,33 @@
+name: 'Cache and Compile Contracts'
+description: 'Cache and compile Cairo contracts for a specific package'
+
+inputs:
+  package:
+    description: 'Name of contracts package'
+    required: true
+  contracts_base_path:
+    description: 'Base path to contracts directory'
+    required: false
+    default: 'starknet_py/tests/e2e/mock'
+
+outputs:
+  cache-hit:
+    value: ${{ steps.cache-contracts.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache contracts ${{ inputs.package }}
+      id: cache-contracts
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.contracts_base_path }}/${{ inputs.package }}/target
+        key: ${{ runner.os }}-contracts-${{ inputs.package }}-${{ hashFiles(format('starknet_py/tests/e2e/mock/{0}', inputs.package)) }}
+        restore-keys: |
+          ${{ runner.os }}-contracts-${{ inputs.package }}-
+
+    - name: Compile contracts ${{ inputs.package }}
+      if: steps.cache-contracts.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        poetry run poe compile_contracts ${{ inputs.package }}
