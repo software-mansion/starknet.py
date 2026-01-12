@@ -1,4 +1,4 @@
-name: Run scheduled tests with multiple RPC versions
+name: Run compatibility tests with multiple RPC versions
 
 on:
   workflow_dispatch:
@@ -51,7 +51,7 @@ jobs:
 
       - name: Dispatch starknet.swift workflow
         if: matrix.starknet_swift_version != ''
-        uses: ./.github/actions/dispatch-scheduled-tests
+        uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet.swift
           ref: ${{ matrix.starknet_swift_version }}

@@ -1,4 +1,4 @@
-name: Scheduled tests
+name: Compatibility tests
 
 on:
   workflow_dispatch:
