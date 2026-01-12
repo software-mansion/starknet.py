@@ -9,6 +9,10 @@ inputs:
     description: 'Base path to contracts directory'
     required: false
     default: 'starknet_py/tests/e2e/mock'
+  ignore_cache:
+    description: 'Whether to ignore cache and always compile contracts'
+    required: false
+    default: 'false'
 
 outputs:
   cache-hit:
@@ -27,7 +31,7 @@ runs:
           ${{ runner.os }}-contracts-${{ inputs.package }}-
 
     - name: Compile contracts ${{ inputs.package }}
-      if: steps.cache-contracts.outputs.cache-hit != 'true'
+      if: inputs.ignore_cache == 'true' || steps.cache-contracts.outputs.cache-hit != 'true'
       shell: bash
       run: |
         poetry run poe compile_contracts ${{ inputs.package }}
