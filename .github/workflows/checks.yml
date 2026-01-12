@@ -103,15 +103,20 @@ jobs:
         run: |
           poetry install
 
-      - name: Cache and compile contracts v2
+      - name: Cache and compile contracts_v2
         uses: ./.github/actions/cache-and-compile-contracts
         with:
           package: contracts_v2
 
-      - name: Cache and compile contracts v1
+      - name: Cache and compile contracts_v1
         uses: ./.github/actions/cache-and-compile-contracts
         with:
           package: contracts_v1
+
+      - name: Cache and compile contracts_salted
+        uses: ./.github/actions/cache-and-compile-contracts
+        with:
+          package: contracts_salted
 
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
