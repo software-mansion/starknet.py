@@ -42,6 +42,7 @@ jobs:
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet-jvm workflow
+        if: matrix.starknet_jvm_version != ''
         uses: ./.github/actions/dispatch-scheduled-tests
         with:
           repo: software-mansion/starknet-jvm
@@ -50,6 +51,7 @@ jobs:
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet.swift workflow
+        if: matrix.starknet_swift_version != ''
         uses: ./.github/actions/dispatch-scheduled-tests
         with:
           repo: software-mansion/starknet.swift
