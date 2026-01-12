@@ -15,8 +15,8 @@ jobs:
       matrix:
         include:
           - rpc_version: "v0_8"
-            starknet_py_version: "0.26.0"
             # TODO: Run once scheduled tests are available
+            # starknet_py_version: "0.26.0"
             # starknet_jvm_version: "x.y.z"
             # starknet_swift_version: "x.y.z"
           - rpc_version: "v0_9"
@@ -26,7 +26,7 @@ jobs:
             # starknet_swift_version: "x.y.z"
           - rpc_version: "v0_10"
             # TODO: Run once scheduled tests are available
-            # starknet_py_version: "scheduled-tests"
+             starknet_py_version: "scheduled-tests"
             # starknet_jvm_version: "x.y.z"
             # starknet_swift_version: "x.y.z"
 
