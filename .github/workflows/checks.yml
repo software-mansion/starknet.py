@@ -113,12 +113,6 @@ jobs:
         with:
           package: contracts_v1
 
-      - name: Compile contracts_salted
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_salted
-          cache: false
-
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -267,6 +261,12 @@ jobs:
       SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Compile contracts_salted
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_salted
+          cache: false
 
       - name: Download contracts
         uses: actions/download-artifact@v4
