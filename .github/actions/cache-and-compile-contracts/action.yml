@@ -23,6 +23,7 @@ runs:
   steps:
     - name: Cache contracts ${{ inputs.package }}
       id: cache-contracts
+      if: inputs.ignore_cache == 'false'
       uses: actions/cache@v4
       with:
         path: ${{ inputs.contracts_base_path }}/${{ inputs.package }}/target
