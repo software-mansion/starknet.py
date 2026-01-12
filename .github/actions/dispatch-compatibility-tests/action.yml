@@ -1,5 +1,5 @@
-name: 'Dispatch Scheduled Tests'
-description: 'Dispatch scheduled tests workflow to a target repository'
+name: 'Dispatch compatibility tests'
+description: 'Dispatch compatibility tests workflow to a target repository'
 
 inputs:
   repo:
@@ -14,7 +14,7 @@ inputs:
   workflow_file:
     description: 'Workflow file name to dispatch'
     required: false
-    default: 'scheduled-tests.yml'
+    default: 'compatibility-tests.yml'
   gh_token:
     description: 'GitHub token for API authentication'
     required: true

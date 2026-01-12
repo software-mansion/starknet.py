@@ -1,9 +1,6 @@
 name: Run scheduled tests with multiple RPC versions
 
 on:
-  pull_request:
-  schedule:
-    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -15,18 +12,18 @@ jobs:
       matrix:
         include:
           - rpc_version: "v0_8"
-            # TODO: Run once scheduled tests are available
+            # TODO: Run once compatibility tests are available
             # starknet_py_version: "0.26.0"
             # starknet_jvm_version: "x.y.z"
             # starknet_swift_version: "x.y.z"
           - rpc_version: "v0_9"
-            # TODO: Run once scheduled tests are available
+            # TODO: Run once compatibility tests are available
             # starknet_py_version: "0.28.1"
             # starknet_jvm_version: "x.y.z"
             # starknet_swift_version: "x.y.z"
           - rpc_version: "v0_10"
-            starknet_py_version: "scheduled-tests"
-            # TODO: Run once scheduled tests are available
+            starknet_py_version: "compatibility-tests"
+            # TODO: Run once compatibility tests are available
             # starknet_jvm_version: "x.y.z"
             # starknet_swift_version: "x.y.z"
 
@@ -35,7 +32,7 @@ jobs:
 
       - name: Dispatch starknet.py workflow
         if: matrix.starknet_py_version != ''
-        uses: ./.github/actions/dispatch-scheduled-tests
+        uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet.py
           ref: ${{ matrix.starknet_py_version }}
@@ -44,7 +41,7 @@ jobs:
 
       - name: Dispatch starknet-jvm workflow
         if: matrix.starknet_jvm_version != ''
-        uses: ./.github/actions/dispatch-scheduled-tests
+        uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet-jvm
           ref: ${{ matrix.starknet_jvm_version }}
