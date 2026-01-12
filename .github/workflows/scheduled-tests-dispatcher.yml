@@ -28,6 +28,8 @@ jobs:
             starknet_swift_version: "x.y.z"  # TODO: Replace with actual version
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Dispatch starknet.py workflow
         uses: ./.github/actions/dispatch-scheduled-tests
         with:
