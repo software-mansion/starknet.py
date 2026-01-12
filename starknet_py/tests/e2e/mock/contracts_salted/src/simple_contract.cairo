@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod SaltedContract {
+mod SimpleContract {
     #[storage]
     struct Storage {}
     #[external(v0)]

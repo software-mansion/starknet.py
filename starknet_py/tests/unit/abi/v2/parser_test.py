@@ -5,7 +5,7 @@ import pytest
 
 from starknet_py.abi.v2 import Abi, AbiParser
 from starknet_py.cairo.data_types import UintType
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest.mark.parametrize(
@@ -27,7 +27,9 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 )
 def test_abi_parse(contract_name):
     abi = json.loads(
-        load_contract(contract_name=contract_name, version=ContractVersion.V2)["sierra"]
+        load_contract(
+            contract_name=contract_name,
+        )["sierra"]
     )["abi"]
 
     parser = AbiParser(abi)
