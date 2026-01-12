@@ -23,7 +23,7 @@ jobs:
             starknet_jvm_version: "x.y.z"  # TODO: Replace with actual version
             starknet_swift_version: "x.y.z"  # TODO: Replace with actual version
           - rpc_version: "v0_10"
-            starknet_py_version: "development"
+            starknet_py_version: "scheduled-tests"
             starknet_jvm_version: "x.y.z"  # TODO: Replace with actual version
             starknet_swift_version: "x.y.z"  # TODO: Replace with actual version
 
