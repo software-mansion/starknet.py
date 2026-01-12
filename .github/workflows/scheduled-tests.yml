@@ -12,15 +12,12 @@ jobs:
     setup-tests:
         name: Setup Tests
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                python-version: [ "3.14" ]
         steps:
             - uses: actions/checkout@v4
             - uses: asdf-vm/actions/setup@v3
             - uses: actions/setup-python@v5
               with:
-                  python-version: ${{ matrix.python-version }}
+                  python-version: "3.14"
                   cache: 'pip'
 
             - name: Install poetry
@@ -28,10 +25,10 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install poetry
 
-            - name: Set up Python ${{ matrix.python-version }}
+            - name: Set up Python 3.14
               uses: actions/setup-python@v5
               with:
-                  python-version: ${{ matrix.python-version }}
+                  python-version: "3.14"
                   cache: 'poetry'
 
             - name: Install dependencies
