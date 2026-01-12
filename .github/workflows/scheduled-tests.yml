@@ -38,49 +38,20 @@ jobs:
               run: |
                   poetry install
 
-            - name: Cache contracts v1
-              id: cache-contracts-v1
-              env:
-                CONTRACTS_DIR: starknet_py/tests/e2e/mock/contracts_v1
-              uses: actions/cache@v4
+            - name: Cache and compile contracts_v2
+              uses: ./.github/actions/cache-and-compile-contracts
               with:
-                path: starknet_py/tests/e2e/mock/contracts_v1/target
-                key: >
-                  ${{ runner.os }}-contracts-v1-
-                  ${{ hashFiles(
-                    'starknet_py/tests/e2e/mock/contracts_v1/**/Scarb.toml',
-                    'starknet_py/tests/e2e/mock/contracts_v1/**/Scarb.lock',
-                    'starknet_py/tests/e2e/mock/contracts_v1/**/*.cairo',
-                    '.tool-versions'
-                  ) }}
-                restore-keys: |
-                  ${{ runner.os }}-contracts-v1-
+                package: contracts_v2
 
-            - name: Compile contracts v1
-              if: steps.cache-contracts.outputs.cache-hit != 'true'
-              run: |
-                poetry run poe compile_contracts v1
-
-            - name: Cache contracts v2
-              id: cache-contracts-v2
-              uses: actions/cache@v4
+            - name: Cache and compile contracts_v1
+              uses: ./.github/actions/cache-and-compile-contracts
               with:
-                path: starknet_py/tests/e2e/mock/contracts_v2/target
-                key: >
-                  ${{ runner.os }}-contracts-v2-
-                  ${{ hashFiles(
-                    'starknet_py/tests/e2e/mock/contracts_v2/**/Scarb.toml',
-                    'starknet_py/tests/e2e/mock/contracts_v2/**/Scarb.lock',
-                    'starknet_py/tests/e2e/mock/contracts_v2/**/*.cairo',
-                    '.tool-versions'
-                  ) }}
-                restore-keys: |
-                  ${{ runner.os }}-contracts-v2-
+                package: contracts_v1
 
-            - name: Compile contracts v2
-              if: steps.cache-contracts.outputs.cache-hit != 'true'
-              run: |
-                poetry run poe compile_contracts v2
+            - name: Cache and compile contracts_salted
+              uses: ./.github/actions/cache-and-compile-contracts
+              with:
+                package: contracts_salted
 
             - name: Upload contracts artifacts
               uses: actions/upload-artifact@v4
