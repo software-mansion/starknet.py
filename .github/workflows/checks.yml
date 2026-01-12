@@ -117,6 +117,7 @@ jobs:
         uses: ./.github/actions/cache-and-compile-contracts
         with:
           package: contracts_salted
+          ignore_cache: true
 
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
