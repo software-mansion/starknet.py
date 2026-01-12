@@ -31,10 +31,6 @@ runs:
         WORKFLOW_FILE: ${{ inputs.workflow_file }}
         GH_TOKEN: ${{ inputs.gh_token }}
       run: |
-        gh workflow run "${WORKFLOW_FILE}" \
-            --repo "${REPO}" \
-            --ref "${REF}" \
-            --json "{ \"rpc_version\": \"${RPC_VERSION}\" }"
-        
+        gh workflow run "${WORKFLOW_FILE}" --ref "${REF}" --field rpc_version="${RPC_VERSION}"
         echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
 
