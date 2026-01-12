@@ -15,17 +15,17 @@ jobs:
       matrix:
         include:
           - rpc_version: "v0_8"
-            starknet_py_version: "x.y.z"  # TODO: Replace with actual version
-            starknet_jvm_version: "a.b.c"  # TODO: Replace with actual version
-            starknet_swift_version: "d.e.f"  # TODO: Replace with actual version
+            starknet_py_version: "0.26.0"
+            starknet_jvm_version: "x.y.z"  # TODO: Replace with actual version
+            starknet_swift_version: "x.y.z"  # TODO: Replace with actual version
           - rpc_version: "v0_9"
-            starknet_py_version: "x.y.z"  # TODO: Replace with actual version
-            starknet_jvm_version: "a.b.c"  # TODO: Replace with actual version
-            starknet_swift_version: "d.e.f"  # TODO: Replace with actual version
+            starknet_py_version: "0.28.1"
+            starknet_jvm_version: "x.y.z"  # TODO: Replace with actual version
+            starknet_swift_version: "x.y.z"  # TODO: Replace with actual version
           - rpc_version: "v0_10"
-            starknet_py_version: "x.y.z"  # TODO: Replace with actual version
-            starknet_jvm_version: "a.b.c"  # TODO: Replace with actual version
-            starknet_swift_version: "d.e.f"  # TODO: Replace with actual version
+            starknet_py_version: "development"
+            starknet_jvm_version: "x.y.z"  # TODO: Replace with actual version
+            starknet_swift_version: "x.y.z"  # TODO: Replace with actual version
 
     steps:
       - name: Dispatch starknet.py workflow
