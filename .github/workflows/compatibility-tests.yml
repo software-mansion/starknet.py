@@ -36,20 +36,20 @@ jobs:
                   poetry install
 
             - name: Cache and compile contracts_v2
-              uses: ./.github/actions/cache-and-compile-contracts
+              uses: ./.github/actions/compile-contracts
               with:
                 package: contracts_v2
 
             - name: Cache and compile contracts_v1
-              uses: ./.github/actions/cache-and-compile-contracts
+              uses: ./.github/actions/compile-contracts
               with:
                 package: contracts_v1
 
             - name: Cache and compile contracts_salted
-              uses: ./.github/actions/cache-and-compile-contracts
+              uses: ./.github/actions/compile-contracts
               with:
                 package: contracts_salted
-                ignore_cache: 'true'
+                cache: false
 
             - name: Upload contracts artifacts
               uses: actions/upload-artifact@v4
@@ -97,10 +97,10 @@ jobs:
             - name: Update RPC url with version from inputs
               run: |
                 URL="${SEPOLIA_RPC_URL}"
-                RPC_VERION="${{ inputs.rpc_version }}"
+                RPC_VERSION="${{ inputs.rpc_version }}"
                 URL="${URL%/}" # Remove trailing slash if any
                 URL="${URL%/*}" # Get base URL without version
-                RPC_URL="${URL}/${RPC_VERION}"
+                RPC_URL="${URL}/${RPC_VERSION}"
                 echo "SEPOLIA_RPC_URL=${RPC_URL}" >> "$GITHUB_ENV"
 
             - name: Run tests
