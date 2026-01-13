@@ -23,6 +23,7 @@ from starknet_py.tests.e2e.utils import _new_address
 
 @pytest.mark.asyncio
 async def test_execute_v3(account_sepolia_testnet):
+    sleep(10)
     # https://sepolia.starkscan.co/contract/0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF
     sepolia_balance_contract_address = (
         0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF
@@ -50,7 +51,7 @@ async def test_deploy_account_v3(
     account_sepolia_testnet,
     client_sepolia_testnet,
 ):
-    sleep(5)
+    sleep(10)
     key_pair = KeyPair.generate()
     constructor_calldata = [0, key_pair.public_key, 1]
     address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
@@ -130,7 +131,7 @@ async def test_declare_v3(account_sepolia_testnet):
 
 @pytest.mark.asyncio
 async def test_deploy_v3(account_sepolia_testnet):
-    sleep(15)
+    sleep(10)
     calldata = []
     salt = _get_random_salt()
     deployer = Deployer()
