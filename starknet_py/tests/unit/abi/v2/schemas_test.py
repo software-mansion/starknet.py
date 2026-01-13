@@ -4,7 +4,7 @@ import pytest
 from marshmallow import EXCLUDE
 
 from starknet_py.abi.v2.schemas import ContractAbiEntrySchema
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest.mark.parametrize(
@@ -25,7 +25,9 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
 )
 def test_deserialize_abi(contract_name):
     abi = json.loads(
-        load_contract(contract_name, version=ContractVersion.V2)["sierra"]
+        load_contract(
+            contract_name,
+        )["sierra"]
     )["abi"]
     deserialized = [
         ContractAbiEntrySchema().load(entry, unknown=EXCLUDE) for entry in abi

@@ -2,8 +2,6 @@
 set -e
 
 MOCK_DIRECTORY="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/mock"
-CONTRACTS_DIRECTORY_V1="$MOCK_DIRECTORY/contracts_v1"
-CONTRACTS_DIRECTORY_V2="$MOCK_DIRECTORY/contracts_v2"
 
 setup_scarb() {
     SCARB_VERSION="$1"
@@ -22,16 +20,16 @@ setup_scarb() {
     fi
 }
 
-update_salted_contracts() {
+apply_contract_salt() {
     SALT="$1"
 
     echo "Updating salted contracts with salt: ${SALT}"
 
-    shopt -s nullglob # Enable nullglob to avoid issues if no files match
+    shopt -s nullglob
 
-    for FILE in ./src/salted_*.cairo; do
+    for FILE in ./src/*.cairo; do
         sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
-        rm "$FILE.bak"
+        rm "$FILE".bak 2> /dev/null
     done
 
     echo "Salted contracts updated"
@@ -39,19 +37,19 @@ update_salted_contracts() {
     shopt -u nullglob
 }
 
-restore_salted_contracts() {
+revert_contract_salt() {
     SALT="$1"
-    shopt -s nullglob # Enable nullglob to avoid issues if no files match
+    echo "Restoring salted contracts to original state by removing salt: ${SALT}"
+    shopt -s nullglob
 
-    for FILE in ./src/salted_*.cairo; do
+    for FILE in ./src/*.cairo; do
         sed -i.bak "s/${SALT}/__salt_placeholder__/g" "$FILE"
-        rm "$FILE.bak"
+        rm "$FILE.bak" 2> /dev/null
     done
 
     echo "Restored salted contracts to original state"
 
     shopt -u nullglob
-
 }
 
 compile_contracts_with_scarb() {
@@ -65,30 +63,33 @@ compile_contracts_with_scarb() {
     echo "Checking Cairo contracts formatting"
     scarb fmt --check
 
-    SALT=$(date +%s%3)
+    SALT=$(uuidgen | tr -d '-')
+    trap 'cd "$CONTRACTS_DIRECTORY" && revert_contract_salt "$SALT"' EXIT
 
-    update_salted_contracts "$SALT"
+    apply_contract_salt "$SALT"
 
     echo "Compiling Cairo contracts with scarb $SCARB_VERSION"
     scarb clean && scarb build
-
-    restore_salted_contracts "$SALT"
-
     popd >/dev/null || exit 1
 }
 
-case "$1" in
-"v1")
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V1"
-    ;;
-"v2")
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V2"
-    ;;
-*)
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V1"
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V2"
-    ;;
-esac
+if [ -n "$1" ]; then
+    TARGET_DIR="$MOCK_DIRECTORY/$1"
+
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "Error: package '$1' does not exist in $MOCK_DIRECTORY"
+        exit 1
+    fi
+
+    compile_contracts_with_scarb "$TARGET_DIR"
+else
+    for DIR in "$MOCK_DIRECTORY"/*; do
+        if [ -d "$DIR" && [ -f "$DIR/Scarb.toml" ]; then
+            compile_contracts_with_scarb "$DIR"
+        fi
+    done
+fi
+
 
 echo "Successfully compiled contracts!"
 exit 0
