@@ -36,16 +36,6 @@ jobs:
               run: |
                   poetry install
 
-            - name: Cache and compile contracts_v2
-              uses: ./.github/actions/compile-contracts
-              with:
-                package: contracts_v2
-
-            - name: Cache and compile contracts_v1
-              uses: ./.github/actions/compile-contracts
-              with:
-                package: contracts_v1
-
             - name: Compile contracts_salted
               uses: ./.github/actions/compile-contracts
               with:
