@@ -21,9 +21,7 @@ async def test_simple_deploy_cairo1(account, erc20_class_hash):
 
     # docs: end
 
-    compiled_contract = load_contract(
-        contract_name="ERC20",
-    )["sierra"]
+    compiled_contract = load_contract(contract_name="ERC20")["sierra"]
 
     class_hash = erc20_class_hash
 
