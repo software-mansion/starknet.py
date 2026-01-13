@@ -1,3 +1,5 @@
+from time import sleep
+
 import pytest
 
 from starknet_py.common import create_casm_class
@@ -48,6 +50,7 @@ async def test_deploy_account_v3(
     account_sepolia_testnet,
     client_sepolia_testnet,
 ):
+    sleep(5)
     key_pair = KeyPair.generate()
     constructor_calldata = [0, key_pair.public_key, 1]
     address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
@@ -106,6 +109,7 @@ async def test_deploy_account_v3(
 
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
+    sleep(10)
     contract = load_contract(contract_name="SimpleContract", package="contracts_salted")
 
     compiled_contract = contract["sierra"]
@@ -126,6 +130,7 @@ async def test_declare_v3(account_sepolia_testnet):
 
 @pytest.mark.asyncio
 async def test_deploy_v3(account_sepolia_testnet):
+    sleep(15)
     calldata = []
     salt = _get_random_salt()
     deployer = Deployer()
