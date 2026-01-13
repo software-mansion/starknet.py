@@ -27,7 +27,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ inputs.contracts_base_path }}/${{ inputs.package }}/target
-        key: ${{ runner.os }}-contracts-${{ inputs.package }}-${{ hashFiles(format('starknet_py/tests/e2e/mock/{0}', inputs.package)) }}
+        key: ${{ runner.os }}-contracts-${{ inputs.package }}-${{ hashFiles(format('starknet_py/tests/e2e/mock/{0}/**', inputs.package)) }}
         restore-keys: |
           ${{ runner.os }}-contracts-${{ inputs.package }}-
 
