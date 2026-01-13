@@ -17,7 +17,6 @@ from starknet_py.net.client_models import (
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer, _get_random_salt
-from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS_SEPOLIA
 from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.tests.e2e.utils import _new_address
 
