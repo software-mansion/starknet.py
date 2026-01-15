@@ -33,4 +33,5 @@ runs:
 
     - name: Compile contracts ${{ inputs.package }}
       if: inputs.cache != 'true' || steps.cache-contracts.outputs.cache-hit != 'true'
+      shell: bash
       run: poetry run poe compile_contracts ${{ inputs.package }}
