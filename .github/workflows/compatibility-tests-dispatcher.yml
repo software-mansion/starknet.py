@@ -60,3 +60,12 @@ jobs:
           ref: ${{ matrix.starknet_swift_version }}
           rpc_version: ${{ matrix.rpc_version }}
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+
+      - name: Dispatch starknet-rust workflow
+        if: matrix.starknet_rust_version != ''
+        uses: ./.github/actions/dispatch-compatibility-tests
+        with:
+          repo: software-mansion/starknet-rust
+          ref: ${{ matrix.starknet_rust_version }}
+          rpc_version: ${{ matrix.rpc_version }}
+          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
