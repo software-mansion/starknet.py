@@ -1,0 +1,24 @@
+# Dockerfile for starknet-devnet
+# This image pre-installs starknet-devnet to avoid building from source during CI
+
+FROM rust:1.83.0-slim
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install starknet-devnet at specific version
+ARG DEVNET_SHA=b761edef5b89a4faa7a972d7172a324cd646d612
+RUN cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${DEVNET_SHA}
+
+# Set the working directory
+WORKDIR /app
+
+# The devnet binary is installed in /usr/local/cargo/bin/starknet-devnet
+# Add it to PATH (should already be there from cargo install)
+ENV PATH="/usr/local/cargo/bin:${PATH}"
+
+# Default command to run devnet
+# Users can override these parameters when running the container
+CMD ["starknet-devnet", "--host", "0.0.0.0", "--port", "5050"]
