@@ -350,9 +350,11 @@ jobs:
         python-version: [ "3.10", "3.14" ]
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
-      DEVNET_URL: http://localhost:5050
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
+        with:
+          toolchain: 1.83.0
 
       - name: Download contracts
         uses: actions/download-artifact@v4
@@ -367,11 +369,19 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Start devnet container
-        run: |
-          docker run -d --name starknet-devnet -p 5050:5050 docker.io/shardlabs/starknet-devnet-rs:0.7.0 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent
-        shell: pwsh
+      - name: Cache devnet build
+        id: windows-devnet-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
 
+      - name: Install devnet
+        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
+        run: |
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+        shell: pwsh
       # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
@@ -484,10 +494,11 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.10", "3.14" ]
-    env:
-      DEVNET_URL: http://localhost:5050
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
+        with:
+          toolchain: 1.83.0
 
       - name: Download contracts
         uses: actions/download-artifact@v4
@@ -519,9 +530,18 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Start devnet container
+      - name: Cache devnet build
+        id: windows-devnet-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
+          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
+
+      - name: Install devnet
+        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
         run: |
-          docker run -d --name starknet-devnet -p 5050:5050 docker.io/shardlabs/starknet-devnet-rs:0.7.0 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent
+          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
+          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
         shell: pwsh
 
       # ====================== RUN TESTS ====================== #

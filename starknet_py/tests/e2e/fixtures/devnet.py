@@ -1,4 +1,3 @@
-import os
 import socket
 import subprocess
 import time
@@ -61,15 +60,10 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
 def devnet() -> Generator[str, None, None]:
     """
     Runs devnet instance once per module and returns its address.
-    If DEVNET_URL environment variable is set, uses that instead of starting a new instance.
     """
-    devnet_url = os.environ.get("DEVNET_URL")
-    if devnet_url:
-        yield devnet_url
-    else:
-        devnet_port, proc = start_devnet()
-        yield f"http://localhost:{devnet_port}"
-        proc.kill()
+    devnet_port, proc = start_devnet()
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
 
 
 @pytest.fixture(scope="package")
