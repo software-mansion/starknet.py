@@ -1,7 +1,7 @@
 # Dockerfile for starknet-devnet
 # This image pre-installs starknet-devnet to avoid building from source during CI
 
-FROM rust:1.83.0-slim
+FROM rust:1.92.0-slim
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
