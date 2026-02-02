@@ -25,7 +25,7 @@ apply_contract_salt() {
 
     echo "Updating salted contracts with salt: ${SALT}"
 
-    shopt -s nullglob
+    shopt -s nullglob # Make unmatched globs expand to nothing instead of a literal pattern
 
     for FILE in ./src/*.cairo; do
         sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
@@ -64,6 +64,8 @@ compile_contracts_with_scarb() {
     scarb fmt --check
 
     SALT=$(uuidgen | tr -d '-')
+
+    # Ensure revert_contract_salt is always executed on script exit (both on success and on failure)
     trap 'cd "$CONTRACTS_DIRECTORY" && revert_contract_salt "$SALT"' EXIT
 
     apply_contract_salt "$SALT"
