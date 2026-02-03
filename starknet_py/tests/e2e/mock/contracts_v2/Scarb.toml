@@ -7,6 +7,8 @@ starknet = "2.15.0"
 openzeppelin = "1.0.0"
 
 [[target.starknet-contract]]
+casm = true
+sierra = true
 build-external-contracts = [
     "openzeppelin_presets::EthAccountUpgradeable",
 ]
