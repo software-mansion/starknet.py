@@ -149,7 +149,7 @@ class FullNodeClient(Client):
         )
 
         params = {**block_identifier}
-        if response_flags:
+        if response_flags is not None:
             params["response_flags"] = response_flags
 
         res = await self._client.call(
@@ -174,7 +174,7 @@ class FullNodeClient(Client):
         )
 
         params = {**block_identifier}
-        if response_flags:
+        if response_flags is not None:
             params["response_flags"] = response_flags
 
         res = await self._client.call(
@@ -436,7 +436,7 @@ class FullNodeClient(Client):
         try:
             params = {"transaction_hash": _to_rpc_felt(tx_hash)}
 
-            if response_flags:
+            if response_flags is not None:
                 params["response_flags"] = response_flags
 
             res = await self._client.call(
@@ -718,7 +718,7 @@ class FullNodeClient(Client):
             **block_identifier,
             "index": index,
         }
-        if response_flags:
+        if response_flags is not None:
             params["response_flags"] = response_flags
 
         res = await self._client.call(
