@@ -4,7 +4,7 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      rpc_version:
+      rpc-version:
         description: "RPC version path segment, e.g. v0_10"
         required: true
         type: string
@@ -49,7 +49,7 @@ jobs:
                   path: starknet_py/tests/e2e/mock/
 
     run-network-tests:
-        name: Network tests (testnet) with RPC version ${{ inputs.rpc_version }}
+        name: Network tests (testnet) with RPC version ${{ inputs.rpc-version }}
         needs: setup-tests
         runs-on: ubuntu-latest
         strategy:
@@ -88,7 +88,7 @@ jobs:
             - name: Update RPC url with version from inputs
               run: |
                 URL="${SEPOLIA_RPC_URL}"
-                RPC_VERSION="${{ inputs.rpc_version }}"
+                RPC_VERSION="${{ inputs.rpc-version }}"
                 URL="${URL%/}" # Remove trailing slash if any
                 URL="${URL%/*}" # Get base URL without version
                 RPC_URL="${URL}/${RPC_VERSION}"

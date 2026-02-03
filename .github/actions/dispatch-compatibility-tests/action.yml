@@ -8,7 +8,7 @@ inputs:
   ref:
     description: 'Git reference (branch, tag, or commit SHA) to use'
     required: true
-  rpc_version:
+  rpc-version:
     description: 'RPC version path segment (e.g., v0_10)'
     required: true
   workflow_file:
@@ -27,7 +27,7 @@ runs:
       env:
         REPO: ${{ inputs.repo }}
         REF: ${{ inputs.ref }}
-        RPC_VERSION: ${{ inputs.rpc_version }}
+        RPC_VERSION: ${{ inputs.rpc-version }}
         WORKFLOW_FILE: ${{ inputs.workflow_file }}
         GH_TOKEN: ${{ inputs.gh_token }}
       run: |
@@ -35,7 +35,7 @@ runs:
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
-            -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc_version\":\"${RPC_VERSION}\"}}"
+            -d "{\"ref\":\"${REF}\",\"inputs\":{\"rpc-version\":\"${RPC_VERSION}\"}}"
         
-        echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc_version=${RPC_VERSION}"
+        echo "Dispatched ${REPO}@${REF} workflow ${WORKFLOW_FILE} with rpc-version=${RPC_VERSION}"
 
