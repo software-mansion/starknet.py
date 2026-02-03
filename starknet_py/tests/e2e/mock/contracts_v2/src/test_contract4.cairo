@@ -6,11 +6,11 @@ trait IAnotherContract<T> {
 
 #[starknet::contract]
 mod TestContract4 {
-    use super::{
-        IAnotherContractDispatcher, IAnotherContractLibraryDispatcher,
-        IAnotherContractDispatcherTrait, MyType,
-    };
     use dict::Felt252DictTrait;
+    use super::{
+        IAnotherContractDispatcher, IAnotherContractDispatcherTrait,
+        IAnotherContractLibraryDispatcher, MyType,
+    };
 
     #[storage]
     struct Storage {

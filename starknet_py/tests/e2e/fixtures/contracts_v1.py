@@ -315,9 +315,7 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns abi_types contract compiled to sierra and its compiled class hash.
     """
-    contract = load_contract(
-        contract_name="AbiTypes",
-    )
+    contract = load_contract(contract_name="AbiTypes")
 
     return (
         contract["sierra"],
