@@ -14,58 +14,58 @@ jobs:
         include:
           - rpc-version: "v0_8"
             # TODO: Run once compatibility tests are available
-            # starknet_py_version: "0.26.0"
-            # starknet_jvm_version: "x.y.z"
-            # starknet_swift_version: "x.y.z"
-            # starknet_rust_version: "x.y.z"
+            # py_ref: "0.26.0"
+            # jvm_ref: "x.y.z"
+            # swift_ref: "x.y.z"
+            # rust_ref: "x.y.z"
           - rpc-version: "v0_9"
             # TODO: Run once compatibility tests are available
-            # starknet_py_version: "0.28.1"
-            # starknet_jvm_version: "x.y.z"
-            # starknet_swift_version: "x.y.z"
-            # starknet_rust_version: "x.y.z"
+            # py_ref: "0.28.1"
+            # jvm_ref: "x.y.z"
+            # swift_ref: "x.y.z"
+            # rust_ref: "x.y.z"
           - rpc-version: "v0_10"
-            starknet_py_version: "compatibility-tests"
+            py_ref: "compatibility-tests"
             # TODO: Run once compatibility tests are available
-            # starknet_jvm_version: "x.y.z"
-            # starknet_swift_version: "x.y.z"
-            # starknet_rust_version: "x.y.z"
+            # jvm_ref: "x.y.z"
+            # swift_ref: "x.y.z"
+            # rust_ref: "x.y.z"
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Dispatch starknet.py workflow
-        if: matrix.starknet_py_version != ''
+        if: matrix.py_ref != ''
         uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet.py
-          ref: ${{ matrix.starknet_py_version }}
+          ref: ${{ matrix.py_ref }}
           rpc-version: ${{ matrix.rpc-version }}
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet-jvm workflow
-        if: matrix.starknet_jvm_version != ''
+        if: matrix.jvm_ref != ''
         uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet-jvm
-          ref: ${{ matrix.starknet_jvm_version }}
+          ref: ${{ matrix.jvm_ref }}
           rpc-version: ${{ matrix.rpc-version }}
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet.swift workflow
-        if: matrix.starknet_swift_version != ''
+        if: matrix.swift_ref != ''
         uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet.swift
-          ref: ${{ matrix.starknet_swift_version }}
+          ref: ${{ matrix.swift_ref }}
           rpc-version: ${{ matrix.rpc-version }}
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet-rust workflow
-        if: matrix.starknet_rust_version != ''
+        if: matrix.rust_ref != ''
         uses: ./.github/actions/dispatch-compatibility-tests
         with:
           repo: software-mansion/starknet-rust
-          ref: ${{ matrix.starknet_rust_version }}
+          ref: ${{ matrix.rust_ref }}
           rpc-version: ${{ matrix.rpc-version }}
           gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
