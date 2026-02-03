@@ -21,11 +21,11 @@ struct AnotherPutCalled {
 
 #[starknet::contract]
 pub mod SimpleStorageWithEvent {
-    use super::{PutCalled, AnotherPutCalled};
+    use super::{AnotherPutCalled, PutCalled};
 
     #[storage]
     struct Storage {
-        map: LegacyMap::<felt252, felt252>,
+        map: LegacyMap<felt252, felt252>,
     }
 
     #[event]
