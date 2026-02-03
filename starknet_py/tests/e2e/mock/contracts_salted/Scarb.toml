@@ -3,4 +3,8 @@ name = "contracts_salted"
 version = "0.1.0"
 
 [dependencies]
-starknet = "2.10.0"
+starknet = "2.15.0"
+
+[[target.starknet-contract]]
+casm = true
+sierra = true

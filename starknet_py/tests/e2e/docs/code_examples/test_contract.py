@@ -60,9 +60,7 @@ async def test_from_address(account, contract_address):
 
 @pytest.mark.asyncio
 async def test_declare_v3(account):
-    contract = load_contract(
-        contract_name="TestContract",
-    )
+    contract = load_contract(contract_name="TestContract")
     # docs-start: declare_v3
     # here `contract` is a dict containing sierra and casm artifacts
     resource_bounds = ResourceBoundsMapping(

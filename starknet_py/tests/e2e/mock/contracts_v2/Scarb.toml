@@ -3,10 +3,12 @@ name = "contracts_v2"
 version = "0.1.0"
 
 [dependencies]
-starknet = "2.10.0"
+starknet = "2.15.0"
 openzeppelin = "1.0.0"
 
 [[target.starknet-contract]]
+casm = true
+sierra = true
 build-external-contracts = [
     "openzeppelin_presets::EthAccountUpgradeable",
 ]

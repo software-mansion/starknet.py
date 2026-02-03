@@ -11,7 +11,7 @@ pub struct TopStruct {
 
 #[starknet::contract]
 mod ConstructorWithArguments {
-    use super::{TopStruct, NestedStruct};
+    use super::{NestedStruct, TopStruct};
 
     #[storage]
     struct Storage {
@@ -38,7 +38,7 @@ mod ConstructorWithArguments {
             let element: felt252 = arr[i].clone();
             sum += element;
             i += 1;
-        };
+        }
 
         self.single_value.write(single_value);
         self.tuple.write(tuple);

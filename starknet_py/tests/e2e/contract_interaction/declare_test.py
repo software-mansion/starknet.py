@@ -36,9 +36,7 @@ async def test_throws_when_cairo1_without_compiled_contract_casm_and_class_hash(
 async def test_declare_v3(
     account,
 ):
-    contract = load_contract(
-        contract_name="TestContract",
-    )
+    contract = load_contract(contract_name="TestContract")
 
     tip = 12345
     declare_result = await Contract.declare_v3(
@@ -59,9 +57,7 @@ async def test_declare_v3_auto_estimate_tip(
     get_block_with_txs_path,
     block_with_tips_mock,
 ):
-    contract = load_contract(
-        contract_name="TestContract2",
-    )
+    contract = load_contract(contract_name="TestContract2")
 
     with patch(get_block_with_txs_path, AsyncMock()) as get_block_with_txs_mock:
         get_block_with_txs_mock.return_value = block_with_tips_mock
