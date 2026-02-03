@@ -21,10 +21,8 @@ trait IERC20<TContractState> {
 
 #[starknet::contract]
 mod ERC20 {
+    use starknet::{ContractAddress, contract_address_const, get_caller_address};
     use zeroable::Zeroable;
-    use starknet::get_caller_address;
-    use starknet::contract_address_const;
-    use starknet::ContractAddress;
 
     #[storage]
     struct Storage {
@@ -32,8 +30,8 @@ mod ERC20 {
         symbol: felt252,
         decimals: u8,
         total_supply: u256,
-        balances: LegacyMap::<ContractAddress, u256>,
-        allowances: LegacyMap::<(ContractAddress, ContractAddress), u256>,
+        balances: LegacyMap<ContractAddress, u256>,
+        allowances: LegacyMap<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]

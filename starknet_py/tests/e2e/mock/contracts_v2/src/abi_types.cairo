@@ -1,9 +1,7 @@
+use core::integer::u8_try_as_non_zero;
 use core::serde::Serde;
+use core::zeroable::{IsZeroResult, NonZero, NonZeroIntoImpl};
 use starknet::ContractAddress;
-use core::zeroable::NonZero;
-use core::zeroable::IsZeroResult;
-use core::zeroable::NonZeroIntoImpl;
-use core::integer::{u8_try_as_non_zero};
 
 #[derive(Drop, Serde)]
 enum ExampleEnum {
