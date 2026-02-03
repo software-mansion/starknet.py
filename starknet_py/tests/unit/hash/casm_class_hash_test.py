@@ -15,11 +15,11 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract, read_contract
 @pytest.mark.parametrize(
     "contract, expected_casm_class_hash_poseidon",
     [
-        ("Account", 0x778bce178afd1b39abd9729b80931e8c71661103b16de928c3187057254f601),
-        ("ERC20", 0x3748ca8b6c53d65b5862e6f17850033baa117075e887708474aba110cc0e77a),
-        ("HelloStarknet", 0x467aa3aa331f2d1f9ca24168ad6e9836685af53c35c53a4a828f3564efe79cd),
-        ("TestContract", 0x5ab6a30579a54901b6e8be599d7cbdf00a1e05445e95e1d429ca0d70b408af7),
-        ("TokenBridge", 0xf364f0d735b07f5a9a50a886e1f5bf6f0d82175d1955dc737f998d33990f8e),
+        ("Account", 0x5dbbf9ef0cec2412b55b47f9e0f327705d134a4005a7f5047e21a87c73cefc1),
+        ("ERC20", 0x63d770d6182d0e98a99dc16811313acea7599abb4cbe080bc7ec6afbc993ba2),
+        ("HelloStarknet", 0x1309591e96340c14b6730aa531ca37fc870d1ad5abdbc27e114a5ec05c53fe4),
+        ("TestContract", 0x45fb3526adabe6b3f4c2e11fcc818496cd68065f6ca02e9cd0549f2095bd72d),
+        ("TokenBridge", 0x6d7fef17688c5a6758164e13abf21bb3b25778e19b2b8de9bae9929e57391ac),
     ],
 )
 def test_compute_casm_class_hash_with_poseidon(contract, expected_casm_class_hash_poseidon):
@@ -72,11 +72,11 @@ def test_get_casm_hash_method_for_starknet_version(starknet_version, expected_ha
 @pytest.mark.parametrize(
     "contract, expected_casm_class_hash_blake2s",
     [
-        ("Account", 0x714c833f7b359955f6a4a495ba995cca2114158db2178aff587f643daa19c80),
-        ("ERC20", 0x44312efaec9c719168eee3586314b01ed7a1fd7e31d3cf0c5a17e0a5b4fbe7d),
-        ("HelloStarknet", 0x5aaedd0566b5dd234f5f8d3d6b8cfd299cf0a99541aa9ca34db9259d546e82f),
-        ("TestContract", 0x3135acde04efbc96d422c01822a517ae5b4e61f132d26bf8542e3b9d0d1500f),
-        ("TokenBridge", 0x6409448fd244060b15748b02b6e0bdb185d5271be231492ca33a7147e43994c),
+        ("Account", 0x4bea807d465f6eff9e66ba735cdba0bff688c1198f9679652e8cfd6e09a7895),
+        ("ERC20", 0x5970d51ec18663ca5359a4de3c73b975ca2af80cb3674a72653f1d5bfda58f2),
+        ("HelloStarknet", 0x33ed25fb8b61014debccfc269d9e47b87035c16b5d361df3e71650ed17dfd30),
+        ("TestContract", 0x6169b4bc8cbf4bed3f6b94c0de6ccfc48e78eb240cbdbd2a88a42bdb800818),
+        ("TokenBridge", 0x24925be8856a1528cca4b8a53ccd51ec92ab0318b512949abeca7bcb746a55e),
     ],
 )
 
