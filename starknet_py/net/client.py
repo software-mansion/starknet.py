@@ -28,9 +28,11 @@ from starknet_py.net.client_models import (
     StarknetBlockWithTxHashes,
     StorageProofResponse,
     Tag,
+    TraceFlag,
     Transaction,
     TransactionExecutionStatus,
     TransactionReceiptWithBlockInfo,
+    TransactionResponseFlag,
     TransactionStatus,
     TransactionStatusResponse,
 )
@@ -72,12 +74,14 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Union[StarknetBlock, PreConfirmedStarknetBlock]:
         """
         Retrieve the block's data by its number or hash.
 
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param response_flags: Flags that control what additional fields are included in transaction responses
         :return: StarknetBlock object representing retrieved block with transactions.
         """
 
@@ -86,12 +90,14 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Union[StarknetBlockWithTxHashes, PreConfirmedStarknetBlockWithTxHashes]:
         """
         Retrieve the block's data with a list of contained transaction hashes.
 
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param response_flags: Flags that control what additional fields are included in transaction responses
         :return: StarknetBlockWithTxHashes object representing retrieved block with transactions.
         """
 
@@ -100,12 +106,14 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Union[StarknetBlockWithReceipts, PreConfirmedStarknetBlockWithReceipts]:
         """
         Retrieve the block's data with a list of receipts for contained transactions.
 
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param response_flags: Flags that control what additional fields are included in transaction responses
         :return: StarknetBlockWithReceipts object representing retrieved block with transactions.
         """
 
@@ -114,12 +122,14 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
+        trace_flags: Optional[List[TraceFlag]] = None,
     ) -> List[BlockTransactionTrace]:
         """
         Receive the traces of all the transactions within specified block
 
         :param block_hash: Block's hash
         :param block_number: Block's number or "pre_confirmed" for pre_confirmed block
+        :param trace_flags: Flags that indicate when additional information should be included in the trace
         :return: BlockTransactionTraces object representing received traces
         """
 
@@ -178,6 +188,7 @@ class Client(ABC):
     async def get_transaction(
         self,
         tx_hash: Hash,
+        response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Transaction:
         """
         Get the details and status of a submitted transaction

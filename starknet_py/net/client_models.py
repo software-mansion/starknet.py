@@ -292,6 +292,8 @@ class InvokeTransactionV3(TransactionV3):
     sender_address: int
     nonce: int
     account_deployment_data: List[int]
+    proof: Optional[List[int]] = None
+    proof_facts: Optional[List[int]] = None
 
 
 @dataclass
@@ -636,6 +638,10 @@ class StarknetBlockWithTxHashes(BlockHeader):
 
     status: BlockStatus
     transactions: List[int]
+
+
+class TransactionResponseFlag(str, Enum):
+    INCLUDE_PROOF_FACTS = "INCLUDE_PROOF_FACTS"
 
 
 @dataclass
@@ -1052,6 +1058,53 @@ class SimulationFlag(str, Enum):
 
     SKIP_VALIDATE = "SKIP_VALIDATE"
     SKIP_FEE_CHARGE = "SKIP_FEE_CHARGE"
+    RETURN_INITIAL_READS = "RETURN_INITIAL_READS"
+
+
+class TraceFlag(str, Enum):
+    """
+    Enum class representing flags that indicate what additional information should be included in the trace.
+    """
+
+    RETURN_INITIAL_READS = "RETURN_INITIAL_READS"
+
+
+@dataclass
+class StorageInitialRead:
+    contract_address: int
+    key: str
+    value: int
+
+
+@dataclass
+class NonceInitialRead:
+    contract_address: int
+    nonce: int
+
+
+@dataclass
+class ClassHashInitialRead:
+    contract_address: int
+    class_hash: int
+
+
+@dataclass
+class DeclaredContractInitialRead:
+    class_hash: int
+    is_declared: bool
+
+
+@dataclass
+class InitialReads:
+    """
+    Dataclass representing the set of state values fetched from
+    the underlying state reader during execution.
+    """
+
+    storage: Optional[List[StorageInitialRead]] = None
+    nonces: Optional[List[NonceInitialRead]] = None
+    class_hashes: Optional[List[ClassHashInitialRead]] = None
+    declared_contracts: Optional[List[DeclaredContractInitialRead]] = None
 
 
 class EntryPointType(Enum):
@@ -1173,6 +1226,18 @@ class SimulatedTransaction:
 
 
 @dataclass
+class SimulatedTransactionsWithInitialReads:
+    """
+    Dataclass representing the execution trace and consumed resources
+    of the required transactions, along with initial reads when
+    RETURN_INITIAL_READS is present in simulation_flags.
+    """
+
+    simulated_transactions: List[SimulatedTransaction]
+    initial_reads: InitialReads
+
+
+@dataclass
 class BlockTransactionTrace:
     """
     Dataclass representing a single transaction trace in a block.
@@ -1180,6 +1245,17 @@ class BlockTransactionTrace:
 
     transaction_hash: int
     trace_root: TransactionTrace
+
+
+@dataclass
+class BlockTransactionTracesWithInitialReads:
+    """
+    Dataclass representing the traces of all transactions in the block, along with the initial reads
+    when RETURN_INITIAL_READS is present in trace_flags.
+    """
+
+    transaction_traces: List[BlockTransactionTrace]
+    initial_reads: InitialReads
 
 
 @dataclass

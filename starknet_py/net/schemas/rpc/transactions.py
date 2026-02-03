@@ -182,6 +182,8 @@ class InvokeTransactionV3Schema(TransactionV3Schema):
     account_deployment_data = fields.List(
         Felt(), data_key="account_deployment_data", required=True
     )
+    proof = fields.List(fields.Integer(), data_key="proof", required=False)
+    proof_facts = fields.List(Felt(), data_key="proof_facts", required=False)
 
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransactionV3:

@@ -27,6 +27,7 @@ from starknet_py.net.websockets.models import (
     NewTransactionNotification,
     NewTransactionReceiptsNotification,
     ReorgNotification,
+    SubscriptionTag,
     TransactionStatusNotification,
 )
 
@@ -149,7 +150,7 @@ class WebsocketClient:
     async def subscribe_events(
         self,
         handler: Callable[[NewEventsNotification], Any],
-        from_address: Optional[int] = None,
+        from_address: Optional[Union[List[int], int]] = None,
         keys: Optional[List[List[int]]] = None,
         block_hash: Optional[Union[Hash, LatestTag]] = None,
         block_number: Optional[Union[int, LatestTag]] = None,
@@ -159,7 +160,7 @@ class WebsocketClient:
         Creates a WebSocket stream which will fire events for new Starknet events with applied filters.
 
         :param handler: The function to call when a new event is received.
-        :param from_address: Address which emitted the event.
+        :param from_address: A contract address or a list of addresses from which events should originate.
         :param keys: The keys to filter events by.
         :param block_hash: Hash of the block to get notifications from or literal `"latest"`.
             Mutually exclusive with ``block_number`` parameter. If not provided, queries block `"latest"`.
@@ -216,6 +217,7 @@ class WebsocketClient:
         handler: Callable[[NewTransactionNotification], Any],
         sender_address: Optional[List[int]] = None,
         finality_status: Optional[List[TransactionStatusWithoutL1]] = None,
+        tags: Optional[List[SubscriptionTag]] = None,
     ) -> str:
         """
         Creates a WebSocket stream which will fire events when a new pending transaction is added.
@@ -224,6 +226,7 @@ class WebsocketClient:
         :param handler: The function to call when a new pending transaction is received.
         :param sender_address: List of sender addresses to filter transactions by.
         :param finality_status: The finality statuses to filter transaction receipts by, default is [ACCEPTED_ON_L2].
+        :param tags: Tags that control what additional fields are included in transaction responses.
 
         :return: The subscription ID.
         """
@@ -234,6 +237,9 @@ class WebsocketClient:
             ]
         if finality_status is not None:
             params["finality_status"] = [status.value for status in finality_status]
+
+        if tags is not None:
+            params["tags"] = tags
 
         subscription_id = await self._subscribe(
             handler, "starknet_subscribeNewTransactions", params

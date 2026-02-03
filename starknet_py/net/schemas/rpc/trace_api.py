@@ -3,15 +3,21 @@ from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import (
     BlockTransactionTrace,
+    ClassHashInitialRead,
+    DeclaredContractInitialRead,
     DeclareTransactionTrace,
     DeployAccountTransactionTrace,
     FunctionInvocation,
+    InitialReads,
     InvokeTransactionTrace,
     L1HandlerTransactionTrace,
+    NonceInitialRead,
     OrderedEvent,
     OrderedMessage,
     RevertedFunctionInvocation,
     SimulatedTransaction,
+    SimulatedTransactionsWithInitialReads,
+    StorageInitialRead,
 )
 from starknet_py.net.schemas.common import CallTypeField, EntryPointTypeField, Felt
 from starknet_py.net.schemas.rpc.block import StateDiffSchema
@@ -213,11 +219,105 @@ class SimulatedTransactionSchema(Schema):
         return SimulatedTransaction(**data)
 
 
+class SimulatedTransactionsWithInitialReadsSchema(Schema):
+    simulated_transactions = fields.List(
+        fields.Nested(SimulatedTransactionSchema()),
+        data_key="simulated_transactions",
+        required=True,
+    )
+    initial_reads = fields.Dict(
+        keys=Felt(), values=Felt(), data_key="initial_reads", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SimulatedTransactionsWithInitialReads:
+        return SimulatedTransactionsWithInitialReads(**data)
+
+
 class BlockTransactionTraceSchema(Schema):
     transaction_hash = Felt(data_key="transaction_hash", required=True)
     # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
     trace_root = fields.Nested(
         TransactionTraceSchema(), data_key="trace_root", required=True, unknown=EXCLUDE
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
+        return BlockTransactionTrace(**data)
+
+
+class StorageInitialReadSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    key = fields.String(data_key="key", required=True)
+    value = Felt(data_key="value", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StorageInitialRead:
+        return StorageInitialRead(**data)
+
+
+class NonceInitialReadSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    nonce = Felt(data_key="nonce", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> NonceInitialRead:
+        return NonceInitialRead(**data)
+
+
+class ClassHashInitialReadSchema(Schema):
+    contract_address = Felt(data_key="contract_address", required=True)
+    class_hash = Felt(data_key="class_hash", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> ClassHashInitialRead:
+        return ClassHashInitialRead(**data)
+
+
+class DeclaredContractInitialReadSchema(Schema):
+    class_hash = Felt(data_key="class_hash", required=True)
+    is_declared = fields.Boolean(data_key="is_declared", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> DeclaredContractInitialRead:
+        return DeclaredContractInitialRead(**data)
+
+
+class InitialReadsSchema(Schema):
+    storage = fields.List(
+        fields.Nested(StorageInitialReadSchema()),
+        data_key="storage",
+        load_default=None,
+    )
+    nonces = fields.List(
+        fields.Nested(NonceInitialReadSchema()),
+        data_key="nonces",
+        load_default=None,
+    )
+    class_hashes = fields.List(
+        fields.Nested(ClassHashInitialReadSchema()),
+        data_key="class_hashes",
+        load_default=None,
+    )
+    declared_contracts = fields.List(
+        fields.Nested(DeclaredContractInitialReadSchema()),
+        data_key="declared_contracts",
+        load_default=None,
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> InitialReads:
+        return InitialReads(**data)
+
+
+class BlockTransactionTracesSchema(Schema):
+    transaction_traces = fields.List(
+        fields.Nested(BlockTransactionTraceSchema()),
+        data_key="transaction_traces",
+        required=True,
+    )
+    initial_reads = fields.Dict(
+        keys=Felt(), values=Felt(), data_key="initial_reads", required=True
     )
 
     @post_load
