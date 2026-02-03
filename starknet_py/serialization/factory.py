@@ -65,14 +65,6 @@ from starknet_py.serialization.function_serialization_adapter import (
 )
 
 _uint256_type = StructType("Uint256", OrderedDict(low=FeltType(), high=FeltType()))
-_byte_array_type = StructType(
-    "core::byte_array::ByteArray",
-    OrderedDict(
-        data=ArrayType(FeltType()),
-        pending_word=FeltType(),
-        pending_word_len=UintType(bits=32),
-    ),
-)
 
 
 def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
@@ -94,7 +86,7 @@ def serializer_for_type(cairo_type: CairoType) -> CairoDataSerializer:
         if cairo_type == _uint256_type:
             return Uint256Serializer()
 
-        if cairo_type == _byte_array_type:
+        if _is_byte_array_type(cairo_type):
             return ByteArraySerializer()
 
         return StructSerializer(
@@ -239,4 +231,17 @@ def serializer_for_constructor_v2(
     return FunctionSerializationAdapterV1(
         inputs_serializer=serializer_for_payload(abi_function.inputs),
         outputs_deserializer=serializer_for_outputs([]),
+    )
+
+
+def _is_byte_array_type(cairo_type: CairoType) -> bool:
+    return (
+        isinstance(cairo_type, StructType)
+        and cairo_type.name == "core::byte_array::ByteArray"
+        and list(cairo_type.types.keys())
+        == ["data", "pending_word", "pending_word_len"]
+        and isinstance(cairo_type.types["data"], ArrayType)
+        and isinstance(cairo_type.types["data"].inner_type, FeltType)
+        and isinstance(cairo_type.types["pending_word"], FeltType)
+        and isinstance(cairo_type.types["pending_word_len"], UintType)
     )
