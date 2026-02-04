@@ -11,7 +11,7 @@ on:
 
 concurrency:
   group: compatibility-tests
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 
 jobs:
