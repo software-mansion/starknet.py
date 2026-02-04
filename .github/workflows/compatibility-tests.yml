@@ -9,6 +9,11 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: compatibility-tests
+  cancel-in-progress: false
+
+
 jobs:
     setup-tests:
         name: Setup Tests
