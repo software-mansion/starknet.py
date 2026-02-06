@@ -27,7 +27,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 def _parse_event_name(event: str) -> str:
@@ -510,7 +510,7 @@ async def test_simulate_transactions_two_txs(account, deployed_balance_contract)
     invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
 
     contract = load_contract(
-        contract_name="TestContractDeclare", version=ContractVersion.V1
+        contract_name="TestContractDeclare", package="contracts_v1"
     )
 
     casm_class = create_casm_class(contract["casm"])

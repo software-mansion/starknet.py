@@ -2,7 +2,7 @@ import pytest
 
 from starknet_py.common import create_sierra_compiled_contract
 from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 @pytest.mark.parametrize(
@@ -19,9 +19,7 @@ from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
     # fmt: on
 )
 def test_compute_sierra_class_hash(contract_name, expected_class_hash):
-    sierra_contract_class_str = load_contract(
-        contract_name=contract_name, version=ContractVersion.V2
-    )["sierra"]
+    sierra_contract_class_str = load_contract(contract_name=contract_name)["sierra"]
 
     sierra_contract_class = create_sierra_compiled_contract(sierra_contract_class_str)
     class_hash = compute_sierra_class_hash(sierra_contract_class)

@@ -2,8 +2,6 @@
 set -e
 
 MOCK_DIRECTORY="$(git rev-parse --show-toplevel)/starknet_py/tests/e2e/mock"
-CONTRACTS_DIRECTORY_V1="$MOCK_DIRECTORY/contracts_v1"
-CONTRACTS_DIRECTORY_V2="$MOCK_DIRECTORY/contracts_v2"
 
 setup_scarb() {
     SCARB_VERSION="$1"
@@ -38,18 +36,23 @@ compile_contracts_with_scarb() {
     popd >/dev/null || exit 1
 }
 
-case "$1" in
-"v1")
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V1"
-    ;;
-"v2")
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V2"
-    ;;
-*)
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V1"
-    compile_contracts_with_scarb "$CONTRACTS_DIRECTORY_V2"
-    ;;
-esac
+if [ -n "$1" ]; then
+    TARGET_DIR="$MOCK_DIRECTORY/$1"
+
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "Error: package '$1' does not exist in $MOCK_DIRECTORY"
+        exit 1
+    fi
+
+    compile_contracts_with_scarb "$TARGET_DIR"
+else
+    for DIR in "$MOCK_DIRECTORY"/*; do
+        if [ -d "$DIR" && [ -f "$DIR/Scarb.toml" ]; then
+            compile_contracts_with_scarb "$DIR"
+        fi
+    done
+fi
+
 
 echo "Successfully compiled contracts!"
 exit 0
