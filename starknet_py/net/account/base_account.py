@@ -167,6 +167,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         auto_estimate: bool = False,
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
+        proof_facts: Optional[List[int]] = None,
+        proof: Optional[List[int]] = None,
     ) -> InvokeV3:
         # pylint: disable=too-many-arguments
         """
@@ -178,6 +180,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param tip: The tip amount to be added to the transaction fee.
         :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
+        :param proof_facts: Optional proof facts for the transaction.
+        :param proof: Optional proof for the transaction.
         :return: Invoke created from the calls.
         """
 
@@ -249,6 +253,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         auto_estimate: bool = False,
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
+        proof_facts: Optional[List[int]] = None,
+        proof: Optional[List[int]] = None,
     ) -> SentTransactionResponse:
         # pylint: disable=too-many-arguments
         """
@@ -260,6 +266,8 @@ class BaseAccount(OutsideExecutionSupportBaseMixin, ABC):
         :param auto_estimate: Use automatic fee estimation, not recommend as it may lead to high costs.
         :param tip: The tip amount to be added to the transaction fee.
         :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
+        :param proof_facts: Optional proof facts for the transaction.
+        :param proof: Optional proof for the transaction.
         :return: SentTransactionResponse.
         """
 

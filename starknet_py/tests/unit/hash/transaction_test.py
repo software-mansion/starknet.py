@@ -173,6 +173,35 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
             },
             0x119386B4AAAEF905BF027D3DD2734474C5E944942BF3FBD8FDB442704D32B8B,
         ),
+        # TODO: Include this test case
+        # (
+        #     {
+        #         "address": 0x35ACD6DD6C5045D18CA6D0192AF46B335A5402C02D41F46E4E77EA2C951D9A3,
+        #         "chain_id": 0x534E5F474F45524C49,
+        #         "nonce": 0x5,
+        #         "tip": 0x0,
+        #         "paymaster_data": [],
+        #         "nonce_data_availability_mode": DAMode.L1,
+        #         "fee_data_availability_mode": DAMode.L1,
+        #         "tx_prefix": TransactionHashPrefix.INVOKE,
+        #         "version": 0x3,
+        #         "proo_facts": []
+        #     },
+        #     {
+        #         "calldata": [
+        #             0x2,
+        #             0x6359ED638DF79B82F2F9DBF92ABBCB41B57F9DD91EAD86B1C85D2DEE192C,
+        #             0xB17D8A2731BA7CA1816631E6BE14F0FC1B8390422D649FA27F0FBB0C91EEA8,
+        #             0x0,
+        #             0x3FE8E4571772BBE0065E271686BD655EFD1365A5D6858981E582F82F2C10313,
+        #             0x2FD9126EE011F3A837CEA02E32AE4EE73342D827E216998E5616BAB88D8B7EA,
+        #             0x1,
+        #             0x2FD9126EE011F3A837CEA02E32AE4EE73342D827E216998E5616BAB88D8B7EA,
+        #         ],
+        #         "account_deployment_data": [],
+        #     },
+        #     0x119386B4AAAEF905BF027D3DD2734474C5E944942BF3FBD8FDB442704D32B8B,
+        # ),
     ),
 )
 def test_compute_invoke_v3_transaction_hash(common_data, invoke_data, expected_hash):

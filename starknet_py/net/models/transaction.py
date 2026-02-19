@@ -326,6 +326,8 @@ class InvokeV3(_AccountTransactionV3):
     calldata: List[int]
     sender_address: int
     account_deployment_data: List[int] = field(default_factory=list)
+    proof: List[int] = None
+    proof_facts: List[int] = None
 
     @property
     def type(self) -> TransactionType:

@@ -185,6 +185,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
+        proof_facts: Optional[List[int]] = None,
+        proof: Optional[List[int]] = None,
     ) -> InvokeV3:
         # pylint: disable=too-many-arguments
         """
@@ -210,6 +212,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             sender_address=self.address,
             version=3,
             tip=tip,
+            proof_facts=proof_facts or [],
+            proof=proof or [],
         )
 
         resource_bounds = await self._get_resource_bounds(
@@ -399,6 +403,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
+        proof_facts: Optional[List[int]] = None,
+        proof: Optional[List[int]] = None,
     ) -> InvokeV3:
         # pylint: disable=too-many-arguments
         invoke_tx = await self._prepare_invoke_v3(
@@ -408,6 +414,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             auto_estimate=auto_estimate,
             tip=tip,
             auto_estimate_tip=auto_estimate_tip,
+            proof_facts=proof_facts,
+            proof=proof,
         )
         signature = self.signer.sign_transaction(invoke_tx)
         return _add_signature_to_transaction(invoke_tx, signature)
@@ -513,6 +521,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         auto_estimate: bool = False,
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
+        proof_facts: Optional[List[int]] = None,
+        proof: Optional[List[int]] = None,
     ) -> SentTransactionResponse:
         # pylint: disable=too-many-arguments
         execute_transaction = await self.sign_invoke_v3(
@@ -522,6 +532,8 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             auto_estimate=auto_estimate,
             tip=tip,
             auto_estimate_tip=auto_estimate_tip,
+            proof_facts=proof_facts,
+            proof=proof,
         )
         return await self._client.send_transaction(execute_transaction)
 
