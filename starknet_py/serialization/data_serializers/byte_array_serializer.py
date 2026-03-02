@@ -16,7 +16,6 @@ from starknet_py.serialization.data_serializers.cairo_data_serializer import (
 from starknet_py.serialization.data_serializers.felt_serializer import FeltSerializer
 
 BYTES_31_SIZE = 31
-BYTES_31_INDEX = 30
 
 
 @dataclass
@@ -48,8 +47,8 @@ class ByteArraySerializer(CairoDataSerializer[str, str]):
         )
 
         context.ensure_valid_value(
-            0 <= pending_word_len <= BYTES_31_INDEX,
-            f"Pending word length should be in range [0; {BYTES_31_INDEX}], got: {pending_word_len}",
+            0 <= pending_word_len < BYTES_31_SIZE,
+            f"Pending word length should be in range [0; {BYTES_31_SIZE - 1}], got: {pending_word_len}",
         )
 
         data_joined = "".join(map(decode_shortstring, data))
