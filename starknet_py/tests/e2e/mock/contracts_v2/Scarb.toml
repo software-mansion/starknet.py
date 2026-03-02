@@ -3,7 +3,7 @@ name = "contracts_v2"
 version = "0.1.0"
 
 [dependencies]
-starknet = "2.15.0"
+starknet = "2.15.1"
 openzeppelin = "1.0.0"
 
 [[target.starknet-contract]]
