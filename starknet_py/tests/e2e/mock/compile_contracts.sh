@@ -86,7 +86,7 @@ if [ -n "$1" ]; then
     compile_contracts_with_scarb "$TARGET_DIR"
 else
     for DIR in "$MOCK_DIRECTORY"/*; do
-        if [ -d "$DIR" ] && [ -f "$DIR/Scarb.toml" ]; then
+        if [[ -d "$DIR" && -f "$DIR/Scarb.toml" ]]; then
             compile_contracts_with_scarb "$DIR"
         fi
     done
