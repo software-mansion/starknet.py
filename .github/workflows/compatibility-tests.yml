@@ -99,8 +99,8 @@ jobs:
                 RPC_URL="${URL}/${RPC_VERSION}"
                 echo "SEPOLIA_RPC_URL=${RPC_URL}" >> "$GITHUB_ENV"
 
-            - name: Run tests
-              run: poetry run poe test_ci_on_networks
+            - name: Run tests (extended)
+              run: poetry run poe test_ci_on_networks_extended
 
             - name: Generate coverage in XML
               run: |
