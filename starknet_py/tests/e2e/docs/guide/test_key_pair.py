@@ -1,7 +1,7 @@
 # pylint: disable=import-outside-toplevel
 import pytest
 
-from starknet_py.constants import FIELD_PRIME
+from starknet_py.constants import EC_ORDER, FIELD_PRIME
 
 
 def test_generate_key_pair():
@@ -11,11 +11,8 @@ def test_generate_key_pair():
     key_pair = KeyPair.generate()
     # docs-generate: end
 
-    hex_private_key = hex(key_pair.private_key)[2:]
-    padded_hex_private_key = hex_private_key.zfill(64)
-    assert len(padded_hex_private_key) == 64
-    assert key_pair.private_key < FIELD_PRIME
-    assert key_pair.public_key < FIELD_PRIME
+    assert 0 < key_pair.private_key < EC_ORDER
+    assert 0 < key_pair.public_key < FIELD_PRIME
 
 
 def test_key_pair_from_private_key():
