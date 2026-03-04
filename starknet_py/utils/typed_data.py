@@ -52,14 +52,8 @@ class Domain:
     revision: Optional[Revision] = None
 
     def __post_init__(self):
-        raw_value = (
-            self.revision.value if isinstance(self.revision, Enum) else self.revision
-        )
-
-        if raw_value is None:
-            self.resolved_revision = Revision.V0
-        else:
-            self.resolved_revision = Revision(raw_value)
+        val = self.revision.value if isinstance(self.revision, Enum) else self.revision
+        self.resolved_revision = Revision.V0 if val is None else Revision(val)
         self.separator_name = self._resolve_separator_name()
 
     def _resolve_separator_name(self):
