@@ -1,9 +1,9 @@
+import secrets
 from dataclasses import dataclass
-from secrets import token_bytes
 
 from eth_keyfile.keyfile import extract_key_from_keyfile
 
-from starknet_py.constants import FIELD_PRIME
+from starknet_py.constants import EC_ORDER
 from starknet_py.hash.utils import private_to_stark_key
 from starknet_py.net.client_models import Hash
 
@@ -31,8 +31,8 @@ class KeyPair:
 
         :return: KeyPair object.
         """
-        random_int = int.from_bytes(token_bytes(32), byteorder="big")
-        private_key = random_int % FIELD_PRIME
+        # Securely generate a uniform random key in the range [1, EC_ORDER - 1]
+        private_key = secrets.randbelow(EC_ORDER - 1) + 1
         public_key = private_to_stark_key(private_key)
         return KeyPair(private_key=private_key, public_key=public_key)
 
