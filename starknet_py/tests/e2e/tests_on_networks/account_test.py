@@ -76,9 +76,9 @@ async def test_deploy_account_v3(
         provider=account_sepolia_testnet, address=STRK_FEE_CONTRACT_ADDRESS
     )
 
-    # Prefund account with 2 * deployment fee
+    # Prefund account with 4 * deployment fee
     invocation = await contract.functions["transfer"].invoke_v3(
-        address, deploy_account_fee.overall_fee * 2, auto_estimate=True
+        address, deploy_account_fee.overall_fee * 4, auto_estimate=True
     )
     await invocation.wait_for_acceptance()
 
