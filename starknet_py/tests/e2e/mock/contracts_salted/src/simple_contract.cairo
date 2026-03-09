@@ -3,5 +3,5 @@ mod SimpleContract {
     #[storage]
     struct Storage {}
     #[external(v0)]
-    fn empty___112222(ref self: ContractState) {}
+    fn empty___salt_placeholder__(ref self: ContractState) {}
 }
