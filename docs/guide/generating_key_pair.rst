@@ -19,6 +19,9 @@ suitable for managing secrets such as account authentication, tokens, and simila
     :start-after: docs-generate: start
     :end-before: docs-generate: end
 
+.. warning::
+    **Not Audited:** The ``KeyPair.generate()`` function has not been audited for cryptographic security. Use at your own risk.
+
 
 Creating key pair from private Key
 ----------------------------------
