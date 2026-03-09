@@ -16,6 +16,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.net.udc_deployer.deployer import Deployer, _get_random_salt
 from starknet_py.tests.e2e.fixtures.misc import load_contract
+from starknet_py.tests.e2e.tests_on_networks.fixtures import client_sepolia_testnet
 from starknet_py.tests.e2e.utils import _new_address
 
 
@@ -124,7 +125,7 @@ async def test_declare_v3(account_sepolia_testnet):
 
 
 @pytest.mark.asyncio
-async def test_deploy_v3(account_sepolia_testnet):
+async def test_deploy_v3(account_sepolia_testnet, client_sepolia_testnet):
     calldata = []
     salt = _get_random_salt()
     deployer = Deployer()
@@ -143,5 +144,7 @@ async def test_deploy_v3(account_sepolia_testnet):
     )
     await account_sepolia_testnet.client.wait_for_tx(tx_response.transaction_hash)
 
-    assert isinstance(contract_deployment.address, int)
-    assert contract_deployment.address != 0
+    trace = await client_sepolia_testnet.trace_transaction(tx_response.transaction_hash)
+    address_from_trace = trace.function_invocation.result[2]
+
+    assert contract_deployment.address == address_from_trace
