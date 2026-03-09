@@ -1,6 +1,17 @@
 Migration guide
 ===============
 
+****************************
+0.30.0-rc.0 Migration guide
+****************************
+
+0.30.0-rc.0 Bugfixes
+--------------------
+
+.. currentmodule:: starknet_py.net.signer.stark_curve_signer
+
+1. :meth:`KeyPair.generate` uses now a correct value for `Stark curve's order <https://docs.starknet.io/learn/protocol/cryptography#the-stark-curve>`_
+
 ************************
 0.29.0 Migration guide
 ************************

@@ -32,6 +32,9 @@ KeyPair
     :undoc-members:
     :member-order: groupwise
 
+.. warning::
+    **Not Audited:** The ``KeyPair.generate()`` function has not been audited for cryptographic security. Use at your own risk.
+
 ------------
 LedgerSigner
 ------------
