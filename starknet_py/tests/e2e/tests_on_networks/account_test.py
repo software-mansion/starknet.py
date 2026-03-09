@@ -21,7 +21,6 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.tests.e2e.utils import _new_address
 
 
-@pytest.mark.extended_network_test
 @pytest.mark.asyncio
 async def test_execute_v3(account_sepolia_testnet):
     sepolia_balance_contract_address = (
@@ -45,7 +44,6 @@ async def test_execute_v3(account_sepolia_testnet):
     assert receipt.transaction_hash == tx_response.transaction_hash
 
 
-@pytest.mark.extended_network_test
 @pytest.mark.asyncio
 async def test_deploy_account_v3(
     account_sepolia_testnet,
@@ -107,7 +105,6 @@ async def test_deploy_account_v3(
     assert transaction.constructor_calldata == constructor_calldata
 
 
-@pytest.mark.extended_network_test
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
     contract = load_contract(contract_name="SimpleContract", package="contracts_salted")
@@ -128,7 +125,6 @@ async def test_declare_v3(account_sepolia_testnet):
     assert declare_response.class_hash != compiled_class_hash
 
 
-@pytest.mark.extended_network_test
 @pytest.mark.asyncio
 async def test_deploy_v3(account_sepolia_testnet):
     calldata = []
