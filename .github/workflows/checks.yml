@@ -315,11 +315,12 @@ jobs:
 
       - name: Run tests
         run: |
-          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-            poetry run poe test_ci_on_networks_extended
-          else
-            poetry run poe test_ci_on_networks
-          fi
+#          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+#            poetry run poe test_ci_on_networks_extended
+#          else
+#            poetry run poe test_ci_on_networks
+#          fi
+          poetry run poe test_ci_on_networks_extended
 
       - name: Generate coverage in XML
         run: |
