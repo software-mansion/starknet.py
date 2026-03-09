@@ -320,7 +320,7 @@ jobs:
 #          else
 #            poetry run poe test_ci_on_networks
 #          fi
-            poetry run poe test_ci_on_networks_extended
+          poetry run poe test_ci_on_networks_extended
 
       - name: Generate coverage in XML
         run: |
