@@ -29,7 +29,7 @@ apply_contract_salt() {
 
     for FILE in ./src/*.cairo; do
         sed -i.bak "s/__salt_placeholder__/${SALT}/g" "$FILE"
-        rm "$FILE".bak 2> /dev/null
+        rm "$FILE.bak" 2> /dev/null
     done
 
     echo "Salted contracts updated"
