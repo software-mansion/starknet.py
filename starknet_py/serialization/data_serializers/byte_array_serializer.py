@@ -46,6 +46,11 @@ class ByteArraySerializer(CairoDataSerializer[str, str]):
             f"Invalid length {pending_word_len} for pending word {pending_word}",
         )
 
+        context.ensure_valid_value(
+            0 <= pending_word_len < BYTES_31_SIZE,
+            f"Pending word length should be in range [0; {BYTES_31_SIZE - 1}], got: {pending_word_len}",
+        )
+
         data_joined = "".join(map(decode_shortstring, data))
         return data_joined + pending_word
 

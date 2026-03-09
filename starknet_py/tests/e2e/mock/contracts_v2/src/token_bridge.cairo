@@ -1,5 +1,5 @@
-use starknet::ContractAddress;
 use serde::Serde;
+use starknet::ContractAddress;
 use traits::Into;
 use zeroable::Zeroable;
 
@@ -16,15 +16,16 @@ mod TokenBridge {
     use option::OptionTrait;
     use serde::Serde;
     use starknet::contract_address::ContractAddressZeroable;
+    use starknet::syscalls::send_message_to_l1_syscall;
     use starknet::{
-        ContractAddress, get_caller_address, EthAddress, EthAddressIntoFelt252, EthAddressSerde,
-        EthAddressZeroable, syscalls::send_message_to_l1_syscall,
-    };
-    use super::{
-        IMintableTokenDispatcher, IMintableTokenLibraryDispatcher, IMintableTokenDispatcherTrait,
+        ContractAddress, EthAddress, EthAddressIntoFelt252, EthAddressSerde, EthAddressZeroable,
+        get_caller_address,
     };
     use traits::Into;
     use zeroable::Zeroable;
+    use super::{
+        IMintableTokenDispatcher, IMintableTokenDispatcherTrait, IMintableTokenLibraryDispatcher,
+    };
 
     const WITHDRAW_MESSAGE: felt252 = 0;
     const CONTRACT_IDENTITY: felt252 = 'STARKGATE';
