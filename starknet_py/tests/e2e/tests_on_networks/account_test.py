@@ -97,7 +97,7 @@ async def test_deploy_account_v3(
     )
     await deploy_result.wait_for_acceptance()
 
-    assert isinstance(account_sepolia_testnet, BaseAccount)
+    assert isinstance(deploy_result.account, BaseAccount)
     assert deploy_result.account.address == address
 
     transaction = await client_sepolia_testnet.get_transaction(
