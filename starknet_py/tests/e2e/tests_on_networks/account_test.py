@@ -128,7 +128,7 @@ async def test_declare_v3(account_sepolia_testnet):
     )
     await account_sepolia_testnet.client.wait_for_tx(declare_response.transaction_hash)
 
-    assert declare_response.class_hash != 0
+    assert declare_response.class_hash != compiled_class_hash
 
 
 @pytest.mark.extended_network_test
