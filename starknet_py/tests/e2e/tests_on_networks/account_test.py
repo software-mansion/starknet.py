@@ -1,5 +1,3 @@
-from time import sleep
-
 import pytest
 
 from starknet_py.common import create_casm_class
