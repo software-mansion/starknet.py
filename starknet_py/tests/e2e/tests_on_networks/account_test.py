@@ -5,7 +5,6 @@ from starknet_py.constants import ARGENT_V040_CLASS_HASH, STRK_FEE_CONTRACT_ADDR
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
