@@ -21,10 +21,6 @@ jobs:
         steps:
             - uses: actions/checkout@v6
             - uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364 # v3.0.0
-            - uses: actions/setup-python@v5
-              with:
-                  python-version: "3.14"
-                  cache: 'pip'
 
             - name: Install poetry
               run: |
@@ -71,11 +67,6 @@ jobs:
               with:
                   name: contract-artifacts
                   path: starknet_py/tests/e2e/mock/
-
-            - uses: actions/setup-python@v5
-              with:
-                  python-version: "3.14"
-                  cache: 'pip'
 
             - name: Install poetry
               run: |
