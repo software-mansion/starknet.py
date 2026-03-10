@@ -20,7 +20,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
-            - uses: asdf-vm/actions/setup@v3
+            - uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364 # v3.0.0
             - uses: actions/setup-python@v5
               with:
                   python-version: "3.14"
@@ -88,7 +88,7 @@ jobs:
                   python-version: "3.14"
                   cache: 'poetry'
 
-            - uses: asdf-vm/actions/setup@v3
+            - uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364 # v3.0.0
 
             - name: Update RPC url with version from inputs
               run: |
