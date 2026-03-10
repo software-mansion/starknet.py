@@ -12,7 +12,6 @@ mod map_copy_1;
 mod map_copy_2;
 mod minimal_contract;
 mod new_syntax_test_contract;
-mod simple_contract;
 mod simple_storage_with_event;
 mod string;
 mod test_contract;
