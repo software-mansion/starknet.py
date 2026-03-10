@@ -113,12 +113,6 @@ jobs:
         with:
           package: contracts_v1
 
-      - name: Compile contracts_salted
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_salted
-          cache: false
-
       - name: Upload contracts artifacts
         uses: actions/upload-artifact@v4
         with:

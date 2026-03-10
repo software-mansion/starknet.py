@@ -1,10 +1,11 @@
 import pytest
 
-from starknet_py.common import create_casm_class
+from starknet_py.common import create_casm_class, create_sierra_compiled_contract
 from starknet_py.constants import ARGENT_V040_CLASS_HASH, STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.hash.selector import get_selector_from_name
+from starknet_py.hash.sierra_class_hash import compute_sierra_class_hash
 from starknet_py.net.account.account import Account
 from starknet_py.net.account.base_account import BaseAccount
 from starknet_py.net.client_models import (
@@ -105,7 +106,7 @@ async def test_deploy_account_v3(
 
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
-    contract = load_contract(contract_name="SimpleContract", package="contracts_salted")
+    contract = load_contract(contract_name="SimpleContract")
 
     compiled_contract = contract["sierra"]
     compiled_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
@@ -120,7 +121,9 @@ async def test_declare_v3(account_sepolia_testnet):
     )
     await account_sepolia_testnet.client.wait_for_tx(declare_response.transaction_hash)
 
-    assert declare_response.class_hash != 0
+    sierra_contract = create_sierra_compiled_contract(compiled_contract)
+    sierra_class_hash = compute_sierra_class_hash(sierra_contract)
+    assert declare_response.class_hash == sierra_class_hash
 
 
 @pytest.mark.asyncio
