@@ -1,5 +1,3 @@
-from time import sleep
-
 import pytest
 
 from starknet_py.common import create_casm_class
@@ -21,11 +19,8 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 from starknet_py.tests.e2e.utils import _new_address
 
 
-@pytest.mark.network_account_test
 @pytest.mark.asyncio
 async def test_execute_v3(account_sepolia_testnet):
-    sleep(10)
-    # https://sepolia.starkscan.co/contract/0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF
     sepolia_balance_contract_address = (
         0x0589A8B8BF819B7820CB699EA1F6C409BC012C9B9160106DDC3DACD6A89653CF
     )
@@ -47,13 +42,11 @@ async def test_execute_v3(account_sepolia_testnet):
     assert receipt.transaction_hash == tx_response.transaction_hash
 
 
-@pytest.mark.network_account_test
 @pytest.mark.asyncio
 async def test_deploy_account_v3(
     account_sepolia_testnet,
     client_sepolia_testnet,
 ):
-    sleep(10)
     key_pair = KeyPair.generate()
     constructor_calldata = [0, key_pair.public_key, 1]
     address, salt = _new_address(ARGENT_V040_CLASS_HASH, constructor_calldata)
@@ -83,9 +76,9 @@ async def test_deploy_account_v3(
         provider=account_sepolia_testnet, address=STRK_FEE_CONTRACT_ADDRESS
     )
 
-    # Prefund account with 5 * deployment fee
+    # Prefund account with 4 * deployment fee
     invocation = await contract.functions["transfer"].invoke_v3(
-        address, deploy_account_fee.overall_fee * 5, auto_estimate=True
+        address, deploy_account_fee.overall_fee * 4, auto_estimate=True
     )
     await invocation.wait_for_acceptance()
 
@@ -100,7 +93,7 @@ async def test_deploy_account_v3(
     )
     await deploy_result.wait_for_acceptance()
 
-    assert isinstance(account_sepolia_testnet, BaseAccount)
+    assert isinstance(deploy_result.account, BaseAccount)
     assert deploy_result.account.address == address
 
     transaction = await client_sepolia_testnet.get_transaction(
@@ -110,10 +103,8 @@ async def test_deploy_account_v3(
     assert transaction.constructor_calldata == constructor_calldata
 
 
-@pytest.mark.network_account_test
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
-    sleep(10)
     contract = load_contract(contract_name="SimpleContract", package="contracts_salted")
 
     compiled_contract = contract["sierra"]
@@ -132,15 +123,12 @@ async def test_declare_v3(account_sepolia_testnet):
     assert declare_response.class_hash != 0
 
 
-@pytest.mark.network_account_test
 @pytest.mark.asyncio
-async def test_deploy_v3(account_sepolia_testnet):
-    sleep(10)
+async def test_deploy_v3(account_sepolia_testnet, client_sepolia_testnet):
     calldata = []
     salt = _get_random_salt()
     deployer = Deployer()
 
-    # https://sepolia.starkscan.co/class/0x0227f52a4d2138816edf8231980d5f9e6e0c8a3deab45b601a1fcee3d4427b02
     example_contract_sepolia_class_hash = (
         0x0227F52A4D2138816EDF8231980D5F9E6E0C8A3DEAB45B601A1FCEE3D4427B02
     )
@@ -155,5 +143,7 @@ async def test_deploy_v3(account_sepolia_testnet):
     )
     await account_sepolia_testnet.client.wait_for_tx(tx_response.transaction_hash)
 
-    assert isinstance(contract_deployment.address, int)
-    assert contract_deployment.address != 0
+    trace = await client_sepolia_testnet.trace_transaction(tx_response.transaction_hash)
+    address_from_trace = trace.function_invocation.result[2]
+
+    assert contract_deployment.address == address_from_trace
