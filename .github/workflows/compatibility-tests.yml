@@ -37,10 +37,10 @@ jobs:
               run: |
                   poetry install
 
-            - name: Compile contracts_salted
+            - name: Compile contracts_v2 (without cache, so we use salted contracts)
               uses: ./.github/actions/compile-contracts
               with:
-                package: contracts_salted
+                package: contracts_v2
                 cache: false
 
             - name: Upload contracts artifacts
