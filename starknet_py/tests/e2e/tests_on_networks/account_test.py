@@ -106,7 +106,7 @@ async def test_deploy_account_v3(
 
 @pytest.mark.asyncio
 async def test_declare_v3(account_sepolia_testnet):
-    contract = load_contract(contract_name="SimpleContract", package="contracts_salted")
+    contract = load_contract(contract_name="SimpleContract")
 
     compiled_contract = contract["sierra"]
     compiled_class_hash = compute_casm_class_hash(create_casm_class(contract["casm"]))
