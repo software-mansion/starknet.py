@@ -144,6 +144,6 @@ async def test_deploy_v3(account_sepolia_testnet, client_sepolia_testnet):
     await account_sepolia_testnet.client.wait_for_tx(tx_response.transaction_hash)
 
     trace = await client_sepolia_testnet.trace_transaction(tx_response.transaction_hash)
-    address_from_trace = trace.function_invocation.result[2]
+    address_from_trace = trace.constructor_invocation.result[2]
 
     assert contract_deployment.address == address_from_trace
