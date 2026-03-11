@@ -11,12 +11,12 @@ inputs:
   rpc-version:
     description: 'RPC version path segment (e.g., v0_10)'
     required: true
-  workflow_file:
+  workflow-file:
     description: 'Workflow file name to dispatch'
     required: false
     default: 'compatibility-tests.yml'
-  gh_token:
-    description: 'GitHub token for API authentication'
+  gh-token:
+    description: 'GitHub token for API authentication. It should be private access token wit permission to trigger workflows in SDK repositories.'
     required: true
 
 runs:
@@ -28,8 +28,8 @@ runs:
         REPO: ${{ inputs.repo }}
         REF: ${{ inputs.ref }}
         RPC_VERSION: ${{ inputs.rpc-version }}
-        WORKFLOW_FILE: ${{ inputs.workflow_file }}
-        GH_TOKEN: ${{ inputs.gh_token }}
+        WORKFLOW_FILE: ${{ inputs.workflow-file }}
+        GH_TOKEN: ${{ inputs.gh-token }}
       run: |
         gh workflow run "${WORKFLOW_FILE}" \
           --repo "${REPO}" \
