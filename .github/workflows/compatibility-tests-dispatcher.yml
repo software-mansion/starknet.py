@@ -13,20 +13,20 @@ jobs:
       matrix:
         include:
           - rpc-version: "v0_8"
-            # TODO: Run once compatibility tests are available
+            # TODO(#1708): Run once compatibility tests are available
             # py_ref: "0.26.0"
             # jvm_ref: "x.y.z"
             # swift_ref: "x.y.z"
             # rust_ref: "x.y.z"
           - rpc-version: "v0_9"
-            # TODO: Run once compatibility tests are available
+            # TODO(#1708): Run once compatibility tests are available
             # py_ref: "0.28.1"
             # jvm_ref: "x.y.z"
             # swift_ref: "x.y.z"
             # rust_ref: "x.y.z"
           - rpc-version: "v0_10"
             py_ref: "compatibility-tests"
-            # TODO: Run once compatibility tests are available
+            # TODO(#1708): Run once compatibility tests are available
             # jvm_ref: "x.y.z"
             # swift_ref: "x.y.z"
             # rust_ref: "x.y.z"
