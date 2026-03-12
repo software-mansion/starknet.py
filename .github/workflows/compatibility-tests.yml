@@ -1,0 +1,101 @@
+name: Compatibility tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      rpc-version:
+        description: "RPC version path segment, e.g. v0_10"
+        required: true
+        type: string
+
+concurrency:
+  group: compatibility-tests
+  cancel-in-progress: true
+
+
+jobs:
+    setup-tests:
+        name: Setup Tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364 # v3.0.0
+
+            - name: Install poetry
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install poetry
+
+            - name: Set up Python 3.14
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.14"
+                  cache: 'poetry'
+
+            - name: Install dependencies
+              run: |
+                  poetry install
+
+            - name: Compile contracts_v2 (without cache, so we use salted contracts)
+              uses: ./.github/actions/compile-contracts
+              with:
+                package: contracts_v2
+                cache: false
+
+            - name: Upload contracts artifacts
+              uses: actions/upload-artifact@v7
+              with:
+                  name: contract-artifacts
+                  path: starknet_py/tests/e2e/mock/
+
+    run-network-tests:
+        name: Network tests (testnet) with RPC version ${{ inputs.rpc-version }}
+        needs: setup-tests
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+        env:
+            SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+            SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
+            SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Download contracts
+              uses: actions/download-artifact@v4
+              with:
+                  name: contract-artifacts
+                  path: starknet_py/tests/e2e/mock/
+
+            - name: Install poetry
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install poetry
+
+            - name: Set up Python 3.14
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.14"
+                  cache: 'poetry'
+
+            - uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364 # v3.0.0
+
+            - name: Update RPC url with version from inputs
+              run: |
+                URL="${SEPOLIA_RPC_URL}"
+                RPC_VERSION="${{ inputs.rpc-version }}"
+                URL="${URL%/}" # Remove trailing slash if any
+                URL="${URL%/*}" # Get base URL without version
+                RPC_URL="${URL}/${RPC_VERSION}"
+                echo "SEPOLIA_RPC_URL=${RPC_URL}" >> "$GITHUB_ENV"
+
+            - name: Run tests (extended)
+              run: poetry run poe test_ci_on_networks_extended
+
+            - name: Generate coverage in XML
+              run: |
+                  poetry run coverage xml
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
