@@ -41,7 +41,7 @@ jobs:
           repo: software-mansion/starknet.py
           ref: ${{ matrix.py_ref }}
           rpc-version: ${{ matrix.rpc-version }}
-          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          gh-token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet-jvm workflow
         if: matrix.jvm_ref != ''
@@ -50,7 +50,7 @@ jobs:
           repo: software-mansion/starknet-jvm
           ref: ${{ matrix.jvm_ref }}
           rpc-version: ${{ matrix.rpc-version }}
-          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          gh-token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet.swift workflow
         if: matrix.swift_ref != ''
@@ -59,7 +59,7 @@ jobs:
           repo: software-mansion/starknet.swift
           ref: ${{ matrix.swift_ref }}
           rpc-version: ${{ matrix.rpc-version }}
-          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          gh-token: ${{ secrets.CI_DISPATCH_TOKEN }}
 
       - name: Dispatch starknet-rust workflow
         if: matrix.rust_ref != ''
@@ -68,4 +68,4 @@ jobs:
           repo: software-mansion/starknet-rust
           ref: ${{ matrix.rust_ref }}
           rpc-version: ${{ matrix.rpc-version }}
-          gh_token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          gh-token: ${{ secrets.CI_DISPATCH_TOKEN }}
