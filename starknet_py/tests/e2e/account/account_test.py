@@ -82,24 +82,6 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 
 
 @pytest.mark.asyncio
-async def test_estimate_fee_for_declare_transaction(
-    account, map_compiled_contract_and_class_hash
-):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
-    declare_tx = await account.sign_declare_v3(
-        compiled_contract=compiled_contract,
-        compiled_class_hash=class_hash,
-        resource_bounds=MAX_RESOURCE_BOUNDS,
-    )
-
-    estimated_fee = await account.client.estimate_fee(tx=declare_tx)
-
-    assert isinstance(estimated_fee.overall_fee, int)
-    assert estimated_fee.overall_fee > 0
-    assert estimated_fee.calculate_overall_fee() == estimated_fee.overall_fee
-
-
-@pytest.mark.asyncio
 async def test_account_estimate_fee_for_declare_transaction(
     account, map_compiled_contract_and_class_hash
 ):

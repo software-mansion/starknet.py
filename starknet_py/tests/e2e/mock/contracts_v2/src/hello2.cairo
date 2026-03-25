@@ -1,24 +1,17 @@
-use array::ArrayTrait;
-use array::SpanTrait;
+use array::{ArrayTrait, SpanTrait};
+use box::BoxTrait;
 use option::OptionTrait;
-use traits::TryInto;
 use serde::Serde;
 
 // bet part
 use starknet::ContractAddress;
-use starknet::get_caller_address;
-use starknet::Store;
-use starknet::storage_access;
-use starknet::StorageBaseAddress;
-use starknet::SyscallResult;
-use starknet::storage_read_syscall;
-use starknet::storage_write_syscall;
-use starknet::storage_address_from_base_and_offset;
-use starknet::storage_base_address_from_felt252;
-
-use traits::Into;
 use starknet::storage_access::StorageAddressSerde;
-use box::BoxTrait;
+use starknet::{
+    StorageBaseAddress, Store, SyscallResult, get_caller_address, storage_access,
+    storage_address_from_base_and_offset, storage_base_address_from_felt252, storage_read_syscall,
+    storage_write_syscall,
+};
+use traits::{Into, TryInto};
 // end bet part
 
 #[derive(Copy, Drop, Serde)]
@@ -113,7 +106,7 @@ trait IHelloStarknet<TContractState> {
 
     // mix req (array,bool) ret tuple(array,bool)
     fn array_bool_tuple(
-        self: @TContractState, a: core::array::Array::<felt252>, b: bool,
+        self: @TContractState, a: core::array::Array<felt252>, b: bool,
     ) -> (core::array::Array::<felt252>, bool);
 
     // used for changes to redeclare contract
@@ -128,34 +121,25 @@ trait IHelloStarknet<TContractState> {
 #[starknet::contract]
 mod Hello2 {
     //  libs
-    use array::ArrayTrait;
-    use array::SpanTrait;
-    use option::OptionTrait;
-    use traits::TryInto;
-    use serde::Serde;
+    use array::{ArrayTrait, SpanTrait};
+    use box::BoxTrait;
     use clone::Clone;
+    use option::OptionTrait;
+    use serde::Serde;
 
     // bet part
     use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use starknet::Store;
-    use starknet::storage_access;
-    use starknet::StorageBaseAddress;
-    use starknet::SyscallResult;
-    use starknet::storage_read_syscall;
-    use starknet::storage_write_syscall;
-    use starknet::storage_address_from_base_and_offset;
-    use starknet::storage_base_address_from_felt252;
-
-    use traits::Into;
     use starknet::storage_access::StorageAddressSerde;
-    use box::BoxTrait;
+    use starknet::{
+        StorageBaseAddress, Store, SyscallResult, get_caller_address, storage_access,
+        storage_address_from_base_and_offset, storage_base_address_from_felt252,
+        storage_read_syscall, storage_write_syscall,
+    };
+    use traits::{Into, TryInto};
 
     //bet
     use super::Bet;
-    use super::UserData;
-    use super::Foo;
-    use super::{Order, MyEnum};
+    use super::{Foo, MyEnum, Order, UserData};
 
     #[storage]
     struct Storage {
@@ -325,7 +309,7 @@ mod Hello2 {
 
         // mix req (array,bool) ret tuple(array,bool)
         fn array_bool_tuple(
-            self: @ContractState, a: core::array::Array::<felt252>, b: bool,
+            self: @ContractState, a: core::array::Array<felt252>, b: bool,
         ) -> (core::array::Array::<felt252>, bool) {
             let mut a = a.clone();
             a.append(1);

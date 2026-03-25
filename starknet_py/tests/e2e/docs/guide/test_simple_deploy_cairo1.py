@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from starknet_py.tests.e2e.fixtures.misc import ContractVersion, load_contract
+from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 
 # TODO (#1219): investigate why this test fails for v1 contract
@@ -21,9 +21,7 @@ async def test_simple_deploy_cairo1(account, erc20_class_hash):
 
     # docs: end
 
-    compiled_contract = load_contract(
-        contract_name="ERC20", version=ContractVersion.V2
-    )["sierra"]
+    compiled_contract = load_contract(contract_name="ERC20")["sierra"]
 
     class_hash = erc20_class_hash
 

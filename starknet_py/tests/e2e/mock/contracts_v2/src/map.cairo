@@ -9,7 +9,7 @@ trait IMap<TMapState> {
 mod Map {
     #[storage]
     struct Storage {
-        storage: LegacyMap::<felt252, felt252>,
+        storage: LegacyMap<felt252, felt252>,
     }
 
     #[abi(embed_v0)]

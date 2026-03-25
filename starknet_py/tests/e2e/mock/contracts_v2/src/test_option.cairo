@@ -1,11 +1,11 @@
-use serde::Serde;
 use array::SpanTrait;
+use serde::Serde;
 
 #[derive(Copy, Drop, Serde)]
 struct OptionStruct {
     first_field: felt252,
-    second_field: Option::<u256>,
-    third_field: Option::<u8>,
+    second_field: Option<u256>,
+    third_field: Option<u8>,
     fourth_field: felt252,
 }
 
@@ -37,7 +37,7 @@ mod TestOption {
     }
 
     #[external(v0)]
-    fn get_empty_option(self: @ContractState) -> Option::<()> {
+    fn get_empty_option(self: @ContractState) -> Option<()> {
         Option::Some(())
     }
 }
