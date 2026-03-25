@@ -456,7 +456,7 @@ class FullNodeClient(Client):
         response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Transaction:
         try:
-            params = {"transaction_hash": _to_rpc_felt(tx_hash)}
+            params: dict = {"transaction_hash": _to_rpc_felt(tx_hash)}
 
             if response_flags is not None:
                 params["response_flags"] = response_flags
