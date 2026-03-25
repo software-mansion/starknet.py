@@ -186,7 +186,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
         proof_facts: Optional[List[int]] = None,
-        proof: Optional[List[int]] = None,
+        proof: Optional[str] = None,
     ) -> InvokeV3:
         # pylint: disable=too-many-arguments
         """
@@ -213,7 +213,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             version=3,
             tip=tip,
             proof_facts=proof_facts or [],
-            proof=proof or [],
+            proof=proof,
         )
 
         resource_bounds = await self._get_resource_bounds(
@@ -404,7 +404,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
         proof_facts: Optional[List[int]] = None,
-        proof: Optional[List[int]] = None,
+        proof: Optional[str] = None,
     ) -> InvokeV3:
         # pylint: disable=too-many-arguments
         invoke_tx = await self._prepare_invoke_v3(
@@ -522,7 +522,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
         proof_facts: Optional[List[int]] = None,
-        proof: Optional[List[int]] = None,
+        proof: Optional[str] = None,
     ) -> SentTransactionResponse:
         # pylint: disable=too-many-arguments
         execute_transaction = await self.sign_invoke_v3(

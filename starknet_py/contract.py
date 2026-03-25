@@ -382,6 +382,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
     resource_bounds: Optional[ResourceBoundsMapping]
     tip: Optional[int] = None
 
+    # pylint: disable=too-many-arguments
     async def invoke(
         self,
         resource_bounds: Optional[ResourceBoundsMapping] = None,
@@ -391,7 +392,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         tip: Optional[int] = None,
         auto_estimate_tip: bool = False,
         proof_facts: Optional[List[int]] = None,
-        proof: Optional[List[int]] = None,
+        proof: Optional[str] = None,
     ) -> InvokeResult:
         """
         Send an Invoke transaction version 3 for the prepared data.
@@ -402,7 +403,7 @@ class PreparedFunctionInvokeV3(PreparedFunctionInvoke):
         :param tip: The tip amount to be added to the transaction fee.
         :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :param proof_facts: Optional proof facts for the transaction.
-        :param proof: Optional proof for the transaction.
+        :param proof: Optional base64-encoded proof for the transaction.
         :return: InvokeResult.
         """
 
@@ -561,6 +562,7 @@ class ContractFunction:
             _payload_transformer=self._payload_transformer,
         )
 
+    # pylint: disable=too-many-arguments
     async def invoke_v3(
         self,
         *args,
@@ -570,7 +572,7 @@ class ContractFunction:
         auto_estimate_tip: bool = False,
         nonce: Optional[int] = None,
         proof_facts: Optional[List[int]] = None,
-        proof: Optional[List[int]] = None,
+        proof: Optional[str] = None,
         **kwargs,
     ) -> InvokeResult:
         """
@@ -583,7 +585,7 @@ class ContractFunction:
         :param auto_estimate_tip: Use automatic tip estimation. Using this option may lead to higher costs.
         :param nonce: Nonce of the transaction.
         :param proof_facts: Optional proof facts for the transaction.
-        :param proof: Optional proof for the transaction.
+        :param proof: Optional base64-encoded proof for the transaction.
         :return: InvokeResult.
         """
         prepared_invoke = self.prepare_invoke_v3(*args, **kwargs)

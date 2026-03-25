@@ -27,6 +27,8 @@ from starknet_py.net.client_models import (
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     StorageProofResponse,
+    StorageResponseFlag,
+    StorageResult,
     Tag,
     TraceFlag,
     Transaction,
@@ -138,12 +140,15 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        contract_addresses: Optional[List[Hash]] = None,
     ) -> Union[BlockStateUpdate, PreConfirmedBlockStateUpdate]:
         """
         Get the information about the result of executing the requested block
 
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
+        :param contract_addresses: If specified, only state diffs related to these contract addresses will be returned.
+            Class declarations are unaffected by this filter. If omitted, the full state diff is returned.
         :return: BlockStateUpdate object representing changes in the requested block
         """
 
@@ -154,13 +159,16 @@ class Client(ABC):
         key: int,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> int:
+        response_flags: Optional[List[StorageResponseFlag]] = None,
+    ) -> Union[int, StorageResult]:
         """
         :param contract_address: Contract's address on Starknet
         :param key: An address of the storage variable inside the contract.
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
-        :return: Storage value of given contract
+        :param response_flags: When INCLUDE_LAST_UPDATE_BLOCK is set, returns a StorageResult with value and
+            last_update_block instead of a plain int.
+        :return: Storage value of given contract, or StorageResult when response_flags are set
         """
 
     @abstractmethod

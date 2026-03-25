@@ -3,6 +3,7 @@ from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import (
     BlockTransactionTrace,
+    BlockTransactionTracesWithInitialReads,
     ClassHashInitialRead,
     DeclaredContractInitialRead,
     DeclareTransactionTrace,
@@ -219,33 +220,6 @@ class SimulatedTransactionSchema(Schema):
         return SimulatedTransaction(**data)
 
 
-class SimulatedTransactionsWithInitialReadsSchema(Schema):
-    simulated_transactions = fields.List(
-        fields.Nested(SimulatedTransactionSchema()),
-        data_key="simulated_transactions",
-        required=True,
-    )
-    initial_reads = fields.Dict(
-        keys=Felt(), values=Felt(), data_key="initial_reads", required=True
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> SimulatedTransactionsWithInitialReads:
-        return SimulatedTransactionsWithInitialReads(**data)
-
-
-class BlockTransactionTraceSchema(Schema):
-    transaction_hash = Felt(data_key="transaction_hash", required=True)
-    # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
-    trace_root = fields.Nested(
-        TransactionTraceSchema(), data_key="trace_root", required=True, unknown=EXCLUDE
-    )
-
-    @post_load
-    def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
-        return BlockTransactionTrace(**data)
-
-
 class StorageInitialReadSchema(Schema):
     contract_address = Felt(data_key="contract_address", required=True)
     key = fields.String(data_key="key", required=True)
@@ -310,16 +284,43 @@ class InitialReadsSchema(Schema):
         return InitialReads(**data)
 
 
+class SimulatedTransactionsWithInitialReadsSchema(Schema):
+    simulated_transactions = fields.List(
+        fields.Nested(SimulatedTransactionSchema()),
+        data_key="simulated_transactions",
+        required=True,
+    )
+    initial_reads = fields.Nested(
+        InitialReadsSchema(), data_key="initial_reads", required=True
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> SimulatedTransactionsWithInitialReads:
+        return SimulatedTransactionsWithInitialReads(**data)
+
+
+class BlockTransactionTraceSchema(Schema):
+    transaction_hash = Felt(data_key="transaction_hash", required=True)
+    # `unknown=EXCLUDE` in order to skip `type=...` field we don't want
+    trace_root = fields.Nested(
+        TransactionTraceSchema(), data_key="trace_root", required=True, unknown=EXCLUDE
+    )
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
+        return BlockTransactionTrace(**data)
+
+
 class BlockTransactionTracesSchema(Schema):
     transaction_traces = fields.List(
         fields.Nested(BlockTransactionTraceSchema()),
         data_key="transaction_traces",
         required=True,
     )
-    initial_reads = fields.Dict(
-        keys=Felt(), values=Felt(), data_key="initial_reads", required=True
+    initial_reads = fields.Nested(
+        InitialReadsSchema(), data_key="initial_reads", required=True
     )
 
     @post_load
-    def make_dataclass(self, data, **kwargs) -> BlockTransactionTrace:
-        return BlockTransactionTrace(**data)
+    def make_dataclass(self, data, **kwargs) -> BlockTransactionTracesWithInitialReads:
+        return BlockTransactionTracesWithInitialReads(**data)

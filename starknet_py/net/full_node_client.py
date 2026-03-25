@@ -35,6 +35,8 @@ from starknet_py.net.client_models import (
     StarknetBlockWithReceipts,
     StarknetBlockWithTxHashes,
     StorageProofResponse,
+    StorageResponseFlag,
+    StorageResult,
     SyncStatus,
     Tag,
     TraceFlag,
@@ -80,11 +82,13 @@ from starknet_py.net.schemas.rpc.contract import (
     SyncStatusSchema,
 )
 from starknet_py.net.schemas.rpc.event import EventsChunkSchema
-from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema
+from starknet_py.net.schemas.rpc.general import EstimatedFeeSchema, StorageResultSchema
 from starknet_py.net.schemas.rpc.storage_proof import StorageProofResponseSchema
 from starknet_py.net.schemas.rpc.trace_api import (
     BlockTransactionTraceSchema,
+    BlockTransactionTracesSchema,
     SimulatedTransactionSchema,
+    SimulatedTransactionsWithInitialReadsSchema,
     TransactionTraceSchema,
 )
 from starknet_py.net.schemas.rpc.transactions import (
@@ -202,9 +206,13 @@ class FullNodeClient(Client):
             block_hash=block_hash, block_number=block_number
         )
 
+        params = {**block_identifier}
+        if response_flags is not None:
+            params["response_flags"] = response_flags
+
         res = await self._client.call(
             method_name="getBlockWithReceipts",
-            params=block_identifier,
+            params=params,
         )
 
         if block_identifier == {"block_id": "pre_confirmed"}:
@@ -335,14 +343,21 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
+        contract_addresses: Optional[List[Hash]] = None,
     ) -> Union[BlockStateUpdate, PreConfirmedBlockStateUpdate]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
+        params = {**block_identifier}
+        if contract_addresses is not None:
+            params["contract_addresses"] = [
+                _to_rpc_felt(addr) for addr in contract_addresses
+            ]
+
         res = await self._client.call(
             method_name="getStateUpdate",
-            params=block_identifier,
+            params=params,
         )
 
         if block_identifier == {"block_id": "pre_confirmed"}:
@@ -358,19 +373,26 @@ class FullNodeClient(Client):
         key: int,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-    ) -> int:
+        response_flags: Optional[List[StorageResponseFlag]] = None,
+    ) -> Union[int, StorageResult]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
+        params = {
+            "contract_address": _to_rpc_felt(contract_address),
+            "key": _to_storage_key(key),
+            **block_identifier,
+        }
+        if response_flags is not None:
+            params["response_flags"] = response_flags
+
         res = await self._client.call(
             method_name="getStorageAt",
-            params={
-                "contract_address": _to_rpc_felt(contract_address),
-                "key": _to_storage_key(key),
-                **block_identifier,
-            },
+            params=params,
         )
+        if isinstance(res, dict):
+            return cast(StorageResult, StorageResultSchema().load(res))
         res = cast(str, res)
         return int(res, 16)
 
@@ -859,6 +881,7 @@ class FullNodeClient(Client):
         transactions: List[AccountTransaction],
         skip_validate: bool = False,
         skip_fee_charge: bool = False,
+        return_initial_reads: bool = False,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
     ) -> Union[
@@ -880,6 +903,8 @@ class FullNodeClient(Client):
         :param skip_validate: Flag checking whether the validation part of the transaction should be executed.
         :param skip_fee_charge: Flag deciding whether fee should be deducted from the balance before the simulation
             of the next transaction.
+        :param return_initial_reads: When True, include the set of state values read during execution.
+            Returns SimulatedTransactionsWithInitialReads instead of a plain list.
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :return: The execution trace and consumed resources for each transaction.
@@ -893,6 +918,8 @@ class FullNodeClient(Client):
             simulation_flags.append(SimulationFlag.SKIP_VALIDATE)
         if skip_fee_charge:
             simulation_flags.append(SimulationFlag.SKIP_FEE_CHARGE)
+        if return_initial_reads:
+            simulation_flags.append(SimulationFlag.RETURN_INITIAL_READS)
 
         res = await self._client.call(
             method_name="simulateTransactions",
@@ -905,6 +932,11 @@ class FullNodeClient(Client):
             },
         )
 
+        if isinstance(res, dict):
+            return cast(
+                SimulatedTransactionsWithInitialReads,
+                SimulatedTransactionsWithInitialReadsSchema().load(res),
+            )
         return cast(
             List[SimulatedTransaction],
             SimulatedTransactionSchema().load(res, many=True),
@@ -927,19 +959,20 @@ class FullNodeClient(Client):
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number, allow_pre_confirmed=False
         )
-        params = {
-            **block_identifier,
-        }
+        params = {**block_identifier}
 
         if trace_flags is not None:
             params["trace_flags"] = trace_flags
 
         res = await self._client.call(
             method_name="traceBlockTransactions",
-            params={
-                **block_identifier,
-            },
+            params=params,
         )
+        if isinstance(res, dict):
+            return cast(
+                BlockTransactionTracesWithInitialReads,
+                BlockTransactionTracesSchema().load(res),
+            )
         return cast(
             List[BlockTransactionTrace],
             BlockTransactionTraceSchema().load(res, many=True),

@@ -10,7 +10,7 @@ import gzip
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, TypeVar, Union
+from typing import Any, Dict, List, Optional, TypeVar, Union
 
 import marshmallow
 import marshmallow_dataclass
@@ -326,8 +326,8 @@ class InvokeV3(_AccountTransactionV3):
     calldata: List[int]
     sender_address: int
     account_deployment_data: List[int] = field(default_factory=list)
-    proof: List[int] = None
-    proof_facts: List[int] = None
+    proof: Optional[str] = None
+    proof_facts: Optional[List[int]] = None
 
     @property
     def type(self) -> TransactionType:
@@ -342,6 +342,7 @@ class InvokeV3(_AccountTransactionV3):
                 address=self.sender_address,
                 chain_id=chain_id,
             ),
+            proof_facts=self.proof_facts,
         )
 
 

@@ -292,7 +292,6 @@ class InvokeTransactionV3(TransactionV3):
     sender_address: int
     nonce: int
     account_deployment_data: List[int]
-    proof: Optional[List[int]] = None
     proof_facts: Optional[List[int]] = None
 
 
@@ -642,6 +641,25 @@ class StarknetBlockWithTxHashes(BlockHeader):
 
 class TransactionResponseFlag(str, Enum):
     INCLUDE_PROOF_FACTS = "INCLUDE_PROOF_FACTS"
+
+
+class StorageResponseFlag(str, Enum):
+    """
+    Flags that control what additional fields are included in storage responses.
+    """
+
+    INCLUDE_LAST_UPDATE_BLOCK = "INCLUDE_LAST_UPDATE_BLOCK"
+
+
+@dataclass
+class StorageResult:
+    """
+    Dataclass representing storage value with additional metadata.
+    Returned by get_storage_at when INCLUDE_LAST_UPDATE_BLOCK flag is set.
+    """
+
+    value: int
+    last_update_block: int
 
 
 @dataclass
