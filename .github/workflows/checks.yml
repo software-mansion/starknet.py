@@ -233,10 +233,15 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |
@@ -318,10 +323,18 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
+
       - name: Run tests
         run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
           if [[ "${{ github.event_name }}" != "pull_request" ]]; then
             poetry run poe test_ci_on_networks_extended
           else
@@ -472,10 +485,15 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-      - name: Compile contracts
-        run: |
-          poetry run poe compile_contracts v2
-          poetry run poe compile_contracts v1
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |
