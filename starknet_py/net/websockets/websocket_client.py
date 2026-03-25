@@ -172,7 +172,10 @@ class WebsocketClient:
         """
         params = {}
         if from_address is not None:
-            params["from_address"] = _to_rpc_felt(from_address)
+            if isinstance(from_address, list):
+                params["from_address"] = [_to_rpc_felt(addr) for addr in from_address]
+            else:
+                params["from_address"] = _to_rpc_felt(from_address)
         if keys is not None:
             params["keys"] = [
                 [_to_rpc_felt(key) for key in key_group] for key_group in keys

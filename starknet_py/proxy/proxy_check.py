@@ -76,4 +76,6 @@ class OpenZeppelinProxyCheck(ProxyCheck):
             key=get_storage_var_address(key),
             block_hash="latest",
         )
+        if not isinstance(result, int):
+            return None
         return result or None
