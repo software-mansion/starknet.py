@@ -11,7 +11,8 @@ from starknet_py.hash.transaction import (
     compute_invoke_v3_transaction_hash,
     compute_transaction_hash,
 )
-from starknet_py.net.client_models import DAMode
+from starknet_py.net.client_models import DAMode, ResourceBounds, ResourceBoundsMapping
+from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
@@ -157,6 +158,7 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
                 "fee_data_availability_mode": DAMode.L1,
                 "tx_prefix": TransactionHashPrefix.INVOKE,
                 "version": 0x3,
+                "resource_bounds": MAX_RESOURCE_BOUNDS,
             },
             {
                 "calldata": [
@@ -173,7 +175,51 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
             },
             0x119386B4AAAEF905BF027D3DD2734474C5E944942BF3FBD8FDB442704D32B8B,
         ),
-        # TODO(#1703): Add test case with proof facts
+        # Below transaction was submitted on integration network.
+        (
+            {
+                "address": 0x7BFCD6BD5B220A1D46921D92924DDEC46BB7E49D05354C76A8714B41269B2F8,
+                "chain_id": StarknetChainId.SEPOLIA_INTEGRATION,
+                "nonce": 0x25,
+                "tip": 0x0,
+                "paymaster_data": [],
+                "nonce_data_availability_mode": DAMode.L1,
+                "fee_data_availability_mode": DAMode.L1,
+                "tx_prefix": TransactionHashPrefix.INVOKE,
+                "version": 0x3,
+                "resource_bounds": ResourceBoundsMapping(
+                    l1_gas=ResourceBounds(
+                        max_amount=0x0, max_price_per_unit=0x15D3EF79800
+                    ),
+                    l2_gas=ResourceBounds(
+                        max_amount=0x7757FAC, max_price_per_unit=0x2CB417800
+                    ),
+                    l1_data_gas=ResourceBounds(
+                        max_amount=0xC0, max_price_per_unit=0x5DC
+                    ),
+                ),
+            },
+            {
+                "calldata": [
+                    0x1,
+                    0x70A5DA4F557B77A9C54546E4BCC900806E28793D8E3EAAA207428D2387249B7,
+                    0x31341177714D81AD9CCD0C903211BC056A60E8AF988D0FD918CC43874549653,
+                    0x0,
+                ],
+                "account_deployment_data": [],
+                "proof_facts": [
+                    0x50524F4F4630,
+                    0x5649525455414C5F534E4F53,
+                    0x3E98C2D7703B03A7EDB73ED7F075F97F1DCBAA8F717CDF6E1A57BF058265473,
+                    0x5649525455414C5F534E4F5330,
+                    0x2256B2,
+                    0x4272EA7D22D1B1E91D4D6EB1C55FCB5769B676DF746CF2FE77AF8FFFB86EEF2,
+                    0x6989A681C469D769F3A706C56550A63741A4B2D32BEF4B1209A26DAAD1DBB6,
+                    0x0,
+                ],
+            },
+            0x7C173B8A109AB589694C89431E2C6070EA8662087B012F62081FAB6BACA4F6E,
+        ),
     ),
 )
 def test_compute_invoke_v3_transaction_hash(common_data, invoke_data, expected_hash):
@@ -181,7 +227,7 @@ def test_compute_invoke_v3_transaction_hash(common_data, invoke_data, expected_h
         compute_invoke_v3_transaction_hash(
             **invoke_data,
             common_fields=CommonTransactionV3Fields(
-                **common_data, resource_bounds=MAX_RESOURCE_BOUNDS
+                **common_data,
             ),
         )
         == expected_hash
