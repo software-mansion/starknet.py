@@ -109,6 +109,8 @@ async def test_broadcasted_txn_invoke_v3(account, hello_starknet_contract):
             [10],
         ),
         resource_bounds=MAX_RESOURCE_BOUNDS,
+        proof="dummy_proof",
+        proof_facts=[1, 2, 3],
     )
 
     brodcasted_txn = _create_broadcasted_txn(invoke_tx)
