@@ -314,7 +314,7 @@ class BlockTransactionTraceSchema(Schema):
 class BlockTransactionTracesSchema(Schema):
     transaction_traces = fields.List(
         fields.Nested(BlockTransactionTraceSchema()),
-        data_key="transaction_traces",
+        data_key="traces",
         required=True,
     )
     initial_reads = fields.Nested(

@@ -146,7 +146,7 @@ async def test_rejection_reason_in_transaction_receipt(map_contract):
     with pytest.raises(
         ClientError,
         match="Client failed with code 53. "
-              "Message: The transaction's resources don't cover validation or the minimal transaction fee.",
+        "Message: The transaction's resources don't cover validation or the minimal transaction fee.",
     ):
         resource_bounds = ResourceBoundsMapping(
             l1_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
