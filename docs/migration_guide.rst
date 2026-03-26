@@ -1,21 +1,21 @@
 Migration guide
 ===============
 
-****************************
+***************************
 0.30.0-rc.0 Migration guide
-****************************
+***************************
 
 Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
 
 0.30.0-rc.0 Targeted versions
--------------------------------
+-----------------------------
 
 - RPC - `0.10.2 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.10.2>`_
 
 .. py:currentmodule:: starknet_py.net.client_models
 
 0.30.0-rc.0 New features
---------------------------
+------------------------
 
 1. New ``response_flags`` parameter added to
    :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_with_txs`,
@@ -59,7 +59,7 @@ Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
    - :meth:`PreparedFunctionInvokeV3.invoke`
 
 0.30.0-rc.0 New types
------------------------
+---------------------
 
 .. py:currentmodule:: starknet_py.net.client_models
 
@@ -74,7 +74,7 @@ Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
 - :class:`SimulatedTransactionsWithInitialReads` - simulation response that includes :class:`InitialReads`.
 
 0.30.0-rc.0 Bugfixes
----------------------
+--------------------
 
 .. currentmodule:: starknet_py.net.signer.stark_curve_signer
 
