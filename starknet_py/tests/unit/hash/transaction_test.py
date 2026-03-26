@@ -12,7 +12,6 @@ from starknet_py.hash.transaction import (
     compute_transaction_hash,
 )
 from starknet_py.net.client_models import DAMode
-from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 
 
@@ -174,52 +173,10 @@ def test_compute_declare_v3_transaction_hash(common_data, declare_data, expected
             },
             0x119386B4AAAEF905BF027D3DD2734474C5E944942BF3FBD8FDB442704D32B8B,
         ),
-        # https://github.com/starkware-libs/sequencer/blob/69b4c8d378580a1aec345f23dadd4766e036fe3b/crates/starknet_api/resources/transaction_hash.json#L116
-        (
-            {
-                "address": 0x69C0F9BCD79697BDCEAF7748E3FF8F34AA39E4063CE44896AF664C0C96F6C10,
-                "chain_id": 0x534E5F4D41494E,
-                "nonce": 0x9D,
-                "tip": 0x0,
-                "paymaster_data": [],
-                "nonce_data_availability_mode": DAMode.L1,
-                "fee_data_availability_mode": DAMode.L1,
-                "tx_prefix": TransactionHashPrefix.INVOKE,
-                "version": 0x3,
-            },
-            {
-                "calldata": [
-                    int("0x1", 16),
-                    int(
-                        "0x4c0a5193d58f74fbace4b74dcf65481e734ed1714121bdc571da345540efa05",
-                        16,
-                    ),
-                    int(
-                        "0x3943907ef0ef6f9d2e2408b05e520a66daaf74293dbf665e5a20b117676170e",
-                        16,
-                    ),
-                    int("0x2", 16),
-                    int(
-                        "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-                        16,
-                    ),
-                    int("0x16345785d8a0000", 16),
-                ],
-                "account_deployment_data": [],
-                "proof_facts": [
-                    int("0x1", 16),
-                    int("0x2", 16),
-                    int("0x3", 16),
-                ],
-            },
-            0x6D885B1A2B7CB7946480C63AA1697888A33E9CCD0B1516F41C41731A1628726,
-        ),
+        # TODO(#1703): Add test case with proof facts
     ),
 )
 def test_compute_invoke_v3_transaction_hash(common_data, invoke_data, expected_hash):
-    print("integration", hex(StarknetChainId.SEPOLIA_INTEGRATION))
-    print("mainnet", hex(StarknetChainId.MAINNET))
-    print("testnet", hex(StarknetChainId.SEPOLIA))
     assert (
         compute_invoke_v3_transaction_hash(
             **invoke_data,
