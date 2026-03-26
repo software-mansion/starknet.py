@@ -1,5 +1,6 @@
 import pytest
 
+from starknet_py.hash.storage import get_storage_var_address
 from starknet_py.net.client_models import (
     BlockTransactionTracesWithInitialReads,
     InvokeTransactionV3,
@@ -87,8 +88,6 @@ async def test_get_block_with_receipts_response_flags(
 async def test_get_storage_at_with_include_last_update_block(
     client_integration: FullNodeClient,
 ):
-    from starknet_py.hash.storage import get_storage_var_address
-
     # Use TestToken fee contract as a known deployed contract
     test_token_address = (
         0x7B19E89252B1EE5D7FF07A0E0E278B16B058F322053F799469B969E31B82969
