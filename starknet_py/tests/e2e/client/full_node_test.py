@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from starknet_py.common import create_casm_class
+from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
@@ -25,7 +26,7 @@ from starknet_py.net.client_models import (
     SimulatedTransactionsWithInitialReads,
     SyncStatus,
     TraceFlag,
-    TransactionType,
+    TransactionType, StorageResponseFlag, StorageResult,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
@@ -641,3 +642,20 @@ async def test_get_events_with_multiple_addresses(
     assert isinstance(events_response.events, list)
     event_addresses = {e.from_address for e in events_response.events}
     assert simple_storage_with_event_contract.address in event_addresses
+
+
+@pytest.mark.asyncio
+async def test_get_storage_at_with_include_last_update_block(
+    client
+):
+    storage = await client.get_storage_at(
+        contract_address=STRK_FEE_CONTRACT_ADDRESS,
+        key=get_storage_var_address("ERC20_total_supply"),
+        block_hash="latest",
+        response_flags=[StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK],
+    )
+
+    assert isinstance(storage, StorageResult)
+    # TODO(#1703): Investigate - on devnet, this field is returned
+    #  as null, while it should be an integer.
+    # assert storage.last_update_block == 0

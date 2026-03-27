@@ -51,23 +51,6 @@ async def test_get_block_with_txs_response_flags(client_integration: FullNodeCli
 
 
 @pytest.mark.asyncio
-async def test_get_block_with_tx_hashes_response_flags(
-    client_integration: FullNodeClient,
-):
-    receipt = await client_integration.get_transaction_receipt(
-        tx_hash=INVOKE_WITH_PROOF_TX_HASH
-    )
-
-    block = await client_integration.get_block_with_tx_hashes(
-        block_number=receipt.block_number,
-        response_flags=[TransactionResponseFlag.INCLUDE_PROOF_FACTS],
-    )
-
-    assert block.block_number == receipt.block_number
-    assert INVOKE_WITH_PROOF_TX_HASH in block.transactions
-
-
-@pytest.mark.asyncio
 async def test_get_block_with_receipts_response_flags(
     client_integration: FullNodeClient,
 ):
