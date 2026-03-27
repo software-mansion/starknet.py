@@ -212,7 +212,7 @@ class Account(BaseAccount, OutsideExecutionSupportBaseMixin):
             sender_address=self.address,
             version=3,
             tip=tip,
-            proof_facts=proof_facts or [],
+            proof_facts=proof_facts,
             proof=proof,
         )
 
