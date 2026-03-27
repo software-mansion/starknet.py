@@ -45,7 +45,7 @@ async def test_get_block_with_txs_response_flags(client_integration: FullNodeCli
 
     assert block.block_number == receipt.block_number
 
-    tx = block.transactions[0].transaction
+    tx = block.transactions[0]
     assert isinstance(tx, InvokeTransactionV3)
     assert tx.proof_facts == EXPECTED_PROOF_FACTS
 

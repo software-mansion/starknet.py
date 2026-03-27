@@ -646,6 +646,9 @@ async def test_get_events_with_multiple_addresses(
     assert simple_storage_with_event_contract.address in event_addresses
 
 
+@pytest.mark.skip(
+    reason="TODO(#1703): Devnet returns null for last_update_block, while it should be an integer."
+)
 @pytest.mark.asyncio
 async def test_get_storage_at_with_include_last_update_block(client):
     storage = await client.get_storage_at(
@@ -656,6 +659,4 @@ async def test_get_storage_at_with_include_last_update_block(client):
     )
 
     assert isinstance(storage, StorageResult)
-    # TODO(#1703): Investigate - on devnet, this field is returned
-    #  as null, while it should be an integer.
-    # assert storage.last_update_block == 0
+    assert storage.last_update_block == 0
