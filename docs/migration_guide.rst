@@ -45,8 +45,7 @@ Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
    ``simulation_flags``, :meth:`~starknet_py.net.full_node_client.FullNodeClient.simulate_transactions`
    returns :class:`SimulatedTransactionsWithInitialReads` instead of a plain list.
 
-7. Invoke V3 transactions now support optional ``proof_facts`` and ``proof` fields.
-    These can be passed through:
+7. Invoke V3 transactions now support optional ``proof_facts`` and ``proof`` fields. These can be passed through:
 
    .. py:currentmodule:: starknet_py.net.account.account
 
