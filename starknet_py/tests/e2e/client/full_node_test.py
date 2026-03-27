@@ -24,9 +24,11 @@ from starknet_py.net.client_models import (
     SierraContractClass,
     SimulatedTransaction,
     SimulatedTransactionsWithInitialReads,
+    StorageResponseFlag,
+    StorageResult,
     SyncStatus,
     TraceFlag,
-    TransactionType, StorageResponseFlag, StorageResult,
+    TransactionType,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
@@ -645,9 +647,7 @@ async def test_get_events_with_multiple_addresses(
 
 
 @pytest.mark.asyncio
-async def test_get_storage_at_with_include_last_update_block(
-    client
-):
+async def test_get_storage_at_with_include_last_update_block(client):
     storage = await client.get_storage_at(
         contract_address=STRK_FEE_CONTRACT_ADDRESS,
         key=get_storage_var_address("ERC20_total_supply"),
