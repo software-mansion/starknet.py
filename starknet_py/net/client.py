@@ -93,14 +93,12 @@ class Client(ABC):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Union[StarknetBlockWithTxHashes, PreConfirmedStarknetBlockWithTxHashes]:
         """
         Retrieve the block's data with a list of contained transaction hashes.
 
         :param block_hash: Block's hash or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
         :param block_number: Block's number or literals `"l1_accepted"`, `"pre_confirmed"` or `"latest"`
-        :param response_flags: Flags that control what additional fields are included in transaction responses
         :return: StarknetBlockWithTxHashes object representing retrieved block with transactions.
         """
 

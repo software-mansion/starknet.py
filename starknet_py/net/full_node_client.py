@@ -171,19 +171,14 @@ class FullNodeClient(Client):
         self,
         block_hash: Optional[Union[Hash, Tag]] = None,
         block_number: Optional[Union[int, Tag]] = None,
-        response_flags: Optional[List[TransactionResponseFlag]] = None,
     ) -> Union[StarknetBlockWithTxHashes, PreConfirmedStarknetBlockWithTxHashes]:
         block_identifier = get_block_identifier(
             block_hash=block_hash, block_number=block_number
         )
 
-        params = {**block_identifier}
-        if response_flags is not None:
-            params["response_flags"] = response_flags
-
         res = await self._client.call(
             method_name="getBlockWithTxHashes",
-            params=params,
+            params=block_identifier,
         )
 
         if block_identifier == {"block_id": "pre_confirmed"}:

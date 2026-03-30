@@ -19,7 +19,6 @@ Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
 
 1. New ``response_flags`` parameter added to
    :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_with_txs`,
-   :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_with_tx_hashes`,
    :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_with_receipts` and
    :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_transaction`.
    Currently supported flag: ``INCLUDE_PROOF_FACTS``.
