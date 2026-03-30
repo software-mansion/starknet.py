@@ -236,15 +236,15 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#      - name: Compile contracts v2
-#        uses: ./.github/actions/compile-contracts
-#        with:
-#          package: contracts_v2
-#
-#      - name: Compile contracts v1
-#        uses: ./.github/actions/compile-contracts
-#        with:
-#          package: contracts_v1
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |
@@ -329,15 +329,15 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#      - name: Compile contracts v2
-#        uses: ./.github/actions/compile-contracts
-#        with:
-#          package: contracts_v2
-#
-#      - name: Compile contracts v1
-#        uses: ./.github/actions/compile-contracts
-#        with:
-#          package: contracts_v1
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |
@@ -492,15 +492,15 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
-#      - name: Compile contracts v2
-#        uses: ./.github/actions/compile-contracts
-#        with:
-#          package: contracts_v2
-#
-#      - name: Compile contracts v1
-#        uses: ./.github/actions/compile-contracts
-#        with:
-#          package: contracts_v1
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |
