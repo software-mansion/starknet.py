@@ -23,6 +23,10 @@ def _get_env_lambda(env_name):
     return lambda: _get_env_or_throw(env_name)
 
 
+# -------------------------------- INTEGRATION TESTNET --------------------------------
+
+INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
+
 # -------------------------------- SEPOLIA TESTNET -------------------------------------
 
 SEPOLIA_ACCOUNT_PRIVATE_KEY = _get_env_lambda("SEPOLIA_ACCOUNT_PRIVATE_KEY")

@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from starknet_py.common import create_casm_class
+from starknet_py.constants import STRK_FEE_CONTRACT_ADDRESS
 from starknet_py.contract import Contract
 from starknet_py.hash.address import compute_address
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
@@ -14,6 +15,7 @@ from starknet_py.net.account.account import Account
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import (
     BlockHashAndNumber,
+    BlockTransactionTracesWithInitialReads,
     Call,
     DeclareTransactionTrace,
     DeclareTransactionV3,
@@ -21,7 +23,11 @@ from starknet_py.net.client_models import (
     InvokeTransactionTrace,
     SierraContractClass,
     SimulatedTransaction,
+    SimulatedTransactionsWithInitialReads,
+    StorageResponseFlag,
+    StorageResult,
     SyncStatus,
+    TraceFlag,
     TransactionType,
 )
 from starknet_py.net.full_node_client import _to_rpc_felt
@@ -573,3 +579,84 @@ async def test_simulate_transactions_deploy_account(
     assert simulated_txs[0].fee_estimation.overall_fee > 0
     assert simulated_txs[0].transaction_trace.constructor_invocation is not None
     assert simulated_txs[0].transaction_trace.execution_resources is not None
+
+
+@pytest.mark.asyncio
+async def test_simulate_transactions_return_initial_reads(
+    account, deployed_balance_contract
+):
+    assert isinstance(deployed_balance_contract, Contract)
+    call = Call(
+        to_addr=deployed_balance_contract.address,
+        selector=get_selector_from_name("increase_balance"),
+        calldata=[0x10],
+    )
+    invoke_tx = await account.sign_invoke_v3(calls=call, auto_estimate=True)
+
+    result = await account.client.simulate_transactions(
+        transactions=[invoke_tx],
+        return_initial_reads=True,
+        block_number="latest",
+    )
+
+    assert isinstance(result, SimulatedTransactionsWithInitialReads)
+    assert len(result.simulated_transactions) == 1
+    assert isinstance(result.simulated_transactions[0], SimulatedTransaction)
+    assert result.initial_reads is not None
+
+
+@pytest.mark.asyncio
+async def test_trace_block_transactions_return_initial_reads(
+    client, block_with_invoke_number
+):
+    result = await client.trace_block_transactions(
+        block_number=block_with_invoke_number,
+        trace_flags=[TraceFlag.RETURN_INITIAL_READS],
+    )
+
+    assert isinstance(result, BlockTransactionTracesWithInitialReads)
+    assert len(result.transaction_traces) >= 1
+    assert result.initial_reads is not None
+
+
+@pytest.mark.skipif(
+    "--contract_dir=v1" in sys.argv,
+    reason="Contract exists only in v2 directory",
+)
+@pytest.mark.run_on_devnet
+@pytest.mark.asyncio
+async def test_get_events_with_multiple_addresses(
+    client,
+    simple_storage_with_event_contract: Contract,
+    map_contract: Contract,
+):
+    await simple_storage_with_event_contract.functions[FUNCTION_ONE_NAME].invoke_v3(
+        1, 2, auto_estimate=True
+    )
+
+    events_response = await client.get_events(
+        from_block_number=0,
+        to_block_hash="latest",
+        address=[simple_storage_with_event_contract.address, map_contract.address],
+        follow_continuation_token=True,
+    )
+
+    assert isinstance(events_response.events, list)
+    event_addresses = {e.from_address for e in events_response.events}
+    assert simple_storage_with_event_contract.address in event_addresses
+
+
+@pytest.mark.skip(
+    reason="TODO(#1703): Devnet returns null for last_update_block, while it should be an integer."
+)
+@pytest.mark.asyncio
+async def test_get_storage_at_with_include_last_update_block(client):
+    storage = await client.get_storage_at(
+        contract_address=STRK_FEE_CONTRACT_ADDRESS,
+        key=get_storage_var_address("ERC20_total_supply"),
+        block_hash="latest",
+        response_flags=[StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK],
+    )
+
+    assert isinstance(storage, StorageResult)
+    assert storage.last_update_block == 0

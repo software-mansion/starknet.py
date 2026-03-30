@@ -5,10 +5,16 @@ from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.key_pair import KeyPair
 from starknet_py.tests.e2e.fixtures.constants import (
+    INTEGRATION_RPC_URL,
     SEPOLIA_ACCOUNT_ADDRESS,
     SEPOLIA_ACCOUNT_PRIVATE_KEY,
     SEPOLIA_RPC_URL,
 )
+
+
+@pytest.fixture(scope="package")
+def client_integration() -> FullNodeClient:
+    return FullNodeClient(node_url=INTEGRATION_RPC_URL())
 
 
 @pytest.fixture(scope="package")

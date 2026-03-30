@@ -4,8 +4,9 @@ from starknet_py.net.client_models import (
     EstimatedFee,
     ExecutionResources,
     InnerCallExecutionResources,
+    StorageResult,
 )
-from starknet_py.net.schemas.common import PriceUnitField, Uint64, Uint128
+from starknet_py.net.schemas.common import Felt, PriceUnitField, Uint64, Uint128
 from starknet_py.utils.schema import Schema
 
 
@@ -26,6 +27,15 @@ class ExecutionResourcesSchema(Schema):
     @post_load
     def make_dataclass(self, data, **kwargs) -> ExecutionResources:
         return ExecutionResources(**data)
+
+
+class StorageResultSchema(Schema):
+    value = Felt(data_key="value", required=True)
+    last_update_block = fields.Integer(data_key="last_update_block", required=True)
+
+    @post_load
+    def make_dataclass(self, data, **kwargs) -> StorageResult:
+        return StorageResult(**data)
 
 
 class EstimatedFeeSchema(Schema):

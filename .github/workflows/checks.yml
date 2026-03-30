@@ -3,7 +3,7 @@ name: Checks
 env:
   CAIRO_LANG_VERSION: "0.13.1"
   # TODO(#1611)
-  DEVNET_SHA: b761edef5b89a4faa7a972d7172a324cd646d612 # v0.7.0
+  DEVNET_SHA: 2315ce53e90a4fb9c1a07f10de9860d688511bc1 # Unreleased version, targeting Starknet 0.14.2
   LEDGER_APP_SHA: 768a7b47b0da681b28112342edd76e2c9b292c4e # v2.3.1
   LEDGER_APP_DEV_TOOLS_SHA: a845b2ab0b5dd824133f73858f6f373edea85ec1bd828245bf50ce9700f33bcb # v4.5.0
 
@@ -45,6 +45,7 @@ jobs:
 
       - name: Install dependencies needed for HIDAPI and Pillow
         run: |
+          sudo apt-get update 
           sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
 
       - name: Install dependencies
@@ -164,6 +165,7 @@ jobs:
 
       - name: Install dependencies needed for HIDAPI and Pillow
         run: |
+          sudo apt-get update
           sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
 
       - name: Install dependencies
@@ -173,7 +175,10 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== SETUP LEDGER SPECULOS ====================== #
 
@@ -230,6 +235,16 @@ jobs:
 
       - uses: asdf-vm/actions/setup@v3
 
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
+
       - name: Run tests
         run: |
           poetry run poe test_ci_v2
@@ -259,6 +274,7 @@ jobs:
       # TODO(#1582): Remove braavos envs once integration is restored
       SEPOLIA_BRAAVOS_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_ADDRESS }}
       SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY }}
+      INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -288,6 +304,7 @@ jobs:
 
       - name: Install dependencies needed for HIDAPI and Pillow
         run: |
+          sudo apt-get update
           sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
 
       - name: Install dependencies
@@ -297,7 +314,10 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
@@ -306,6 +326,16 @@ jobs:
           poetry run poe circular_imports_check
 
       - uses: asdf-vm/actions/setup@v3
+
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |
@@ -450,11 +480,24 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-        run: ./starknet_py/tests/install_devnet.sh
+#        run: ./starknet_py/tests/install_devnet.sh
+        uses: ./.github/composite-actions/devnet
+        with:
+          devnet_sha: ${{ env.DEVNET_SHA }}
 
       # ====================== RUN TESTS ====================== #
 
       - uses: asdf-vm/actions/setup@v3
+
+      - name: Compile contracts v2
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v2
+
+      - name: Compile contracts v1
+        uses: ./.github/actions/compile-contracts
+        with:
+          package: contracts_v1
 
       - name: Run tests
         run: |

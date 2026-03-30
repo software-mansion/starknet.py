@@ -182,6 +182,7 @@ def compute_invoke_v3_transaction_hash(
     account_deployment_data: List[int],
     calldata: List[int],
     common_fields: CommonTransactionV3Fields,
+    proof_facts: Optional[List[int]] = None,
 ) -> int:
     """
     Computes hash of an Invoke transaction version 3.
@@ -190,15 +191,18 @@ def compute_invoke_v3_transaction_hash(
         Currently, this value is always empty.
     :param calldata: Calldata of the function.
     :param common_fields: Common fields for V3 transactions.
+    :param proof_facts: Optional proof facts for the transaction.
     :return: Hash of the transaction.
     """
-    return poseidon_hash_many(
-        [
-            *common_fields.compute_common_tx_fields(),
-            poseidon_hash_many(account_deployment_data),
-            poseidon_hash_many(calldata),
-        ]
-    )
+    elements = [
+        *common_fields.compute_common_tx_fields(),
+        poseidon_hash_many(account_deployment_data),
+        poseidon_hash_many(calldata),
+    ]
+    if proof_facts:
+        elements.append(poseidon_hash_many(proof_facts))
+
+    return poseidon_hash_many(elements)
 
 
 def compute_deploy_account_transaction_hash(

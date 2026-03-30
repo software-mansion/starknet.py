@@ -1,4 +1,4 @@
-from marshmallow import fields, post_load
+from marshmallow import fields, post_dump, post_load
 from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from starknet_py.net.client_models import (
@@ -182,10 +182,23 @@ class InvokeTransactionV3Schema(TransactionV3Schema):
     account_deployment_data = fields.List(
         Felt(), data_key="account_deployment_data", required=True
     )
+    proof_facts = fields.List(Felt(), data_key="proof_facts", required=False)
 
     @post_load
     def make_transaction(self, data, **kwargs) -> InvokeTransactionV3:
         return InvokeTransactionV3(**data)
+
+
+class BroadcastedInvokeTransactionV3Schema(InvokeTransactionV3Schema):
+    proof = fields.String(data_key="proof", load_default=None)
+
+    @post_dump
+    def remove_none_proof_fields(self, data, **kwargs):
+        if data.get("proof") is None:
+            data.pop("proof", None)
+        if data.get("proof_facts") is None:
+            data.pop("proof_facts", None)
+        return data
 
 
 class DeclareTransactionV0Schema(DeprecatedTransactionSchema):
