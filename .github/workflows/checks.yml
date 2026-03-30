@@ -175,6 +175,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
+# TODO(#1703): Switch to devnet installation script one official release is available.
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:
@@ -314,6 +315,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
+# TODO(#1703): Switch to devnet installation script one official release is available.
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:
@@ -480,6 +482,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
+# TODO(#1703): Switch to devnet installation script one official release is available.
 #        run: ./starknet_py/tests/install_devnet.sh
         uses: ./.github/composite-actions/devnet
         with:
