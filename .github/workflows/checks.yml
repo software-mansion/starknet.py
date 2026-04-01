@@ -133,6 +133,76 @@ jobs:
       matrix:
         python-version: [ "3.10", "3.14" ]
     env:
+      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download contracts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: 'pip'
+
+      # ====================== SETUP PYTHON ====================== #
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Install devnet
+        run: ./starknet_py/tests/install_devnet.sh
+
+      # ====================== RUN TESTS ====================== #
+
+      - name: Check circular imports
+        run: |
+          poetry run poe circular_imports_check
+
+      - uses: asdf-vm/actions/setup@v3
+
+      - name: Run tests
+        run: |
+          poetry run poe test_ci_v2
+          poetry run poe test_ci_v1
+
+      - name: Generate coverage in XML
+        run: |
+          poetry run coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+
+  # ---------------------------------------------------------- #
+  # .....................RUN-LEDGER-TESTS..................... #
+  # ---------------------------------------------------------- #
+
+  run-ledger-tests:
+    name: Ledger Tests
+    needs: setup-tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.14" ]
+    env:
       LEDGER_PROXY_ADDRESS: 127.0.0.1
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
@@ -186,7 +256,6 @@ jobs:
       - name: Pull speculos image
         run: docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools@sha256:${{ env.LEDGER_APP_DEV_TOOLS_SHA }}
 
-
       - name: Clone LedgerHQ Starknet app repository
         run: git clone https://github.com/LedgerHQ/app-starknet.git
 
@@ -230,26 +299,9 @@ jobs:
 
       # ====================== RUN TESTS ====================== #
 
-      - name: Check circular imports
-        run: |
-          poetry run poe circular_imports_check
-
-      - uses: asdf-vm/actions/setup@v3
-
-      - name: Compile contracts v2
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_v2
-
-      - name: Compile contracts v1
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_v1
-
       - name: Run tests
         run: |
-          poetry run poe test_ci_v2
-          poetry run poe test_ci_v1
+          poetry run poe test_ci_ledger
 
       - name: Generate coverage in XML
         run: |
@@ -303,15 +355,6 @@ jobs:
           python-version: "3.14"
           cache: 'poetry'
 
-      - name: Install dependencies needed for HIDAPI and Pillow
-        run: |
-          sudo apt-get update
-          sudo apt install python3-dev libusb-1.0-0-dev libudev-dev libjpeg-dev
-
-      - name: Install dependencies
-        run: |
-          poetry install -E ledger
-
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
@@ -328,16 +371,6 @@ jobs:
           poetry run poe circular_imports_check
 
       - uses: asdf-vm/actions/setup@v3
-
-      - name: Compile contracts v2
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_v2
-
-      - name: Compile contracts v1
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_v1
 
       - name: Run tests
         run: |
@@ -482,25 +515,11 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Install devnet
-# TODO(#1703): Switch to devnet installation script one official release is available.
-#        run: ./starknet_py/tests/install_devnet.sh
-        uses: ./.github/composite-actions/devnet
-        with:
-          devnet_sha: ${{ env.DEVNET_SHA }}
+        run: ./starknet_py/tests/install_devnet.sh
 
       # ====================== RUN TESTS ====================== #
 
       - uses: asdf-vm/actions/setup@v3
-
-      - name: Compile contracts v2
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_v2
-
-      - name: Compile contracts v1
-        uses: ./.github/actions/compile-contracts
-        with:
-          package: contracts_v1
 
       - name: Run tests
         run: |
