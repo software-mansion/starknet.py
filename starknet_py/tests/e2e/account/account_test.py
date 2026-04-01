@@ -772,3 +772,20 @@ async def test_declare_v3_auto_estimate_tip(
     transaction = await account.client.get_transaction(tx_hash=result.transaction_hash)
     assert isinstance(transaction, DeclareTransactionV3)
     assert transaction.tip == 2
+
+
+@pytest.mark.asyncio
+async def test_invalid_proof(map_contract):
+    with pytest.raises(
+        ClientError,
+        match="Client failed with code 69. "
+        "Message: The proof field in the invoke v3 transaction is invalid.",
+    ):
+        resource_bounds = ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+            l2_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+            l1_data_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+        )
+        await map_contract.functions["put"].invoke_v3(
+            key=10, value=20, resource_bounds=resource_bounds, proof_facts=[1, 2, 3]
+        )
