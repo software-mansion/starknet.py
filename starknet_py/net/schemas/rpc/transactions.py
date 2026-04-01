@@ -190,7 +190,7 @@ class InvokeTransactionV3Schema(TransactionV3Schema):
 
 
 class BroadcastedInvokeTransactionV3Schema(InvokeTransactionV3Schema):
-    proof = fields.String(data_key="proof", load_default=None)
+    proof = fields.String(data_key="proof", required=False)
 
     @post_dump
     def remove_none_proof_fields(self, data, **kwargs):

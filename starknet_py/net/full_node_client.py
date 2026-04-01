@@ -153,7 +153,8 @@ class FullNodeClient(Client):
         )
 
         params = {**block_identifier}
-        if response_flags is not None:
+
+        if response_flags:
             params["response_flags"] = response_flags
 
         res = await self._client.call(
@@ -202,7 +203,8 @@ class FullNodeClient(Client):
         )
 
         params = {**block_identifier}
-        if response_flags is not None:
+
+        if response_flags:
             params["response_flags"] = response_flags
 
         res = await self._client.call(
@@ -379,14 +381,18 @@ class FullNodeClient(Client):
             "key": _to_storage_key(key),
             **block_identifier,
         }
-        if response_flags is not None:
+
+        if response_flags:
             params["response_flags"] = response_flags
 
         res = await self._client.call(
             method_name="getStorageAt",
             params=params,
         )
-        if isinstance(res, dict):
+        if (
+            response_flags
+            and StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK in response_flags
+        ):
             return cast(StorageResult, StorageResultSchema().load(res))
         res = cast(str, res)
         return int(res, 16)
@@ -453,7 +459,7 @@ class FullNodeClient(Client):
         try:
             params: dict = {"transaction_hash": _to_rpc_felt(tx_hash)}
 
-            if response_flags is not None:
+            if response_flags:
                 params["response_flags"] = response_flags
 
             res = await self._client.call(
@@ -735,7 +741,8 @@ class FullNodeClient(Client):
             **block_identifier,
             "index": index,
         }
-        if response_flags is not None:
+
+        if response_flags:
             params["response_flags"] = response_flags
 
         res = await self._client.call(

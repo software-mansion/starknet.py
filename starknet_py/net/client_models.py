@@ -640,6 +640,10 @@ class StarknetBlockWithTxHashes(BlockHeader):
 
 
 class TransactionResponseFlag(str, Enum):
+    """
+    Flags that control what additional fields are included in the transaction response.
+    """
+
     INCLUDE_PROOF_FACTS = "INCLUDE_PROOF_FACTS"
 
 
