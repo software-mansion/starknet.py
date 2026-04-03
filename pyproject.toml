@@ -24,7 +24,6 @@ dependencies = [
     "eth-keys==0.7.0",
     "websockets>=15.0.1,<16.0.0",
     "semver>=3.0.0,<4.0.0",
-    "poetry (==2.3.2)",
 ]
 
 [project.optional-dependencies]
