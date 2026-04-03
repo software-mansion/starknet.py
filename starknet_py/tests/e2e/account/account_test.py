@@ -145,7 +145,8 @@ async def test_sending_multicall(account, map_contract, key, val):
 async def test_rejection_reason_in_transaction_receipt(map_contract):
     with pytest.raises(
         ClientError,
-        match="Client failed with code -1. Message: Resource bounds were not satisfied",
+        match="Client failed with code 53. "
+        "Message: The transaction's resources don't cover validation or the minimal transaction fee.",
     ):
         resource_bounds = ResourceBoundsMapping(
             l1_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
@@ -771,3 +772,20 @@ async def test_declare_v3_auto_estimate_tip(
     transaction = await account.client.get_transaction(tx_hash=result.transaction_hash)
     assert isinstance(transaction, DeclareTransactionV3)
     assert transaction.tip == 2
+
+
+@pytest.mark.asyncio
+async def test_invalid_proof(map_contract):
+    with pytest.raises(
+        ClientError,
+        match="Client failed with code 69. "
+        "Message: The proof field in the invoke v3 transaction is invalid.",
+    ):
+        resource_bounds = ResourceBoundsMapping(
+            l1_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+            l2_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+            l1_data_gas=ResourceBounds(max_amount=1, max_price_per_unit=1),
+        )
+        await map_contract.functions["put"].invoke_v3(
+            key=10, value=20, resource_bounds=resource_bounds, proof_facts=[1, 2, 3]
+        )

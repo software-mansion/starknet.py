@@ -5,6 +5,73 @@ Migration guide
 0.30.0-rc.0 Migration guide
 ****************************
 
+Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
+
+0.30.0-rc.0 Targeted versions
+-----------------------------
+
+- Starknet - 0.14.2
+- RPC - `0.10.2 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.10.2>`_
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+0.30.0-rc.0 New features
+------------------------
+
+1. New ``response_flags`` parameter added to
+   :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_with_txs`,
+   :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_with_receipts` and
+   :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_transaction`.
+   Currently supported flag: ``INCLUDE_PROOF_FACTS``.
+
+2. :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_storage_at` accepts a new
+   ``response_flags`` parameter of type :class:`StorageResponseFlag`. When
+   ``INCLUDE_LAST_UPDATE_BLOCK`` is set, the return type changes from ``int`` to
+   :class:`StorageResult` (which includes ``value`` and ``last_update_block``).
+
+3. :meth:`~starknet_py.net.full_node_client.FullNodeClient.trace_block_transactions` accepts a new
+   ``trace_flags`` parameter of type :class:`TraceFlag`. When ``RETURN_INITIAL_READS`` is set,
+   the return type is :class:`BlockTransactionTracesWithInitialReads` instead of
+   ``List[BlockTransactionTrace]``.
+
+4. :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_state_update` accepts a new
+   ``contract_addresses`` parameter. When provided, only state diffs related to those addresses
+   are returned; class declarations are unaffected by this filter.
+
+5. The ``address`` parameter of :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_events`
+   now accepts either a single ``Hash`` or a ``List[Hash]``.
+
+6. :class:`SimulationFlag` has a new value ``RETURN_INITIAL_READS``. When included in
+   ``simulation_flags``, :meth:`~starknet_py.net.full_node_client.FullNodeClient.simulate_transactions`
+   returns :class:`SimulatedTransactionsWithInitialReads` instead of a plain list.
+
+7. Invoke V3 transactions now support optional ``proof_facts`` and ``proof`` fields. These can be passed through:
+
+   .. py:currentmodule:: starknet_py.net.account.account
+
+   - :meth:`Account.sign_invoke_v3`
+   - :meth:`Account.execute_v3`
+
+   .. py:currentmodule:: starknet_py.contract
+
+   - :meth:`ContractFunction.invoke_v3`
+   - :meth:`PreparedFunctionInvokeV3.invoke`
+
+0.30.0-rc.0 New types
+---------------------
+
+.. py:currentmodule:: starknet_py.net.client_models
+
+- :class:`TransactionResponseFlag` - flags controlling extra fields in transaction responses.
+- :class:`StorageResponseFlag` - flags controlling extra fields in storage responses.
+- :class:`TraceFlag` - flags controlling extra fields in block traces.
+- :class:`StorageResult` - returned by :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_storage_at`
+  when ``INCLUDE_LAST_UPDATE_BLOCK`` is set; contains ``value`` and ``last_update_block``.
+- :class:`InitialReads` - set of state values read from the underlying state reader during execution,
+  containing optional ``storage``, ``nonces``, ``class_hashes`` and ``declared_contracts`` lists.
+- :class:`BlockTransactionTracesWithInitialReads` - block traces response that includes :class:`InitialReads`.
+- :class:`SimulatedTransactionsWithInitialReads` - simulation response that includes :class:`InitialReads`.
+
 0.30.0-rc.0 Bugfixes
 --------------------
 

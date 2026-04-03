@@ -770,3 +770,17 @@ async def test_get_new_state_update(
         )
         in state_update_first.state_diff.declared_classes
     )
+
+
+@pytest.mark.asyncio
+async def test_get_state_update_with_contract_addresses(
+    client, contract_address_2, block_with_invoke_number
+):
+    state_update = await client.get_state_update(
+        block_number=block_with_invoke_number,
+        contract_addresses=[contract_address_2],
+    )
+
+    assert isinstance(state_update, BlockStateUpdate)
+    storage_diffs = state_update.state_diff.storage_diffs
+    assert all(diff.address == contract_address_2 for diff in storage_diffs)

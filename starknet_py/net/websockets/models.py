@@ -3,6 +3,7 @@ Dataclasses representing responses from Starknet Websocket RPC API.
 """
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Generic, TypeVar
 
 from starknet_py.net.client_models import (
@@ -95,3 +96,12 @@ class NewTransactionNotification(Notification[NewTransactionNotificationResult])
     """
     Notification of a new transaction
     """
+
+
+class SubscriptionTag(str, Enum):
+    """
+    Enum representing tags that control what additional fields
+    are included in subscription responses.
+    """
+
+    INCLUDE_PROOF_FACTS = "INCLUDE_PROOF_FACTS"

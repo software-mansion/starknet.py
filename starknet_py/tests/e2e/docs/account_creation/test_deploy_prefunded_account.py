@@ -47,7 +47,7 @@ async def test_deploy_prefunded_account(
     # docs: end
 
     client = full_node_client_fixture
-    await devnet_client.mint(address, int(1e24))
+    await devnet_client.mint(address, int(1e30))
 
     # docs: start
 
@@ -60,10 +60,10 @@ async def test_deploy_prefunded_account(
         client=client,
         constructor_calldata=[key_pair.public_key],
         resource_bounds=ResourceBoundsMapping(
-            l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
-            l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e17)),
+            l1_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e15)),
+            l2_gas=ResourceBounds(max_amount=int(1e8), max_price_per_unit=int(1e17)),
             l1_data_gas=ResourceBounds(
-                max_amount=int(1e5), max_price_per_unit=int(1e13)
+                max_amount=int(1e6), max_price_per_unit=int(1e15)
             ),
         ),
     )

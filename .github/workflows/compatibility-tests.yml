@@ -58,6 +58,7 @@ jobs:
             SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
             SEPOLIA_ACCOUNT_ADDRESS: ${{ secrets.SEPOLIA_ACCOUNT_ADDRESS }}
             SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
+            INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
         steps:
             - uses: actions/checkout@v6
 
