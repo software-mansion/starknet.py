@@ -241,7 +241,7 @@ class WebsocketClient:
         if finality_status is not None:
             params["finality_status"] = [status.value for status in finality_status]
 
-        if tags is not None:
+        if tags:
             params["tags"] = tags
 
         subscription_id = await self._subscribe(

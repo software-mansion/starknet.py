@@ -194,9 +194,9 @@ class BroadcastedInvokeTransactionV3Schema(InvokeTransactionV3Schema):
 
     @post_dump
     def remove_none_proof_fields(self, data, **kwargs):
-        if data.get("proof") is None:
+        if "proof" in data and data["proof"] is None:
             data.pop("proof", None)
-        if data.get("proof_facts") is None:
+        if "proof_facts" in data and data["proof_facts"] is None:
             data.pop("proof_facts", None)
         return data
 

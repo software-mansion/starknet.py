@@ -10,6 +10,7 @@ Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
 0.30.0-rc.0 Targeted versions
 -----------------------------
 
+- Starknet - 0.14.2
 - RPC - `0.10.2 <https://github.com/starkware-libs/starknet-specs/releases/tag/v0.10.2>`_
 
 .. py:currentmodule:: starknet_py.net.client_models
@@ -28,7 +29,7 @@ Version 0.30.0-rc.0 of **starknet.py** comes with support for RPC 0.10.2.
    ``INCLUDE_LAST_UPDATE_BLOCK`` is set, the return type changes from ``int`` to
    :class:`StorageResult` (which includes ``value`` and ``last_update_block``).
 
-3. :meth:`~starknet_py.net.full_node_client.FullNodeClient.get_block_traces` accepts a new
+3. :meth:`~starknet_py.net.full_node_client.FullNodeClient.trace_block_transactions` accepts a new
    ``trace_flags`` parameter of type :class:`TraceFlag`. When ``RETURN_INITIAL_READS`` is set,
    the return type is :class:`BlockTransactionTracesWithInitialReads` instead of
    ``List[BlockTransactionTrace]``.

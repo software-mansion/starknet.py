@@ -347,7 +347,7 @@ class FullNodeClient(Client):
         )
 
         params = {**block_identifier}
-        if contract_addresses is not None:
+        if contract_addresses:
             params["contract_addresses"] = [
                 _to_rpc_felt(addr) for addr in contract_addresses
             ]
@@ -963,7 +963,7 @@ class FullNodeClient(Client):
         )
         params = {**block_identifier}
 
-        if trace_flags is not None:
+        if trace_flags:
             params["trace_flags"] = trace_flags
 
         res = await self._client.call(

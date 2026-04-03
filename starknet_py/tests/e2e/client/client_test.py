@@ -772,7 +772,6 @@ async def test_get_new_state_update(
     )
 
 
-@pytest.mark.run_on_devnet
 @pytest.mark.asyncio
 async def test_get_state_update_with_contract_addresses(
     client, contract_address_2, block_with_invoke_number
