@@ -19,7 +19,7 @@ dependencies = [
     "lark>=1.1.5,<2.0.0",
     "aiohttp>=3.8.4,<4.0.0",
     "pycryptodome>=3.17,<4.0",
-    "crypto-cpp-py==1.4.5",
+    "crypto-cpp-py==2.0.0",
     "eth-keyfile>=0.8.1,<1.0.0",
     "eth-keys==0.7.0",
     "websockets>=15.0.1,<16.0.0",
