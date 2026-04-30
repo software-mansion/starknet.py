@@ -1,17 +1,16 @@
-import sys
-
 import pytest
 
 from starknet_py.cairo.felt import decode_shortstring, encode_shortstring
 from starknet_py.contract import Contract
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
 from starknet_py.tests.e2e.fixtures.contracts_v1 import deploy_v3_contract
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 
 # TODO (#1219): investigate why some of these tests fails for contracts_compiled_v1
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -57,7 +56,7 @@ async def test_general_v3_interaction(account, erc20_class_hash: int):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -149,7 +148,7 @@ async def test_serializing_enum(account, test_enum_class_hash: int):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -177,7 +176,7 @@ async def test_from_address_on_v1_contract(account, erc20_class_hash: int):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
