@@ -75,6 +75,7 @@ test = [
 ]
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
+# PYTEST_XDIST is overridden to 0 on Windows CI (see windows-tests.yml)
 test_ci_v1 = "coverage run -a -m pytest -n ${PYTEST_XDIST:-auto} --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/unit/signer/test_ledger_signer.py"
 test_ci_v2 = "coverage run -a -m pytest -n ${PYTEST_XDIST:-auto} --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/unit/signer/test_ledger_signer.py"
 test_ci_ledger = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/unit/signer/test_ledger_signer.py"
