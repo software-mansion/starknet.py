@@ -1,8 +1,7 @@
-import sys
-
 import pytest
 
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 
 # docs-abi: start
 abi = [
@@ -28,7 +27,7 @@ abi = [
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
