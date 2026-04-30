@@ -1,0 +1,120 @@
+name: Windows Tests
+
+env:
+  DEVNET_VERSION: "0.8.0"
+
+on:
+  workflow_call:
+    inputs:
+      fork_mode:
+        type: boolean
+        default: false
+      test_task:
+        type: string
+        required: true
+      circular_imports_check:
+        type: boolean
+        default: false
+
+jobs:
+  run:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.14" ]
+    env:
+      DEVNET_URL: http://127.0.0.1:5050
+      DEVNET_FORK_URL: http://127.0.0.1:5051
+      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download contracts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: starknet_py/tests/e2e/mock/
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: 'pip'
+
+      # ====================== SETUP DEVNET ====================== #
+
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
+        with:
+          additional-packages: curl ca-certificates uuid-runtime jq git
+
+      - name: Download and Extract Devnet (PowerShell)
+        shell: pwsh
+        run: |
+          curl.exe -L -o devnet.tar.gz https://github.com/0xSpaceShard/starknet-devnet-rs/releases/download/v${{ env.DEVNET_VERSION }}/starknet-devnet-x86_64-unknown-linux-musl.tar.gz
+          tar.exe -xzf devnet.tar.gz
+
+      - name: Start Devnet with fork mode via WSL
+        if: ${{ inputs.fork_mode }}
+        shell: wsl-bash {0}
+        run: |
+          nohup ./starknet-devnet --port 5051 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent --fork-network ${{ env.SEPOLIA_RPC_URL }} > devnet_fork.log 2>&1 &
+          for i in $(seq 60); do curl -sf http://127.0.0.1:5051/is_alive && break; sleep 1; done || (echo "Devnet (fork) failed to start"; exit 1)
+
+      - name: Start Devnet via WSL
+        shell: wsl-bash {0}
+        run: |
+          nohup ./starknet-devnet --port 5050 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent > devnet.log 2>&1 &
+          for i in $(seq 60); do curl -sf http://127.0.0.1:5050/is_alive && break; sleep 1; done || (echo "Devnet failed to start"; exit 1)
+
+      - name: Verify devnet is running
+        shell: pwsh
+        run: |
+          Get-Content devnet.log
+          Invoke-RestMethod -Uri "$env:DEVNET_URL/is_alive"
+
+      - name: Verify fork devnet is running
+        if: ${{ inputs.fork_mode }}
+        shell: pwsh
+        run: |
+          Get-Content devnet_fork.log
+          Invoke-RestMethod -Uri "$env:DEVNET_FORK_URL/is_alive"
+
+      # ====================== SETUP PYTHON ====================== #
+
+      - name: Install poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      # ====================== RUN TESTS ====================== #
+
+      - name: Check circular imports
+        if: ${{ inputs.circular_imports_check }}
+        run: |
+          poetry run poe circular_imports_check
+
+      - name: Run tests
+        env:
+          # xdist is disabled because devnet runs via WSL and cannot be spawned within Python.
+          PYTEST_XDIST: "0"
+        run: |
+          poetry run poe ${{ inputs.test_task }}_v2
+          poetry run poe ${{ inputs.test_task }}_v1
+
+      - name: Generate coverage in XML
+        run: |
+          poetry run coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5

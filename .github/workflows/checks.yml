@@ -2,8 +2,6 @@ name: Checks
 
 env:
   CAIRO_LANG_VERSION: "0.13.1"
-  # TODO(#1611)
-  DEVNET_SHA: 7ed5a9675746d1d9bdb108cecf950d6f611caa9d # v0.8.0-rc.0
   LEDGER_APP_SHA: 768a7b47b0da681b28112342edd76e2c9b292c4e # v2.3.1
   LEDGER_APP_DEV_TOOLS_SHA: a845b2ab0b5dd824133f73858f6f373edea85ec1bd828245bf50ce9700f33bcb # v4.5.0
 
@@ -387,79 +385,12 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
     name: Tests Windows
     needs: setup-tests
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.10", "3.14" ]
-    env:
-      SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
-        with:
-          toolchain: 1.83.0
-
-      - name: Download contracts
-        uses: actions/download-artifact@v4
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-          cache: 'pip'
-
-      # ====================== SETUP DEVNET ====================== #
-
-      - name: Cache devnet build
-        id: windows-devnet-cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
-          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
-
-      - name: Install devnet
-        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
-        run: |
-          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
-        shell: pwsh
-      # ====================== SETUP PYTHON ====================== #
-
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-
-      - name: Install dependencies
-        run: |
-          poetry install
-
-      # ====================== RUN TESTS ====================== #
-
-      - name: Check circular imports
-        run: |
-          poetry run poe circular_imports_check
-
-      - name: Run tests
-        run: |
-          poetry run poe test_ci_v2
-          poetry run poe test_ci_v1
-
-      - name: Generate coverage in XML
-        run: |
-          poetry run coverage xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+    uses: ./.github/workflows/windows-tests.yml
+    with:
+      fork_mode: true
+      test_task: test_ci
+      circular_imports_check: true
+    secrets: inherit
 
   # ---------------------------------------------------------- #
   # .....................RUN-DOCS-TESTS....................... #
@@ -533,71 +464,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
     name: Docs Tests Windows
     needs: setup-tests
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.10", "3.14" ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
-        with:
-          toolchain: 1.83.0
-
-      - name: Download contracts
-        uses: actions/download-artifact@v4
-        with:
-          name: contract-artifacts
-          path: starknet_py/tests/e2e/mock/
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-          cache: 'pip'
-
-      # ====================== SETUP PYTHON ====================== #
-
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
-
-      - name: Install dependencies
-        run: |
-          poetry install
-
-      # ====================== SETUP DEVNET ====================== #
-
-      - name: Cache devnet build
-        id: windows-devnet-cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
-          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
-
-      - name: Install devnet
-        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
-        run: |
-          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
-        shell: pwsh
-
-      # ====================== RUN TESTS ====================== #
-
-      - name: Run tests
-        run: |
-          poetry run poe test_ci_docs_v2
-          poetry run poe test_ci_docs_v1
-
-      - name: Generate coverage in XML
-        run: |
-          poetry run coverage xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+    uses: ./.github/workflows/windows-tests.yml
+    with:
+      test_task: test_ci_docs
+    secrets: inherit
