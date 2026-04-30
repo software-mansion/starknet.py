@@ -20,7 +20,7 @@ async def test_declaring_contracts(
 
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
-        l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
         l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
     )
     declare_transaction = await account.sign_declare_v3(
