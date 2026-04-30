@@ -22,13 +22,10 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
 
     # docs: end
     # docs: start
-    l1_resource_bounds = ResourceBounds(
-        max_amount=int(1e5), max_price_per_unit=int(1e13)
-    )
     resource_bounds = ResourceBoundsMapping(
-        l1_gas=l1_resource_bounds,
-        l2_gas=ResourceBounds.init_with_zeros(),
-        l1_data_gas=ResourceBounds.init_with_zeros(),
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
     )
     # Declare and deploy an example contract which implements a simple k-v store.
     # Contract.declare_v3 takes string containing a compiled contract (sierra) and
@@ -53,9 +50,9 @@ async def test_using_account(account, map_compiled_contract_and_class_hash_copy_
     # Adds a transaction to mutate the state of k-v store. The call goes through account proxy, because we've used
     # Account to create the contract object
     resource_bounds = ResourceBoundsMapping(
-        l1_gas=l1_resource_bounds,
-        l2_gas=ResourceBounds.init_with_zeros(),
-        l1_data_gas=ResourceBounds.init_with_zeros(),
+        l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
+        l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
     )
     await (
         await map_contract.functions["put"].invoke_v3(
