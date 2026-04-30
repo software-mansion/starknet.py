@@ -1,3 +1,5 @@
+import asyncio
+import os
 import socket
 import subprocess
 import time
@@ -7,6 +9,7 @@ from typing import Generator, List
 
 import pytest
 
+from starknet_py.devnet_utils.devnet_client import DevnetClient
 from starknet_py.tests.e2e.fixtures.constants import SEPOLIA_RPC_URL
 
 
@@ -59,18 +62,30 @@ def get_start_devnet_command(devnet_port: int, fork_mode: bool = False) -> List[
 @pytest.fixture(scope="package")
 def devnet() -> Generator[str, None, None]:
     """
-    Runs devnet instance once per module and returns its address.
+    Runs devnet instance once per package and returns its address.
+    If DEVNET_URL environment variable is set, uses that instead of starting a new instance.
     """
-    devnet_port, proc = start_devnet()
-    yield f"http://localhost:{devnet_port}"
-    proc.kill()
+    devnet_url = os.environ.get("DEVNET_URL")
+    if devnet_url:
+        asyncio.run(DevnetClient(node_url=devnet_url).restart())
+        yield devnet_url
+    else:
+        devnet_port, proc = start_devnet()
+        yield f"http://localhost:{devnet_port}"
+        proc.kill()
 
 
 @pytest.fixture(scope="package")
 def devnet_forking_mode() -> Generator[str, None, None]:
     """
-    Runs devnet instance once per module and returns its address.
+    Runs devnet instance once per package and returns its address.
+    If DEVNET_FORK_URL environment variable is set, uses that instead of starting a new instance.
     """
-    devnet_port, proc = start_devnet(fork_mode=True)
-    yield f"http://localhost:{devnet_port}"
-    proc.kill()
+    devnet_fork_url = os.environ.get("DEVNET_FORK_URL")
+    if devnet_fork_url:
+        asyncio.run(DevnetClient(node_url=devnet_fork_url).restart())
+        yield devnet_fork_url
+    else:
+        devnet_port, proc = start_devnet(fork_mode=True)
+        yield f"http://localhost:{devnet_port}"
+        proc.kill()

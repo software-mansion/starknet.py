@@ -2,8 +2,7 @@ name: Checks
 
 env:
   CAIRO_LANG_VERSION: "0.13.1"
-  # TODO(#1611)
-  DEVNET_SHA: 7ed5a9675746d1d9bdb108cecf950d6f611caa9d # v0.8.0-rc.0
+  DEVNET_VERSION: "0.8.0"
   LEDGER_APP_SHA: 768a7b47b0da681b28112342edd76e2c9b292c4e # v2.3.1
   LEDGER_APP_DEV_TOOLS_SHA: a845b2ab0b5dd824133f73858f6f373edea85ec1bd828245bf50ce9700f33bcb # v4.5.0
 
@@ -12,6 +11,7 @@ on:
     branches:
       - master
       - development
+      - fix-windows-ci-fork-test-1 # TODO: remove
   pull_request:
   workflow_dispatch:
 
@@ -312,6 +312,7 @@ jobs:
 
   run-tests-on-networks:
     name: Tests on networks (testnet)
+    if: ${{ github.event_name != 'push' }} # TODO: remove
     needs: setup-tests
     runs-on: ubuntu-latest
     strategy:
@@ -384,7 +385,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests-windows:
-    if: ${{ github.event_name != 'pull_request' }}
+    # if: ${{ github.event_name != 'pull_request' }} # TODO: Uncomment
     name: Tests Windows
     needs: setup-tests
     runs-on: windows-latest
@@ -394,11 +395,10 @@ jobs:
         python-version: [ "3.10", "3.14" ]
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+      DEVNET_URL: http://127.0.0.1:5050
+      DEVNET_FORK_URL: http://127.0.0.1:5051
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
-        with:
-          toolchain: 1.83.0
 
       - name: Download contracts
         uses: actions/download-artifact@v4
@@ -413,19 +413,42 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Cache devnet build
-        id: windows-devnet-cache
-        uses: actions/cache@v4
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
         with:
-          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
-          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
+          additional-packages: curl ca-certificates uuid-runtime jq git
 
-      - name: Install devnet
-        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
-        run: |
-          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+      - name: Download and Extract Devnet (PowerShell)
         shell: pwsh
+        run: |
+          curl.exe -L -o devnet.tar.gz https://github.com/0xSpaceShard/starknet-devnet-rs/releases/download/v${{ env.DEVNET_VERSION }}/starknet-devnet-x86_64-unknown-linux-musl.tar.gz
+          tar.exe -xzf devnet.tar.gz
+
+      # Boot the extracted Linux binary inside WSL
+      - name: Start Devnet with fork mode via WSL
+        shell: wsl-bash {0}
+        run: |
+          nohup ./starknet-devnet --port 5051 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent --fork-network ${{ env.SEPOLIA_RPC_URL }}  > devnet_fork.log 2>&1 &
+
+          # Give it a few seconds to boot up
+          sleep 10
+
+      - name: Start Devnet via WSL
+        shell: wsl-bash {0}
+        run: |
+          nohup ./starknet-devnet --port 5050 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent > devnet.log 2>&1 &
+
+          # Give it a few seconds to boot up
+          sleep 10
+
+      - name: Verify devnet is running
+        shell: pwsh
+        run: |
+          Get-Content devnet.log
+          Get-Content devnet_fork.log
+          Invoke-RestMethod -Uri "$env:DEVNET_URL/is_alive"
+          Invoke-RestMethod -Uri "$env:DEVNET_FORK_URL/is_alive"
+
       # ====================== SETUP PYTHON ====================== #
 
       - name: Install poetry
@@ -450,6 +473,8 @@ jobs:
           poetry run poe circular_imports_check
 
       - name: Run tests
+        env:
+            PYTEST_XDIST: "0"
         run: |
           poetry run poe test_ci_v2
           poetry run poe test_ci_v1
@@ -530,7 +555,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-docs-tests-windows:
-    if: ${{ github.event_name != 'pull_request' }}
+    # if: ${{ github.event_name != 'pull_request' }} # TODO: Uncomment
     name: Docs Tests Windows
     needs: setup-tests
     runs-on: windows-latest
@@ -538,11 +563,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.10", "3.14" ]
+    env:
+      DEVNET_URL: http://127.0.0.1:5050
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@dc6353516c68da0f06325f42ad880f76a5e77ec9
-        with:
-          toolchain: 1.83.0
 
       - name: Download contracts
         uses: actions/download-artifact@v4
@@ -574,23 +598,37 @@ jobs:
 
       # ====================== SETUP DEVNET ====================== #
 
-      - name: Cache devnet build
-        id: windows-devnet-cache
-        uses: actions/cache@v4
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
         with:
-          path: ${{ github.workspace }}\starknet_py\tests\e2e\devnet\bin
-          key: ${{ runner.os }}-devnet-${{ env.DEVNET_SHA }}
+          additional-packages: curl ca-certificates uuid-runtime jq git
 
-      - name: Install devnet
-        if: steps.windows-devnet-cache.outputs.cache-hit != 'true'
-        run: |
-          $DEVNET_INSTALL_DIR = "${{ github.workspace }}\starknet_py\tests\e2e\devnet"
-          cargo install --git https://github.com/0xSpaceShard/starknet-devnet-rs.git --locked --rev ${{ env.DEVNET_SHA }} --root $DEVNET_INSTALL_DIR
+      - name: Download and Extract Devnet (PowerShell)
         shell: pwsh
+        run: |
+          curl.exe -L -o devnet.tar.gz https://github.com/0xSpaceShard/starknet-devnet-rs/releases/download/v${{ env.DEVNET_VERSION }}/starknet-devnet-x86_64-unknown-linux-musl.tar.gz
+          tar.exe -xzf devnet.tar.gz
+
+      # Boot the extracted Linux binary inside WSL
+      - name: Start Devnet via WSL
+        shell: wsl-bash {0}
+        run: |
+          nohup ./starknet-devnet --port 5050 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent > devnet.log 2>&1 &
+
+          # Give it a few seconds to boot up
+          sleep 10
+
+      - name: Verify devnet is running
+        shell: pwsh
+        run: |
+          Get-Content devnet.log
+          Invoke-RestMethod -Uri "$env:DEVNET_URL/is_alive"
 
       # ====================== RUN TESTS ====================== #
 
       - name: Run tests
+        env:
+          PYTEST_XDIST: "0"
         run: |
           poetry run poe test_ci_docs_v2
           poetry run poe test_ci_docs_v1
