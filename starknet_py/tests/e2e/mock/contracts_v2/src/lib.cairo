@@ -19,6 +19,7 @@ mod test_contract;
 mod test_contract2;
 mod test_contract3;
 mod test_contract4;
+mod test_contract5;
 mod test_enum;
 mod test_option;
 mod token_bridge;
