@@ -45,7 +45,7 @@ jobs:
         with:
           additional-packages: curl ca-certificates uuid-runtime jq git
 
-      - name: Download and Extract Devnet (PowerShell)
+      - name: Download and Extract Devnet
         shell: pwsh
         run: |
           curl.exe -L -o devnet.tar.gz https://github.com/0xSpaceShard/starknet-devnet-rs/releases/download/v${{ env.DEVNET_VERSION }}/starknet-devnet-x86_64-unknown-linux-musl.tar.gz
