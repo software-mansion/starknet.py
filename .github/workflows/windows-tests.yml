@@ -1,7 +1,7 @@
 name: Windows Tests
 
 env:
-  DEVNET_VERSION: "0.8.0"
+  DEVNET_VERSION: "0.8.1"
 
 on:
   workflow_call:

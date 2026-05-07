@@ -36,6 +36,7 @@ from starknet_py.net.client_models import (
     TransactionType,
 )
 from starknet_py.net.executable_models import (
+    BinOp,
     CasmClass,
     Deref,
     Immediate,
@@ -243,13 +244,13 @@ async def test_get_storage_proof(client):
 @pytest.mark.asyncio
 async def test_get_compiled_casm(client):
     strk_devnet_class_hash = (
-        0x76791EF97C042F81FBF352AD95F39A22554EE8D7927B2CE3C681F3418B5206A
+        0x02E77EE61D4DF3D988EE1F42EA5442E913862CC82C2584D212ECDA76666498FC
     )
     compiled_casm = await client.get_compiled_casm(class_hash=strk_devnet_class_hash)
 
     assert isinstance(compiled_casm, CasmClass)
-    assert len(compiled_casm.bytecode) == 23286
-    assert len(compiled_casm.hints) == 954
+    assert len(compiled_casm.bytecode) == 26308
+    assert len(compiled_casm.hints) == 798
 
     first_hint = compiled_casm.hints[0][1][0]
     assert isinstance(first_hint, TestLessThanOrEqual)
@@ -261,18 +262,16 @@ async def test_get_compiled_casm(client):
     assert first_hint.test_less_than_or_equal.rhs.deref.offset == -6
     assert first_hint.test_less_than_or_equal.rhs.deref.register == "FP"
 
-    second_hint = compiled_casm.hints[1][1][0]
-    assert isinstance(second_hint, TestLessThan)
-    assert isinstance(second_hint.test_less_than.lhs, Deref)
-    assert second_hint.test_less_than.lhs.deref.register == "AP"
-    assert second_hint.test_less_than.lhs.deref.offset == -2
-    assert isinstance(second_hint.test_less_than.rhs, Immediate)
-    assert (
-        second_hint.test_less_than.rhs.immediate
-        == 3618502788666131106986593281521497120414687020801267626233049500247285301248
-    )
-    assert second_hint.test_less_than.dst.register == "AP"
-    assert second_hint.test_less_than.dst.offset == 4
+    tenth_hint = compiled_casm.hints[9][1][0]
+    print(tenth_hint)
+    assert isinstance(tenth_hint, TestLessThan)
+    assert isinstance(tenth_hint.test_less_than.lhs, BinOp)
+    assert tenth_hint.test_less_than.lhs.bin_op.a.register == "AP"
+    assert tenth_hint.test_less_than.lhs.bin_op.a.offset == -1
+    assert isinstance(tenth_hint.test_less_than.rhs, Immediate)
+    assert tenth_hint.test_less_than.rhs.immediate == 256
+    assert tenth_hint.test_less_than.dst.register == "AP"
+    assert tenth_hint.test_less_than.dst.offset == 0
 
 
 @pytest.mark.asyncio
