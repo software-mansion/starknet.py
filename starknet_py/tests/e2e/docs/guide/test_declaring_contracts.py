@@ -1,12 +1,11 @@
-import sys
-
 import pytest
 
 from starknet_py.net.client_models import ResourceBounds, ResourceBoundsMapping
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -21,7 +20,7 @@ async def test_declaring_contracts(
 
     resource_bounds = ResourceBoundsMapping(
         l1_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
-        l2_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
+        l2_gas=ResourceBounds(max_amount=int(1e10), max_price_per_unit=int(1e17)),
         l1_data_gas=ResourceBounds(max_amount=int(1e5), max_price_per_unit=int(1e13)),
     )
     declare_transaction = await account.sign_declare_v3(

@@ -1,10 +1,10 @@
-import sys
-
 import pytest
+
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio

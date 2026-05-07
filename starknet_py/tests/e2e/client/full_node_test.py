@@ -1,5 +1,4 @@
 import dataclasses
-import sys
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -33,7 +32,7 @@ from starknet_py.net.client_models import (
 from starknet_py.net.full_node_client import _to_rpc_felt
 from starknet_py.net.models import StarknetChainId
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
-from starknet_py.tests.e2e.fixtures.misc import load_contract
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir, load_contract
 
 
 def _parse_event_name(event: str) -> str:
@@ -147,7 +146,7 @@ async def test_get_storage_at_incorrect_address_full_node_client(client):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -176,7 +175,7 @@ async def test_get_events_without_following_continuation_token(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -205,7 +204,7 @@ async def test_get_events_follow_continuation_token(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -232,7 +231,7 @@ async def test_get_events_nonexistent_event_name(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -285,7 +284,7 @@ async def test_get_events_with_two_events(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -316,7 +315,7 @@ async def test_get_events_start_from_continuation_token(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -339,7 +338,7 @@ async def test_get_events_no_params(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
@@ -620,7 +619,7 @@ async def test_trace_block_transactions_return_initial_reads(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.run_on_devnet
