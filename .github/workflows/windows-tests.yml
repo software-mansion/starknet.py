@@ -12,9 +12,6 @@ on:
       test_task:
         type: string
         required: true
-      circular_imports_check:
-        type: boolean
-        default: false
 
 jobs:
   run:
@@ -100,7 +97,6 @@ jobs:
       # ====================== RUN TESTS ====================== #
 
       - name: Check circular imports
-        if: ${{ inputs.circular_imports_check }}
         run: |
           poetry run poe circular_imports_check
 

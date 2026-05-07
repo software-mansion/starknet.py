@@ -389,7 +389,6 @@ jobs:
     with:
       fork_mode: true
       test_task: test_ci
-      circular_imports_check: true
     secrets: inherit
 
   # ---------------------------------------------------------- #
