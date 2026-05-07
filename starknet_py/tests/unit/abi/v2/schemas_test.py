@@ -27,6 +27,7 @@ def test_deserialize_abi(contract_name):
     abi = json.loads(
         load_contract(
             contract_name,
+            package="contracts_v2",
         )["sierra"]
     )["abi"]
     deserialized = [
