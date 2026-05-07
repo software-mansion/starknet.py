@@ -56,13 +56,13 @@ jobs:
         shell: wsl-bash {0}
         run: |
           nohup ./starknet-devnet --port 5051 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent --fork-network ${{ env.SEPOLIA_RPC_URL }} > devnet_fork.log 2>&1 &
-          for i in $(seq 60); do curl -sf http://127.0.0.1:5051/is_alive && break; sleep 1; done || (echo "Devnet (fork) failed to start"; exit 1)
+          for i in $(seq 60); do curl -sf http://127.0.0.1:5051/is_alive && exit 0; sleep 1; done; echo "Devnet (fork) failed to start"; exit 1
 
       - name: Start Devnet via WSL
         shell: wsl-bash {0}
         run: |
           nohup ./starknet-devnet --port 5050 --accounts 1 --seed 1 --state-archive-capacity full --initial-balance 1000000000000000000000000000000000000000000000000000000000000000000 --predeclare-argent > devnet.log 2>&1 &
-          for i in $(seq 60); do curl -sf http://127.0.0.1:5050/is_alive && break; sleep 1; done || (echo "Devnet failed to start"; exit 1)
+          for i in $(seq 60); do curl -sf http://127.0.0.1:5050/is_alive && exit 0; sleep 1; done; echo "Devnet failed to start"; exit 1
 
       - name: Verify devnet is running
         shell: pwsh
