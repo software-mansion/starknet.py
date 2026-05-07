@@ -382,7 +382,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-tests-windows:
-    if: ${{ github.event_name != 'pull_request' }}
+    # if: ${{ github.event_name != 'pull_request' }} TODO: Revert
     name: Tests Windows
     needs: setup-tests
     uses: ./.github/workflows/windows-tests.yml
@@ -460,7 +460,7 @@ jobs:
   # ---------------------------------------------------------- #
 
   run-docs-tests-windows:
-    if: ${{ github.event_name != 'pull_request' }}
+    # if: ${{ github.event_name != 'pull_request' }} TODO: Revert
     name: Docs Tests Windows
     needs: setup-tests
     uses: ./.github/workflows/windows-tests.yml
