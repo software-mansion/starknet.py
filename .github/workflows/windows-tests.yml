@@ -25,7 +25,7 @@ jobs:
       DEVNET_FORK_URL: http://127.0.0.1:5051
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download contracts
         uses: actions/download-artifact@v4
