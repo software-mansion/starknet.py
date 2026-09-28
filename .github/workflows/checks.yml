@@ -106,6 +106,9 @@ jobs:
         uses: ./.github/actions/compile-contracts
         with:
           package: contracts_v2
+          # Disable cache on non-PR triggered runs so contracts are recompiled with a fresh salt.
+          # It's required for `test_ci_on_networks_extended`.
+          cache: ${{ github.event_name == 'pull_request' }}
 
       - name: Compile contracts v1
         uses: ./.github/actions/compile-contracts
