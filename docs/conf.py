@@ -53,7 +53,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 if os.environ.get("READTHEDOCS_VERSION") == "development":
     rst_prolog = """.. attention::
 
-        This page was created from `development <https://github.com/software-mansion/starknet.py>`_ branch.
+        This page was created from `development <https://github.com/software-mansion/starknet.py>`__ branch.
     """
 
 
