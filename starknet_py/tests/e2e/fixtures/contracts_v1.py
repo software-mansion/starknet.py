@@ -35,7 +35,7 @@ async def declare_contract(
 
 @pytest_asyncio.fixture(scope="package")
 async def erc20_class_hash(account: BaseAccount) -> int:
-    contract = load_contract("ERC20")
+    contract = load_contract("ERC20", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
@@ -44,7 +44,7 @@ async def erc20_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def constructor_with_arguments_class_hash(account: BaseAccount) -> int:
-    contract = load_contract("ConstructorWithArguments")
+    contract = load_contract("ConstructorWithArguments", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
@@ -57,7 +57,9 @@ def constructor_with_arguments_abi() -> List:
     Returns an abi of the constructor_with_arguments.cairo.
     """
     compiled_contract = create_sierra_compiled_contract(
-        compiled_contract=load_contract("ConstructorWithArguments")["sierra"]
+        compiled_contract=load_contract(
+            "ConstructorWithArguments", package="contracts_v2"
+        )["sierra"]
     )
     assert compiled_contract.parsed_abi is not None
     return compiled_contract.parsed_abi
@@ -141,7 +143,7 @@ async def test_option_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package")
 async def token_bridge_class_hash(account: BaseAccount) -> int:
-    contract = load_contract("TokenBridge")
+    contract = load_contract("TokenBridge", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
@@ -180,6 +182,7 @@ async def hello_starknet_contract(account: BaseAccount, hello_starknet_class_has
 async def declare_string_contract(account: BaseAccount) -> int:
     contract = load_contract(
         "MyString",
+        package="contracts_v2",
     )
     class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
@@ -240,7 +243,7 @@ def map_compiled_contract_and_class_hash() -> Tuple[str, int]:
 
 @pytest.fixture(scope="package")
 def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
-    contract = load_contract("MapCopy1")
+    contract = load_contract("MapCopy1", package="contracts_v2")
 
     return (
         contract["sierra"],
@@ -250,7 +253,7 @@ def map_compiled_contract_and_class_hash_copy_1() -> Tuple[str, int]:
 
 @pytest.fixture(scope="package")
 def map_compiled_contract_and_class_hash_copy_2() -> Tuple[str, int]:
-    contract = load_contract("MapCopy2")
+    contract = load_contract("MapCopy2", package="contracts_v2")
 
     return (
         contract["sierra"],
@@ -267,7 +270,7 @@ def map_compiled_contract_casm() -> str:
 
 @pytest_asyncio.fixture(scope="package")
 async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
-    contract = load_contract("SimpleStorageWithEvent")
+    contract = load_contract("SimpleStorageWithEvent", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )
@@ -276,7 +279,7 @@ async def simple_storage_with_event_class_hash(account: BaseAccount) -> int:
 
 @pytest_asyncio.fixture(scope="package", name="eth_account_class_hash")
 async def declare_eth_account(account: BaseAccount) -> int:
-    contract = load_contract("EthAccountUpgradeable")
+    contract = load_contract("EthAccountUpgradeable", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account,
         contract["sierra"],
@@ -315,7 +318,7 @@ def abi_types_compiled_contract_and_class_hash() -> Tuple[str, int]:
     """
     Returns abi_types contract compiled to sierra and its compiled class hash.
     """
-    contract = load_contract(contract_name="AbiTypes")
+    contract = load_contract(contract_name="AbiTypes", package="contracts_v2")
 
     return (
         contract["sierra"],
@@ -389,7 +392,7 @@ async def deploy_v3_contract(
     :param calldata: Dict with constructor arguments (can be empty).
     :returns: Instance of the deployed contract.
     """
-    contract_sierra = load_contract(contract_name)["sierra"]
+    contract_sierra = load_contract(contract_name, package="contracts_v2")["sierra"]
 
     abi = create_sierra_compiled_contract(contract_sierra).parsed_abi
 

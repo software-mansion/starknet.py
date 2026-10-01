@@ -199,7 +199,6 @@ async def _get_account_balance_strk(client: FullNodeClient, address: int):
 async def test_deploy_account_and_transfer(client, devnet_client):
     # pylint: disable=import-outside-toplevel, reimported, redefined-outer-name, too-many-locals
     # docs-deploy-account-and-transfer: start
-    from starknet_py.contract import Contract
     from starknet_py.hash.address import compute_address
     from starknet_py.net.account.account import Account
     from starknet_py.net.full_node_client import FullNodeClient
@@ -249,13 +248,13 @@ async def test_deploy_account_and_transfer(client, devnet_client):
         await _get_account_balance_strk(rpc_client, recipient_address)
     )[0]
     # docs-deploy-account-and-transfer: start
-    contract = await Contract.from_address(
-        provider=account, address=STRK_FEE_CONTRACT_ADDRESS
+    transfer_call = Call(
+        to_addr=int(STRK_FEE_CONTRACT_ADDRESS, 16),
+        selector=get_selector_from_name("transfer"),
+        calldata=[recipient_address, 100, 0],
     )
-    invocation = await contract.functions["transfer"].invoke_v3(
-        recipient_address, 100, auto_estimate=True
-    )
-    await invocation.wait_for_acceptance()
+    response = await account.execute_v3(calls=transfer_call, auto_estimate=True)
+    await rpc_client.wait_for_tx(response.transaction_hash)
     # docs-deploy-account-and-transfer: end
     recipient_balance_after = (
         await _get_account_balance_strk(rpc_client, recipient_address)

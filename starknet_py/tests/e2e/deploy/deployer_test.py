@@ -1,5 +1,3 @@
-import sys
-
 import pytest
 
 from starknet_py.contract import Contract
@@ -7,6 +5,7 @@ from starknet_py.hash.address import compute_address
 from starknet_py.net.full_node_client import FullNodeClient
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 from starknet_py.utils.constructor_args_translator import translate_constructor_args
 
 
@@ -27,7 +26,7 @@ async def test_default_deploy_with_class_hash(account, map_class_hash):
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -64,7 +63,7 @@ async def test_constructor_arguments_contract_deploy_without_abi(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -117,7 +116,7 @@ async def test_constructor_arguments_contract_deploy(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v1" in sys.argv,
+    _contract_dir == "v1",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -179,7 +178,7 @@ async def test_address_computation(salt, pass_account_address, account, map_clas
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -226,7 +225,7 @@ async def test_create_deployment_call_raw(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio

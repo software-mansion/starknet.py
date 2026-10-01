@@ -57,7 +57,7 @@ async def test_declare_v3_auto_estimate_tip(
     get_block_with_txs_path,
     block_with_tips_mock,
 ):
-    contract = load_contract(contract_name="TestContract2")
+    contract = load_contract(contract_name="TestContract2", package="contracts_v2")
 
     with patch(get_block_with_txs_path, AsyncMock()) as get_block_with_txs_mock:
         get_block_with_txs_mock.return_value = block_with_tips_mock

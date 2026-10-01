@@ -43,7 +43,7 @@ repository = "https://github.com/software-mansion/starknet.py"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
 black = "^24.4.2"
-poethepoet = "^0.27.0"
+poethepoet = "^0.42.0"
 coverage = "^7.2.1"
 pytest-asyncio = "^0.21.1"
 pylint = "3.2.5"
@@ -75,16 +75,17 @@ test = [
 ]
 
 test_ci = ["test_ci_v1", "test_ci_v2"]
-test_ci_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/unit/signer/test_ledger_signer.py"
-test_ci_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/unit/signer/test_ledger_signer.py"
+# PYTEST_XDIST is overridden to 0 on Windows CI (see windows-tests.yml)
+test_ci_v1 = "coverage run -a -m pytest -n ${PYTEST_XDIST:-auto} --contract_dir=v1 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/unit/signer/test_ledger_signer.py"
+test_ci_v2 = "coverage run -a -m pytest -n ${PYTEST_XDIST:-auto} --contract_dir=v2 starknet_py --ignore=starknet_py/tests/e2e/docs --ignore=starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/unit/signer/test_ledger_signer.py"
 test_ci_ledger = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/unit/signer/test_ledger_signer.py"
 
 test_ci_on_networks = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/tests_on_networks --ignore=starknet_py/tests/e2e/tests_on_networks/account_test.py"
 test_ci_on_networks_extended = "coverage run -a -m pytest --contract_dir=v2 starknet_py/tests/e2e/tests_on_networks"
 
 test_ci_docs = ["test_ci_docs_v1", "test_ci_docs_v2"]
-test_ci_docs_v1 = "coverage run -a -m pytest -n auto --contract_dir=v1 starknet_py/tests/e2e/docs"
-test_ci_docs_v2 = "coverage run -a -m pytest -n auto --contract_dir=v2 starknet_py/tests/e2e/docs"
+test_ci_docs_v1 = "coverage run -a -m pytest -n ${PYTEST_XDIST:-auto} --contract_dir=v1 starknet_py/tests/e2e/docs"
+test_ci_docs_v2 = "coverage run -a -m pytest -n ${PYTEST_XDIST:-auto} --contract_dir=v2 starknet_py/tests/e2e/docs"
 
 test_report = "coverage report -m"
 test_html.shell = "coverage html && open ./htmlcov/index.html"

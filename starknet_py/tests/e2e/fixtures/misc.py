@@ -2,7 +2,6 @@
 
 import json
 import random
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -23,6 +22,9 @@ from starknet_py.net.models.typed_data import TypedDataDict
 from starknet_py.tests.e2e.fixtures.constants import MOCK_DIR, TYPED_DATA_DIR
 from starknet_py.utils.typed_data import TypedData
 
+# Populated in `pytest_configure` from the `--contract_dir` CLI option, before test modules are imported.
+_contract_dir: str = ""
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -31,6 +33,11 @@ def pytest_addoption(parser):
         default="",
         help="Contract directory: possible 'v1', 'v2'",
     )
+
+
+def pytest_configure(config):
+    global _contract_dir  # pylint: disable=global-statement
+    _contract_dir = config.getoption("contract_dir", default="")
 
 
 @pytest.fixture(
@@ -144,7 +151,7 @@ class UnknownArtifacts(BaseException):
 
 def load_contract(contract_name: str, package: Optional[str] = None):
     if package is None:
-        if "--contract_dir=v1" in sys.argv:
+        if _contract_dir == "v1":
             package = "contracts_v1"
         else:
             package = "contracts_v2"

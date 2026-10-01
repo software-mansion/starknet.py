@@ -54,8 +54,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         Looking for a Starknet consult or want us to implement a project?
         Contact us on Twitter <a href="https://twitter.com/swmansionxyz">@swmansionxyz</a> or <a href="mailto:contact@swmansion.com">send us an email</a>!
     </div>
-    {%- if show_copyright %}
     <div class="copyright">
+        {%- if show_copyright %}
         {%- if hasdoc('copyright') %}
         {% trans path=pathto('copyright'), copyright=copyright|e -%}
             <a href="{{ path }}">Copyright</a> &#169; {{ copyright }}
@@ -65,8 +65,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             Copyright &#169; {{ copyright }}
         {%- endtrans %}
         {%- endif %}
+        &middot;
+        {%- endif %}
+        Read about our <a href="https://swmansion.com/privacy/policy" target="_blank" rel="noopener">Privacy Policy</a>.
     </div>
-    {%- endif %}
     {% trans %}Made with {% endtrans -%}
     {%- if show_sphinx -%}
     {% trans %}<a href="https://www.sphinx-doc.org/">Sphinx</a> and {% endtrans -%}

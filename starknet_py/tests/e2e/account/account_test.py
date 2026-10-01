@@ -735,7 +735,7 @@ async def test_deploy_account_v3_auto_estimate_tip(
 
 @pytest.mark.asyncio
 async def test_declare_v3_with_tip(account):
-    compiled_contract = load_contract("TestContract3")
+    compiled_contract = load_contract("TestContract3", package="contracts_v2")
 
     tip = 12345
     signed_tx = await account.sign_declare_v3(
@@ -757,7 +757,7 @@ async def test_declare_v3_auto_estimate_tip(
     get_block_with_txs_path,
     block_with_tips_mock,
 ):
-    compiled_contract = load_contract("TestContract4")
+    compiled_contract = load_contract("TestContract4", package="contracts_v2")
 
     with patch(get_block_with_txs_path, AsyncMock()) as mocked_block_with_txs:
         mocked_block_with_txs.return_value = block_with_tips_mock

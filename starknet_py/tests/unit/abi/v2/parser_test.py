@@ -29,6 +29,7 @@ def test_abi_parse(contract_name):
     abi = json.loads(
         load_contract(
             contract_name=contract_name,
+            package="contracts_v2",
         )["sierra"]
     )["abi"]
 

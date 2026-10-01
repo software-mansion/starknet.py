@@ -10,7 +10,7 @@ from starknet_py.tests.e2e.fixtures.misc import load_contract
 
 @pytest_asyncio.fixture(scope="package", name="f_string_contract_class_hash")
 async def declare_string_contract(account_forked_devnet) -> int:
-    contract = load_contract("MyString")
+    contract = load_contract("MyString", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account_forked_devnet, contract["sierra"], contract["casm"]
     )
@@ -30,7 +30,7 @@ async def deploy_string_contract(
 
 @pytest_asyncio.fixture(scope="package", name="l1_l2_contract_class_hash")
 async def declare_l1_l2_contract(account) -> int:
-    contract = load_contract("l1_l2")
+    contract = load_contract("l1_l2", package="contracts_v2")
     class_hash, _ = await declare_contract(
         account, contract["sierra"], contract["casm"]
     )

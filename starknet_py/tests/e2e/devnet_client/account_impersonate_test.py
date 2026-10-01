@@ -1,14 +1,13 @@
-import sys
-
 import pytest
 
 from starknet_py.contract import Contract
 from starknet_py.net.client_errors import ClientError
 from starknet_py.tests.e2e.fixtures.constants import MAX_RESOURCE_BOUNDS
+from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -37,7 +36,7 @@ async def test_impersonate_account(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio
@@ -62,7 +61,7 @@ async def test_auto_impersonate(
 
 
 @pytest.mark.skipif(
-    "--contract_dir=v2" not in sys.argv,
+    _contract_dir != "v2",
     reason="Contract exists only in v2 directory",
 )
 @pytest.mark.asyncio

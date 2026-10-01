@@ -58,6 +58,7 @@ def test_abi_parsing():
     raw_abi_string = json.loads(
         load_contract(
             contract_name="ERC20",
+            package="contracts_v2",
         )["sierra"]
     )["abi"]
     abi = AbiParser(raw_abi_string).parse()
