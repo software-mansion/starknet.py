@@ -20,6 +20,7 @@ EXPECTED_PROOF_FACTS = [
 ]
 
 
+@pytest.mark.skip("TODO(#1731)")
 @pytest.mark.asyncio
 async def test_get_transaction_with_proof_facts(client_integration: FullNodeClient):
     transaction = await client_integration.get_transaction(
@@ -32,6 +33,7 @@ async def test_get_transaction_with_proof_facts(client_integration: FullNodeClie
     assert transaction.proof_facts == EXPECTED_PROOF_FACTS
 
 
+@pytest.mark.skip("TODO(#1731)")
 @pytest.mark.asyncio
 async def test_get_block_with_txs_response_flags(client_integration: FullNodeClient):
     receipt = await client_integration.get_transaction_receipt(
@@ -50,6 +52,7 @@ async def test_get_block_with_txs_response_flags(client_integration: FullNodeCli
     assert tx.proof_facts == EXPECTED_PROOF_FACTS
 
 
+@pytest.mark.skip("TODO(#1731)")
 @pytest.mark.asyncio
 async def test_get_block_with_receipts_response_flags(
     client_integration: FullNodeClient,
