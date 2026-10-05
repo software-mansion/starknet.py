@@ -697,7 +697,7 @@ async def test_get_declare_v3_transaction(
     hello_starknet_class_hash_tx_hash,
     declare_v3_hello_starknet: DeclareV3,
 ):
-    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+    class_hash, tx_hash = hello_starknet_class_hash_tx_hash
 
     transaction = await client.get_transaction(tx_hash=tx_hash)
 
@@ -726,7 +726,7 @@ async def test_get_block_with_declare_v3(
     declare_v3_hello_starknet: DeclareV3,
     block_with_declare_v3_number: int,
 ):
-    (class_hash, tx_hash) = hello_starknet_class_hash_tx_hash
+    class_hash, tx_hash = hello_starknet_class_hash_tx_hash
 
     block = await client.get_block(block_number=block_with_declare_v3_number)
 
