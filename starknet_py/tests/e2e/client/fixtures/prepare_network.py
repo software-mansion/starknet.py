@@ -188,6 +188,7 @@ async def prepare_network(
     deployed_balance_contract: Contract,
     deployed_balance_contract_2: Contract,
 ) -> AsyncGenerator[Tuple[str, PreparedNetworkData], None]:
+    # pylint: disable=too-many-positional-arguments
     """
     Adds transactions to the network. Returns network address and PreparedNetworkData
     """
