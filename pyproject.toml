@@ -147,6 +147,9 @@ markers = [
     "run_on_devnet: marks test that will only run on devnet (when --net=devnet)"
 ]
 
+asyncio_default_fixture_loop_scope = "package"
+asyncio_default_test_loop_scope = "package"
+
 [tool.pyright]
 include = ["starknet_py/"]
 exclude = [
