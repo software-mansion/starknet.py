@@ -25,14 +25,18 @@ def _get_env_lambda(env_name):
 
 # -------------------------------- INTEGRATION TESTNET --------------------------------
 
+# pylint: disable=invalid-name
 INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
 
 # -------------------------------- SEPOLIA TESTNET -------------------------------------
 
+# pylint: disable=invalid-name
 SEPOLIA_ACCOUNT_PRIVATE_KEY = _get_env_lambda("SEPOLIA_ACCOUNT_PRIVATE_KEY")
 
+# pylint: disable=invalid-name
 SEPOLIA_ACCOUNT_ADDRESS = _get_env_lambda("SEPOLIA_ACCOUNT_ADDRESS")
 
+# pylint: disable=invalid-name
 SEPOLIA_RPC_URL = _get_env_lambda("SEPOLIA_RPC_URL")
 
 EMPTY_CONTRACT_ADDRESS_SEPOLIA = (
