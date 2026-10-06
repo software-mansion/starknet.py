@@ -147,6 +147,7 @@ class WebsocketClient:
         return subscription_id
 
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
     async def subscribe_events(
         self,
         handler: Callable[[NewEventsNotification], Any],

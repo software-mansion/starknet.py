@@ -23,6 +23,7 @@ from starknet_py.tests.e2e.fixtures.constants import MOCK_DIR, TYPED_DATA_DIR
 from starknet_py.utils.typed_data import TypedData
 
 # Populated in `pytest_configure` from the `--contract_dir` CLI option, before test modules are imported.
+# pylint: disable=invalid-name
 _contract_dir: str = ""
 
 

@@ -28,7 +28,7 @@ def _extract_compiled_class_hash(
 
 
 def _unpack_provider(
-    provider: Union[BaseAccount, Client]
+    provider: Union[BaseAccount, Client],
 ) -> Tuple[Client, Optional[BaseAccount]]:
     """
     Get the client and optional account to be used by Contract.
