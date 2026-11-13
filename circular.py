@@ -1,4 +1,4 @@
-import importlib.util
+import importlib
 import os
 import shutil
 import sys
@@ -9,10 +9,7 @@ PACKAGE_NAME = "starknet_py"
 
 
 def _import_from_path(module_name, file_path):
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
+    importlib.import_module(module_name)
 
 
 def assert_no_circular_imports():
@@ -58,9 +55,9 @@ def _run_circular_import_test(module_name, import_a, import_b):
             f.write(f"{import_b}\nclass B:\n    pass\n")
         error_regex = (
             rf"(?:"
-            rf"cannot import name 'A' from '{PACKAGE_NAME}.{module_name}.file_a' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_a\.py\)"
+            rf"cannot import name 'A' from (?:partially initialized module )?'{PACKAGE_NAME}.{module_name}.file_a' (?:\(most likely due to a circular import\) )?\(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_a\.py\)"
             rf"|"
-            rf"cannot import name 'B' from '{PACKAGE_NAME}.{module_name}.file_b' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_b\.py\)"
+            rf"cannot import name 'B' from (?:partially initialized module )?'{PACKAGE_NAME}.{module_name}.file_b' (?:\(most likely due to a circular import\) )?\(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_b\.py\)"
             rf")"
         )
         with pytest.raises(ImportError, match=error_regex):
