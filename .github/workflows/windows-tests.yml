@@ -25,15 +25,15 @@ jobs:
       DEVNET_FORK_URL: http://127.0.0.1:5051
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.1.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'pip'
@@ -41,7 +41,7 @@ jobs:
       # ====================== SETUP DEVNET ====================== #
 
       - name: Setup WSL
-        uses: Vampire/setup-wsl@d1da7f2c0322a5ee4f24975344f67fc0f5baf364 # v7.0.0
+        uses: Vampire/setup-wsl@v7.0.0
         with:
           additional-packages: curl ca-certificates uuid-runtime jq git
 
@@ -85,7 +85,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -113,4 +113,4 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.5

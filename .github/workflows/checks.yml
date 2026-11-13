@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Install poetry
         run: |
@@ -36,7 +36,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python 3.14
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'poetry'
@@ -80,9 +80,9 @@ jobs:
 
       # ====================== SETUP ====================== #
 
-      - uses: actions/checkout@v4
-      - uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4.4.0
+      - uses: asdf-vm/actions/setup@v4.0.1
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'pip'
@@ -93,7 +93,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -103,7 +103,7 @@ jobs:
           poetry install
 
       - name: Compile contracts v2
-        uses: ./.github/actions/compile-contracts
+        uses: $/.github/actions/compile-contracts
         with:
           package: contracts_v2
           # Disable cache on non-PR triggered runs so contracts are recompiled with a fresh salt.
@@ -111,12 +111,12 @@ jobs:
           cache: ${{ github.event_name == 'pull_request' }}
 
       - name: Compile contracts v1
-        uses: ./.github/actions/compile-contracts
+        uses: $/.github/actions/compile-contracts
         with:
           package: contracts_v1
 
       - name: Upload contracts artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
@@ -136,15 +136,15 @@ jobs:
     env:
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'pip'
@@ -157,7 +157,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -177,7 +177,7 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
-      - uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+      - uses: asdf-vm/actions/setup@v4.0.1
 
       - name: Run tests
         run: |
@@ -189,7 +189,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.5
 
   # ---------------------------------------------------------- #
   # .....................RUN-LEDGER-TESTS..................... #
@@ -208,15 +208,15 @@ jobs:
       LEDGER_PROXY_PORT: 9999
       SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'pip'
@@ -229,7 +229,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -305,7 +305,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.5
 
   # ---------------------------------------------------------- #
   # ..................RUN-TESTS-ON-NETWORKS................... #
@@ -326,15 +326,15 @@ jobs:
       SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_BRAAVOS_ACCOUNT_PRIVATE_KEY }}
       INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'pip'
@@ -347,7 +347,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python 3.14
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'poetry'
@@ -363,7 +363,7 @@ jobs:
         run: |
           poetry run poe circular_imports_check
 
-      - uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+      - uses: asdf-vm/actions/setup@v4.0.1
 
       - name: Run tests
         run: |
@@ -378,7 +378,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.5
 
   # ---------------------------------------------------------- #
   # ....................RUN-TESTS-WINDOWS..................... #
@@ -407,15 +407,15 @@ jobs:
       matrix:
         python-version: [ "3.10", "3.14" ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Download contracts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: contract-artifacts
           path: starknet_py/tests/e2e/mock/
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.14"
           cache: 'pip'
@@ -428,7 +428,7 @@ jobs:
           pip install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -444,7 +444,7 @@ jobs:
 
       # ====================== RUN TESTS ====================== #
 
-      - uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47 # v4.0.1
+      - uses: asdf-vm/actions/setup@v4.0.1
 
       - name: Run tests
         run: |
@@ -456,7 +456,7 @@ jobs:
           poetry run coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.5
 
   # ---------------------------------------------------------- #
   # .................RUN-DOCS-TESTS-WINDOWS................... #
