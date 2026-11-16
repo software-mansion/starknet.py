@@ -1,7 +1,7 @@
 import pytest
 from lark import Token, Tree
 
-from starknet_py.abi.v2.parser_transformer import ParserTransformer
+from starknet_py.cairo.v2.parser_transformer import ParserTransformer
 
 
 def test_default_parser_transformer():
