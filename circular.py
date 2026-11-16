@@ -67,8 +67,11 @@ def _run_circular_import_test(module_name, import_a, import_b):
             f.write(f"{import_b}\nclass B:\n    pass\n")
         importlib.invalidate_caches()
         error_regex = (
-            rf"cannot import name '[AB]' from partially initialized module "
-            rf"'{PACKAGE_NAME}\.{module_name}\.file_[ab]'"
+            rf"(?:"
+            rf"cannot import name 'A' from partially initialized module '{PACKAGE_NAME}.{module_name}.file_a' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_a\.py\)"
+            rf"|"
+            rf"cannot import name 'B' from partially initialized module '{PACKAGE_NAME}.{module_name}.file_b' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_b\.py\)"
+            rf")"
         )
         with pytest.raises(ImportError, match=error_regex):
             # Only the temporary package needs to be checked here.
