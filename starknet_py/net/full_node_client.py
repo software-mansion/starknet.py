@@ -316,6 +316,7 @@ class FullNodeClient(Client):
         continuation_token: Optional[str] = None,
     ) -> Tuple[list, Optional[str]]:
         # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-positional-arguments
         params = {
             "chunk_size": chunk_size,
             "from_block": from_block,
@@ -541,6 +542,7 @@ class FullNodeClient(Client):
         block_number: Optional[Union[int, Tag]] = None,
     ) -> EstimatedFee:
         # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-positional-arguments
         """
         :param from_address: The address of the L1 (Ethereum) contract sending the message.
         :param to_address: The target L2 (Starknet) address the message is sent to.
@@ -891,6 +893,7 @@ class FullNodeClient(Client):
         SimulatedTransactionsWithInitialReads,
     ]:
         # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-positional-arguments
         """
         Simulates a given sequence of transactions on the requested state, and generates the execution traces.
         Note the following:

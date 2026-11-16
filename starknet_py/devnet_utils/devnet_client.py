@@ -244,6 +244,7 @@ class DevnetClient(FullNodeClient):
         )
         return cast(PostmanFlushResponse, PostmanFlushResponseSchema().load(res))
 
+    # pylint: disable=too-many-positional-arguments
     # pylint: disable=too-many-arguments
     async def send_message_to_l2(
         self,

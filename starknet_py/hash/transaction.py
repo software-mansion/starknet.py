@@ -89,6 +89,7 @@ class CommonTransactionV3Fields:
 
 
 # pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
 def compute_transaction_hash(
     tx_hash_prefix: TransactionHashPrefix,
     version: int,
@@ -215,6 +216,7 @@ def compute_deploy_account_transaction_hash(
     salt: int,
     chain_id: int,
 ) -> int:
+    # pylint: disable=too-many-positional-arguments
     """
     Computes hash of a DeployAccount transaction.
 

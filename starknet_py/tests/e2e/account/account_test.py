@@ -85,7 +85,7 @@ async def test_estimated_fee_greater_than_zero(account, erc20_contract):
 async def test_account_estimate_fee_for_declare_transaction(
     account, map_compiled_contract_and_class_hash
 ):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash
+    compiled_contract, class_hash = map_compiled_contract_and_class_hash
     declare_tx = await account.sign_declare_v3(
         compiled_contract=compiled_contract,
         compiled_class_hash=class_hash,

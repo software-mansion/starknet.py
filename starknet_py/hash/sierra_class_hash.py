@@ -12,7 +12,7 @@ from starknet_py.net.client_models import (
 
 
 def compute_sierra_class_hash(
-    sierra_contract_class: Union[SierraContractClass, SierraCompiledContract]
+    sierra_contract_class: Union[SierraContractClass, SierraCompiledContract],
 ) -> int:
     """
     Calculate class hash of a SierraContractClass.

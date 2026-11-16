@@ -56,7 +56,7 @@ async def deploy_account_transaction(
 
 @pytest.fixture(scope="package")
 def deploy_account_transaction_hash(
-    prepare_network: Tuple[str, PreparedNetworkData]
+    prepare_network: Tuple[str, PreparedNetworkData],
 ) -> int:
     """
     Returns hash of deploy account transaction
@@ -67,7 +67,7 @@ def deploy_account_transaction_hash(
 
 @pytest.fixture(scope="package")
 def block_with_deploy_account_number(
-    prepare_network: Tuple[str, PreparedNetworkData]
+    prepare_network: Tuple[str, PreparedNetworkData],
 ) -> int:
     """
     Returns number of the block with deploy account transaction

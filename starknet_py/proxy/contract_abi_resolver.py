@@ -141,13 +141,13 @@ class ContractAbiResolver:
 
     @staticmethod
     def _get_cairo_version(
-        contract_class: Union[DeprecatedContractClass, SierraContractClass]
+        contract_class: Union[DeprecatedContractClass, SierraContractClass],
     ) -> int:
         return 1 if isinstance(contract_class, SierraContractClass) else 0
 
     @staticmethod
     def get_abi_from_contract_class(
-        contract_class: Union[DeprecatedContractClass, SierraContractClass]
+        contract_class: Union[DeprecatedContractClass, SierraContractClass],
     ) -> AbiDictList:
         return (
             cast(AbiDictList, contract_class.abi)

@@ -458,6 +458,7 @@ class ContractFunction:
         interface_name: Optional[str] = None,
     ):
         # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-positional-arguments
         self.name = name
         self.abi = abi
         self.inputs = abi["inputs"]
