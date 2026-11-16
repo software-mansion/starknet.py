@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Dict, Union
 
-from starknet_py.abi.v2.parser_transformer import parse
 from starknet_py.cairo.data_types import (
     CairoType,
     EnumType,
@@ -10,6 +9,7 @@ from starknet_py.cairo.data_types import (
     StructType,
     TypeIdentifier,
 )
+from starknet_py.cairo.v2.parser_transformer import parse
 
 
 class UnknownCairoTypeError(ValueError):
