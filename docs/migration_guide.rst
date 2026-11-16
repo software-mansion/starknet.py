@@ -1,6 +1,20 @@
 Migration guide
 ===============
 
+******************************
+[Unreleased] Migration guide
+******************************
+
+[Unreleased] Breaking changes
+-----------------------------
+
+1. ``starknet_py.abi.v1.parser_transformer`` and ``starknet_py.abi.v2.parser_transformer`` were moved to ``starknet_py.cairo.v1.parser_transformer`` and ``starknet_py.cairo.v2.parser_transformer``.
+
+[Unreleased] Bugfixes
+---------------------
+
+1. Fixed ``ImportError`` caused by a circular import when ``starknet_py.cairo.v1.type_parser`` or ``starknet_py.cairo.v2.type_parser`` was imported first.
+
 ****************************
 0.30.0 Migration guide
 ****************************
