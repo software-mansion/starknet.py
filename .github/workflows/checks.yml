@@ -25,7 +25,7 @@ jobs:
 
   lint-format-typecheck:
     name: Lint - Format - Typecheck
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
 
       - uses: actions/checkout@v4
@@ -72,7 +72,7 @@ jobs:
 
   setup-tests:
     name: Setup Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: [ "3.14" ]
@@ -125,7 +125,7 @@ jobs:
   run-tests:
     name: Tests
     needs: setup-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -195,7 +195,7 @@ jobs:
   run-ledger-tests:
     name: Ledger Tests
     needs: setup-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -311,7 +311,7 @@ jobs:
   run-tests-on-networks:
     name: Tests on networks (testnet)
     needs: setup-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
     env:
@@ -398,7 +398,7 @@ jobs:
   run-docs-tests:
     name: Docs Tests
     needs: setup-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
