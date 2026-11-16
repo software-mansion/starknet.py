@@ -12,7 +12,7 @@ from starknet_py.tests.e2e.fixtures.misc import _contract_dir
 async def test_declaring_contracts(
     account, map_compiled_contract_and_class_hash_copy_1
 ):
-    (compiled_contract, class_hash) = map_compiled_contract_and_class_hash_copy_1
+    compiled_contract, class_hash = map_compiled_contract_and_class_hash_copy_1
 
     # docs: start
     # Account.sign_declare_v3 takes a string containing a compiled contract (sierra)

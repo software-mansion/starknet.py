@@ -1,6 +1,5 @@
 # This is needed for importing fixtures from `fixtures` directory
 pytest_plugins = [
-    "starknet_py.tests.e2e.fixtures.event_loop",
     "starknet_py.tests.e2e.fixtures.clients",
     "starknet_py.tests.e2e.fixtures.accounts",
     "starknet_py.tests.e2e.fixtures.contracts",

@@ -595,11 +595,11 @@ async def test_get_compiled_casm(client_sepolia_testnet):
 
 @pytest.mark.asyncio
 async def test_warning_on_incompatible_node_spec_version(client_sepolia_testnet):
-    old_rpc_url = client_sepolia_testnet.url.replace("v0_10", "v0_8")
+    old_rpc_url = client_sepolia_testnet.url.replace("v0_10", "v0_9")
     node = FullNodeClient(old_rpc_url)
 
     pattern = (
-        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.8\.1\. "
+        rf"RPC node with the url {old_rpc_url} uses incompatible version 0\.9\.0\. "
         rf"Expected version: {EXPECTED_RPC_VERSION}"
     )
     with pytest.warns(IncompatibleRPCVersionWarning, match=pattern):

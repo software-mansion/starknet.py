@@ -34,6 +34,7 @@ async def prepare_net_for_tests(
     declare_class_hash: int,
 ) -> PreparedNetworkData:
     # pylint: disable=too-many-locals
+    # pylint: disable=too-many-positional-arguments
 
     declare_receipt = await account.client.get_transaction_receipt(transaction_hash)
     block_with_declare_number = declare_receipt.block_number

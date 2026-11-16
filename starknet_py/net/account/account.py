@@ -640,6 +640,7 @@ def _prepare_account_to_deploy(
     calldata: List[int],
 ) -> Account:
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
     address = parse_address(address)
 
     if address != (

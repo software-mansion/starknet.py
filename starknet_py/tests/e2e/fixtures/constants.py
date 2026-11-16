@@ -25,14 +25,18 @@ def _get_env_lambda(env_name):
 
 # -------------------------------- INTEGRATION TESTNET --------------------------------
 
+# pylint: disable=invalid-name
 INTEGRATION_RPC_URL = _get_env_lambda("INTEGRATION_RPC_URL")
 
 # -------------------------------- SEPOLIA TESTNET -------------------------------------
 
+# pylint: disable=invalid-name
 SEPOLIA_ACCOUNT_PRIVATE_KEY = _get_env_lambda("SEPOLIA_ACCOUNT_PRIVATE_KEY")
 
+# pylint: disable=invalid-name
 SEPOLIA_ACCOUNT_ADDRESS = _get_env_lambda("SEPOLIA_ACCOUNT_ADDRESS")
 
+# pylint: disable=invalid-name
 SEPOLIA_RPC_URL = _get_env_lambda("SEPOLIA_RPC_URL")
 
 EMPTY_CONTRACT_ADDRESS_SEPOLIA = (
@@ -60,7 +64,7 @@ MAX_RESOURCE_BOUNDS = ResourceBoundsMapping(
 
 MAX_RESOURCE_BOUNDS_SEPOLIA = ResourceBoundsMapping(
     l1_gas=ResourceBounds(max_amount=int(1e4), max_price_per_unit=int(1e15)),
-    l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e10)),
+    l2_gas=ResourceBounds(max_amount=int(1e6), max_price_per_unit=int(1e11)),
     l1_data_gas=ResourceBounds(max_amount=int(1e4), max_price_per_unit=int(1e15)),
 )
 
