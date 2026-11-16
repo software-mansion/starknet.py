@@ -8,10 +8,7 @@ import pytest
 PACKAGE_NAME = "starknet_py"
 
 
-TESTS_PATH = os.path.join(PACKAGE_NAME, "tests")
-
-
-def _import_fresh(module_name):
+def _import_in_isolation(module_name):
     # Import the module as if it were the first `starknet_py` import in a fresh
     # interpreter (which is what users hit). Unloading everything first makes the
     # result independent of the order of files, and catches cycles that only
@@ -24,8 +21,6 @@ def _import_fresh(module_name):
 
 def assert_no_circular_imports():
     for path, dirs, files in os.walk(PACKAGE_NAME):
-        # Skip tests dir.
-        dirs[:] = [d for d in dirs if os.path.join(path, d) != TESTS_PATH]
         py_files = [f for f in files if f.endswith(".py")]
         for file in py_files:
             file_path = os.path.join(path, file)
@@ -48,7 +43,7 @@ def assert_no_circular_imports():
                 dotted_module_path = module_path_no_ext.replace(os.sep, ".")
                 module_name = f"{PACKAGE_NAME}.{dotted_module_path}"
 
-            _import_fresh(module_name)
+            _import_in_isolation(module_name)
 
 
 def test_circular_imports_absent():
@@ -65,7 +60,6 @@ def _run_circular_import_test(module_name, import_a, import_b):
             f.write(f"{import_a}\nclass A:\n    pass\n")
         with open(os.path.join(module_path, "file_b.py"), "w") as f:
             f.write(f"{import_b}\nclass B:\n    pass\n")
-        importlib.invalidate_caches()
         error_regex = (
             rf"(?:"
             rf"cannot import name 'A' from partially initialized module '{PACKAGE_NAME}.{module_name}.file_a' \(.*{PACKAGE_NAME}[\\/]+{module_name}[\\/]+file_a\.py\)"
@@ -74,7 +68,6 @@ def _run_circular_import_test(module_name, import_a, import_b):
             rf")"
         )
         with pytest.raises(ImportError, match=error_regex):
-            # Only the temporary package needs to be checked here.
             assert_no_circular_imports()
     finally:
         # Clean up temporary files
