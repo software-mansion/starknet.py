@@ -22,8 +22,8 @@ def _import_fresh(module_name):
     importlib.import_module(module_name)
 
 
-def assert_no_circular_imports(root=PACKAGE_NAME):
-    for path, dirs, files in os.walk(root):
+def assert_no_circular_imports():
+    for path, dirs, files in os.walk(PACKAGE_NAME):
         # Skip tests dir.
         dirs[:] = [d for d in dirs if os.path.join(path, d) != TESTS_PATH]
         py_files = [f for f in files if f.endswith(".py")]
@@ -75,7 +75,7 @@ def _run_circular_import_test(module_name, import_a, import_b):
         )
         with pytest.raises(ImportError, match=error_regex):
             # Only the temporary package needs to be checked here.
-            assert_no_circular_imports(root=module_path)
+            assert_no_circular_imports()
     finally:
         # Clean up temporary files
         if os.path.exists(module_path):
