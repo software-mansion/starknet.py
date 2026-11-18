@@ -15,3 +15,7 @@ updates:
         dependency-type: "production"
       dev-dependencies:
         dependency-type: "development"
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of workflow files
+    schedule:
+      interval: "monthly"
