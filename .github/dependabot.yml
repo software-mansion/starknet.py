@@ -19,3 +19,7 @@ updates:
     directory: "/" # Location of workflow files
     schedule:
       interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "*"
