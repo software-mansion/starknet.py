@@ -4039,4 +4039,4 @@ ledger = ["ledgerwallet"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10, <4"
-content-hash = "80e280713c8f57336de8b50cd100bf331194e97712e0928f8388e888bc5624a2"
+content-hash = "4ec586ff31fe87813673d3e7b4cbee38b6807cb2718fe10b6be1f19d0a507989"
