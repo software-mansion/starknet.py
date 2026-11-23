@@ -31,7 +31,7 @@ jobs:
             # rust_ref: "x.y.z"
 
     steps:
-      - uses: actions/checkout@v6.1.0
+      - uses: actions/checkout@v7.0.1
 
       - name: Dispatch starknet.py workflow
         if: matrix.py_ref
