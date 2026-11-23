@@ -18,7 +18,7 @@ jobs:
         name: Setup Tests
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6.1.0
+            - uses: actions/checkout@v7.0.1
             - uses: asdf-vm/actions/setup@v4.0.1
 
             - name: Install poetry
@@ -27,7 +27,7 @@ jobs:
                   pip install poetry
 
             - name: Set up Python 3.14
-              uses: actions/setup-python@v5.6.0
+              uses: actions/setup-python@v7.1.0
               with:
                   python-version: "3.14"
                   cache: 'poetry'
@@ -60,10 +60,10 @@ jobs:
             SEPOLIA_ACCOUNT_PRIVATE_KEY: ${{ secrets.SEPOLIA_ACCOUNT_PRIVATE_KEY }}
             INTEGRATION_RPC_URL: ${{ secrets.INTEGRATION_RPC_URL }}
         steps:
-            - uses: actions/checkout@v6.1.0
+            - uses: actions/checkout@v7.0.1
 
             - name: Download contracts
-              uses: actions/download-artifact@v4.3.0
+              uses: actions/download-artifact@v8.0.2
               with:
                   name: contract-artifacts
                   path: starknet_py/tests/e2e/mock/
@@ -74,7 +74,7 @@ jobs:
                   pip install poetry
 
             - name: Set up Python 3.14
-              uses: actions/setup-python@v5.6.0
+              uses: actions/setup-python@v7.1.0
               with:
                   python-version: "3.14"
                   cache: 'poetry'
@@ -98,4 +98,4 @@ jobs:
                   poetry run coverage xml
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v5.5.5
+              uses: codecov/codecov-action@v7.1.1
