@@ -1,0 +1,24 @@
+# Fails when codespell finds a misspelling in the tracked sources.
+# poetry.lock is generated and carries upstream dependency names.
+# To update .github/workflows/actions.lock after changing any `uses:`,
+# run `gh actions-lock` locally.
+
+name: Typos
+
+on:
+  pull_request:
+  push:
+    branches:
+      - development
+
+permissions:
+  contents: read
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: codespell-project/actions-codespell@v2.4.3
+        with:
+          skip: ./.git,poetry.lock

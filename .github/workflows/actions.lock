@@ -28,6 +28,9 @@ workflows:
         - 'actions/setup-python@v5.6.0'
         - 'actions/upload-artifact@v4.6.2'
         - 'pypa/gh-action-pypi-publish@release/v1'
+    '.github/workflows/typos.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'codespell-project/actions-codespell@v2.4.3'
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
     '.github/workflows/windows-tests.yml':
@@ -109,6 +112,11 @@ dependencies:
         repo_id: 200299178
         uses:
             - 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea'
+    'codespell-project/actions-codespell@v2.4.3':
+        ref: 'v2.4.3'
+        commit: 'sha1-e3258cca84ce02b0bb36a3d41f2c18f719a0cc1a'
+        owner_id: 39140587
+        repo_id: 263411323
     'pypa/gh-action-pypi-publish@release/v1':
         ref: 'release/v1'
         commit: 'sha1-7245906fb61fa33a13554f9d5fb856fe61758086'
