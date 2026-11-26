@@ -28,6 +28,8 @@ workflows:
         - 'actions/setup-python@v5.6.0'
         - 'actions/upload-artifact@v4.6.2'
         - 'pypa/gh-action-pypi-publish@release/v1'
+    '.github/workflows/stale.yml':
+        - 'actions/stale@v11.0.0'
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
     '.github/workflows/windows-tests.yml':
@@ -82,6 +84,11 @@ dependencies:
         commit: 'sha1-a26af69be951a213d495a4c3e4e4022e16d87065'
         owner_id: 44036562
         repo_id: 192625525
+    'actions/stale@v11.0.0':
+        ref: 'v11.0.0'
+        commit: 'sha1-4391f3da665fdf50b6810c1a66712fb9ba21aa93'
+        owner_id: 44036562
+        repo_id: 200437066
     'actions/upload-artifact@v4.6.2':
         ref: 'v4.6.2'
         commit: 'sha1-ea165f8d65b6e75b540449e92b4886f43607fa02'
